@@ -462,3 +462,11 @@ BOOL del_arg(char *cmd, char *target_arg, BOOL del_value) {
 	memmove(p_start, ptr, cmd_fin - ptr + 1);
 	return TRUE;
 }
+
+int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {
+	int ret = 0;
+	ret += replace(cmd, nSize, "\r\n", " ");
+	ret += replace(cmd, nSize, "\r",   " ");
+	ret += replace(cmd, nSize, "\n",   " ");
+	return ret;
+}

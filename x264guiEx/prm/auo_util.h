@@ -208,6 +208,7 @@ BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const char *file
 BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace);
 BOOL PathForceRemoveBackSlash(char *path);
 BOOL check_process_exitcode(PROCESS_INFORMATION *pi);
+int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize);
 
 //ファイル名をスワップする
 BOOL swap_file(const char *fileA, const char *fileB);
