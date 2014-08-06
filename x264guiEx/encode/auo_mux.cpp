@@ -8,6 +8,7 @@
 //  -----------------------------------------------------------------------------------------
 
 #include <Windows.h>
+#include <Math.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
@@ -38,7 +39,10 @@ static void show_mux_info(const char *mux_stg_name, BOOL audmux, BOOL tcmux, con
 	set_window_title(mes, PROGRESSBAR_MARQUEE);
 }
 
-static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe) {
+static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, __int64 expected_filesize) {
+	//正常にサイズを取得できているか
+	if (expected_filesize < 0)
+		return FALSE;
 	//一時フォルダ指定を使用するかどうか
 	if (!conf->mux.mp4_temp_dir)
 		return FALSE;
@@ -53,31 +57,14 @@ static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf,
 		warning_no_mux_tmp_root(temp_root);
 		return FALSE;
 	}
-	__int64 required_space = 0;
 	//ドライブの空き容量取得
 	ULARGE_INTEGER drive_avail_space = { 0 };
 	if (!GetDiskFreeSpaceEx(temp_root, &drive_avail_space, NULL, NULL)) {
 		warning_failed_mux_tmp_drive_space();
 		return FALSE;
 	}
-	//音声ファイルのサイズ
-	__int64 aud_size = 0;
-	char audfile[MAX_PATH_LEN] = { 0 };
-	get_aud_filename(audfile, sizeof(audfile), pe);
-	if (!GetFileSizeInt64(audfile, &aud_size)) {
-		warning_failed_get_aud_size();
-		return FALSE;
-	}
-	required_space += aud_size;
-	//動画ファイルのサイズ
-	__int64 vid_size = 0;
-	if (!GetFileSizeInt64(pe->temp_filename, &vid_size)) {
-		warning_failed_get_vid_size();
-		return FALSE;
-	}
-	required_space += vid_size;
 	//出力先が同じドライブかどうか
-	required_space = (__int64)(required_space * 1.01); //ちょい多め
+	__int64 required_space = (__int64)(expected_filesize * 1.01); //ちょい多め
 	char vid_root[MAX_PATH_LEN];
 	strcpy_s(vid_root, sizeof(vid_root), pe->temp_filename);
 	PathStripToRoot(vid_root);
@@ -92,7 +79,40 @@ static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf,
 	return TRUE;
 }
 
-static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg) {
+static BOOL get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int64 *_expected_filesize) {
+	*_expected_filesize = 0;
+	//動画ファイルのサイズ
+	__int64 vid_size = 0;
+	if (!GetFileSizeInt64(pe->temp_filename, &vid_size)) {
+		warning_failed_get_vid_size();
+		return FALSE;
+	}
+	*_expected_filesize += vid_size;
+	//音声ファイルのサイズ
+	if (enable_aud_mux) {
+		__int64 aud_size = 0;
+		char audfile[MAX_PATH_LEN] = { 0 };
+		get_aud_filename(audfile, sizeof(audfile), pe);
+		if (!GetFileSizeInt64(audfile, &aud_size)) {
+			warning_failed_get_aud_size();
+			return FALSE;
+		}
+		*_expected_filesize += aud_size;
+	}
+	return TRUE;
+}
+
+static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize) {
+	__int64 muxout_filesize = 0;
+	if (!GetFileSizeInt64(muxout, &muxout_filesize))
+		return FALSE;
+	if (muxout_filesize <= (__int64)(expected_filesize * 0.99 * (1.0 - exp((double)-expected_filesize / (128.0 * 1024.0)))))
+		return FALSE;
+	return TRUE;
+}
+
+static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
+						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, __int64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
 	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0;
 	BOOL enable_tc_mux = (conf->vid.afs) != 0;
@@ -105,7 +125,7 @@ static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, c
 	//タイムコード用
 	replace(cmd, nSize, "%{tc_cmd}",  tcstr);
 	//一時ファイル用(指定できなければ無視)
-	if (check_mux_tmpdir(sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe)) {
+	if (check_mux_tmpdir(sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe, expected_filesize)) {
 		if (!DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_mp4box_tmp_dir)) {
 			replace(cmd, nSize, "%{tmp_cmd}", "");
 			warning_no_mux_tmp_root(sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
@@ -146,6 +166,7 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 		ret |= OUT_RESULT_ERROR; error_no_exe_file(sys_dat->exstg->s_mux[MUXER_MP4].dispname, sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
 		return ret;
 	}
+	__int64 expected_filesize = 0;
 	char muxcmd[MAX_CMD_LEN]  = { 0 };
 	char muxargs[MAX_CMD_LEN] = { 0 };
 	char muxdir[MAX_PATH_LEN] = { 0 };
@@ -157,9 +178,12 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	int rp_ret;
 
 	PathGetDirectory(muxdir, sizeof(muxdir), mux_stg->fullpath);
+
+	//mux終了後の予想サイズを取得
+	BOOL filesize_check = get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
 	
 	//コマンドライン生成・情報表示
-	build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg);
+	build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, (filesize_check) ? expected_filesize : -1);
 	sprintf_s(muxargs, sizeof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
 
 	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, NULL, mux_priority, FALSE, conf->mux.minimized)) != RP_SUCCESS) {
@@ -169,7 +193,7 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 		while (WaitForSingleObject(pi_mux.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
 
-		if (!check_process_exitcode(&pi_mux) && FileExistsAndHasSize(muxout)) {
+		if (check_muxout_filesize(muxout, expected_filesize)) {
 			remove(pe->temp_filename);
 			rename(muxout, pe->temp_filename);
 		} else {
