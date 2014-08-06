@@ -117,7 +117,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 			write_log_auo_line_fmt(LOG_WARNING, "%sファイルが見つかりませんでした。", name);
 		return (must_exist) ? FALSE : TRUE;
 	}
-	if (ret == OUT_RESULT_SUCCESS && erase) {
+	if (ret == AUO_RESULT_SUCCESS && erase) {
 		remove(move_from);
 		return TRUE;
 	}
@@ -138,7 +138,7 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
 		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
-			ret |= OUT_RESULT_ERROR;
+			ret |= AUO_RESULT_ERROR;
 	//qpファイル
 	move_temp_file(pe->append.qp,   pe->temp_filename, savefile, ret, TRUE, "qp", FALSE);
 	//tcファイル
@@ -168,7 +168,7 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	char aud_tempfile[MAX_PATH_LEN];
 	PathCombineLong(aud_tempfile, sizeof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
 	if (!move_temp_file(pe->append.aud, aud_tempfile, savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
-		ret |= OUT_RESULT_ERROR;
+		ret |= AUO_RESULT_ERROR;
 	return ret;
 }
 

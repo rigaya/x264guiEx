@@ -103,7 +103,7 @@ void close_afsvideo(PRM_ENC *pe) {
 }
 
 static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
 		get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
@@ -114,14 +114,14 @@ static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 		//cmdexで入力色形式が変更になる場合、再初期化
 		close_afsvideo(pe);
 		if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
-			ret |= OUT_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
+			ret |= AUO_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
 		}
 	}
 	return ret;
 }
 
 static DWORD tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PRM_ENC *pe) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	char auotcfile[MAX_PATH_LEN];
 	FILE *tcfile = NULL;
 
@@ -144,14 +144,14 @@ static DWORD tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PR
 		}
 		fclose(tcfile);
 	} else {
-		ret |= OUT_RESULT_ERROR; warning_auo_tcfile_failed();
+		ret |= AUO_RESULT_ERROR; warning_auo_tcfile_failed();
 	}
 	return ret;
 }
 
 //Aviutlのキーフレーム検出からqpfile作成
 static DWORD check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	char auoqpfile[MAX_PATH_LEN] = { 0 };
 	DWORD tm = 0, tm_prev = 0;
 	const char *mes_head = "Aviutl キーフレーム検出中…";
@@ -168,7 +168,7 @@ static DWORD check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	for (int i = 0; i < oip->n; i++) {
 		//中断
 		if (oip->func_is_abort()) {
-			ret |= OUT_RESULT_ABORT; write_log_auo_line(LOG_INFO, "Aviutl キーフレーム検出を中断しました。");
+			ret |= AUO_RESULT_ABORT; write_log_auo_line(LOG_INFO, "Aviutl キーフレーム検出を中断しました。");
 			break;
 		}
 		//フラグ検出
@@ -186,7 +186,7 @@ static DWORD check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 		write_log_auo_line_fmt(LOG_INFO, "Aviutlから %d箇所 キーフレーム設定を検出しました。", keyframe_list.size());
 		FILE *qpfile = NULL;
 		if (fopen_s(&qpfile, auoqpfile, "wb") != NULL) {
-			ret |= OUT_RESULT_ERROR; warning_auto_qpfile_failed();
+			ret |= AUO_RESULT_ERROR; warning_auto_qpfile_failed();
 		} else {
 			foreach(std::vector<int>, it_keyframe, &keyframe_list)
 				fprintf_s(qpfile, "%d I\r\n", *it_keyframe);
@@ -297,7 +297,7 @@ static void check_x264_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) 
 }
 
 static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
 	PROCESS_INFORMATION pi_x264 = { 0 };
 
@@ -318,7 +318,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 
 	//プロセス用情報準備
 	if (!PathFileExists(x264fullpath)) {
-		ret |= OUT_RESULT_ERROR; error_no_exe_file("x264", x264fullpath);
+		ret |= AUO_RESULT_ERROR; error_no_exe_file("x264", x264fullpath);
 		return ret;
 	}
 	PathGetDirectory(x264dir, sizeof(x264dir), x264fullpath);
@@ -326,12 +326,12 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
 	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
 	if (convert_frame == NULL) {
-		ret |= OUT_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
+		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
 		return ret;
 	}
 	//映像バッファ用メモリ確保
 	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, conf->x264.use_10bit_depth)) {
-		ret |= OUT_RESULT_ERROR; error_malloc_pixel_data();
+		ret |= AUO_RESULT_ERROR; error_malloc_pixel_data();
 		return ret;
 	}
 
@@ -348,13 +348,13 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	
 	//jitter用領域確保
 	if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
-		ret |= OUT_RESULT_ERROR; error_malloc_tc();
+		ret |= AUO_RESULT_ERROR; error_malloc_tc();
 	//Aviutl(afs)からのフレーム読み込み
 	} else if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
-		ret |= OUT_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
+		ret |= AUO_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
 	//x264プロセス開始
 	} else if ((rp_ret = RunProcess(x264args, x264dir, &pi_x264, &pipes, (set_priority == AVIUTLSYNC_PRIORITY_CLASS) ? GetPriorityClass(pe->h_p_aviutl) : set_priority, TRUE, FALSE)) != RP_SUCCESS) {
-		ret |= OUT_RESULT_ERROR; error_run_process("x264", rp_ret);
+		ret |= AUO_RESULT_ERROR; error_run_process("x264", rp_ret);
 	} else {
 		//全て正常
 		int i;
@@ -374,14 +374,14 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 		for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
 			//中断を確認
 			if (oip->func_is_abort()) {
-				ret |= OUT_RESULT_ABORT;
+				ret |= AUO_RESULT_ABORT;
 				break;
 			}
 
 			//x264が実行中なら、メッセージを取得・ログウィンドウに表示
 			if (ReadLogX264(&pipes, pe->drop_count, i) < 0) {
 				//勝手に死んだ...
-				ret |= OUT_RESULT_ERROR; error_x264_dead();
+				ret |= AUO_RESULT_ERROR; error_x264_dead();
 				break;
 			}
 
@@ -401,7 +401,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 
 			//Aviutl(afs)からフレームをもらう
 			if ((frame = afs_get_video((OUTPUT_INFO *)oip, i, &drop, next_jitter)) == NULL) {
-				ret |= OUT_RESULT_ERROR; error_afs_get_frame();
+				ret |= AUO_RESULT_ERROR; error_afs_get_frame();
 				break;
 			}
 
@@ -451,7 +451,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 		//最後にx264のメッセージを取得
 		while (ReadLogX264(&pipes, pe->drop_count, i) > 0);
 
-		if (!(ret & OUT_RESULT_ERROR) && afs)
+		if (!(ret & AUO_RESULT_ERROR) && afs)
 			write_log_auo_line_fmt(LOG_INFO, "drop %d / %d frames", pe->drop_count, i);
 
 		write_log_auo_enc_time("x264エンコード時間", tm_x264enc_fin - tm_x264enc_start);
@@ -478,7 +478,7 @@ static void set_window_title_x264(PRM_ENC *pe) {
 }
 
 DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	//動画エンコードの必要がなければ終了
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return ret;

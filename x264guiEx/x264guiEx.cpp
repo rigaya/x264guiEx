@@ -138,7 +138,7 @@ BOOL func_exit()
 
 BOOL func_output( OUTPUT_INFO *oip ) 
 {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	static const encode_task task[2][2] = { { video_output, audio_output }, { audio_output, video_output } };
 	PRM_ENC pe = { 0 };
 	const DWORD tm_start_enc = timeGetTime();
@@ -171,16 +171,16 @@ BOOL func_output( OUTPUT_INFO *oip )
 		close_afsvideo(&pe); //※3 end
 
 	} else {
-		ret |= OUT_RESULT_ERROR;
+		ret |= AUO_RESULT_ERROR;
 	}
 
-	if (ret & OUT_RESULT_ABORT) info_encoding_aborted();
+	if (ret & AUO_RESULT_ABORT) info_encoding_aborted();
 
 	CloseHandle(pe.h_p_aviutl); //※2 end
 	set_prevent_log_close(FALSE); //※1 end
 	auto_save_log(oip, &pe); //※1 end のあとで行うこと
 
-	return (ret & OUT_RESULT_ERROR) ? FALSE : TRUE;
+	return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
 }
 
 //---------------------------------------------------------------------

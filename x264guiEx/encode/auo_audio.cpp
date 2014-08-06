@@ -144,7 +144,7 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 						PROCESS_INFORMATION *pi_aud, const char *auddispname, char *audargs, 
 						const char *auddir, DWORD encoder_priority) 
 {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
 	BYTE *buf8bit = NULL;
 	FILE *f_out = NULL;
@@ -154,7 +154,7 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 
 	//8bitを使用する場合のメモリ確保
 	if (wav_8bit && (buf8bit = (BYTE*)malloc(bufsize * oip->audio_ch * sizeof(BYTE))) == NULL) {
-		ret |= OUT_RESULT_ERROR; error_malloc_8bit();
+		ret |= AUO_RESULT_ERROR; error_malloc_8bit();
 		return ret;
 	}
 
@@ -165,14 +165,14 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 		pipes.stdIn.bufferSize = bufsize * 2;
 		//エンコーダ準備
 		if ((rp_ret = RunProcess(audargs, auddir, pi_aud, &pipes, encoder_priority, TRUE, FALSE)) != RP_SUCCESS) {
-			ret |= OUT_RESULT_ERROR; error_run_process(auddispname, rp_ret);
+			ret |= AUO_RESULT_ERROR; error_run_process(auddispname, rp_ret);
 		} else {
 			f_out = pipes.f_stdin;
 			while (WaitForInputIdle(pi_aud->hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 				log_process_events();
 		}
 	} else if (fopen_s(&f_out, wavfile, "wbS")) {
-		ret |= OUT_RESULT_ERROR; error_open_wavfile();
+		ret |= AUO_RESULT_ERROR; error_open_wavfile();
 	}
 
 	if (!ret) {
@@ -190,7 +190,7 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 		while (oip->audio_n - samples_read > 0 && samples_get) {
 			//中断
 			if (oip->func_is_abort()) {
-				ret |= OUT_RESULT_ABORT;
+				ret |= AUO_RESULT_ABORT;
 				break;
 			}
 			audio_dat = oip->func_get_audio(samples_read, min(oip->audio_n - samples_read, bufsize), &samples_get);
@@ -211,14 +211,14 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 
 	//wavファイル出力が成功したか確認
 	if (!use_pipe && !FileExistsAndHasSize(wavfile)) {
-		ret |= OUT_RESULT_ERROR; error_no_wavefile();
+		ret |= AUO_RESULT_ERROR; error_no_wavefile();
 	}
 
 	return ret;
 }
 
 DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	//音声エンコードの必要がなければ終了
 	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
 		return ret;
@@ -241,7 +241,7 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 	//実行ファイルチェック
 	if (!PathFileExists(aud_stg->fullpath)) {
 		error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
-		return OUT_RESULT_ERROR;
+		return AUO_RESULT_ERROR;
 	}
 
 	//wavfile名作成
@@ -270,7 +270,7 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 		show_progressbar(use_pipe, aud_stg->dispname, PROGRESSBAR_MARQUEE);
 		int rp_ret;
 		if ((rp_ret = RunProcess(audargs, auddir, &pi_aud, NULL, encoder_priority, FALSE, conf->aud.minimized)) != RP_SUCCESS) {
-			ret |= OUT_RESULT_ERROR; error_run_process(aud_stg->dispname, rp_ret);
+			ret |= AUO_RESULT_ERROR; error_run_process(aud_stg->dispname, rp_ret);
 		}
 	}
 
@@ -283,7 +283,7 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 			remove(wavfile); //ゴミ掃除
 		else {
 			//エラーが発生した場合
-			ret |= OUT_RESULT_ERROR; error_audenc_failed(aud_stg->dispname, audargs);
+			ret |= AUO_RESULT_ERROR; error_audenc_failed(aud_stg->dispname, audargs);
 		}
 	}
 

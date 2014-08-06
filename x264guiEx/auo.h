@@ -30,9 +30,10 @@ const int   MUXER_MP4      = VIDEO_OUTPUT_MP4;
 const int   MUXER_MKV      = VIDEO_OUTPUT_MKV;
 const int   MUXER_TC2MP4   = VIDEO_OUTPUT_MP4 + 2;
 
-const DWORD OUT_RESULT_SUCCESS    = 0x0000;
-const DWORD OUT_RESULT_ERROR      = 0x0001;
-const DWORD OUT_RESULT_ABORT      = 0x0002;
+const DWORD AUO_RESULT_SUCCESS    = 0x0000;
+const DWORD AUO_RESULT_ERROR      = 0x0001;
+const DWORD AUO_RESULT_ABORT      = 0x0002;
+const DWORD AUO_RESULT_WARNING    = 0x0004;
 
 typedef struct {
 	WCHAR *text;

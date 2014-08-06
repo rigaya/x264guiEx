@@ -176,11 +176,11 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	cmd_replace(cmd, nSize, pe, sys_dat, oip->savefile);
 	//情報表示
 	show_mux_info(mux_stg->dispname, enable_aud_mux, enable_tc_mux, muxer_mode->name);
-	return OUT_RESULT_SUCCESS;
+	return AUO_RESULT_SUCCESS;
 }
 
 DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = OUT_RESULT_SUCCESS;
+	DWORD ret = AUO_RESULT_SUCCESS;
 	//muxの必要がなければ終了
 	if (pe->muxer_to_be_used == MUXER_DISABLED)
 		return ret;
@@ -188,11 +188,11 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
 
 	if (!PathFileExists(mux_stg->fullpath)) {
-		ret |= OUT_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
+		ret |= AUO_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
 		return ret;
 	}
 	if (pe->muxer_to_be_used == MUXER_TC2MP4 && !PathFileExists(sys_dat->exstg->s_mux[MUXER_MP4].fullpath)) {		
-		ret |= OUT_RESULT_ERROR; error_no_exe_file(sys_dat->exstg->s_mux[MUXER_MP4].dispname, sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
+		ret |= AUO_RESULT_ERROR; error_no_exe_file(sys_dat->exstg->s_mux[MUXER_MP4].dispname, sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
 		return ret;
 	}
 	__int64 expected_filesize = 0;
@@ -209,16 +209,17 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	PathGetDirectory(muxdir, sizeof(muxdir), mux_stg->fullpath);
 
 	//mux終了後の予想サイズを取得
-	BOOL filesize_check = get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
+	if (AUO_RESULT_SUCCESS != get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize))
+		return AUO_RESULT_ERROR;
 	
 	//コマンドライン生成・情報表示
-	if (build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, (filesize_check) ? expected_filesize : -1))
-		return OUT_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
+	if (AUO_RESULT_SUCCESS != build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, expected_filesize))
+		return AUO_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
 	sprintf_s(muxargs, sizeof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
 
 	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, NULL, mux_priority, FALSE, conf->mux.minimized)) != RP_SUCCESS) {
 		//エラー
-		ret |= OUT_RESULT_ERROR; error_run_process(mux_stg->dispname, rp_ret);
+		ret |= AUO_RESULT_ERROR; error_run_process(mux_stg->dispname, rp_ret);
 	} else {
 		while (WaitForSingleObject(pi_mux.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
@@ -227,7 +228,7 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 			remove(pe->temp_filename);
 			rename(muxout, pe->temp_filename);
 		} else {
-			ret |= OUT_RESULT_ERROR; error_mux_failed(mux_stg->dispname, muxargs);
+			ret |= AUO_RESULT_ERROR; error_mux_failed(mux_stg->dispname, muxargs);
 			if (PathFileExists(muxout))
 				remove(muxout);
 		}
