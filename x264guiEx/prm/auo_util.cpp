@@ -414,3 +414,29 @@ BOOL fix_ImulL_WesternEurope(UINT *code_page) {
 		*code_page = CODE_PAGE_SJIS;
 	return TRUE;
 }
+
+//cmd中のtarget_argを抜き出し削除する
+//del_valueがTRUEならその値削除する
+//値を削除できたらTRUEを返す
+BOOL del_arg(char *cmd, char *target_arg, BOOL del_value) {
+	char *p_start, *ptr;
+	char * const cmd_fin = cmd + strlen(cmd);
+	if ((p_start = strstr(cmd, target_arg)) == NULL)
+		return FALSE;
+	ptr = p_start + strlen(target_arg);
+
+	if (del_value) {
+		while (*ptr == ' ' || *ptr == '\r' || *ptr == '\n')
+			ptr++;
+
+		BOOL dQB = FALSE;
+		while (ptr < cmd_fin) {
+			if (*ptr == '"') dQB = !dQB;
+			if (!dQB && *ptr == ' ')
+				break;
+			ptr++;
+		}
+	}
+	memmove(p_start, ptr, cmd_fin - ptr + 1);
+	return TRUE;
+}

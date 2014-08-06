@@ -105,6 +105,51 @@ static char *strrchr(char *str, int c, int start_index) {
 	return NULL;
 }
 
+//strのcount byteを検索し、substrとの一致を返す
+static const char * strnstr(const char *str, const char *substr, int count) {
+	const char *ptr = strstr(str, substr);
+	if (ptr && ptr - str >= count)
+		ptr = NULL;
+	return ptr;
+}
+static char * strnstr(char *str, const char *substr, int count) {
+	char *ptr = strstr(str, substr);
+	if (ptr && ptr - str >= count)
+		ptr = NULL;
+	return ptr;
+}
+
+//strのsubstrとの最後の一致を返す
+static const char * strrstr(const char *str, const char *substr) {
+	const char *last_ptr = NULL;
+	for (const char *ptr = str; *ptr && (ptr = strstr(ptr, substr)) != NULL; ptr++ )
+		last_ptr = ptr;
+	return last_ptr;
+}
+static char * strrstr(char *str, const char *substr) {
+	char *last_ptr = NULL;
+	for (char *ptr = str; *ptr && (ptr = strstr(ptr, substr)) != NULL; ptr++ )
+		last_ptr = ptr;
+	return last_ptr;
+}
+
+//strのcount byteを検索し、substrとの最後の一致を返す
+static const char * strnrstr(const char *str, const char *substr, int count) {
+	const char *last_ptr = NULL;
+	if (count > 0)
+		for (const char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
+			last_ptr = ptr;
+	return last_ptr;
+}
+static char * strnrstr(char *str, const char *substr, int count) {
+	char *last_ptr = NULL;
+	if (count > 0)
+		for (char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
+			last_ptr = ptr;
+	return last_ptr;
+}
+
+//文字列中の文字「ch」の数を数える
 static int countchr(const char *str, int ch) {
 	int i = 0;
 	for (; *str; str++)
@@ -176,5 +221,9 @@ DWORD get_code_page(const void *str, DWORD size_in_byte);
 //IMultipleLanguge2 の DetectInoutCodePageがたまに的外れな「西ヨーロッパ言語」を返すので
 //西ヨーロッパ言語 なら Shift-JIS にしてしまう
 BOOL fix_ImulL_WesternEurope(UINT *code_page);
+
+//cmd中のtarget_argを抜き出し削除する
+//del_valueがTRUEならその値削除する
+BOOL del_arg(char *cmd, char *target_arg, BOOL del_value);
 
 #endif //_AUO_UTIL_H_

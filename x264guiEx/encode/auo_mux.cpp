@@ -127,6 +127,20 @@ static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, con
 	sprintf_s(buf, sizeof(buf), "%d", conf_tmp.sar.y);
 	replace(cmd, nSize, "%{par_y}", buf);
 }
+
+//不必要なチャプターコマンドを削除する
+static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
+	char *ptr;
+	if (!apple_type_only)
+		del_arg(cmd, "-chap", TRUE);
+	//%{chap_apple}直前の-add以下を削除する
+	if ((ptr = strstr(cmd, "%{chap_apple}")) == NULL)
+		return;
+	if ((ptr = strnrstr(cmd, "-add", ptr - cmd)) == NULL)
+		return;
+	del_arg(ptr, "-add", TRUE);
+}
+
 static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, __int64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
@@ -166,8 +180,7 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	if ((strstr(cmd, "%{chapter}") || strstr(cmd, "%{chap_apple}")) && !PathFileExists(chap_file)) {
 		//チャプターファイルが存在しない
 		warning_mux_no_chapter_file();
-		replace(cmd, nSize, "%{chapter}",    "");
-		replace(cmd, nSize, "%{chap_apple}", "");
+		del_chap_cmd(cmd, FALSE);
 	} else {
 		replace(cmd, nSize, "%{chapter}", chap_file);
 		//mp4系ならapple形式チャプター追加も考慮する
@@ -178,7 +191,7 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 				AuoChapStatus sts = convert_chapter(chap_apple, chap_file, CODE_PAGE_UNSET, duration_ms);
 				if (sts != AUO_CHAP_ERR_NONE) {
 					warning_mux_chapter(sts);
-					replace(cmd, nSize, "%{chap_apple}", "");
+					del_chap_cmd(cmd, TRUE);
 				} else {
 					replace(cmd, nSize, "%{chap_apple}", chap_apple);
 				}
