@@ -301,7 +301,7 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 				static_cast<System::Byte>(128)));
 			this->toolStripStatusElapsedTime->Margin = System::Windows::Forms::Padding(6, 3, 0, 1);
 			this->toolStripStatusElapsedTime->Name = L"toolStripStatusElapsedTime";
-			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(355, 19);
+			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(628, 19);
 			this->toolStripStatusElapsedTime->Spring = true;
 			this->toolStripStatusElapsedTime->Text = L"ElapsedTime";
 			this->toolStripStatusElapsedTime->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
