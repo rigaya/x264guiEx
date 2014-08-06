@@ -110,7 +110,7 @@ const X264_OPTION_STR list_fullrange[] = {
 	{ "on",  NULL },
 	{ NULL, NULL }
 };
-const X264_OPTION_STR list_colormatrix[] = {
+const X264_OPTION_STR list_colorprim[] = {
 	{ "undef",     L"指定なし"  },
 	{ "auto",      L"自動"      },
 	{ "bt709",     L"bt709"     },
@@ -121,7 +121,7 @@ const X264_OPTION_STR list_colormatrix[] = {
 	{ "film",      L"film"      },
 	{ NULL, NULL }
 };
-const X264_OPTION_STR list_colorprim[] = {
+const X264_OPTION_STR list_transfer[] = {
 	{ "undef",     L"指定なし"  },
 	{ "auto",      L"自動"      },
 	{ "bt709",     L"bt709"     },
@@ -134,15 +134,16 @@ const X264_OPTION_STR list_colorprim[] = {
 	{ "log316",    L"log316"    },
 	{ NULL, NULL }
 };
-const X264_OPTION_STR list_transfer[] = {
+const X264_OPTION_STR list_colormatrix[] = {
 	{ "undef",     L"指定なし"  },
 	{ "auto",      L"自動"      },
 	{ "bt709",     L"bt709"     },
 	{ "smpte170m", L"smpte170m" },
-	{ "bt470m",    L"bt470m"    },
 	{ "bt470bg",   L"bt470bg"   },
 	{ "smpte240m", L"smpte240m" },
 	{ "YCgCo",     L"YCgCo"     },
+	{ "fcc",       L"fcc"       },
+	{ "GBR",       L"GBR"       },
 	{ NULL, NULL }
 };
 const X264_OPTION_STR list_videoformat[] = {
