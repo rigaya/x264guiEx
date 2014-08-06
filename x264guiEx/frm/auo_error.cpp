@@ -190,6 +190,10 @@ void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_
 	write_log_auo_line_fmt(LOG_ERROR, "推定ファイルサイズ %d KB,  出力ファイルサイズ %d KB", expected_filesize_KB, muxout_filesize_KB);
 }
 
+void warning_failed_check_muxout_filesize() {
+	write_log_auo_line(LOG_WARNING, "mux後ファイルのファイルサイズ確認に失敗しました。正常にmuxされていない可能性があります。");
+}
+
 void warning_no_auto_save_log_dir() {
 	write_log_auo_line(LOG_WARNING, "指定した自動ログ保存先が存在しません。動画出力先に保存します。");
 }

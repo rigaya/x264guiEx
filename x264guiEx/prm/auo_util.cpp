@@ -176,6 +176,7 @@ BOOL GetFileSizeInt(const char *filepath, DWORD *filesize) {
 	return ret;
 }
 
+//64bitでファイルサイズを取得,TRUEで成功
 BOOL GetFileSizeInt64(const char *filepath, __int64 *filesize) {
 	HANDLE h_file = CreateFile(filepath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (h_file == INVALID_HANDLE_VALUE)

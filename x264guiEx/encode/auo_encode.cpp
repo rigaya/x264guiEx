@@ -27,13 +27,16 @@ void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe) {
 	apply_appendix(audfile, nSize, audfile, pe->append.aud);
 }
 
-void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename) {
+static void get_muxout_appendix(char *muxout_appendix, size_t nSize, const char *tmp_filename) {
 	static const char * const MUXOUT_APPENDIX = "_out";
-	char ext[MAX_APPENDIX_LEN];
-	strcpy_s(ext, sizeof(ext), PathFindExtension(tmp_filename));
-	strcpy_s(filename, nSize, tmp_filename);
-	strcpy_s(PathFindExtension(filename), nSize - (PathFindExtension(filename) - filename), MUXOUT_APPENDIX);
-	strcat_s(filename, nSize, ext);
+	strcpy_s(muxout_appendix, nSize, MUXOUT_APPENDIX);
+	strcat_s(muxout_appendix, nSize, PathFindExtension(tmp_filename));
+}
+
+void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename) {
+	char muxout_appendix[MAX_APPENDIX_LEN];
+	get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), tmp_filename);
+	apply_appendix(filename, nSize, tmp_filename, muxout_appendix);
 }
 
 //チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
@@ -140,6 +143,10 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	if (!conf->oth.out_audio_only)
 		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
 			ret |= AUO_RESULT_ERROR;
+	//mux後ファイル
+	char muxout_appendix[MAX_APPENDIX_LEN];
+	get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), pe->temp_filename);
+	move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
 	//qpファイル
 	move_temp_file(pe->append.qp,   pe->temp_filename, savefile, ret, TRUE, "qp", FALSE);
 	//tcファイル

@@ -131,7 +131,7 @@ int guiEx_config::load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file
 	//ブロック部分のコピー
 	for (int i = 0; i < ((CONF_X264GUIEX *)dat)->block_count; ++i) {
 		filedat = dat + ((CONF_X264GUIEX *)dat)->block_head_p[i];
-		memcpy(dst, filedat, ((CONF_X264GUIEX *)dat)->block_size[i]);
+		memcpy(dst, filedat, min(((CONF_X264GUIEX *)dat)->block_size[i], conf_block_data[i]));
 		dst += conf_block_data[i];
 	}
 

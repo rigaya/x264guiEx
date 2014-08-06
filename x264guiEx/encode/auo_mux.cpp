@@ -134,18 +134,29 @@ static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int
 
 //mux後ファイルが存在する他とファイルサイズをチェック
 //大丈夫そうならTRUEを返す
-static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize) {
-	const double FILE_SIZE_THRESHOLD_MULTI = 0.50;
+static DWORD check_muxout_filesize(const char *muxout, __int64 expected_filesize) {
+	const double FILE_SIZE_THRESHOLD_MULTI = 0.95;
+	const int    RETRY_GET_FILESIZE = 5;
+	const int    RETRY_INTERVAL = 250;
 	__int64 muxout_filesize = 0;
-	if (!GetFileSizeInt64(muxout, &muxout_filesize)) {
+	if (!PathFileExists(muxout)) {
 		error_check_muxout_exist();
-		return FALSE;
+		return AUO_RESULT_ERROR;
 	}
-	if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
-		error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
-		return FALSE;
+	//ファイルがちゃんとあるのにCreateFileが失敗することがあるらしい。
+	for (int retry = 0; retry < RETRY_GET_FILESIZE; retry++) {
+		if (GetFileSizeInt64(muxout, &muxout_filesize)) {
+			//ファイルサイズの取得に成功したら、予想サイズとの比較を行う
+			if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
+				error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
+				return AUO_RESULT_ERROR;
+			}
+			return AUO_RESULT_SUCCESS;
+		}
+		Sleep(RETRY_INTERVAL); //少し待つと成功するかもしれない
 	}
-	return TRUE;
+	warning_failed_check_muxout_filesize();
+	return AUO_RESULT_WARNING;
 }
 
 //%{par_x}と%{par_y}の置換を行う
@@ -305,12 +316,13 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	} else {
 		while (WaitForSingleObject(pi_mux.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
-
-		if (check_muxout_filesize(muxout, expected_filesize)) {
+		
+		ret |= check_muxout_filesize(muxout, expected_filesize);
+		if (ret == AUO_RESULT_SUCCESS) {
 			remove(pe->temp_filename);
 			rename(muxout, pe->temp_filename);
-		} else {
-			ret |= AUO_RESULT_ERROR; error_mux_failed(mux_stg->dispname, muxargs);
+		} else if (ret & AUO_RESULT_ERROR) {
+			error_mux_failed(mux_stg->dispname, muxargs);
 			if (PathFileExists(muxout))
 				remove(muxout);
 		}
