@@ -35,6 +35,11 @@ void error_nothing_to_output() {
 	write_log_auo_line(LOG_ERROR, "出力すべきものがありません。");
 }
 
+void error_invalid_resolution(BOOL width, int mul, int w, int h) {
+	write_log_auo_line_fmt(LOG_ERROR, "%s入力解像度が %d で割りきれません。エンコードできません。入力解像度:%dx%d",
+		(width) ? "横" : "縦", mul, w, h);
+}
+
 void error_no_exe_file(const char *name, const char *path) {
 	if (strlen(path))
 		write_log_auo_line_fmt(LOG_ERROR, "指定された %s が %s にありません。", name, path);

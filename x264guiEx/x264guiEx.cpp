@@ -278,6 +278,28 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 		check = FALSE;
 	}
 
+	//解像度
+	int w_mul = 1, h_mul = 1;
+	switch (conf.x264.output_csp) {
+		case OUT_CSP_YUV444:
+		case OUT_CSP_RGB:
+			w_mul = 1, h_mul = 1;
+			break;
+		case OUT_CSP_YUV420:
+		default:
+			w_mul = 2; h_mul = 2;
+			break;
+	}
+	if (conf.x264.interlaced) h_mul *= 2;
+	if (oip->w % w_mul) {
+		error_invalid_resolution(TRUE,  w_mul, oip->w, oip->h);
+		check = FALSE;
+	}
+	if (oip->h % h_mul) {
+		error_invalid_resolution(FALSE, h_mul, oip->w, oip->h);
+		check = FALSE;
+	}
+
 	//出力するもの
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED && !(oip->flag & OUTPUT_INFO_FLAG_AUDIO)) {
 		error_nothing_to_output();

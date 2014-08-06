@@ -15,6 +15,7 @@ void warning_no_temp_root(const char *dir);
 void warning_no_aud_temp_root(const char *dir);
 void error_filename_too_long();
 void error_nothing_to_output();
+void error_invalid_resolution(BOOL width, int mul, int w, int h);
 void error_no_exe_file(const char *name, const char *path);
 void error_afs_setup(BOOL afs);
 void error_run_process(const char *exe_name, int rp_ret);
