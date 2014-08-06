@@ -118,7 +118,8 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	//qpファイル
 	move_temp_file(pe->append.qp,   pe->temp_filename, savefile, ret, TRUE, "qp", FALSE);
 	//tcファイル
-	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, conf->vid.afs && !conf->vid.auo_tcfile_out, "タイムコード", FALSE);
+	BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
+	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, erase_tc, "タイムコード", FALSE);
 	//チャプターファイル
 	move_temp_file(pe->append.chap, pe->temp_filename, savefile, ret, FALSE, "チャプター", FALSE);
 	//音声ファイル(wav)
