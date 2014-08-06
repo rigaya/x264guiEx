@@ -361,8 +361,8 @@ static int check_video_ouput(const OUTPUT_INFO *oip) {
 }
 
 static int check_muxer_to_be_used(int video_output_type, BOOL audio_output) {
-	if (conf.vid.afs)
-		conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
+	//if (conf.vid.afs)
+	//	conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
 
 	//音声なし、afsなしならmuxしない
 	if (!audio_output && !conf.vid.afs)
