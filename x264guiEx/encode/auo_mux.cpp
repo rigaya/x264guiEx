@@ -199,8 +199,16 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		}
 	}
 	//tc2mp4ならmp4boxの場所を指定
-	if (pe->muxer_to_be_used == MUXER_TC2MP4)
-		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -L \"%s\"", sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
+	if (pe->muxer_to_be_used == MUXER_TC2MP4) {
+		//ここで使用するmp4boxのパスはtc2mp4modからの相対パスになってしまうので、
+		//絶対パスに変換しておく
+		char mp4box_fullpath[MAX_PATH_LEN];
+		if (PathIsRelative(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) == FALSE)
+			strcpy_s(mp4box_fullpath, sizeof(mp4box_fullpath), sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
+		else
+			_fullpath(mp4box_fullpath, sys_dat->exstg->s_mux[MUXER_MP4].fullpath, sizeof(mp4box_fullpath));
+		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -L \"%s\"", mp4box_fullpath);
+	}
 	//アスペクト比
 	replace_par(cmd, nSize, conf, oip);
 	//その他の置換を実行
