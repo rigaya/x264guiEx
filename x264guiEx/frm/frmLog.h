@@ -332,11 +332,13 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			this->Controls->Add(this->richTextLog);
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
+			this->KeyPreview = true;
 			this->Name = L"frmLog";
 			this->ShowIcon = false;
 			this->Text = L"x264guiEx Log";
 			this->Load += gcnew System::EventHandler(this, &frmLog::frmLog_Load);
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
 			this->contextMenuStripLog->ResumeLayout(false);
 			this->statusStripLog->ResumeLayout(false);
 			this->statusStripLog->PerformLayout();
@@ -493,8 +495,12 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 	public:
 		System::Void SetPreventLogWindowClosing(BOOL prevent) {
 			prevent_log_closing = (prevent != 0);
-			if (!prevent_log_closing)
+			if (!prevent_log_closing) {
 				SaveLogSettings();
+				this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
+			} else {
+				this->KeyDown -= gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
+			}
 		}
 	public:
 		System::Void AutoSaveLogFile(const char *log_filename) {
@@ -622,6 +628,12 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 		System::Void toolStripMenuItemAutoSaveSettings_Click(System::Object^  sender, System::EventArgs^  e) {
 			frmAutoSaveLogSettings::Instance::get()->Owner = this;
 			frmAutoSaveLogSettings::Instance::get()->Show();
+		}
+	private:
+		System::Void frmLog_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape) {
+				this->Close();
+			}
 		}
 };
 }
