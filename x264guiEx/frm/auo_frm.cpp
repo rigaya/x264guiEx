@@ -39,6 +39,10 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 		set_window_title_x264_mes(mes, total_drop, current_frames);
 		mes = a + 1;
 	}
+	if (mes == msg && *log_len) {
+		write_log_line(check_log_type(mes), mes);
+		mes += strlen(mes);
+	}
 	memmove(msg, mes, (*log_len = fin - mes) + 1);
 }
 
