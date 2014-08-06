@@ -111,6 +111,22 @@ static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize)
 	return TRUE;
 }
 
+//%{par_x}と%{par_y}の置換を行う
+static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {	
+	char buf[64];
+	CONF_X264 conf_tmp;
+	memcpy(&conf_tmp, &conf->x264, sizeof(CONF_X264));
+	apply_guiEx_auto_settings(&conf_tmp, oip->w, oip->h, oip->rate, oip->scale);
+	if (conf_tmp.sar.x <= 0 || conf_tmp.sar.y <= 0) {
+		conf_tmp.sar.x = 1;
+		conf_tmp.sar.y = 1;
+	}
+
+	sprintf_s(buf, sizeof(buf), "%d", conf_tmp.sar.x);
+	replace(cmd, nSize, "%{par_x}", buf);
+	sprintf_s(buf, sizeof(buf), "%d", conf_tmp.sar.y);
+	replace(cmd, nSize, "%{par_y}", buf);
+}
 static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, __int64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
@@ -172,6 +188,8 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	//tc2mp4ならmp4boxの場所を指定
 	if (pe->muxer_to_be_used == MUXER_TC2MP4)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -L \"%s\"", sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
+	//アスペクト比
+	replace_par(cmd, nSize, conf, oip);
 	//その他の置換を実行
 	cmd_replace(cmd, nSize, pe, sys_dat, oip->savefile);
 	//情報表示
