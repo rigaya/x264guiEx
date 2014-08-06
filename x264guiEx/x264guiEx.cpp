@@ -285,15 +285,12 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	switch (conf.x264.output_csp) {
 		case OUT_CSP_YUV444:
 		case OUT_CSP_RGB:
-			w_mul = 1, h_mul = 1;
-			break;
+			w_mul = 1, h_mul = 1; break;
 		case OUT_CSP_YUV422:
-			w_mul = 2, h_mul = 1;
-			break;
+			w_mul = 2, h_mul = 1; break;
 		case OUT_CSP_YUV420:
 		default:
-			w_mul = 2; h_mul = 2;
-			break;
+			w_mul = 2; h_mul = 2; break;
 	}
 	if (conf.x264.interlaced) h_mul *= 2;
 	if (oip->w % w_mul) {
