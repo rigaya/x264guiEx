@@ -4004,6 +4004,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 		}
 	private:
 		System::Boolean openExeFile(TextBox^ TX, String^ ExeName) {
+			String^ CurrentDir = Directory::GetCurrentDirectory();
 			OpenFileDialog ofd;
 			ofd.Multiselect = false;
 			ofd.FileName = ExeName;
@@ -4014,13 +4015,14 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 				ofd.InitialDirectory = Path::GetDirectoryName(TX->Text);
 			else
 				ofd.InitialDirectory = String(sys_dat->aviutl_dir).ToString();
-			if (ofd.ShowDialog() == Windows::Forms::DialogResult::OK) {
+			bool ret = (ofd.ShowDialog() == Windows::Forms::DialogResult::OK);
+			if (ret) {
 				LocalStg.LastAppDir = Path::GetDirectoryName(ofd.FileName);
 				TX->Text = ofd.FileName;
 				TX->SelectionStart = TX->Text->Length;
-				return true;
 			}
-			return false;
+			Directory::SetCurrentDirectory(CurrentDir);
+			return ret;
 		}
 	private: 
 		System::Void fcgBTX264Path_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -4090,6 +4092,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 		}
 	private:
 		System::Boolean openAndSetFilePath(TextBox^ TX, String^ fileTypeName) {
+			String^ CurrentDir = Directory::GetCurrentDirectory();
 			OpenFileDialog^ ofd = fcgOpenFileDialog;
 			ofd->FileName = L"";
 			if (TX->Text->Length) {
@@ -4104,12 +4107,13 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			}
 			ofd->Multiselect = false;
 			ofd->Filter = fileTypeName + L"(*.*)|*.*";
-			if (ofd->ShowDialog() == Windows::Forms::DialogResult::OK) {
+			bool ret = (ofd->ShowDialog() == Windows::Forms::DialogResult::OK);
+			if (ret) {
 				TX->Text = ofd->FileName;
 				TX->SelectionStart = TX->Text->Length;
-				return true;
 			}
-			return false;
+			Directory::SetCurrentDirectory(CurrentDir);
+			return ret;
 		}
 	private: 
 		System::Void fcgBTStatusFile_Click(System::Object^  sender, System::EventArgs^  e) {

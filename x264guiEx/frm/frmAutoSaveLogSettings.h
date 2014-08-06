@@ -217,6 +217,7 @@ namespace x264guiEx {
 		}
 	private: 
 		System::Void fasBTAutoSaveLog_Click(System::Object^  sender, System::EventArgs^  e) {
+			String^ CurrentDir = Directory::GetCurrentDirectory();
 			SaveFileDialog^ sfd = gcnew SaveFileDialog();
 			sfd->FileName = L"";
 			if (fasTXAutoSaveLog->Text->Length) {
@@ -233,8 +234,8 @@ namespace x264guiEx {
 			if (sfd->ShowDialog() == Windows::Forms::DialogResult::OK) {
 				fasTXAutoSaveLog->Text = sfd->FileName;
 				fasTXAutoSaveLog->SelectionStart = fasTXAutoSaveLog->Text->Length;
-				return;
 			}
+			Directory::SetCurrentDirectory(CurrentDir);
 			return;
 		}
 };
