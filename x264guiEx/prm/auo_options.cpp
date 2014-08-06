@@ -766,7 +766,7 @@ static void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
 	if (width > 0 && height > 0 && *sar_x < 0 && *sar_y < 0) {
 		int x = -1 * *sar_x * height;
 		int y = -1 * *sar_y * width;
-		if (abs(y - x) > 16 * *sar_y) {
+		if (abs(y - x) > -16 * *sar_y) {
 			//gcd
 			int a = x, b = y, c;
 			while ((c = a % b) != 0) {
