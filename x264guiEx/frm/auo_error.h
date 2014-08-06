@@ -37,9 +37,15 @@ void error_mux_failed(const char *name, const char *args);
 
 void warning_no_mux_tmp_root(const char *dir);
 void warning_failed_mux_tmp_drive_space();
-void warning_failed_get_aud_size();
-void warning_failed_get_vid_size();
+void error_failed_muxer_drive_space();
+void error_failed_out_drive_space();
+void error_failed_get_aud_size();
+void error_failed_get_vid_size();
 void warning_mux_tmp_not_enough_space();
+void error_muxer_drive_not_enough_space();
+void error_out_drive_not_enough_space();
+void error_check_muxout_exist();
+void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB);
 
 void warning_no_auto_save_log_dir();
 

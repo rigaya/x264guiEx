@@ -41,51 +41,82 @@ static void show_mux_info(const char *mux_stg_name, BOOL audmux, BOOL tcmux, con
 	set_window_title(mes, PROGRESSBAR_MARQUEE);
 }
 
-static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, __int64 expected_filesize) {
-	//正常にサイズを取得できているか
-	if (expected_filesize < 0)
-		return FALSE;
-	//一時フォルダ指定を使用するかどうか
-	if (!conf->mux.mp4_temp_dir)
-		return FALSE;
+//muxの空き容量などを計算し、行えるかを確認する
+static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, __int64 expected_filesize) {
+	if (expected_filesize <= 0)
+		return AUO_RESULT_ERROR;
 	//mp4系かどうか
 	if (!(pe->muxer_to_be_used == MUXER_MP4 || pe->muxer_to_be_used == MUXER_TC2MP4))
-		return FALSE;
-	//指定されたドライブが存在するかどうか
-	char temp_root[MAX_PATH_LEN];
-	if (!PathGetRoot(mux_tmpdir, temp_root, sizeof(temp_root)) || !PathIsDirectory(temp_root)) {
-		warning_no_mux_tmp_root(temp_root);
-		return FALSE;
-	}
-	//ドライブの空き容量取得
-	ULARGE_INTEGER drive_avail_space = { 0 };
-	if (!GetDiskFreeSpaceEx(temp_root, &drive_avail_space, NULL, NULL)) {
-		warning_failed_mux_tmp_drive_space();
-		return FALSE;
-	}
-	//出力先が同じドライブかどうか
+		return AUO_RESULT_SUCCESS;
+
+	DWORD ret = AUO_RESULT_SUCCESS;
 	__int64 required_space = (__int64)(expected_filesize * 1.01); //ちょい多め
+	//出力先ドライブ
 	char vid_root[MAX_PATH_LEN];
 	strcpy_s(vid_root, sizeof(vid_root), pe->temp_filename);
 	PathStripToRoot(vid_root);
-	if (_stricmp(vid_root, temp_root) == NULL)
-		required_space *= 2;
-
-	//判定
-	if ((__int64)drive_avail_space.QuadPart < required_space) {
-		warning_mux_tmp_not_enough_space();
-		return FALSE;
+	//一時フォルダの指定について検証
+	if (conf->mux.mp4_temp_dir) {
+		ULARGE_INTEGER temp_drive_avail_space = { 0 };
+		BOOL tmp_same_drive_as_out = FALSE;
+		//指定されたドライブが存在するかどうか
+		char temp_root[MAX_PATH_LEN];
+		if (!PathGetRoot(mux_tmpdir, temp_root, sizeof(temp_root)) ||
+			!PathIsDirectory(temp_root) ||
+			!DirectoryExistsOrCreate(mux_tmpdir)) {
+			ret = AUO_RESULT_WARNING; warning_no_mux_tmp_root(temp_root);
+		//ドライブの空き容量取得
+		} else if (!GetDiskFreeSpaceEx(temp_root, &temp_drive_avail_space, NULL, NULL)) {
+			ret = AUO_RESULT_WARNING; warning_failed_mux_tmp_drive_space();
+		//一時フォルダと出力先が同じフォルダかどうかで、一時フォルダの必要とされる空き領域が変わる
+		} else {
+			tmp_same_drive_as_out = (_stricmp(vid_root, temp_root) == NULL);
+			if ((__int64)temp_drive_avail_space.QuadPart < required_space * (1 + tmp_same_drive_as_out)) {
+				ret = AUO_RESULT_WARNING; warning_mux_tmp_not_enough_space();
+			}
+		}
+		//一時フォルダと出力先が同じフォルダならさらなる検証の必要はない
+		if (tmp_same_drive_as_out && ret == AUO_RESULT_SUCCESS)
+			return ret;
 	}
-	return TRUE;
+	//一時ファイルが指定されていないときにはカレントディレクトリのあるドライブ(muxerのあるドライブ)に一時ファイルが作られる
+	//その一時フォルダのドライブについて検証
+	if (!conf->mux.mp4_temp_dir || ret == AUO_RESULT_WARNING) {
+		char muxer_root[MAX_PATH_LEN];
+		//ドライブの空き容量取得
+		ULARGE_INTEGER muxer_drive_avail_space = { 0 };
+		if (!PathGetRoot(muxer_fullpath, muxer_root, sizeof(muxer_root)) ||
+			!GetDiskFreeSpaceEx(muxer_root, &muxer_drive_avail_space, NULL, NULL)) {
+			error_failed_muxer_drive_space(); return AUO_RESULT_ERROR;
+		}
+		//一時フォルダと出力先が同じフォルダかどうかで、一時フォルダの必要とされる空き領域が変わる
+		BOOL muxer_same_drive_as_out = (_stricmp(vid_root, muxer_root) == NULL);
+		if ((__int64)muxer_drive_avail_space.QuadPart < required_space * (1 + muxer_same_drive_as_out)) {
+			error_muxer_drive_not_enough_space(); return AUO_RESULT_ERROR;
+		}
+		//一時フォルダと出力先が同じフォルダならさらなる検証の必要はない
+		if (muxer_same_drive_as_out && ret == AUO_RESULT_SUCCESS)
+			return ret;
+	}
+	//出力先のドライブの空き容量
+	//ドライブの空き容量取得
+	ULARGE_INTEGER out_drive_avail_space = { 0 };
+	if (!GetDiskFreeSpaceEx(vid_root, &out_drive_avail_space, NULL, NULL)) {
+		error_failed_out_drive_space(); return AUO_RESULT_ERROR;
+	}
+	if ((__int64)out_drive_avail_space.QuadPart < required_space) {
+		error_out_drive_not_enough_space(); return AUO_RESULT_ERROR;
+	}
+	return ret;
 }
 
-static BOOL get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int64 *_expected_filesize) {
+//muxする動画ファイルと音声ファイルからmux後ファイルの推定サイズを取得する
+static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int64 *_expected_filesize) {
 	*_expected_filesize = 0;
 	//動画ファイルのサイズ
 	__int64 vid_size = 0;
 	if (!GetFileSizeInt64(pe->temp_filename, &vid_size)) {
-		warning_failed_get_vid_size();
-		return FALSE;
+		error_failed_get_vid_size(); return AUO_RESULT_ERROR;
 	}
 	*_expected_filesize += vid_size;
 	//音声ファイルのサイズ
@@ -94,20 +125,26 @@ static BOOL get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int6
 		char audfile[MAX_PATH_LEN] = { 0 };
 		get_aud_filename(audfile, sizeof(audfile), pe);
 		if (!GetFileSizeInt64(audfile, &aud_size)) {
-			warning_failed_get_aud_size();
-			return FALSE;
+			error_failed_get_aud_size(); return AUO_RESULT_ERROR;
 		}
 		*_expected_filesize += aud_size;
 	}
-	return TRUE;
+	return AUO_RESULT_SUCCESS;
 }
 
+//mux後ファイルが存在する他とファイルサイズをチェック
+//大丈夫そうならTRUEを返す
 static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize) {
+	const double FILE_SIZE_THRESHOLD_MULTI = 0.50;
 	__int64 muxout_filesize = 0;
-	if (!GetFileSizeInt64(muxout, &muxout_filesize))
+	if (!GetFileSizeInt64(muxout, &muxout_filesize)) {
+		error_check_muxout_exist();
 		return FALSE;
-	if (muxout_filesize <= (__int64)(expected_filesize * 0.99 * (1.0 - exp(-1.0 * expected_filesize / (128.0 * 1024.0)))))
+	}
+	if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
+		error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
 		return FALSE;
+	}
 	return TRUE;
 }
 
@@ -154,20 +191,26 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	replace(cmd, nSize, "%{au_cmd}",  audstr);
 	//タイムコード用
 	replace(cmd, nSize, "%{tc_cmd}",  tcstr);
-	//一時ファイル用(指定できなければ無視)
-	if (check_mux_tmpdir(sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe, expected_filesize)) {
-		if (!DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_mp4box_tmp_dir)) {
+	//一時ファイル(空き容量等)のチェックを行う
+	DWORD mux_check = check_mux_disk_space(mux_stg->fullpath, sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe, expected_filesize);
+	switch (mux_check) {
+		case AUO_RESULT_SUCCESS:
+			if (conf->mux.mp4_temp_dir) {
+				//一時フォルダ指定を行う
+				replace(cmd, nSize, "%{tmp_cmd}", mux_stg->tmp_cmd);
+				char m_tmp_dir[MAX_PATH_LEN];
+				strcpy_s(m_tmp_dir, sizeof(m_tmp_dir), sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
+				PathForceRemoveBackSlash(m_tmp_dir);
+				replace(cmd, nSize, "%{m_tmpdir}", m_tmp_dir);
+				break;
+			}
+			//下へフォールスルー(一時フォルダ指定を行わない)
+		case AUO_RESULT_WARNING: //一時フォルダ指定を行えない
 			replace(cmd, nSize, "%{tmp_cmd}", "");
-			warning_no_mux_tmp_root(sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
-		} else {
-			replace(cmd, nSize, "%{tmp_cmd}", mux_stg->tmp_cmd);
-			char m_tmp_dir[MAX_PATH_LEN];
-			strcpy_s(m_tmp_dir, sizeof(m_tmp_dir), sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
-			PathForceRemoveBackSlash(m_tmp_dir);
-			replace(cmd, nSize, "%{m_tmpdir}", m_tmp_dir);
-		}
-	} else {
-		replace(cmd, nSize, "%{tmp_cmd}", "");
+			break;
+		case AUO_RESULT_ERROR://一時ファイル関連のチェックでエラー
+		default:
+			return AUO_RESULT_ERROR;
 	}
 	//拡張オプションとチャプター処理
 	//とりあえず必要なくてもチャプターファイル名を作る

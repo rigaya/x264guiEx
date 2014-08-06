@@ -145,7 +145,7 @@ void error_mux_failed(const char *name, const char *args) {
 
 void warning_no_mux_tmp_root(const char *dir) {
 	write_log_auo_line_fmt(LOG_WARNING,
-		"指定されたmux用一時フォルダ \"%s\" が存在しません。一時フォルダ指定を解除しました。",
+		"指定されたmux用一時ドライブ \"%s\" が存在しません。一時フォルダ指定を解除しました。",
 		dir);
 }
 
@@ -153,16 +153,41 @@ void warning_failed_mux_tmp_drive_space() {
 	write_log_auo_line(LOG_WARNING, "指定されたmux用一時フォルダのあるドライブの空き容量取得に失敗しました。mux用一時フォルダ指定を解除しました。");
 }
 
-void warning_failed_get_aud_size() {
-	write_log_auo_line(LOG_WARNING, "音声一時ファイルのサイズ取得に失敗しました。muxを正常に行えるか確認できません。");
+void error_failed_muxer_drive_space() {
+	write_log_auo_line(LOG_ERROR, "muxerのあるドライブの空き容量取得に失敗しました。muxを行えません。");
 }
 
-void warning_failed_get_vid_size() {
-	write_log_auo_line(LOG_WARNING, "映像一時ファイルのサイズ取得に失敗しました。muxを正常に行えるか確認できません。");
+void error_failed_out_drive_space() {
+	write_log_auo_line(LOG_ERROR, "出力先のあるドライブの空き容量取得に失敗しました。muxを行えません。");
+}
+
+void error_failed_get_aud_size() {
+	write_log_auo_line(LOG_ERROR, "音声一時ファイルのサイズ取得に失敗しました。muxを行えません。");
+}
+
+void error_failed_get_vid_size() {
+	write_log_auo_line(LOG_ERROR, "映像一時ファイルのサイズ取得に失敗しました。muxを行えません。");
 }
 
 void warning_mux_tmp_not_enough_space() {
-	write_log_auo_line(LOG_WARNING, "mux一時フォルダのドライブに十分な空きがありません。mux用一時フォルダ指定を解除しました。");
+	write_log_auo_line(LOG_WARNING, "mux一時フォルダのあるドライブに十分な空きがありません。mux用一時フォルダ指定を解除しました。");
+}
+
+void error_muxer_drive_not_enough_space() {
+	write_log_auo_line(LOG_ERROR, "muxerのあるドライブに十分な空きがありません。muxを行えません。");
+}
+
+void error_out_drive_not_enough_space() {
+	write_log_auo_line(LOG_ERROR, "出力先のドライブに十分な空きがありません。muxを行えません。");
+}
+
+void error_check_muxout_exist() {
+	write_log_auo_line(LOG_ERROR, "mux後ファイルが見つかりませんでした。");
+}
+
+void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB) {
+	write_log_auo_line    (LOG_ERROR, "mux後ファイルが小さすぎます。muxに失敗したものと思われます。");
+	write_log_auo_line_fmt(LOG_ERROR, "推定ファイルサイズ %d KB,  出力ファイルサイズ %d KB", expected_filesize_KB, muxout_filesize_KB);
 }
 
 void warning_no_auto_save_log_dir() {
@@ -174,7 +199,7 @@ void info_encoding_aborted() {
 }
 
 void warning_mux_no_chapter_file() {
-	write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。");
+	write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。チャプターはmuxされません。");
 }
 
 void warning_mux_chapter(int sts) {
