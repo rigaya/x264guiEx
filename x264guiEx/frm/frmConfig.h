@@ -3941,7 +3941,8 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 		System::Void fcgTXQuality_TextChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTXQuality_Validating(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e);
 		System::Void SetTBValueToTextBox();
-		System::Void frmConfig::AdjustLocation();
+		System::Void AdjustLocation();
+		System::Void ActivateToolTip(bool Enable);
 	public:
 		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);

@@ -67,8 +67,10 @@ namespace x264guiEx {
 	public:
 		static String^ stgDir;
 		static int useLastExt;
+		static bool DisableToolTipHelp;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
+	private: System::Windows::Forms::CheckBox^  fosCBDisableToolTip;
 	public: 
 
 	public:
@@ -101,13 +103,14 @@ namespace x264guiEx {
 			this->fosBTStgDir = (gcnew System::Windows::Forms::Button());
 			this->fosCBAutoAFSDisable = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBDisableToolTip = (gcnew System::Windows::Forms::CheckBox());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 198);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 219);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -118,7 +121,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 198);
+			this->fosCBOK->Location = System::Drawing::Point(283, 219);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -171,12 +174,23 @@ namespace x264guiEx {
 			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
 			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
 			// 
+			// fosCBDisableToolTip
+			// 
+			this->fosCBDisableToolTip->AutoSize = true;
+			this->fosCBDisableToolTip->Location = System::Drawing::Point(24, 186);
+			this->fosCBDisableToolTip->Name = L"fosCBDisableToolTip";
+			this->fosCBDisableToolTip->Size = System::Drawing::Size(158, 19);
+			this->fosCBDisableToolTip->TabIndex = 8;
+			this->fosCBDisableToolTip->Text = L"ポップアップヘルプを抑制する";
+			this->fosCBDisableToolTip->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 237);
+			this->ClientSize = System::Drawing::Size(392, 258);
+			this->Controls->Add(this->fosCBDisableToolTip);
 			this->Controls->Add(this->fosCBAutoDelStats);
 			this->Controls->Add(this->fosCBAutoAFSDisable);
 			this->Controls->Add(this->fosBTStgDir);
@@ -199,10 +213,13 @@ namespace x264guiEx {
 #pragma endregion
 	private: 
 		System::Void fosCBOK_Click(System::Object^  sender, System::EventArgs^  e) {
+			DisableToolTipHelp = fosCBDisableToolTip->Checked;
+
 			stgDir = fosTXStgDir->Text;
 			fos_ex_stg->load_encode_stg();
-			fos_ex_stg->s_local.auto_afs_disable = fosCBAutoAFSDisable->Checked;
-			fos_ex_stg->s_local.auto_del_stats   = fosCBAutoDelStats->Checked;
+			fos_ex_stg->s_local.auto_afs_disable     = fosCBAutoAFSDisable->Checked;
+			fos_ex_stg->s_local.auto_del_stats       = fosCBAutoDelStats->Checked;
+			fos_ex_stg->s_local.disable_tooltip_help = fosCBDisableToolTip->Checked;
 			fos_ex_stg->save_local();
 			this->Close();
 		}
@@ -213,6 +230,7 @@ namespace x264guiEx {
 			fos_ex_stg->load_encode_stg();
 			fosCBAutoAFSDisable->Checked = fos_ex_stg->s_local.auto_afs_disable != 0;
 			fosCBAutoDelStats->Checked = fos_ex_stg->s_local.auto_del_stats != 0;
+			fosCBDisableToolTip->Checked = fos_ex_stg->s_local.disable_tooltip_help != 0;
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {

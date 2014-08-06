@@ -298,6 +298,12 @@ System::Void frmConfig::InitTimer() {
 
 
 //////////////       その他イベント処理   ////////////////////////
+System::Void frmConfig::ActivateToolTip(bool Enable) {
+	fcgTTEx->Active = Enable;
+	fcgTTX264->Active = Enable;
+	fcgTTX264Version->Active = Enable;
+}
+ 
 System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e) {
 	frmOtherSettings::Instance::get()->stgDir = String(sys_dat->exstg->s_local.stg_dir).ToString();
 	frmOtherSettings::Instance::get()->ShowDialog();
@@ -309,6 +315,7 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 		sys_dat->exstg->save_local();
 		InitStgFileList();
 	}
+	ActivateToolTip(!frmOtherSettings::DisableToolTipHelp);
 }
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -839,6 +846,7 @@ System::Void frmConfig::InitForm() {
 	SetHelpToolTips();
 	SetX264VersionToolTip(LocalStg.x264Path, false);
 	SetX264VersionToolTip(LocalStg.x264Path10bit, true);
+	ActivateToolTip(sys_dat->exstg->s_local.disable_tooltip_help == FALSE);
 	//パラメータセット
 	ConfToFrm(conf, true);
 	//イベントセット

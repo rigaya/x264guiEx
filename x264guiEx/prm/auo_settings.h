@@ -177,6 +177,7 @@ typedef struct {
 	DWORD audio_buffer_size;                   //音声用バッファサイズ
 	BOOL  auto_afs_disable;                    //自動的にafsを無効化
 	BOOL  auto_del_stats;                      //自動マルチパス時、ステータスファイルを自動的に削除
+	BOOL  disable_tooltip_help;                //ポップアップヘルプを抑制する
 	char  custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char  custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
