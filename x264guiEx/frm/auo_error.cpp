@@ -122,14 +122,6 @@ void error_no_wavefile() {
 	write_log_auo_line(LOG_ERROR, "wavファイルがみつかりません。音声エンコードに失敗しました。");
 }
 
-void error_batfile_original_open() {
-	write_log_auo_line(LOG_ERROR, "オリジナルbatファイルのオープンに失敗しました。");
-}
-
-void error_batfile_temp_open() {
-	write_log_auo_line(LOG_ERROR, "一時batファイルのオープンに失敗しました。");
-}
-
 void error_audenc_failed(const char *name, const char *args) {
 	write_log_auo_line_fmt(LOG_ERROR, "出力音声ファイルがみつかりません。%s での音声のエンコードに失敗しました。", name);
 	write_log_auo_line(    LOG_ERROR, "音声エンコードのコマンドラインは…");
@@ -162,6 +154,10 @@ void warning_failed_get_vid_size() {
 
 void warning_mux_tmp_not_enough_space() {
 	write_log_auo_line(LOG_WARNING, "mux一時フォルダのドライブに十分な空きがありません。mux用一時フォルダ指定を解除しました。");
+}
+
+void warning_no_auto_save_log_dir() {
+	write_log_auo_line(LOG_WARNING, "指定した自動ログ保存先が存在しません。動画出力先に保存します。");
 }
 
 void info_encoding_aborted() {

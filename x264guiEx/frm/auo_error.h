@@ -28,8 +28,6 @@ void error_malloc_tc();
 void error_malloc_8bit();
 void error_x264_dead();
 void error_afs_get_frame();
-void error_batfile_original_open();
-void error_batfile_temp_open();
 void error_audenc_failed(const char *name, const char *args);
 void error_no_wavefile();
 void error_mux_failed(const char *name, const char *args);
@@ -39,6 +37,8 @@ void warning_failed_mux_tmp_drive_space();
 void warning_failed_get_aud_size();
 void warning_failed_get_vid_size();
 void warning_mux_tmp_not_enough_space();
+
+void warning_no_auto_save_log_dir();
 
 void info_encoding_aborted();
 

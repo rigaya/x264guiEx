@@ -33,6 +33,7 @@
 //---------------------------------------------------------------------
 static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe);
 static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip);
+static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe);
 
 
 //---------------------------------------------------------------------
@@ -148,7 +149,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 
 	//ログウィンドウを開く
 	open_log_window(oip->savefile, 1, (conf.x264.use_auto_npass) ? conf.x264.auto_npass : 1);
-	set_prevent_log_close(TRUE, NULL); //※1 start
+	set_prevent_log_close(TRUE); //※1 start
 
 	//各種設定を行う
 	set_enc_prm(&pe, oip);
@@ -176,7 +177,8 @@ BOOL func_output( OUTPUT_INFO *oip )
 	if (ret & OUT_RESULT_ABORT) info_encoding_aborted();
 
 	CloseHandle(pe.h_p_aviutl); //※2 end
-	set_prevent_log_close(FALSE, oip->savefile); //※1 end, 自動ログ保存も行われる
+	set_prevent_log_close(FALSE); //※1 end
+	auto_save_log(oip, &pe); //※1 end のあとで行うこと
 
 	return (ret & OUT_RESULT_ERROR) ? FALSE : TRUE;
 }
@@ -426,7 +428,6 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	pe->drop_count = 0;
 	memcpy(&pe->append, &sys_dat.exstg->s_append, sizeof(FILE_APPENDIX));
 
-	//一時フォルダ決定
 	char filename_replace[MAX_PATH_LEN];
 
 	//一時フォルダの決定
@@ -446,4 +447,31 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	strcpy_s(filename_replace, sizeof(filename_replace), PathFindFileName(oip->savefile));
 	sys_dat.exstg->apply_fn_replace(filename_replace, sizeof(filename_replace));
 	PathCombineLong(pe->temp_filename, sizeof(pe->temp_filename), pe->temp_filename, filename_replace);
+}
+
+static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
+	char log_file_path[MAX_PATH_LEN];
+	guiEx_settings ex_stg(true);
+	ex_stg.load_log_win();
+	if (!ex_stg.s_log.auto_save_log)
+		return;
+	switch (ex_stg.s_log.auto_save_log_mode) {
+		case AUTO_SAVE_LOG_CUSTOM:
+		{
+			char log_file_dir[MAX_PATH_LEN];
+			strcpy_s(log_file_path, sizeof(log_file_path), ex_stg.s_log.auto_save_log_path);
+			cmd_replace(log_file_path, sizeof(log_file_path), pe, &sys_dat, oip->savefile);
+			PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
+			if (DirectoryExistsOrCreate(log_file_dir))
+				break;
+		}
+			warning_no_auto_save_log_dir();
+			//下へフォールスルー
+		case AUTO_SAVE_LOG_OUTPUT_DIR:
+		default:
+			apply_appendix(log_file_path, sizeof(log_file_path), oip->savefile, "_log.txt"); 
+			break;
+	}
+	auto_save_log_file(log_file_path);
+	return;
 }

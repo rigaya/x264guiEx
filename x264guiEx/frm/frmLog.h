@@ -19,10 +19,13 @@
 #include "auo_settings.h"
 #include "auo_win7_taskbar.h"
 
+
 //以下部分的にwarning C4100を黙らせる
 //C4100 : 引数は関数の本体部で 1 度も参照されません。
 #pragma warning( push )
 #pragma warning( disable: 4100 )
+
+#include "frmAutoSaveLogSettings.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -103,6 +106,7 @@ namespace x264guiEx {
 				delete components;
 			}
 			delete log_type;
+			frmAutoSaveLogSettings::Instance::get()->Close();
 		}
 	//Instanceを介し、ひとつだけ生成
 	private:
@@ -144,6 +148,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusCurrentProgress;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemShowStatus;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTaskBarProgress;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoSaveSettings;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -170,6 +175,7 @@ namespace x264guiEx {
 			this->ToolStripMenuItemTransparent = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemStartMinimized = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAutoSave = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemAutoSaveSettings = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemShowStatus = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemTaskBarProgress = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->statusStripLog = (gcnew System::Windows::Forms::StatusStrip());
@@ -199,11 +205,11 @@ namespace x264guiEx {
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {this->ToolStripMenuItemx264Priority, 
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {this->ToolStripMenuItemx264Priority, 
 				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemAutoSave, 
-				this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress});
+				this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(248, 158);
+			this->contextMenuStripLog->Size = System::Drawing::Size(248, 180);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
@@ -241,8 +247,15 @@ namespace x264guiEx {
 			this->toolStripMenuItemAutoSave->CheckOnClick = true;
 			this->toolStripMenuItemAutoSave->Name = L"toolStripMenuItemAutoSave";
 			this->toolStripMenuItemAutoSave->Size = System::Drawing::Size(247, 22);
-			this->toolStripMenuItemAutoSave->Text = L"ログ自動保存";
+			this->toolStripMenuItemAutoSave->Text = L"ログ自動保存を行う";
 			this->toolStripMenuItemAutoSave->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripCheckItem_CheckedChanged);
+			// 
+			// toolStripMenuItemAutoSaveSettings
+			// 
+			this->toolStripMenuItemAutoSaveSettings->Name = L"toolStripMenuItemAutoSaveSettings";
+			this->toolStripMenuItemAutoSaveSettings->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemAutoSaveSettings->Text = L"ログ自動保存の設定...";
+			this->toolStripMenuItemAutoSaveSettings->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemAutoSaveSettings_Click);
 			// 
 			// toolStripMenuItemShowStatus
 			// 
@@ -431,14 +444,15 @@ namespace x264guiEx {
 			}
 		}
 	public:
-		System::Void SetPreventLogWindowClosing(BOOL prevent, const char *savefile) {
+		System::Void SetPreventLogWindowClosing(BOOL prevent) {
 			prevent_log_closing = (prevent != 0);
-			SaveLogSettings();
-			if (toolStripMenuItemAutoSave->Checked && !prevent_log_closing && savefile != NULL) {
-				String^ SaveFileName = String(savefile).ToString();
-				SaveLog(Path::Combine(Path::GetDirectoryName(SaveFileName),
-					Path::GetFileNameWithoutExtension(SaveFileName) + L"_log.txt"));
-			}
+			if (!prevent_log_closing)
+				SaveLogSettings();
+		}
+	public:
+		System::Void AutoSaveLogFile(const char *log_filename) {
+			if (toolStripMenuItemAutoSave->Checked && !prevent_log_closing && log_filename != NULL)
+				SaveLog(String(log_filename).ToString());
 		}
 	public:
 		System::Void Enablex264Control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL _add_progress, DWORD *start_time, int _total_frame) {
@@ -484,11 +498,12 @@ namespace x264guiEx {
 		}
 	private:
 		System::Void SaveLogSettings() {
-			guiEx_settings exstg;
-			exstg.s_log.transparent   = ToolStripMenuItemTransparent->Checked;
-			exstg.s_log.minimized     = ToolStripMenuItemStartMinimized->Checked;
-			exstg.s_log.auto_save_log = toolStripMenuItemAutoSave->Checked;
-			exstg.s_log.show_status_bar = toolStripMenuItemShowStatus->Checked;
+			guiEx_settings exstg(true);
+			exstg.load_log_win();
+			exstg.s_log.transparent      = ToolStripMenuItemTransparent->Checked;
+			exstg.s_log.minimized        = ToolStripMenuItemStartMinimized->Checked;
+			exstg.s_log.auto_save_log    = toolStripMenuItemAutoSave->Checked;
+			exstg.s_log.show_status_bar  = toolStripMenuItemShowStatus->Checked;
 			exstg.s_log.taskbar_progress = toolStripMenuItemTaskBarProgress->Checked;
 			exstg.save_log_win();
 		}
@@ -555,6 +570,11 @@ namespace x264guiEx {
 				}
 				*_x264_priority = priority_table[j].value;
 			}
+		}
+	private: 
+		System::Void toolStripMenuItemAutoSaveSettings_Click(System::Object^  sender, System::EventArgs^  e) {
+			frmAutoSaveLogSettings::Instance::get()->Owner = this;
+			frmAutoSaveLogSettings::Instance::get()->Show();
 		}
 };
 }

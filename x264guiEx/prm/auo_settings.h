@@ -21,6 +21,9 @@ typedef struct {
 
 const int FAW_INDEX_ERROR = -1;
 
+const int AUTO_SAVE_LOG_OUTPUT_DIR = 0;
+const int AUTO_SAVE_LOG_CUSTOM = 1;
+
 //メモリーを切り刻みます。
 class mem_cutter {
 private:
@@ -155,11 +158,13 @@ typedef struct {
 } FILENAME_REPLACE;
 
 typedef struct {
-	BOOL minimized;     //最小化で起動
-	BOOL transparent;   //半透明で表示
-	BOOL auto_save_log; //ログ自動保存
-	BOOL show_status_bar; //ステータスバーの表示
-	BOOL taskbar_progress; //タスクバーに進捗を表示
+	BOOL minimized;                        //最小化で起動
+	BOOL transparent;                      //半透明で表示
+	BOOL auto_save_log;                    //ログ自動保存を行うかどうか
+	int  auto_save_log_mode;               //ログ自動保存のモード
+	char auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
+	BOOL show_status_bar;                  //ステータスバーの表示
+	BOOL taskbar_progress;                 //タスクバーに進捗を表示
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {

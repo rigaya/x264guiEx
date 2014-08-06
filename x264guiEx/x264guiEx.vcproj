@@ -669,6 +669,15 @@
 			Filter="h;resx;cpp"
 			>
 			<File
+				RelativePath=".\frm\frmAutoSaveLogSettings.h"
+				FileType="3"
+				>
+				<File
+					RelativePath=".\frm\frmAutoSaveLogSettings.resx"
+					>
+				</File>
+			</File>
+			<File
 				RelativePath=".\frm\frmBitrateCalculator.h"
 				FileType="3"
 				>

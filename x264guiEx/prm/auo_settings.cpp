@@ -403,11 +403,13 @@ void guiEx_settings::load_local() {
 
 void guiEx_settings::load_log_win() {
 	clear_log_win();
-	s_log.minimized        = GetPrivateProfileInt(INI_SECTION_MAIN, "log_start_minimized",  0, conf_fileName);
-	s_log.transparent      = GetPrivateProfileInt(INI_SECTION_MAIN, "log_transparent",      1, conf_fileName);
-	s_log.auto_save_log    = GetPrivateProfileInt(INI_SECTION_MAIN, "log_auto_save",        0, conf_fileName);
-	s_log.show_status_bar  = GetPrivateProfileInt(INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
-	s_log.taskbar_progress = GetPrivateProfileInt(INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
+	s_log.minimized          = GetPrivateProfileInt(INI_SECTION_MAIN, "log_start_minimized",  0, conf_fileName);
+	s_log.transparent        = GetPrivateProfileInt(INI_SECTION_MAIN, "log_transparent",      1, conf_fileName);
+	s_log.auto_save_log      = GetPrivateProfileInt(INI_SECTION_MAIN, "log_auto_save",        0, conf_fileName);
+	s_log.auto_save_log_mode = GetPrivateProfileInt(INI_SECTION_MAIN, "log_auto_save_mode",   0, conf_fileName);
+	GetPrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path", "", s_log.auto_save_log_path, sizeof(s_log.auto_save_log_path), conf_fileName);
+	s_log.show_status_bar    = GetPrivateProfileInt(INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
+	s_log.taskbar_progress   = GetPrivateProfileInt(INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
 }
 
 void guiEx_settings::load_append() {
@@ -462,11 +464,13 @@ void guiEx_settings::save_local() {
 }
 
 void guiEx_settings::save_log_win() {
-	WritePrivateProfileInt(INI_SECTION_MAIN, "log_start_minimized",   s_log.minimized,        conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN, "log_transparent",       s_log.transparent,      conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN, "log_auto_save",         s_log.auto_save_log,    conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,  conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress, conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",   s_log.minimized,          conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",       s_log.transparent,        conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",         s_log.auto_save_log,      conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",    s_log.auto_save_log_mode, conf_fileName);
+	WritePrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,    conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress,   conf_fileName);
 }
 
 void guiEx_settings::save_fbc() {

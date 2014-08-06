@@ -54,8 +54,12 @@ void disable_x264_control() {
 	frmLog::Instance::get()->Disablex264Control();
 }
 //ログウィンドウを閉じられるかどうかを設定
-void set_prevent_log_close(BOOL prevent, const char *savefile) {
-	frmLog::Instance::get()->SetPreventLogWindowClosing(prevent, savefile);
+void set_prevent_log_close(BOOL prevent) {
+	frmLog::Instance::get()->SetPreventLogWindowClosing(prevent);
+}
+//自動ログ保存を実行
+void auto_save_log_file(const char *log_filepath) {
+	frmLog::Instance::get()->AutoSaveLogFile(log_filepath);
 }
 //ログウィンドウにイベントを実行させる
 void log_process_events() {
