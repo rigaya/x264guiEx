@@ -25,6 +25,7 @@ using namespace x264guiEx;
 /// -------------------------------------------------
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat) {
 	System::Windows::Forms::Application::EnableVisualStyles();
+	System::IO::Directory::SetCurrentDirectory(String(sys_dat->aviutl_dir).ToString());
 	frmConfig frmConf(conf, sys_dat);
 	frmConf.ShowDialog();
 }

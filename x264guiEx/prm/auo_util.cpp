@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <intrin.h>
@@ -106,16 +107,25 @@ void apply_appendix(char *new_filename, size_t new_filename_size, const char *or
 }
 
 //拡張子が一致するか確認する
-int check_ext(const char *filename, const char *ext) {
+BOOL check_ext(const char *filename, const char *ext) {
 	return (_stricmp(PathFindExtension(filename), ext) == NULL) ? TRUE : FALSE;
+}
+
+//ルートディレクトリを取得
+BOOL PathGetRoot(const char *path, char *root, size_t nSize) {
+	if (PathIsRelative(path) == FALSE)
+		strcpy_s(root, nSize, path);
+	else
+		_fullpath(root, path, nSize);
+	return PathStripToRoot(root);
 }
 
 //パスのルートが存在するかどうか
 BOOL PathRootExists(const char *path) {
-	char dir[MAX_PATH_LEN];
-	strcpy_s(dir, sizeof(dir), path);
-	PathStripToRoot(dir);
-	return PathIsDirectory(dir);
+	if (path == NULL)
+		return FALSE;
+	char root[MAX_PATH_LEN];
+	return (PathGetRoot(path, root, sizeof(root)) && PathIsDirectory(root));
 }
 
 //フォルダがあればOK、なければ作成する

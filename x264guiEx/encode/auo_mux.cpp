@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include <Math.h>
+#include <stdlib.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
@@ -51,9 +52,7 @@ static BOOL check_mux_tmpdir(const char *mux_tmpdir, const CONF_X264GUIEX *conf,
 		return FALSE;
 	//指定されたドライブが存在するかどうか
 	char temp_root[MAX_PATH_LEN];
-	strcpy_s(temp_root, sizeof(temp_root), mux_tmpdir);
-	PathStripToRoot(temp_root);
-	if (!PathIsDirectory(temp_root)) {
+	if (!PathGetRoot(mux_tmpdir, temp_root, sizeof(temp_root)) || !PathIsDirectory(temp_root)) {
 		warning_no_mux_tmp_root(temp_root);
 		return FALSE;
 	}

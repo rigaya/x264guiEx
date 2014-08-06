@@ -17,8 +17,9 @@ using namespace x264guiEx;
 //すべてfrmLog::Instanceを通じてアクセス
 
 //ログウィンドウを表示させる
-void show_log_window() {
+void show_log_window(const char *aviutl_dir) {
 	System::Windows::Forms::Application::EnableVisualStyles();
+	System::IO::Directory::SetCurrentDirectory(String(aviutl_dir).ToString());
 	frmLog::Instance::get()->Show();
 	frmLog::Instance::get()->SetWindowTitle(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 }

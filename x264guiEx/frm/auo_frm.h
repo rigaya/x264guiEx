@@ -35,7 +35,7 @@ const int PROGRESSBAR_MARQUEE    = 2;
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat);
 
 //ログウィンドウ制御
-void show_log_window();
+void show_log_window(const char *aviutl_dir);
 void set_window_title(const char *chr, int progress_mode);
 void set_window_title_x264_mes(const char *chr, int total_drop, int frame_n);
 void set_task_name(const char *chr);
