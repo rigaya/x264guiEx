@@ -349,16 +349,16 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 				fcgCBNulOut->Checked = cnf_fcgTemp->nul_out != 0;
 				cnf_fcgTemp->pass = (fcgCXX264Mode->SelectedIndex == 3) ? 1 : 3;
 				if (fcgCXX264Mode->SelectedIndex == 4) {
-					fcgCBFastFirstPass->Enabled = false;
+					fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 					fcgCBFastFirstPass->Checked = false;
 				} else {
-					fcgCBFastFirstPass->Enabled = true;
+					fcgCBFastFirstPass->Enabled = true; //Enabledの変更が先
 					fcgCBFastFirstPass->Checked = !cnf_fcgTemp->slow_first_pass;
 				}
 			} else {
-				fcgCBNulOut->Enabled = false;
+				fcgCBNulOut->Enabled = false; //Enabledの変更が先
 				fcgCBNulOut->Checked = false;
-				fcgCBFastFirstPass->Enabled = false;
+				fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 				fcgCBFastFirstPass->Checked = false;
 			}
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
@@ -370,9 +370,9 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			fcgLBQualityRight->Text = L"低品質";
 			fcgTBQuality->Minimum = 0;
 			fcgTBQuality->Maximum = 69;
-			fcgCBNulOut->Enabled = false;
+			fcgCBNulOut->Enabled = false; //Enabledの変更が先
 			fcgCBNulOut->Checked = false;
-			fcgCBFastFirstPass->Enabled = false;
+			fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 			fcgCBFastFirstPass->Checked = false;
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->qp);
 			SetfbcBTVBEnable(false);
@@ -384,9 +384,9 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			fcgLBQualityRight->Text = L"低品質";
 			fcgTBQuality->Minimum = (fcgCBUse10bit->Checked) ? -12*2 : 0;
 			fcgTBQuality->Maximum = 51*2;
-			fcgCBNulOut->Enabled = false;
+			fcgCBNulOut->Enabled = false; //Enabledの変更が先
 			fcgCBNulOut->Checked = false;
-			fcgCBFastFirstPass->Enabled = false;
+			fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 			fcgCBFastFirstPass->Checked = false;
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->crf / 100.0);
 			SetfbcBTVBEnable(false);
@@ -984,7 +984,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->x264.bitrate              = cnf_fcgTemp->bitrate;
 	cnf->x264.qp                   = cnf_fcgTemp->qp;
 	cnf->x264.crf                  = cnf_fcgTemp->crf;
-	cnf->x264.nul_out              = cnf_fcgTemp->nul_out;
+	cnf->x264.nul_out              = fcgCBNulOut->Checked;
 	cnf->x264.pass                 = cnf_fcgTemp->pass;
 	cnf->x264.slow_first_pass      = cnf_fcgTemp->slow_first_pass;
 	cnf->x264.use_auto_npass       = cnf_fcgTemp->use_auto_npass;
