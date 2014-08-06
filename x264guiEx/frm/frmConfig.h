@@ -545,6 +545,9 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub10bit;
 private: System::Windows::Forms::Label^  fcgLBX264PathSub8bit;
 private: System::Windows::Forms::Button^  fcgBTX264PathSub10bit;
 private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
+private: System::Windows::Forms::ComboBox^  fcgCXYC48ColMatConv;
+private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
+
 
 
 
@@ -844,6 +847,8 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			this->fcgTTX264 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
+			this->fcgLBYC48ColMatConv = (gcnew System::Windows::Forms::Label());
+			this->fcgCXYC48ColMatConv = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcggroupBoxX264Out->SuspendLayout();
@@ -2932,6 +2937,8 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			// 
 			// fcggroupBoxExSettings
 			// 
+			this->fcggroupBoxExSettings->Controls->Add(this->fcgCXYC48ColMatConv);
+			this->fcggroupBoxExSettings->Controls->Add(this->fcgLBYC48ColMatConv);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAuoTcfileout);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFSBitrateCorrection);
@@ -3761,6 +3768,25 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			this->fcgTTX264Version->ToolTipTitle = L"x264 バージョン情報...";
 			this->fcgTTX264Version->UseAnimation = false;
 			this->fcgTTX264Version->UseFading = false;
+			// 
+			// fcgLBYC48ColMatConv
+			// 
+			this->fcgLBYC48ColMatConv->AutoSize = true;
+			this->fcgLBYC48ColMatConv->Location = System::Drawing::Point(15, 151);
+			this->fcgLBYC48ColMatConv->Name = L"fcgLBYC48ColMatConv";
+			this->fcgLBYC48ColMatConv->Size = System::Drawing::Size(57, 14);
+			this->fcgLBYC48ColMatConv->TabIndex = 4;
+			this->fcgLBYC48ColMatConv->Text = L"YC48出力";
+			// 
+			// fcgCXYC48ColMatConv
+			// 
+			this->fcgCXYC48ColMatConv->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXYC48ColMatConv->FormattingEnabled = true;
+			this->fcgCXYC48ColMatConv->Location = System::Drawing::Point(97, 148);
+			this->fcgCXYC48ColMatConv->Name = L"fcgCXYC48ColMatConv";
+			this->fcgCXYC48ColMatConv->Size = System::Drawing::Size(132, 22);
+			this->fcgCXYC48ColMatConv->TabIndex = 5;
+			this->fcgCXYC48ColMatConv->Tag = L"chValue";
 			// 
 			// frmConfig
 			// 

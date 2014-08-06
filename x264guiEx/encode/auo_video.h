@@ -18,6 +18,8 @@ static const int CF_YUY2 = 0;
 static const int CF_YC48 = 1;
 static const int CF_RGB  = 2;
 
+static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB" };
+
 typedef struct {
 	DWORD FOURCC;   //FOURCC
 	DWORD size;  //1ピクセルあたりバイト数

@@ -41,6 +41,7 @@ typedef struct {
 	char tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
 	char cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
 	char cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
+	int  yc48_colormatrix_conv;    //YC48の色変換
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {

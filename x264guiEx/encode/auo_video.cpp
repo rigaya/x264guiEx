@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "output.h"
-#include "convert.h"
 #include "vphelp_client.h"
 
 #pragma warning( push )
@@ -34,6 +33,7 @@
 #include "auo_error.h"
 #include "auo_conf.h"
 #include "auo_util.h"
+#include "auo_convert.h"
 #include "auo_system.h"
 #include "auo_version.h"
 
@@ -214,55 +214,6 @@ static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
 	return pipe_read;
 }
 
-static void convert_func_info(const CONF_X264 *cx) {
-	const char *input_fmt = NULL;
-	const char *output_fmt = NULL;
-	static const char * const USE_SIMD[]   = { "", ", using" };
-	static const char * const USE_SSE2[]   = { "", " SSE2" };
-	static const char * const USE_SSE3[]   = { "", " SSE3" };
-	static const char * const USE_SSSE3[]  = { "", " SSSE3" };
-	static const char * const USE_SSE4_1[] = { "", " SSE4.1" };
-	BOOL use_sse2 = FALSE;
-	BOOL use_sse3 = FALSE;
-	BOOL use_ssse3 = FALSE;
-	BOOL use_sse4_1 = FALSE;
-	const char *ip_mode = "";
-	switch (cx->output_csp) {
-		case OUT_CSP_YUV444:
-			input_fmt = "YC48";
-			output_fmt = "YUV444";
-			use_sse2 = check_sse2();
-			if (cx->use_10bit_depth && check_sse4_1()) {
-				use_sse3 = TRUE;
-				use_ssse3 = TRUE;
-				use_sse4_1 = TRUE;
-			}
-			break;
-		case OUT_CSP_RGB:
-			if ((use_ssse3 = (check_ssse3())) == FALSE)
-				use_sse2 = check_sse2();
-			write_log_auo_line_fmt(LOG_INFO, "Sorting RGB%s%s%s", 
-				USE_SIMD[(use_sse2 | use_ssse3) != 0], USE_SSE2[use_sse2 != 0], USE_SSSE3[use_ssse3 != 0]);
-			return;
-		case OUT_CSP_YUV420:
-			ip_mode = (cx->interlaced) ? "i" : "p";
-			//下へフォールスルー
-		case OUT_CSP_YUV422:
-		default:
-			input_fmt = (cx->use_10bit_depth) ? "YC48" : "YUY2";
-			output_fmt = specify_x264_input_csp(cx->output_csp);
-			use_sse2 = check_sse2();
-			use_ssse3 = (cx->use_10bit_depth && check_ssse3());
-			use_sse4_1 = (cx->use_10bit_depth && check_sse4_1());
-			break;
-	}
-	const char *bit_depth  = (cx->use_10bit_depth) ? "(10bit)" : "";
-	const char *ycc        = (cx->use_10bit_depth && cx->fullrange) ? " fullrange mode" : "";
-	//以上情報を表示
-	write_log_auo_line_fmt(LOG_INFO, "converting %s -> %s%s%s%s%s%s%s%s%s", input_fmt, output_fmt, ip_mode, bit_depth, ycc, 
-		USE_SIMD[(use_sse2 | use_sse3 | use_ssse3 | use_sse4_1) != 0], USE_SSE2[use_sse2 != 0], USE_SSE3[use_sse3 != 0], USE_SSSE3[use_ssse3 != 0], USE_SSE4_1[use_sse4_1 != 0]); 
-}
-
 static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
 	CONF_X264GUIEX prm;
 	//パラメータをコピー
@@ -373,8 +324,11 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	PathGetDirectory(x264dir, sizeof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
-	const func_convert_frame convert_frame = get_convert_func(oip->w, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange);
-	convert_func_info(&conf->x264);
+	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
+	if (convert_frame == NULL) {
+		ret |= OUT_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
+		return ret;
+	}
 	//映像バッファ用メモリ確保
 	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, conf->x264.use_10bit_depth)) {
 		ret |= OUT_RESULT_ERROR; error_malloc_pixel_data();
@@ -503,8 +457,6 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 		write_log_auo_enc_time("x264エンコード時間", tm_x264enc_fin - tm_x264enc_start);
 	}
 
-	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
-
 	//解放処理
 	if (pipes.stdErr.enable)
 		CloseHandle(pipes.stdErr.h_read);
@@ -560,6 +512,8 @@ DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 		set_window_title_x264(pe);
 		ret |= x264_out(conf, oip, pe, sys_dat);
 	}
+
+	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 
 	return ret;
 }

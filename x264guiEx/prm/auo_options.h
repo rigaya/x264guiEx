@@ -42,6 +42,10 @@ const int   OUT_CSP_YUV422 = 1;
 const int   OUT_CSP_YUV444 = 2;
 const int   OUT_CSP_RGB    = 3;
 
+const int YC48_COLMAT_CONV_AUTO  = 0;
+const int YC48_COLMAT_CONV_NONE  = 1;
+const int YC48_COLMAT_CONV_BT709 = 2;
+
 //x264のinput-cspとして使用するもの
 //OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 static const char * const specify_csp[] = {

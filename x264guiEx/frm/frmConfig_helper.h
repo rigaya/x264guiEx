@@ -241,3 +241,9 @@ const WCHAR * const interlaced_desc[] = {
 	L"インタレ (bff)",
 	NULL
 };
+const WCHAR * const yc48_colmat_conv_desc[] = {
+	L"自動",
+	L"無変換",
+	L"BT.601 → BT.709",
+	NULL
+};

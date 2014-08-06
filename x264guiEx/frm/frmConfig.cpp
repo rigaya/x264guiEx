@@ -718,31 +718,32 @@ System::Void frmConfig::InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *
 
 System::Void frmConfig::InitComboBox() {
 	//コンボボックスに値を設定する
-	setComboBox(fcgCXAQMode,        list_aq);
-	setComboBox(fcgCXAspectRatio,   aspect_desc);
-	setComboBox(fcgCXAudioTempDir,  audtempdir_desc);
-	setComboBox(fcgCXBAdpapt,       list_b_adpat);
-	setComboBox(fcgCXBpyramid,      list_b_pyramid);
-	setComboBox(fcgCXColorMatrix,   list_colormatrix);
-	setComboBox(fcgCXColorPrim,     list_colorprim);
-	setComboBox(fcgCXDirectME,      list_direct);
-	setComboBox(fcgCXLevel,         list_x264guiEx_level);
-	setComboBox(fcgCXLogLevel,      list_log_type);
-	setComboBox(fcgCXME,            list_me);
-	setComboBox(fcgCXMP4BoxTempDir, mp4boxtempdir_desc);
-	setComboBox(fcgCXNalHrd,        list_nal_hrd);
-	setComboBox(fcgCXOutputCsp,     list_output_csp);
-	setComboBox(fcgCXPreset,        sys_dat->exstg->s_x264.preset.name);
-	setComboBox(fcgCXProfile,       sys_dat->exstg->s_x264.profile.name);
-	setComboBox(fcgCXTune,		    sys_dat->exstg->s_x264.tune.name);
-	setComboBox(fcgCXSubME,         list_subme);
-	setComboBox(fcgCXTempDir,       tempdir_desc);
-	setComboBox(fcgCXTransfer,      list_transfer);
-	setComboBox(fcgCXTrellis,       list_trellis);
-	setComboBox(fcgCXVideoFormat,   list_videoformat);
-	setComboBox(fcgCXX264Mode,      x264_encodemode_desc);
-	setComboBox(fcgCXWeightP,       list_weightp);
-	setComboBox(fcgCXInterlaced,    interlaced_desc);
+	setComboBox(fcgCXAQMode,         list_aq);
+	setComboBox(fcgCXAspectRatio,    aspect_desc);
+	setComboBox(fcgCXAudioTempDir,   audtempdir_desc);
+	setComboBox(fcgCXBAdpapt,        list_b_adpat);
+	setComboBox(fcgCXBpyramid,       list_b_pyramid);
+	setComboBox(fcgCXColorMatrix,    list_colormatrix);
+	setComboBox(fcgCXColorPrim,      list_colorprim);
+	setComboBox(fcgCXDirectME,       list_direct);
+	setComboBox(fcgCXLevel,          list_x264guiEx_level);
+	setComboBox(fcgCXLogLevel,       list_log_type);
+	setComboBox(fcgCXME,             list_me);
+	setComboBox(fcgCXMP4BoxTempDir,  mp4boxtempdir_desc);
+	setComboBox(fcgCXNalHrd,         list_nal_hrd);
+	setComboBox(fcgCXOutputCsp,      list_output_csp);
+	setComboBox(fcgCXPreset,         sys_dat->exstg->s_x264.preset.name);
+	setComboBox(fcgCXProfile,        sys_dat->exstg->s_x264.profile.name);
+	setComboBox(fcgCXTune,		     sys_dat->exstg->s_x264.tune.name);
+	setComboBox(fcgCXSubME,          list_subme);
+	setComboBox(fcgCXTempDir,        tempdir_desc);
+	setComboBox(fcgCXTransfer,       list_transfer);
+	setComboBox(fcgCXTrellis,        list_trellis);
+	setComboBox(fcgCXVideoFormat,    list_videoformat);
+	setComboBox(fcgCXX264Mode,       x264_encodemode_desc);
+	setComboBox(fcgCXWeightP,        list_weightp);
+	setComboBox(fcgCXInterlaced,     interlaced_desc);
+	setComboBox(fcgCXYC48ColMatConv, yc48_colmat_conv_desc);
 
 	setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
 	setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);
@@ -993,6 +994,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
 		fcgCBAuoTcfileout->Checked         = cnf->vid.auo_tcfile_out != 0;
 		fcgCBCheckKeyframes->Checked       = cnf->vid.check_keyframe != 0;
+		fcgCXYC48ColMatConv->SelectedIndex = cnf->vid.yc48_colormatrix_conv;
 
 		SetCXIndex(fcgCXX264Priority,        cnf->vid.priority);
 		SetCXIndex(fcgCXTempDir,             cnf->oth.temp_dir);
@@ -1135,6 +1137,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->vid.auo_tcfile_out         = fcgCBAuoTcfileout->Checked;
 	cnf->vid.check_keyframe         = fcgCBCheckKeyframes->Checked;
 	cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
+	cnf->vid.yc48_colormatrix_conv  = fcgCXYC48ColMatConv->SelectedIndex;
 	cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
 	GetCHARfromString(cnf->vid.cmdex, sizeof(cnf->vid.cmdex), fcgTXCmdEx->Text);
 

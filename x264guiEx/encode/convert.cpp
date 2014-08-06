@@ -14,8 +14,6 @@
 #include <smmintrin.h> //イントリンシック命令 SSE4.1
 
 #include "convert.h"
-#include "auo_options.h"
-#include "auo_util.h"
 
 ///---------------------------
 ///
@@ -38,20 +36,20 @@
 ///   YC48(y,cb,cr) -> YUV(8bit)
 ///
 ///           Y   = clamp((y * 219 + 383)>>12) + 16, 0, 255)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 + 0)>>16) + 16, 0, 255)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 0)>>15) + 16, 0, 255)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 + 0)>>15) + 16, 0, 255)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 0)>>16) + 16, 0, 255)
 ///
 ///   YC48 -> YUV(10bit) YC圧縮
 ///
 ///           Y   = clamp(((y * 219 + 383)>>10) + 64, 0, 1023)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 +  0)>>14) + 64, 0, 1023)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 66*2)>>13) + 64, 0, 1023)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 +  0)>>13) + 64, 0, 1023)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 66*2)>>14) + 64, 0, 1023)
 ///
 ///   YC48 -> YUV(10bit) fullrange
 ///
 ///           Y   = clamp(((y * 3517 + 3867)>>14) + 64, 0, 1023)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 899 +  1991)>>13) + 64, 0, 1023)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 899 + 1991*2)>>12) + 64, 0, 1023)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 899 +  1991)>>12) + 64, 0, 1023)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 899 + 1991*2)>>13) + 64, 0, 1023)
 ///
 
 static const int UV_OFFSET     = (1<<12);
@@ -64,6 +62,16 @@ static const int LSFT_YCC_10   = 6;
 //各ビットの最大値
 static const int LIMIT_8    = (1<< 8) - 1;
 static const int LIMIT_10   = (1<<10) - 1;
+
+//YC48 bt601 -> bt709
+static const int COLMAT_MUL_YY   = 32768;
+static const int COLMAT_MUL_Yb   = -3869;
+static const int COLMAT_MUL_Yr   = -6970;
+static const int COLMAT_MUL_bb   = 33379;
+static const int COLMAT_MUL_br   =  3772;
+static const int COLMAT_MUL_rb   =  2440;
+static const int COLMAT_MUL_rr   = 33593;
+static const int COLMAT_MUL_RSHT =    15;
 
 //YC圧縮レンジ用定数
 static const int Y_L_MUL    = 219;
@@ -114,13 +122,13 @@ static const __m128i MASK_YCP2UV   = _mm_set_epi16(0, -1, -1, 0, 0, 0, 0, -1);
 static const __m128i SUFFLE_YCP_Y  = _mm_set_epi8(11, 10,  5,  4, 15, 14,  9,  8,  3,  2, 13, 12,  7,  6,  1 ,  0);
 static const __m128i SUFFLE_YCP_UV = _mm_set_epi8( 9,  8,  7,  6, 13, 12, 11, 10,  1,  0, 15, 14,  5,  4,  3 ,  2);
 
+#ifndef clamp
+#define clamp(x, low, high) (((x) <= (high)) ? (((x) >= (low)) ? (x) : (low)) : (high))
+#endif
+
 //SSE4.1の_mm_blendv_epi8(__m128i a, __m128i b, __m128i mask) のSSE2版のようなもの
 static inline __m128i select_by_mask(__m128i a, __m128i b, __m128i mask) {
 	return _mm_or_si128( _mm_andnot_si128(mask,a), _mm_and_si128(b,mask) );
-}
-
-func_audio_16to8 get_audio_16to8_func() {
-	return (check_sse2()) ? convert_audio_16to8_sse2 : convert_audio_16to8;
 }
 
 //直前の16byteアライメント
@@ -177,175 +185,6 @@ void convert_audio_16to8_sse2(BYTE *dst, short *src, int n) {
 		byte++;
 		sh++;
 	}
-}
-//使用する関数を選択する
-static func_convert_frame get_convert_func_yuv422(BOOL use10bit, BOOL fullrange) {
-	if (!use10bit) {
-		return     (check_sse2())     ? convert_yuy2_to_nv16_sse2              : convert_yuy2_to_nv16;
-	} else {
-		if (!fullrange) {
-			if      (check_sse4_1())
-					return              convert_yc48_to_nv16_10bit_sse4_1;
-				else if (check_ssse3())
-					return              convert_yc48_to_nv16_10bit_ssse3;
-				else if (check_sse2())
-					return              convert_yc48_to_nv16_10bit_sse2;
-				else
-					return              convert_yc48_to_nv16_10bit;
-		} else {
-			if      (check_sse4_1())
-					return              convert_yc48_to_nv16_10bit_full_sse4_1;
-				else if (check_ssse3())
-					return              convert_yc48_to_nv16_10bit_full_ssse3;
-				else if (check_sse2())
-					return              convert_yc48_to_nv16_10bit_full_sse2;
-				else
-					return              convert_yc48_to_nv16_10bit_full;
-		}
-	}
-}
-
-static func_convert_frame get_convert_func_yuv444(BOOL use10bit, BOOL fullrange) {
-	if (!use10bit) {
-		return         (check_sse2()) ? convert_yc48_to_yuv444_sse2            : convert_yc48_to_yuv444;
-	} else {
-		if (!fullrange) {
-			if         (check_sse4_1())
-				return                  convert_yc48_to_yuv444_10bit_sse4_1;
-			else if    (check_sse2())
-				return                  convert_yc48_to_yuv444_10bit_sse2;
-			else
-				return                  convert_yc48_to_yuv444_10bit;
-		} else
-			return     (check_sse2()) ? convert_yc48_to_yuv444_10bit_full_sse2 : convert_yc48_to_yuv444_10bit_full;
-	}
-}
-
-static func_convert_frame get_convert_func_rgb() {
-	if      (check_ssse3())
-		return sort_to_rgb_ssse3;
-	else if (check_sse2())
-		return sort_to_rgb_sse2;
-	else
-		return sort_to_rgb;
-}
-
-static func_convert_frame get_convert_func_yuv420(int width, BOOL use10bit, BOOL interlaced, BOOL fullrange) {
-	if (!use10bit) {
-		if (!interlaced)
-			return     (check_sse2()) ? ((width%16==0) ? convert_yuy2_to_nv12_sse2_mod16              : convert_yuy2_to_nv12_sse2)              : convert_yuy2_to_nv12;
-		else
-			return     (check_sse2()) ? ((width%16==0) ? convert_yuy2_to_nv12_i_sse2_mod16            : convert_yuy2_to_nv12_i_sse2)            : convert_yuy2_to_nv12_i;
-	} else {
-		if (!interlaced) {
-			if (!fullrange) {
-				if      (check_sse4_1())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_sse4_1_mod8       : convert_yc48_to_nv12_10bit_sse4_1;
-				else if (check_ssse3())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_ssse3_mod8        : convert_yc48_to_nv12_10bit_ssse3;
-				else if (check_sse2())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_sse2              : convert_yc48_to_nv12_10bit_sse2;
-				else
-					return                               convert_yc48_to_nv12_10bit;
-			} else {
-				if      (check_sse4_1())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_sse4_1_mod8  : convert_yc48_to_nv12_10bit_full_sse4_1;
-				else if (check_ssse3())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_ssse3_mod8   : convert_yc48_to_nv12_10bit_full_ssse3;
-				else if (check_sse2())
-					return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_sse2_mod8    : convert_yc48_to_nv12_10bit_full_sse2;
-				else
-					return                               convert_yc48_to_nv12_10bit_full;
-			}
-		} else {
-			if (!fullrange) {
-				if      (check_sse4_1())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_sse4_1_mod8      : convert_yc48_to_nv12_i_10bit_sse4_1;
-				else if (check_ssse3())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_ssse3_mod8       : convert_yc48_to_nv12_i_10bit_ssse3;
-				else if (check_sse2())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_sse2_mod8        : convert_yc48_to_nv12_i_10bit_sse2;
-				else
-					return                               convert_yc48_to_nv12_i_10bit;
-			} else {
-				if      (check_sse4_1())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8 : convert_yc48_to_nv12_i_10bit_full_sse4_1;
-				else if (check_ssse3())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_ssse3_mod8  : convert_yc48_to_nv12_i_10bit_full_ssse3;
-				else if (check_sse2())
-					return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_sse2_mod8   : convert_yc48_to_nv12_i_10bit_full_sse2;
-				else
-					return                               convert_yc48_to_nv12_i_10bit_full;
-			}
-		}
-	}
-}
-
-//使用する関数を選択する
-func_convert_frame get_convert_func(int width, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange) {
-	switch (output_csp) {
-		case OUT_CSP_YUV422:
-			return get_convert_func_yuv422(use10bit, fullrange);
-		case OUT_CSP_YUV444:
-			return get_convert_func_yuv444(use10bit, fullrange);
-		case OUT_CSP_RGB:
-			return get_convert_func_rgb();
-		case OUT_CSP_YUV420:
-		default:
-			return get_convert_func_yuv420(width, use10bit, interlaced, fullrange);
-	}
-}
-
-BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL use10bit) {
-	BOOL ret = TRUE;
-	int pixel_size = (use10bit) ? sizeof(short) : sizeof(BYTE);
-	switch (output_csp) {
-		case OUT_CSP_RGB:
-			if (check_ssse3())
-				width = ceil_div_int(width, 5) * 5;
-			break;
-		case OUT_CSP_YUV420:
-		case OUT_CSP_YUV422:
-		case OUT_CSP_YUV444:
-		default:
-			if (check_sse2())
-				width = (width + 15) & ~15;
-			break;
-	}
-	int frame_size = width * height * pixel_size;
-	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
-	switch (output_csp) {
-		case OUT_CSP_YUV422:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, 16)) == NULL)
-				ret = FALSE;
-			pixel_data->data[1] = pixel_data->data[0] + frame_size;
-			break;
-		case OUT_CSP_YUV444:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, 16)) == NULL)
-				ret = FALSE;
-			pixel_data->data[1] = pixel_data->data[0] + frame_size;
-			pixel_data->data[2] = pixel_data->data[1] + frame_size;
-			break;
-		case OUT_CSP_RGB:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, 16)) == NULL)
-				ret = FALSE;
-			break;
-		case OUT_CSP_YUV420:
-		default:
-			//YUV一気に確保
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, 16)) == NULL)
-				ret = FALSE;
-			//割り振り
-			pixel_data->data[1] = pixel_data->data[0] + frame_size;
-			break;
-	}
-	return ret;
-}
-
-void free_pixel_data(CONVERT_CF_DATA *pixel_data) {
-	if (pixel_data->data[0])
-		_mm_free(pixel_data->data[0]);
-	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 }
 //AviutlのRGBをx264用に並び替える
 void sort_to_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
@@ -688,28 +527,6 @@ void convert_yuy2_to_nv12_i_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const
 static int inline pixel_YC48_to_YUV(int y, int mul, int add, int rshift, int ycc, int min, int max) {
 	return clamp(((y * mul + add) >> rshift) + ycc, min, max);
 }
-void convert_yc48_to_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
-	int x = 0, y = 0, i = 0;
-	PIXEL_YC *ycp;
-	short *dst_Y = (short *)pixel_data->data[0];
-	short *dst_C = (short *)pixel_data->data[1];
-	short *Y = NULL, *C = (short *)dst_C;
-	for (y = 0; y < height; y += 2) {
-		i = width * y;
-		ycp = (PIXEL_YC *)pixel + i;
-		Y = (short *)dst_Y + i;
-		for (x = 0; x < width; x += 2) {
-			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			C++;
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			C++;
-		}
-	}
-}
 //YC48から輝度をロードする
 static inline void _mm_set_ycp_y(__m128i& x0, short *ycp) {
 	x0 = _mm_insert_epi16(x0, *(ycp     ), 0);
@@ -742,6 +559,41 @@ static inline void _mm_set_ycp_c_sse4(__m128i& x0, short *ycp) {
 	x0 = _mm_insert_epi32(x0, *p, 2);
 	p += 3;
 	x0 = _mm_insert_epi32(x0, *p, 3);
+}
+
+static void convert_yc48_bt601_to_bt709(void *pixel, const int width, const int height) {
+	PIXEL_YC * const ycp_fin = (PIXEL_YC *)pixel + width * height;
+	short cb, cr;
+	for (PIXEL_YC *ycp = (PIXEL_YC *)pixel; ycp < ycp_fin; ycp++) {
+		cb = ycp->cb;
+		cr = ycp->cr;
+		ycp->y  += (short)((cb * COLMAT_MUL_Yb + cr * COLMAT_MUL_Yr) >> COLMAT_MUL_RSHT);
+		ycp->cb  = (short)((cb * COLMAT_MUL_bb + cr * COLMAT_MUL_br) >> COLMAT_MUL_RSHT);
+		ycp->cr  = (short)((cb * COLMAT_MUL_rb + cr * COLMAT_MUL_rr) >> COLMAT_MUL_RSHT);
+	}
+}
+
+void convert_yc48_to_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	int x = 0, y = 0, i = 0;
+	PIXEL_YC *ycp;
+	short *dst_Y = (short *)pixel_data->data[0];
+	short *dst_C = (short *)pixel_data->data[1];
+	short *Y = NULL, *C = (short *)dst_C;
+	for (y = 0; y < height; y += 2) {
+		i = width * y;
+		ycp = (PIXEL_YC *)pixel + i;
+		Y = (short *)dst_Y + i;
+		for (x = 0; x < width; x += 2) {
+			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			C++;
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			C++;
+		}
+	}
 }
 void convert_yc48_to_nv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	int x = 0, y = 0, i = 0;
@@ -4165,4 +4017,222 @@ void convert_yc48_to_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 
 		_mm_stream_si128((__m128i *)dst_C, x0);
 	}
+}
+
+void convert_yc48_to_bt709_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit(pixel, pixel_data, width, height);
+}
+void convert_yc48_to_bt709_nv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit(pixel, pixel_data, width, height);
+}
+void convert_yc48_to_bt709_nv12_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_ssse3_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_ssse3_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_sse4_1_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_sse4_1_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_ssse3_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_ssse3_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_sse4_1_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_sse2_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_sse2_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_10bit_full_sse2_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv12_i_10bit_full_sse2_mod8(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit_full(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit_full_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_yuv444_10bit_full_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_full(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_sse4_1(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_full_sse2(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_full_ssse3(pixel, pixel_data, width, height);
+}
+
+void convert_yc48_to_bt709_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	convert_yc48_bt601_to_bt709(pixel, width, height);
+	convert_yc48_to_nv16_10bit_full_sse4_1(pixel, pixel_data, width, height);
 }
