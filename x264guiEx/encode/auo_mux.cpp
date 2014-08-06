@@ -106,7 +106,7 @@ static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize)
 	__int64 muxout_filesize = 0;
 	if (!GetFileSizeInt64(muxout, &muxout_filesize))
 		return FALSE;
-	if (muxout_filesize <= (__int64)(expected_filesize * 0.99 * (1.0 - exp((double)-expected_filesize / (128.0 * 1024.0)))))
+	if (muxout_filesize <= (__int64)(expected_filesize * 0.99 * (1.0 - exp(-1.0 * expected_filesize / (128.0 * 1024.0)))))
 		return FALSE;
 	return TRUE;
 }
