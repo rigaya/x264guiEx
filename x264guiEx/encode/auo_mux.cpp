@@ -22,6 +22,7 @@
 #include "auo_error.h"
 #include "auo_conf.h"
 #include "auo_util.h"
+#include "auo_chapter.h"
 #include "auo_system.h"
 #include "auo_encode.h"
 
@@ -110,7 +111,7 @@ static BOOL check_muxout_filesize(const char *muxout, __int64 expected_filesize)
 	return TRUE;
 }
 
-static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
+static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, __int64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
 	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0;
@@ -118,7 +119,7 @@ static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, c
 	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
 	char *audstr = (enable_aud_mux) ? mux_stg->aud_cmd : "";
 	char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
-	char *exstr  = muxer_mode->cmd;
+	char *exstr  = (conf->mux.apple_mode && strlen(muxer_mode->cmd_apple)) ? muxer_mode->cmd_apple : muxer_mode->cmd;
 	//音声用コマンド
 	replace(cmd, nSize, "%{au_cmd}",  audstr);
 	//タイムコード用
@@ -138,8 +139,36 @@ static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, c
 	} else {
 		replace(cmd, nSize, "%{tmp_cmd}", "");
 	}
-	//拡張オプション
-	replace(cmd, nSize, "%{ex_cmd}",  exstr);
+	//拡張オプションとチャプター処理
+	//とりあえず必要なくてもチャプターファイル名を作る
+	char chap_file[MAX_PATH_LEN];
+	char chap_apple[MAX_PATH_LEN];
+	set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), 
+		muxer_mode->chap_file, pe, sys_dat, oip->savefile);
+	replace(cmd, nSize, "%{ex_cmd}", exstr);
+	//もし、チャプターファイル名への置換があるなら、チャプターファイルの存在をチェックする
+	if ((strstr(cmd, "%{chapter}") || strstr(cmd, "%{chap_apple}")) && !PathFileExists(chap_file)) {
+		//チャプターファイルが存在しない
+		warning_mux_no_chapter_file();
+		replace(cmd, nSize, "%{chapter}",    "");
+		replace(cmd, nSize, "%{chap_apple}", "");
+	} else {
+		replace(cmd, nSize, "%{chapter}", chap_file);
+		//mp4系ならapple形式チャプター追加も考慮する
+		if (pe->muxer_to_be_used != MUXER_MKV) {
+			//apple形式チャプターファイルへの置換が行われたら、apple形式チャプターファイルを作成する
+			if (strstr(cmd, "%{chap_apple}")) {
+				DWORD duration_ms = (DWORD)(((__int64)oip->n * (__int64)oip->scale * 1000) / (__int64)oip->rate);
+				AuoChapStatus sts = convert_chapter(chap_apple, chap_file, CODE_PAGE_UNSET, duration_ms);
+				if (sts != AUO_CHAP_ERR_NONE) {
+					warning_mux_chapter(sts);
+					replace(cmd, nSize, "%{chap_apple}", "");
+				} else {
+					replace(cmd, nSize, "%{chap_apple}", chap_apple);
+				}
+			}
+		}
+	}
 	//tc2mp4ならmp4boxの場所を指定
 	if (pe->muxer_to_be_used == MUXER_TC2MP4)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -L \"%s\"", sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
@@ -147,6 +176,7 @@ static void build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, c
 	cmd_replace(cmd, nSize, pe, sys_dat, oip->savefile);
 	//情報表示
 	show_mux_info(mux_stg->dispname, enable_aud_mux, enable_tc_mux, muxer_mode->name);
+	return OUT_RESULT_SUCCESS;
 }
 
 DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
@@ -182,7 +212,8 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	BOOL filesize_check = get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
 	
 	//コマンドライン生成・情報表示
-	build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, (filesize_check) ? expected_filesize : -1);
+	if (build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, (filesize_check) ? expected_filesize : -1))
+		return OUT_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
 	sprintf_s(muxargs, sizeof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
 
 	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, NULL, mux_priority, FALSE, conf->mux.minimized)) != RP_SUCCESS) {

@@ -113,8 +113,10 @@ typedef struct {
 } AUDIO_SETTINGS;
 
 typedef struct {
-	char *name;  //拡張オプションの名前
-	char *cmd;   //拡張オプションのコマンドライン
+	char *name;      //拡張オプションの名前
+	char *cmd;       //拡張オプションのコマンドライン
+	char *cmd_apple; //Apple用モードの時のコマンドライン
+	char *chap_file; //チャプターファイル
 } MUXER_CMD_EX;
 
 typedef struct {
@@ -187,11 +189,12 @@ typedef struct {
 } LOCAL_SETTINGS;
 
 typedef struct {
-	char aud[MAX_APPENDIX_LEN];  //音声ファイル名に追加する文字列
-	char tc[MAX_APPENDIX_LEN];   //タイムコードファイル名に追加する文字列
-	char qp[MAX_APPENDIX_LEN];   //qpファイル名に追加する文字列
-	char chap[MAX_APPENDIX_LEN]; //チャプターファイル名に追加する文字列
-	char wav[MAX_APPENDIX_LEN];  //一時wavファイル名に追加する文字列
+	char aud[MAX_APPENDIX_LEN];        //音声ファイル名に追加する文字列
+	char tc[MAX_APPENDIX_LEN];         //タイムコードファイル名に追加する文字列
+	char qp[MAX_APPENDIX_LEN];         //qpファイル名に追加する文字列
+	char chap[MAX_APPENDIX_LEN];       //チャプターファイル名に追加する文字列
+	char chap_apple[MAX_APPENDIX_LEN]; //Apple形式のチャプター名に追加する文字列
+	char wav[MAX_APPENDIX_LEN];        //一時wavファイル名に追加する文字列
 } FILE_APPENDIX;
 
 class guiEx_settings {
@@ -239,12 +242,13 @@ public:
 	guiEx_settings(BOOL disable_loading);
 	~guiEx_settings();
 
-	BOOL get_init_success();  //iniファイルが存在し、正しいバージョンだったか
-	void load_encode_stg();   //映像・音声・動画関連の設定の読み込み・更新
-	void load_fn_replace();   //一時ファイル名置換等の設定の読み込み・更新
-	void load_log_win();      //ログウィンドウ等の設定の読み込み・更新
-	void load_append();       //各種ファイルの設定の読み込み・更新
-	void load_fbc();          //簡易ビットレート計算機設定の読み込み・更新
+	BOOL get_init_success();                 //iniファイルが存在し、正しいバージョンだったか
+	BOOL get_init_success(BOOL no_message);  //iniファイルが存在し、正しいバージョンだったか
+	void load_encode_stg();                  //映像・音声・動画関連の設定の読み込み・更新
+	void load_fn_replace();                  //一時ファイル名置換等の設定の読み込み・更新
+	void load_log_win();                     //ログウィンドウ等の設定の読み込み・更新
+	void load_append();                      //各種ファイルの設定の読み込み・更新
+	void load_fbc();                         //簡易ビットレート計算機設定の読み込み・更新
 
 	void save_local();        //ファイルの場所等の設定の保存
 	void save_log_win();      //ログウィンドウ等の設定の保存

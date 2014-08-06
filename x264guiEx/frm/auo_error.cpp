@@ -10,6 +10,7 @@
 #include "auo.h"
 #include "auo_frm.h" 
 #include "auo_pipe.h"
+#include "auo_chapter.h"
 
 void warning_failed_getting_temp_path() {
 	write_log_auo_line(LOG_WARNING, "一時フォルダ名取得に失敗しました。一時フォルダ指定を解除しました。");
@@ -170,4 +171,40 @@ void warning_no_auto_save_log_dir() {
 
 void info_encoding_aborted() {
 	write_log_auo_line(LOG_INFO, "エンコードを中断しました。");
+}
+
+void warning_mux_no_chapter_file() {
+	write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。");
+}
+
+void warning_mux_chapter(int sts) {
+	switch ((AuoChapStatus)sts) {
+		case AUO_CHAP_ERR_NONE: break;
+		case AUO_CHAP_ERR_FILE_OPEN:        write_log_auo_line(LOG_WARNING, "チャプターファイルのオープンに失敗しました。"); break;
+		case AUO_CHAP_ERR_FILE_READ:        write_log_auo_line(LOG_WARNING, "チャプターファイルの読み込みに失敗しました。"); break;
+		case AUO_CHAP_ERR_FILE_WRITE:       write_log_auo_line(LOG_WARNING, "チャプターファイルの書き込みに失敗しました。"); break;
+		case AUO_CHAP_ERR_FILE_SWAP:        write_log_auo_line(LOG_WARNING, "チャプターファイル名の交換に失敗しました。"); break;
+		case AUO_CHAP_ERR_CP_DETECT:        write_log_auo_line(LOG_WARNING, "チャプターファイルのコードページの判定に失敗しました。"); break;
+		case AUO_CHAP_ERR_INIT_IMUL2:       write_log_auo_line(LOG_WARNING, "コードページ変換の初期化に失敗しました。"); break;
+		case AUO_CHAP_ERR_INVALID_FMT:      write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルの書式が不正です。"); break;
+		case AUO_CHAP_ERR_NULL_PTR:         write_log_auo_line(LOG_WARNING, "ぬるぽ。"); break;
+		case AUO_CHAP_ERR_INIT_XML_PARSER:  write_log_auo_line(LOG_WARNING, "Xml Parserの初期化に失敗しました。"); break;
+		case AUO_CHAP_ERR_INIT_READ_STREAM: write_log_auo_line(LOG_WARNING, "チャプターファイルのオープンに失敗しました。"); break;
+		case AUO_CHAP_ERR_FAIL_SET_STREAM:  write_log_auo_line(LOG_WARNING, "Xml Parserと入力ストリームの接続に失敗しました。"); break;
+		case AUO_CHAP_ERR_PARSE_XML:        write_log_auo_line(LOG_WARNING, "チャプターファイルの読み取りに失敗しました。"); break;
+		default:                            write_log_auo_line(LOG_WARNING, "チャプターmux: 不明なエラーが発生しました。"); break;
+	}
+	return;
+}
+
+void error_select_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv) {
+	write_log_auo_line(    LOG_ERROR, "色形式変換関数の取得に失敗しました。");
+	write_log_auo_line_fmt(LOG_ERROR, "%dx%d%s, output-csp %s%s%s, colormatrix変換 %d",
+		width, height,
+		(interlaced) ? "i" : "p",
+		specify_csp[output_csp],
+		(use10bit) ? "(10bit)" : "",
+		(fullrange) ? ", fullrange" : "",
+		yc48_colmat_conv
+		);
 }

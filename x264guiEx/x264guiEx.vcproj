@@ -263,6 +263,46 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\encode\auo_chapter.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\encode\auo_convert.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\encode\auo_encode.cpp"
 					>
 					<FileConfiguration
@@ -578,6 +618,14 @@
 				</File>
 				<File
 					RelativePath=".\encode\auo_audio.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\auo_chapter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\auo_convert.h"
 					>
 				</File>
 				<File

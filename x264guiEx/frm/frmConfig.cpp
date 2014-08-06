@@ -1058,6 +1058,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 
 		//mux
 		fcgCBMP4MuxerExt->Checked          = cnf->mux.disable_mp4ext == 0;
+		fcgCBMP4MuxApple->Checked          = cnf->mux.apple_mode != 0;
 		SetCXIndex(fcgCXMP4CmdEx,            cnf->mux.mp4_mode);
 		SetCXIndex(fcgCXMP4BoxTempDir,       cnf->mux.mp4_temp_dir);
 		fcgCBMKVMuxerExt->Checked          = cnf->mux.disable_mkvext == 0;
@@ -1198,6 +1199,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 
 	//mux部
 	cnf->mux.disable_mp4ext         = !fcgCBMP4MuxerExt->Checked;
+	cnf->mux.apple_mode             = fcgCBMP4MuxApple->Checked;
 	cnf->mux.mp4_mode               = fcgCXMP4CmdEx->SelectedIndex;
 	cnf->mux.mp4_temp_dir           = fcgCXMP4BoxTempDir->SelectedIndex;
 	cnf->mux.disable_mkvext         = !fcgCBMKVMuxerExt->Checked;

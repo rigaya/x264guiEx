@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "auo.h"
+#include "auo_util.h"
 #include "auo_version.h"
 
 DWORD cpu_core_count() {
@@ -83,12 +84,13 @@ size_t calc_replace_mem_required(char *str, const char *old_str, const char *new
 		size += move_len;
 	return size;
 }
-//文字列の置換 str内で置き換える
-void replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
+//文字列の置換 str内で置き換える 置換を実行した回数を返す
+int replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
 	char *c = str;
 	char *p = NULL;
 	char *fin = str + strlen(str) + 1;//null文字まで
 	char * const limit = str + nSize;
+	int count = 0;
 	const size_t old_len = strlen(old_str);
 	const size_t new_len = strlen(new_str);
 	const int move_len = new_len - old_len;
@@ -96,13 +98,15 @@ void replace(char *str, size_t nSize, const char *old_str, const char *new_str) 
 		while ((p = strstr(c, old_str)) != NULL) {
 			if (move_len) {
 				if (fin + move_len > limit)
-					return;
+					break;
 				memmove((c = p + new_len), p + old_len, fin - (p + old_len));
 				fin += move_len;
 			}
 			memcpy(p, new_str, new_len);
+			count++;
 		}
 	}
+	return count;
 }
 
 //ファイル名(拡張子除く)の後ろに文字列を追加する
@@ -257,4 +261,147 @@ BOOL check_process_exitcode(PROCESS_INFORMATION *pi) {
 	if (!GetExitCodeProcess(pi->hProcess, &exit_code))
 		return TRUE;
 	return exit_code != 0;
+}
+
+BOOL swap_file(const char *fileA, const char *fileB) {
+	if (!PathFileExists(fileA) || !PathFileExists(fileB))
+		return FALSE;
+
+	char filetemp[MAX_PATH_LEN];
+	char appendix[MAX_APPENDIX_LEN];
+	strcpy_s(appendix, sizeof(appendix), ".swap.tmp");
+	apply_appendix(filetemp, sizeof(filetemp), fileA, appendix);
+	for (int i = 0; PathFileExists(filetemp); i++) {
+		sprintf_s(appendix, sizeof(appendix), ".swap%d.tmp", i);
+		apply_appendix(filetemp, sizeof(filetemp), fileA, appendix);
+	}
+	if (rename(fileA, filetemp))
+		return FALSE;
+	if (rename(fileB, fileA))
+		return FALSE;
+	if (rename(filetemp, fileB))
+		return FALSE;
+	return TRUE;
+}
+
+//ボム文字かどうか、コードページの判定
+DWORD check_bom(const void* chr) {
+	if (chr == NULL) return CODE_PAGE_UNSET;
+	if (memcmp(chr, UTF16_LE_BOM, sizeof(UTF16_LE_BOM)) == NULL) return CODE_PAGE_UTF16_LE;
+	if (memcmp(chr, UTF16_BE_BOM, sizeof(UTF16_BE_BOM)) == NULL) return CODE_PAGE_UTF16_BE;
+	if (memcmp(chr, UTF8_BOM,     sizeof(UTF8_BOM))     == NULL) return CODE_PAGE_UTF8;
+	return CODE_PAGE_UNSET;
+}
+
+static BOOL isJis(const void *str, DWORD size_in_byte) {
+	static const BYTE ESCAPE[][7] = {
+		//先頭に比較すべきバイト数
+		{ 3, 0x1B, 0x28, 0x42, 0x00, 0x00, 0x00 },
+		{ 3, 0x1B, 0x28, 0x4A, 0x00, 0x00, 0x00 },
+		{ 3, 0x1B, 0x28, 0x49, 0x00, 0x00, 0x00 },
+		{ 3, 0x1B, 0x24, 0x40, 0x00, 0x00, 0x00 },
+		{ 3, 0x1B, 0x24, 0x42, 0x00, 0x00, 0x00 },
+		{ 6, 0x1B, 0x26, 0x40, 0x1B, 0x24, 0x42 },
+		{ 4, 0x1B, 0x24, 0x28, 0x44, 0x00, 0x00 },
+		{ 0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } //終了
+	};
+	const BYTE * const str_fin = (const BYTE *)str + size_in_byte;
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin; chr++) {
+		if (*chr > 0x7F)
+			return FALSE;
+		for (int i = 0; ESCAPE[i][0]; i++) {
+			if (str_fin - chr > ESCAPE[i][0] && 
+				memcmp(chr, &ESCAPE[i][1], ESCAPE[i][0]) == NULL)
+				return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static DWORD isUTF16(const void *str, DWORD size_in_byte) {
+	const BYTE * const str_fin = (const BYTE *)str + size_in_byte;
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin; chr++) {
+		if (chr[0] == 0x00 && str_fin - chr > 1 && chr[1] <= 0x7F)
+			return ((chr - (const BYTE *)str) % 2 == 1) ? CODE_PAGE_UTF16_LE : CODE_PAGE_UTF16_BE;
+	}
+	return CODE_PAGE_UNSET;
+}
+
+static BOOL isASCII(const void *str, DWORD size_in_byte) {
+	const BYTE * const str_fin = (const BYTE *)str + size_in_byte;
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin; chr++) {
+		if (*chr == 0x1B || *chr >= 0x80)
+			return FALSE;
+	}
+	return TRUE;
+}
+
+static DWORD jpn_check(const void *str, DWORD size_in_byte) {
+	int score_sjis = 0;
+	int score_euc = 0;
+	int score_utf8 = 0;
+	const BYTE * const str_fin = (const BYTE *)str + size_in_byte;
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin - 1; chr++) {
+		if ((0x81 <= chr[0] && chr[0] <= 0x9F) ||
+			(0xE0 <= chr[0] && chr[0] <= 0xFC) ||
+			(0x40 <= chr[1] && chr[1] <= 0x7E) ||
+			(0x80 <= chr[1] && chr[1] <= 0xFC)) {
+				score_sjis += 2; chr++;
+		}
+	}
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin - 1; chr++) {
+		if ((0xC0 <= chr[0] && chr[0] <= 0xDF) &&
+			(0x80 <= chr[1] && chr[1] <= 0xBF)) {
+				score_utf8 += 2; chr++;
+		} else if (
+			str_fin - chr > 2 &&
+			(0xE0 <= chr[0] && chr[0] <= 0xEF) &&
+			(0x80 <= chr[1] && chr[1] <= 0xBF) &&
+			(0x80 <= chr[2] && chr[2] <= 0xBF)) {
+				score_utf8 += 3; chr++;
+		}
+	}
+	for (const BYTE *chr = (const BYTE *)str; chr < str_fin - 1; chr++) {
+		if (((0xA1 <= chr[0] && chr[0] <= 0xFE) && (0xA1 <= chr[1] && chr[1] <= 0xFE)) ||
+			(chr[0] == 0x8E                     && (0xA1 <= chr[1] && chr[1] <= 0xDF))) {
+				score_euc += 2; chr++;
+		} else if (
+			str_fin - chr > 2 &&
+			chr[0] == 0x8F && 
+			(0xA1 <= chr[1] && chr[1] <= 0xFE) && 
+			(0xA1 <= chr[2] && chr[2] <= 0xFE)) {
+				score_euc += 3; chr += 2;
+		}
+	}
+	if (score_sjis > score_euc && score_sjis > score_utf8)
+		return CODE_PAGE_SJIS;
+	if (score_utf8 > score_euc && score_utf8 > score_sjis)
+		return CODE_PAGE_UTF8;
+	if (score_euc > score_sjis && score_euc > score_utf8)
+		return CODE_PAGE_EUC_JP;
+	return CODE_PAGE_UNSET;
+}
+
+DWORD get_code_page(const void *str, DWORD size_in_byte) {
+	DWORD ret = CODE_PAGE_UNSET;
+	if ((ret = check_bom(str)) != CODE_PAGE_UNSET)
+		return ret;
+
+	if (isJis(str, size_in_byte))
+		return CODE_PAGE_JIS;
+
+	if ((ret = isUTF16(str, size_in_byte)) != CODE_PAGE_UNSET)
+		return ret;
+
+	if (isASCII(str, size_in_byte))
+		return CODE_PAGE_US_ASCII;
+
+	return jpn_check(str, size_in_byte);
+}
+
+BOOL fix_ImulL_WesternEurope(UINT *code_page) {
+	//IMultiLanguage2 の DetectInputCodepage はよく西ヨーロッパ言語と誤判定しやがる
+	if (*code_page == CODE_PAGE_WEST_EUROPE)
+		*code_page = CODE_PAGE_SJIS;
+	return TRUE;
 }

@@ -13,9 +13,9 @@
 #pragma comment(lib, "user32.lib") //WaitforInputIdle
 
 #include "output.h"
-#include "convert.h"
 #include "auo.h"
 #include "auo_version.h"
+#include "auo_convert.h"
 #include "auo_frm.h"
 #include "auo_pipe.h"
 #include "auo_error.h"

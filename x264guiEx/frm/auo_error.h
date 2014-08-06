@@ -10,6 +10,8 @@
 #ifndef _AUO_ERROR_H_
 #define _AUO_ERROR_H_
 
+#include <Windows.h>
+
 void warning_failed_getting_temp_path();
 void warning_no_temp_root(const char *dir);
 void warning_no_aud_temp_root(const char *dir);
@@ -42,5 +44,10 @@ void warning_mux_tmp_not_enough_space();
 void warning_no_auto_save_log_dir();
 
 void info_encoding_aborted();
+
+void warning_mux_no_chapter_file();
+void warning_mux_chapter(int sts);
+
+void error_select_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv);
 
 #endif //_AUO_ERROR_H_

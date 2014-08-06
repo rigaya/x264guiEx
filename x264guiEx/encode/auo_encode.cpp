@@ -35,6 +35,14 @@ void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename)
 	strcat_s(filename, nSize, ext);
 }
 
+//チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
+void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
+					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savfile) {
+	strcpy_s(chap_file, cf_nSize, chap_base);
+	cmd_replace(chap_file, cf_nSize, pe, sys_dat, savfile);
+	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
+}
+
 void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile) {
 	char tmp[MAX_PATH_LEN] = { 0 };
 	//置換操作の実行
@@ -88,6 +96,15 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	replace(cmd, nSize, "%{muxout}", tmp);
 }
 
+//一時ファイルの移動・削除を行う 
+// move_from -> move_to
+// temp_filename … 動画ファイルの一時ファイル名。これにappendixをつけてmove_from を作る。
+//                  appndixがNULLのときはこれをそのままmove_fromとみなす。
+// appendix      … ファイルの後修飾子。NULLも可。
+// savefile      … 保存動画ファイル名。これにappendixをつけてmove_to を作る。NULLだと move_to に移動できない。
+// ret, erase    … これまでのエラーと一時ファイルを削除するかどうか。エラーがない場合にのみ削除できる
+// name          … 一時ファイルの種類の名前
+// must_exist    … trueのとき、移動するべきファイルが存在しないとエラーを返し、ファイルが存在しないことを伝える
 static BOOL move_temp_file(const char *appendix, const char *temp_filename, const char *savefile, DWORD ret, BOOL erase, const char *name, BOOL must_exist) {
 	char move_from[MAX_PATH_LEN] = { 0 };
 	if (appendix)
@@ -128,10 +145,17 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
 	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, erase_tc, "タイムコード", FALSE);
 	//チャプターファイル
-	move_temp_file(pe->append.chap, pe->temp_filename, savefile, ret, FALSE, "チャプター", FALSE);
+	if (pe->muxer_to_be_used >= 0) {
+		char chap_file[MAX_PATH_LEN];
+		char chap_apple[MAX_PATH_LEN];
+		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
+		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), muxer_mode->chap_file, pe, sys_dat, savefile);
+		move_temp_file(NULL, chap_file,  NULL, ret, TRUE, "チャプター",        FALSE);
+		move_temp_file(NULL, chap_apple, NULL, ret, TRUE, "チャプター(Apple)", FALSE);
+	}
 	//ステータスファイル
-	char stats[MAX_PATH_LEN];
 	if (conf->x264.use_auto_npass && sys_dat->exstg->s_local.auto_del_stats) {
+		char stats[MAX_PATH_LEN];
 		strcpy_s(stats, sizeof(stats), conf->vid.stats);
 		cmd_replace(stats, sizeof(stats), pe, sys_dat, savefile);
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "ステータス", FALSE);

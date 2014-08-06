@@ -2881,7 +2881,7 @@
 </value>
   </data>
   <metadata name="fcgtoolStripSettings.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>23, 110</value>
+    <value>25, 9</value>
   </metadata>
   <data name="fcgTSBSave.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -3078,24 +3078,24 @@
 </value>
   </data>
   <metadata name="fcgfolderBrowserTemp.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>192, 110</value>
+    <value>194, 9</value>
   </metadata>
   <metadata name="fcgOpenFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>245, 146</value>
+    <value>247, 45</value>
   </metadata>
   <metadata name="fcgCSCQM.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>431, 109</value>
+    <value>433, 8</value>
   </metadata>
   <metadata name="fcgTTX264.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>434, 143</value>
+    <value>436, 42</value>
   </metadata>
   <metadata name="fcgTTEx.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>557, 110</value>
+    <value>559, 9</value>
   </metadata>
   <metadata name="fcgTTX264Version.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>23, 151</value>
+    <value>25, 50</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>253</value>
+    <value>103</value>
   </metadata>
 </root>

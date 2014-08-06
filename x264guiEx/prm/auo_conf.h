@@ -53,7 +53,7 @@ typedef struct {
 	BOOL faw_check;          //FAWCheckを行う
 	int  priority;           //音声エンコーダのCPU優先度(インデックス)
 	BOOL minimized;          //音声エンコーダを最小化で実行
-	int aud_temp_dir;        //音声専用一時フォルダ
+	int  aud_temp_dir;       //音声専用一時フォルダ
 	BOOL audio_encode_first; //音声を先にエンコード
 } CONF_AUDIO; //音声用設定
 
@@ -65,6 +65,7 @@ typedef struct {
 	BOOL minimized;       //muxを最小化で実行
 	int  priority;        //mux優先度(インデックス)
 	int  mp4_temp_dir;    //mp4box用一時ディレクトリ
+	BOOL apple_mode;      //Apple用モード(mp4系専用)
 } CONF_MUX; //muxer用設定
 
 typedef struct {

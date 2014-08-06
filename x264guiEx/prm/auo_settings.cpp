@@ -22,7 +22,7 @@
 static const int INI_SECTION_BUFSIZE = 32768;
 static const int INI_KEY_MAX_LEN = 256;
 
-static const int INI_VER = 1;
+static const int INI_VER = 2;
 
 static const char * const INI_APPENDIX  = ".ini";
 static const char * const CONF_APPENDIX = ".conf";
@@ -125,11 +125,18 @@ BOOL guiEx_settings::check_inifile() {
 }
 
 BOOL guiEx_settings::get_init_success() {
-	if (!init) {
+	return get_init_success(FALSE);
+}
+
+BOOL guiEx_settings::get_init_success(BOOL no_message) {
+	if (!init && !no_message) {
 		char mes[1024];
 		char title[256];
 		strcpy_s(mes, sizeof(mes), AUO_NAME);
-		sprintf_s(PathFindExtension(mes), sizeof(mes) - strlen(mes), ".iniが存在しないか、iniファイルが古いです。\n%s を開始できません。", AUO_FULL_NAME);
+		sprintf_s(PathFindExtension(mes), sizeof(mes) - strlen(mes), 
+			".iniが存在しないか、iniファイルが古いです。\n%s を開始できません。\n"
+			"iniファイルを更新してみてください。",
+			AUO_FULL_NAME);
 		sprintf_s(title, sizeof(title), "%s - エラー", AUO_FULL_NAME);
 		MessageBox(NULL, mes, title, MB_ICONERROR);
 	}
@@ -258,7 +265,7 @@ void guiEx_settings::load_aud() {
 }
 
 void guiEx_settings::load_mux() {
-	int i, j, len;
+	int i, j, len, keybase_len;
 	char muxer_section[INI_KEY_MAX_LEN];
 	char key[INI_KEY_MAX_LEN];
 
@@ -289,8 +296,13 @@ void guiEx_settings::load_mux() {
 		for (j = 0; j < s_mux[i].ex_count; j++) {
 			sprintf_s(key, sizeof(key), "ex_cmd_%d", j+1);
 			s_mux[i].ex_cmd[j].cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, key, "", ini_fileName);
-			strcat_s(key, sizeof(key), "_name");
+			keybase_len = strlen(key);
+			strcpy_s(key + keybase_len, sizeof(key) - keybase_len, "_name");
 			s_mux[i].ex_cmd[j].name = s_mux_mc.SetPrivateProfileString(muxer_section, key, "", ini_fileName);
+			strcpy_s(key + keybase_len, sizeof(key) - keybase_len, "_apple");
+			s_mux[i].ex_cmd[j].cmd_apple = s_mux_mc.SetPrivateProfileString(muxer_section, key, "", ini_fileName);
+			strcpy_s(key + keybase_len, sizeof(key) - keybase_len, "_chap");
+			s_mux[i].ex_cmd[j].chap_file = s_mux_mc.SetPrivateProfileString(muxer_section, key, "", ini_fileName);
 		}
 	}
 }
@@ -418,10 +430,11 @@ void guiEx_settings::load_log_win() {
 
 void guiEx_settings::load_append() {
 	clear_append();
-	GetPrivateProfileString(INI_SECTION_APPENDIX, "tc_appendix",   "_tc.txt",      s_append.tc,   sizeof(s_append.tc),   ini_fileName);
-	GetPrivateProfileString(INI_SECTION_APPENDIX, "qp_appendix",   "_qp.txt",      s_append.qp,   sizeof(s_append.qp),   ini_fileName);
-	GetPrivateProfileString(INI_SECTION_APPENDIX, "chap_appendix", "_chapter.txt", s_append.chap, sizeof(s_append.chap), ini_fileName);
-	GetPrivateProfileString(INI_SECTION_APPENDIX, "wav_appendix",  "_tmp.wav",     s_append.wav,  sizeof(s_append.wav),  ini_fileName);
+	GetPrivateProfileString(INI_SECTION_APPENDIX, "tc_appendix",         "_tc.txt",      s_append.tc,         sizeof(s_append.tc),         ini_fileName);
+	GetPrivateProfileString(INI_SECTION_APPENDIX, "qp_appendix",         "_qp.txt",      s_append.qp,         sizeof(s_append.qp),         ini_fileName);
+	GetPrivateProfileString(INI_SECTION_APPENDIX, "chap_appendix",       "_chapter.txt", s_append.chap,       sizeof(s_append.chap),       ini_fileName);
+	GetPrivateProfileString(INI_SECTION_APPENDIX, "chap_apple_appendix", "_chapter.txt", s_append.chap_apple, sizeof(s_append.chap_apple), ini_fileName);
+	GetPrivateProfileString(INI_SECTION_APPENDIX, "wav_appendix",        "_tmp.wav",     s_append.wav,        sizeof(s_append.wav),        ini_fileName);
 }
 
 void guiEx_settings::load_fbc() {

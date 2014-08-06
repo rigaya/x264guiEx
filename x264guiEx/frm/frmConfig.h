@@ -549,6 +549,7 @@ private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
 
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
 private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
+private: System::Windows::Forms::CheckBox^  fcgCBMP4MuxApple;
 private: System::Windows::Forms::ComboBox^  fcgCXYC48ColMatConv;
 private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 
@@ -814,6 +815,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgLBAudioEncoder = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlMux = (gcnew System::Windows::Forms::TabControl());
 			this->fcgtabPageMP4 = (gcnew System::Windows::Forms::TabPage());
+			this->fcgCBMP4MuxApple = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgBTMP4BoxTempDir = (gcnew System::Windows::Forms::Button());
 			this->fcgTXMP4BoxTempDir = (gcnew System::Windows::Forms::TextBox());
 			this->fcgCXMP4BoxTempDir = (gcnew System::Windows::Forms::ComboBox());
@@ -3054,7 +3056,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSSettings->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSSettings.Image")));
 			this->fcgTSSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSSettings->Name = L"fcgTSSettings";
-			this->fcgTSSettings->Size = System::Drawing::Size(97, 22);
+			this->fcgTSSettings->Size = System::Drawing::Size(77, 22);
 			this->fcgTSSettings->Text = L"プリセット";
 			this->fcgTSSettings->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSSettings_DropDownItemClicked);
 			this->fcgTSSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSSettings_Click);
@@ -3066,7 +3068,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBCMDOnly->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBCMDOnly.Image")));
 			this->fcgTSBCMDOnly->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSBCMDOnly->Name = L"fcgTSBCMDOnly";
-			this->fcgTSBCMDOnly->Size = System::Drawing::Size(84, 22);
+			this->fcgTSBCMDOnly->Size = System::Drawing::Size(74, 22);
 			this->fcgTSBCMDOnly->Tag = L"chValue";
 			this->fcgTSBCMDOnly->Text = L"CLIモード";
 			this->fcgTSBCMDOnly->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBCMDOnly_CheckedChanged);
@@ -3085,7 +3087,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBBitrateCalc->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBBitrateCalc.Image")));
 			this->fcgTSBBitrateCalc->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSBBitrateCalc->Name = L"fcgTSBBitrateCalc";
-			this->fcgTSBBitrateCalc->Size = System::Drawing::Size(120, 22);
+			this->fcgTSBBitrateCalc->Size = System::Drawing::Size(97, 22);
 			this->fcgTSBBitrateCalc->Text = L"ビットレート計算機";
 			this->fcgTSBBitrateCalc->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBBitrateCalc_CheckedChanged);
 			// 
@@ -3165,7 +3167,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 				static_cast<System::Byte>(128)));
 			this->fcggroupBoxAudio->Location = System::Drawing::Point(622, 25);
 			this->fcggroupBoxAudio->Name = L"fcggroupBoxAudio";
-			this->fcggroupBoxAudio->Size = System::Drawing::Size(379, 308);
+			this->fcggroupBoxAudio->Size = System::Drawing::Size(379, 296);
 			this->fcggroupBoxAudio->TabIndex = 2;
 			this->fcggroupBoxAudio->TabStop = false;
 			this->fcggroupBoxAudio->Text = L"音声";
@@ -3173,7 +3175,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBAudioTemp
 			// 
 			this->fcgLBAudioTemp->AutoSize = true;
-			this->fcgLBAudioTemp->Location = System::Drawing::Point(18, 255);
+			this->fcgLBAudioTemp->Location = System::Drawing::Point(18, 243);
 			this->fcgLBAudioTemp->Name = L"fcgLBAudioTemp";
 			this->fcgLBAudioTemp->Size = System::Drawing::Size(114, 14);
 			this->fcgLBAudioTemp->TabIndex = 26;
@@ -3183,7 +3185,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			this->fcgCXAudioTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXAudioTempDir->FormattingEnabled = true;
-			this->fcgCXAudioTempDir->Location = System::Drawing::Point(146, 252);
+			this->fcgCXAudioTempDir->Location = System::Drawing::Point(146, 240);
 			this->fcgCXAudioTempDir->Name = L"fcgCXAudioTempDir";
 			this->fcgCXAudioTempDir->Size = System::Drawing::Size(150, 22);
 			this->fcgCXAudioTempDir->TabIndex = 12;
@@ -3191,7 +3193,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgTXCustomAudioTempDir
 			// 
-			this->fcgTXCustomAudioTempDir->Location = System::Drawing::Point(75, 279);
+			this->fcgTXCustomAudioTempDir->Location = System::Drawing::Point(75, 267);
 			this->fcgTXCustomAudioTempDir->Name = L"fcgTXCustomAudioTempDir";
 			this->fcgTXCustomAudioTempDir->Size = System::Drawing::Size(245, 21);
 			this->fcgTXCustomAudioTempDir->TabIndex = 13;
@@ -3199,7 +3201,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgBTCustomAudioTempDir
 			// 
-			this->fcgBTCustomAudioTempDir->Location = System::Drawing::Point(326, 277);
+			this->fcgBTCustomAudioTempDir->Location = System::Drawing::Point(326, 265);
 			this->fcgBTCustomAudioTempDir->Name = L"fcgBTCustomAudioTempDir";
 			this->fcgBTCustomAudioTempDir->Size = System::Drawing::Size(29, 23);
 			this->fcgBTCustomAudioTempDir->TabIndex = 14;
@@ -3210,7 +3212,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgCBAudioUsePipe
 			// 
 			this->fcgCBAudioUsePipe->AutoSize = true;
-			this->fcgCBAudioUsePipe->Location = System::Drawing::Point(218, 146);
+			this->fcgCBAudioUsePipe->Location = System::Drawing::Point(218, 145);
 			this->fcgCBAudioUsePipe->Name = L"fcgCBAudioUsePipe";
 			this->fcgCBAudioUsePipe->Size = System::Drawing::Size(73, 18);
 			this->fcgCBAudioUsePipe->TabIndex = 10;
@@ -3232,7 +3234,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBAudioBitrate
 			// 
 			this->fcgLBAudioBitrate->AutoSize = true;
-			this->fcgLBAudioBitrate->Location = System::Drawing::Point(289, 174);
+			this->fcgLBAudioBitrate->Location = System::Drawing::Point(289, 173);
 			this->fcgLBAudioBitrate->Name = L"fcgLBAudioBitrate";
 			this->fcgLBAudioBitrate->Size = System::Drawing::Size(32, 14);
 			this->fcgLBAudioBitrate->TabIndex = 20;
@@ -3240,7 +3242,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgNUAudioBitrate
 			// 
-			this->fcgNUAudioBitrate->Location = System::Drawing::Point(218, 170);
+			this->fcgNUAudioBitrate->Location = System::Drawing::Point(218, 169);
 			this->fcgNUAudioBitrate->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1536, 0, 0, 0});
 			this->fcgNUAudioBitrate->Name = L"fcgNUAudioBitrate";
 			this->fcgNUAudioBitrate->Size = System::Drawing::Size(65, 21);
@@ -3251,7 +3253,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgCBAudio2pass
 			// 
 			this->fcgCBAudio2pass->AutoSize = true;
-			this->fcgCBAudio2pass->Location = System::Drawing::Point(130, 145);
+			this->fcgCBAudio2pass->Location = System::Drawing::Point(130, 144);
 			this->fcgCBAudio2pass->Name = L"fcgCBAudio2pass";
 			this->fcgCBAudio2pass->Size = System::Drawing::Size(56, 18);
 			this->fcgCBAudio2pass->TabIndex = 9;
@@ -3264,7 +3266,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			this->fcgCXAudioEncMode->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXAudioEncMode->FormattingEnabled = true;
-			this->fcgCXAudioEncMode->Location = System::Drawing::Point(21, 169);
+			this->fcgCXAudioEncMode->Location = System::Drawing::Point(21, 168);
 			this->fcgCXAudioEncMode->Name = L"fcgCXAudioEncMode";
 			this->fcgCXAudioEncMode->Size = System::Drawing::Size(189, 22);
 			this->fcgCXAudioEncMode->TabIndex = 7;
@@ -3274,7 +3276,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBAudioEncMode
 			// 
 			this->fcgLBAudioEncMode->AutoSize = true;
-			this->fcgLBAudioEncMode->Location = System::Drawing::Point(10, 149);
+			this->fcgLBAudioEncMode->Location = System::Drawing::Point(10, 148);
 			this->fcgLBAudioEncMode->Name = L"fcgLBAudioEncMode";
 			this->fcgLBAudioEncMode->Size = System::Drawing::Size(73, 14);
 			this->fcgLBAudioEncMode->TabIndex = 15;
@@ -3282,7 +3284,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgBTAudioEncoderPath
 			// 
-			this->fcgBTAudioEncoderPath->Location = System::Drawing::Point(330, 109);
+			this->fcgBTAudioEncoderPath->Location = System::Drawing::Point(330, 108);
 			this->fcgBTAudioEncoderPath->Name = L"fcgBTAudioEncoderPath";
 			this->fcgBTAudioEncoderPath->Size = System::Drawing::Size(30, 23);
 			this->fcgBTAudioEncoderPath->TabIndex = 6;
@@ -3293,7 +3295,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgTXAudioEncoderPath
 			// 
 			this->fcgTXAudioEncoderPath->AllowDrop = true;
-			this->fcgTXAudioEncoderPath->Location = System::Drawing::Point(21, 111);
+			this->fcgTXAudioEncoderPath->Location = System::Drawing::Point(21, 110);
 			this->fcgTXAudioEncoderPath->Name = L"fcgTXAudioEncoderPath";
 			this->fcgTXAudioEncoderPath->Size = System::Drawing::Size(303, 21);
 			this->fcgTXAudioEncoderPath->TabIndex = 5;
@@ -3304,7 +3306,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBAudioEncoderPath
 			// 
 			this->fcgLBAudioEncoderPath->AutoSize = true;
-			this->fcgLBAudioEncoderPath->Location = System::Drawing::Point(18, 94);
+			this->fcgLBAudioEncoderPath->Location = System::Drawing::Point(18, 93);
 			this->fcgLBAudioEncoderPath->Name = L"fcgLBAudioEncoderPath";
 			this->fcgLBAudioEncoderPath->Size = System::Drawing::Size(49, 14);
 			this->fcgLBAudioEncoderPath->TabIndex = 12;
@@ -3348,7 +3350,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			this->fcgCXAudioPriority->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXAudioPriority->FormattingEnabled = true;
-			this->fcgCXAudioPriority->Location = System::Drawing::Point(146, 220);
+			this->fcgCXAudioPriority->Location = System::Drawing::Point(146, 210);
 			this->fcgCXAudioPriority->Name = L"fcgCXAudioPriority";
 			this->fcgCXAudioPriority->Size = System::Drawing::Size(136, 22);
 			this->fcgCXAudioPriority->TabIndex = 11;
@@ -3357,7 +3359,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBAudioPriority
 			// 
 			this->fcgLBAudioPriority->AutoSize = true;
-			this->fcgLBAudioPriority->Location = System::Drawing::Point(19, 223);
+			this->fcgLBAudioPriority->Location = System::Drawing::Point(19, 213);
 			this->fcgLBAudioPriority->Name = L"fcgLBAudioPriority";
 			this->fcgLBAudioPriority->Size = System::Drawing::Size(62, 14);
 			this->fcgLBAudioPriority->TabIndex = 2;
@@ -3390,14 +3392,15 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabControlMux->Controls->Add(this->fcgtabPageMux);
 			this->fcgtabControlMux->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
-			this->fcgtabControlMux->Location = System::Drawing::Point(622, 339);
+			this->fcgtabControlMux->Location = System::Drawing::Point(622, 326);
 			this->fcgtabControlMux->Name = L"fcgtabControlMux";
 			this->fcgtabControlMux->SelectedIndex = 0;
-			this->fcgtabControlMux->Size = System::Drawing::Size(384, 201);
+			this->fcgtabControlMux->Size = System::Drawing::Size(384, 214);
 			this->fcgtabControlMux->TabIndex = 3;
 			// 
 			// fcgtabPageMP4
 			// 
+			this->fcgtabPageMP4->Controls->Add(this->fcgCBMP4MuxApple);
 			this->fcgtabPageMP4->Controls->Add(this->fcgBTMP4BoxTempDir);
 			this->fcgtabPageMP4->Controls->Add(this->fcgTXMP4BoxTempDir);
 			this->fcgtabPageMP4->Controls->Add(this->fcgCXMP4BoxTempDir);
@@ -3414,14 +3417,25 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabPageMP4->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageMP4->Name = L"fcgtabPageMP4";
 			this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3);
-			this->fcgtabPageMP4->Size = System::Drawing::Size(376, 174);
+			this->fcgtabPageMP4->Size = System::Drawing::Size(376, 187);
 			this->fcgtabPageMP4->TabIndex = 0;
 			this->fcgtabPageMP4->Text = L"mp4";
 			this->fcgtabPageMP4->UseVisualStyleBackColor = true;
 			// 
+			// fcgCBMP4MuxApple
+			// 
+			this->fcgCBMP4MuxApple->AutoSize = true;
+			this->fcgCBMP4MuxApple->Location = System::Drawing::Point(261, 37);
+			this->fcgCBMP4MuxApple->Name = L"fcgCBMP4MuxApple";
+			this->fcgCBMP4MuxApple->Size = System::Drawing::Size(109, 18);
+			this->fcgCBMP4MuxApple->TabIndex = 19;
+			this->fcgCBMP4MuxApple->Tag = L"chValue";
+			this->fcgCBMP4MuxApple->Text = L"Apple形式に対応";
+			this->fcgCBMP4MuxApple->UseVisualStyleBackColor = true;
+			// 
 			// fcgBTMP4BoxTempDir
 			// 
-			this->fcgBTMP4BoxTempDir->Location = System::Drawing::Point(340, 146);
+			this->fcgBTMP4BoxTempDir->Location = System::Drawing::Point(340, 159);
 			this->fcgBTMP4BoxTempDir->Name = L"fcgBTMP4BoxTempDir";
 			this->fcgBTMP4BoxTempDir->Size = System::Drawing::Size(30, 23);
 			this->fcgBTMP4BoxTempDir->TabIndex = 8;
@@ -3431,7 +3445,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgTXMP4BoxTempDir
 			// 
-			this->fcgTXMP4BoxTempDir->Location = System::Drawing::Point(107, 147);
+			this->fcgTXMP4BoxTempDir->Location = System::Drawing::Point(107, 160);
 			this->fcgTXMP4BoxTempDir->Name = L"fcgTXMP4BoxTempDir";
 			this->fcgTXMP4BoxTempDir->Size = System::Drawing::Size(227, 21);
 			this->fcgTXMP4BoxTempDir->TabIndex = 7;
@@ -3441,7 +3455,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			this->fcgCXMP4BoxTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXMP4BoxTempDir->FormattingEnabled = true;
-			this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(145, 119);
+			this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(145, 132);
 			this->fcgCXMP4BoxTempDir->Name = L"fcgCXMP4BoxTempDir";
 			this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(206, 22);
 			this->fcgCXMP4BoxTempDir->TabIndex = 6;
@@ -3450,7 +3464,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBMP4BoxTempDir
 			// 
 			this->fcgLBMP4BoxTempDir->AutoSize = true;
-			this->fcgLBMP4BoxTempDir->Location = System::Drawing::Point(25, 122);
+			this->fcgLBMP4BoxTempDir->Location = System::Drawing::Point(25, 135);
 			this->fcgLBMP4BoxTempDir->Name = L"fcgLBMP4BoxTempDir";
 			this->fcgLBMP4BoxTempDir->Size = System::Drawing::Size(105, 14);
 			this->fcgLBMP4BoxTempDir->TabIndex = 18;
@@ -3458,7 +3472,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgBTTC2MP4Path
 			// 
-			this->fcgBTTC2MP4Path->Location = System::Drawing::Point(340, 76);
+			this->fcgBTTC2MP4Path->Location = System::Drawing::Point(340, 96);
 			this->fcgBTTC2MP4Path->Name = L"fcgBTTC2MP4Path";
 			this->fcgBTTC2MP4Path->Size = System::Drawing::Size(30, 23);
 			this->fcgBTTC2MP4Path->TabIndex = 5;
@@ -3469,7 +3483,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgTXTC2MP4Path
 			// 
 			this->fcgTXTC2MP4Path->AllowDrop = true;
-			this->fcgTXTC2MP4Path->Location = System::Drawing::Point(136, 77);
+			this->fcgTXTC2MP4Path->Location = System::Drawing::Point(136, 97);
 			this->fcgTXTC2MP4Path->Name = L"fcgTXTC2MP4Path";
 			this->fcgTXTC2MP4Path->Size = System::Drawing::Size(202, 21);
 			this->fcgTXTC2MP4Path->TabIndex = 4;
@@ -3479,7 +3493,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgBTMP4MuxerPath
 			// 
-			this->fcgBTMP4MuxerPath->Location = System::Drawing::Point(340, 42);
+			this->fcgBTMP4MuxerPath->Location = System::Drawing::Point(340, 65);
 			this->fcgBTMP4MuxerPath->Name = L"fcgBTMP4MuxerPath";
 			this->fcgBTMP4MuxerPath->Size = System::Drawing::Size(30, 23);
 			this->fcgBTMP4MuxerPath->TabIndex = 3;
@@ -3490,7 +3504,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgTXMP4MuxerPath
 			// 
 			this->fcgTXMP4MuxerPath->AllowDrop = true;
-			this->fcgTXMP4MuxerPath->Location = System::Drawing::Point(136, 43);
+			this->fcgTXMP4MuxerPath->Location = System::Drawing::Point(136, 66);
 			this->fcgTXMP4MuxerPath->Name = L"fcgTXMP4MuxerPath";
 			this->fcgTXMP4MuxerPath->Size = System::Drawing::Size(202, 21);
 			this->fcgTXMP4MuxerPath->TabIndex = 2;
@@ -3502,7 +3516,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBTC2MP4Path
 			// 
 			this->fcgLBTC2MP4Path->AutoSize = true;
-			this->fcgLBTC2MP4Path->Location = System::Drawing::Point(4, 80);
+			this->fcgLBTC2MP4Path->Location = System::Drawing::Point(4, 100);
 			this->fcgLBTC2MP4Path->Name = L"fcgLBTC2MP4Path";
 			this->fcgLBTC2MP4Path->Size = System::Drawing::Size(49, 14);
 			this->fcgLBTC2MP4Path->TabIndex = 4;
@@ -3511,7 +3525,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// fcgLBMP4MuxerPath
 			// 
 			this->fcgLBMP4MuxerPath->AutoSize = true;
-			this->fcgLBMP4MuxerPath->Location = System::Drawing::Point(4, 46);
+			this->fcgLBMP4MuxerPath->Location = System::Drawing::Point(4, 69);
 			this->fcgLBMP4MuxerPath->Name = L"fcgLBMP4MuxerPath";
 			this->fcgLBMP4MuxerPath->Size = System::Drawing::Size(49, 14);
 			this->fcgLBMP4MuxerPath->TabIndex = 3;
@@ -3558,7 +3572,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabPageMKV->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageMKV->Name = L"fcgtabPageMKV";
 			this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(3);
-			this->fcgtabPageMKV->Size = System::Drawing::Size(376, 174);
+			this->fcgtabPageMKV->Size = System::Drawing::Size(376, 187);
 			this->fcgtabPageMKV->TabIndex = 1;
 			this->fcgtabPageMKV->Text = L"mkv";
 			this->fcgtabPageMKV->UseVisualStyleBackColor = true;
@@ -3627,7 +3641,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabPageMux->Controls->Add(this->fcgCBMuxMinimize);
 			this->fcgtabPageMux->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageMux->Name = L"fcgtabPageMux";
-			this->fcgtabPageMux->Size = System::Drawing::Size(376, 174);
+			this->fcgtabPageMux->Size = System::Drawing::Size(376, 187);
 			this->fcgtabPageMux->TabIndex = 2;
 			this->fcgtabPageMux->Text = L"Mux共通設定";
 			this->fcgtabPageMux->UseVisualStyleBackColor = true;

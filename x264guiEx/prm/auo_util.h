@@ -14,6 +14,22 @@
 #include <string.h>
 #include <stddef.h>
 
+//日本語環境の一般的なコードページ一覧
+static const DWORD CODE_PAGE_SJIS        = 932; //Shift-JIS
+static const DWORD CODE_PAGE_JIS         = 50220;
+static const DWORD CODE_PAGE_EUC_JP      = 51932;
+static const DWORD CODE_PAGE_UTF8        = CP_UTF8;
+static const DWORD CODE_PAGE_UTF16_LE    = CP_WINUNICODE; //WindowsのUnicode WCHAR のコードページ
+static const DWORD CODE_PAGE_UTF16_BE    = 1201;
+static const DWORD CODE_PAGE_US_ASCII    = 20127;
+static const DWORD CODE_PAGE_WEST_EUROPE = 1252;  //厄介な西ヨーロッパ言語
+static const DWORD CODE_PAGE_UNSET       = 0xffffffff;
+
+//BOM文字リスト
+static const BYTE UTF8_BOM[]     = { 0xEF, 0xBB, 0xBF };
+static const BYTE UTF16_LE_BOM[] = { 0xFF, 0xFE };
+static const BYTE UTF16_BE_BOM[] = { 0xFE, 0xFF };
+
 //関数マクロ
 #define clamp(x, low, high) (((x) <= (high)) ? (((x) >= (low)) ? (x) : (low)) : (high))
 #define foreach(type,it,a) \
@@ -97,6 +113,27 @@ static int countchr(const char *str, int ch) {
 	return i;
 }
 
+//文字列の末尾についている '\r' '\n' ' ' を削除する
+static size_t deleteCRLFSpace_at_End(WCHAR *str) {
+	WCHAR *pw = str + wcslen(str) - 1;
+	WCHAR * const qw = pw;
+	while ((*pw == L'\n' || *pw == L'\r' || *pw == L' ') && pw >= str) {
+		*pw = L'\0';
+		pw--;
+	}
+	return qw - pw;
+}
+
+static size_t deleteCRLFSpace_at_End(char *str) {
+	char *pw = str + strlen(str) - 1;
+	char *qw = pw;
+	while ((*pw == '\n' || *pw == '\r' || *pw == ' ') && pw >= str) {
+		*pw = '\0';
+		pw--;
+	}
+	return qw - pw;
+}
+
 DWORD cpu_core_count();
 BOOL check_sse2();
 BOOL check_sse3();
@@ -106,7 +143,7 @@ BOOL check_OS_Win7orLater();
 void get_auo_path(char *auo_path, size_t nSize);
 void get_aviutl_dir(char *aviutl_dir, size_t nSize);
 size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str);
-void replace(char *str, size_t nSize, const char *old_str, const char *new_str);
+int replace(char *str, size_t nSize, const char *old_str, const char *new_str);
 void apply_appendix(char *new_filename, size_t new_filename_size, const char *orig_filename, const char *appendix);
 BOOL check_ext(const char *filename, const char *ext);
 BOOL PathGetRoot(const char *path, char *root, size_t nSize);
@@ -123,5 +160,18 @@ BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const char *file
 BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace);
 BOOL PathForceRemoveBackSlash(char *path);
 BOOL check_process_exitcode(PROCESS_INFORMATION *pi);
+
+//ファイル名をスワップする
+BOOL swap_file(const char *fileA, const char *fileB);
+
+//文字列先頭がBOM文字でないか確認する
+DWORD check_bom(const void* chr);
+
+//与えられた文字列から主に日本語について文字コード判定を行う
+DWORD get_code_page(const void *str, DWORD size_in_byte);
+
+//IMultipleLanguge2 の DetectInoutCodePageがたまに的外れな「西ヨーロッパ言語」を返すので
+//西ヨーロッパ言語 なら Shift-JIS にしてしまう
+BOOL fix_ImulL_WesternEurope(UINT *code_page);
 
 #endif //_AUO_UTIL_H_

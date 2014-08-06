@@ -209,6 +209,8 @@ int func_config_get( void *data, int size )
 int func_config_set( void *data,int size )
 {
 	init_SYSTEM_DATA(&sys_dat);
+	if (!sys_dat.exstg->get_init_success(TRUE))
+		return NULL;
 	init_CONF_X264GUIEX(&conf, FALSE);
 	if (size != sizeof(CONF_X264GUIEX) || 
 		((CONF_X264GUIEX *)data)->size_all != CONF_INITIALIZED)
