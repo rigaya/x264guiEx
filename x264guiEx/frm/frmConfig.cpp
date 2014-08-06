@@ -1333,7 +1333,28 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"x264も10bit版を使用してください。\n"
 		+ L"通常のプレーヤーでは再生できないこともあるため、\n"
 		+ L"10bitエンコードがなにかを理解している場合にのみ、\n"
-		+ L"遊んでみてください。"
+		+ L"使用してください。\n"
+		+ L"\n"
+		+ L"8bit用x264.exeと10bit用x264.exeは別々に設定でき、\n"
+		+ L"このチェックボックスによって切り替わります。"
+		);
+	fcgTTX264->SetToolTip(fcgBTX264Path, L""
+		+ L"x264.exeの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
+	fcgTTX264->SetToolTip(fcgBTX264PathSub, L""
+		+ L"x264.exeの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
+	fcgTTX264->SetToolTip(fcgBTX264PathSub10bit, L""
+		+ L"x264.exe(10bit用)の場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
 		);
 	fcgTTX264->SetToolTip(fcgCXX264Mode, L""
 		+ L"【シングルパス】\n"
@@ -1346,13 +1367,17 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"   " + String(x264_encodemode_desc[4]).ToString()->Replace(L"マルチパス - ", L"") + L"\t … --pass 3 --bitrate\n"
 		+ L"\n"
 		+ L"【自動マルチパス】\n"
+		+ L"    マルチパス出力(1pass → npass)を自動で行います。\n"
 		+ L"    --pass 1/3 --bitrate"
 		);
 	fcgTTX264->SetToolTip(fcgCBNulOut,            L"-o nul");
 	fcgTTX264->SetToolTip(fcgCBFastFirstPass,     L"--slow-firstpass (チェックオフ時)");
 	fcgTTX264->SetToolTip(fcgTXQuality,           L"--crf / --bitrate / --qp");
 	fcgTTX264->SetToolTip(fcgTXStatusFile,        L"--stats");
-	fcgTTX264->SetToolTip(fcgCXProfile,           L"--profile");
+	fcgTTX264->SetToolTip(fcgCXProfile,           L"--profile\n"
+		+ L"\n"
+		+ L"最終的にこの設定による制約が課されます。"
+		);
 	fcgTTX264->SetToolTip(fcgCXTune,              L"--tune");
 	fcgTTX264->SetToolTip(fcgCXPreset,            L"--preset");
 	fcgTTEx->SetToolTip(fcgBTApplyPreset,         L""
@@ -1375,7 +1400,8 @@ System::Void frmConfig::SetHelpToolTips() {
 		);
 	fcgTTX264->SetToolTip(fcgCBBlurayCompat,     L"--bluray-compat");
 	fcgTTX264->SetToolTip(fcgCXOutputCsp,        L"--output-csp\n"
-		+ L"通常は i420 を使用します。");
+		+ L"通常は i420 を使用します。"
+		);
 
 	//色空間
 	SetHelpToolTipsColorMatrix(fcgCXColorMatrix, "colormatrix");
@@ -1441,7 +1467,10 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTX264->SetToolTip(fcgNUKeyint,           L""
 		+ L"--keyint\n"
 		+ L"\"0\" で inifinite(無限大) を指定します。");
-	fcgTTX264->SetToolTip(fcgNUMinKeyint,        L"--min-keyint");
+	fcgTTX264->SetToolTip(fcgNUMinKeyint,        L""
+		 + L"--min-keyint\n"
+		 + L"\"0\" で 自動となります。"
+		 );
 	fcgTTX264->SetToolTip(fcgCBOpenGOP,          L"--open-gop");
 	fcgTTX264->SetToolTip(fcgCBCABAC,            L""
 		+ L"--cabac\n"
@@ -1563,14 +1592,28 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"・mux後ファイル\n"
 		+ L"の作成場所を指定します。"
 		);
+	fcgTTEx->SetToolTip(fcgBTCustomTempDir, L""
+		+ L"一時ファイルの場所を「カスタム」に設定した際に\n"
+		+ L"使用される一時ファイルの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
 	fcgTTEx->SetToolTip(fcgBTCmdEx,       L""
 		+ L"入力したコマンド(オプション)をGUIに反映させます。"
 		);
 	fcgTTEx->SetToolTip(fcgCXYC48ColMatConv, L""
 		+ L"Aviutlからの入力としてYC48を使用する際のcolormatrix変換を指定します。\n"
+		+ L"YC48をAviutlから受け取る際には、Aviutlの色変換設定が反映されないため、\n"
+		+ L"ここで設定する必要があります。\n"
+		+ L"基本的にはAviutlの色変換 [出力] の設定と合わせると良いでしょう。\n"
 		+ L"自動 とすると以下のように設定します。\n"
 		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"以上 … BT.601→BT.709変換\n"
 		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"未満 … 無変換\n"
+		+ L"\n"
+		+ L"YC48をAviutlから受け取るのは以下の場合です。\n"
+		+ L"・10bit深度を使用\n"
+		+ L"・output-csp i444を使用"
 		);
 
 	//音声
@@ -1589,6 +1632,12 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"\n"
 		+ L"一度音声エンコーダからFAW(fawcl)を選択し、\n"
 		+ L"実行ファイルの場所を指定しておく必要があります。"
+		);
+	fcgTTEx->SetToolTip(fcgBTAudioEncoderPath, L""
+		+ L"音声エンコーダの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
 		);
 	fcgTTEx->SetToolTip(fcgCXAudioEncMode, L""
 		+ L"音声エンコーダのエンコードモードを切り替えます。\n"
@@ -1619,6 +1668,13 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"音声一時ファイル(エンコード後のファイル)\n"
 		+ L"の出力先を変更します。"
 		);
+	fcgTTEx->SetToolTip(fcgBTCustomAudioTempDir, L""
+		+ L"音声一時ファイルの場所を「カスタム」にした時に\n"
+		+ L"使用される音声一時ファイルの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
 
 	//muxer
 	fcgTTEx->SetToolTip(fcgCBMP4MuxerExt, L""
@@ -1629,8 +1685,27 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"muxerに渡す追加オプションを選択します。\n"
 		+ L"これらの設定はx264guiEx.iniに記述されています。"
 		);
+	fcgTTEx->SetToolTip(fcgBTMP4MuxerPath, L""
+		+ L"mp4用muxerの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
+	fcgTTEx->SetToolTip(fcgBTTC2MP4Path, L""
+		+ L"tc2mp4modの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
 	fcgTTEx->SetToolTip(fcgCXMP4BoxTempDir, L""
 		+ L"mp4box用の一時フォルダの場所を指定します。"
+		);
+	fcgTTEx->SetToolTip(fcgBTMP4BoxTempDir, L""
+		+ L"mp4box用一時フォルダの場所を「カスタム」に設定した際に\n"
+		+ L"使用される一時フォルダの場所です。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
 		);
 	fcgTTEx->SetToolTip(fcgCBMKVMuxerExt, L""
 		+ L"指定したmuxerでmuxを行います。\n"
@@ -1640,12 +1715,32 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"muxerに渡す追加オプションを選択します。\n"
 		+ L"これらの設定はx264guiEx.iniに記述されています。"
 		);
+	fcgTTEx->SetToolTip(fcgBTMKVMuxerPath, L""
+		+ L"mkv用muxerの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
 	fcgTTEx->SetToolTip(fcgCBMuxMinimize, L""
 		+ L"mux時のウィンドウを最小化で開始します。"
 		);
 	fcgTTEx->SetToolTip(fcgCXMuxPriority, L""
 		+ L"muxerのCPU優先度を指定します。\n"
 		+ L"AviutlSync で Aviutlの優先度と同じになります。"
+		);
+	//バッチファイル実行
+	fcgTTEx->SetToolTip(fcgCBRunBat, L""
+		+ L"エンコード終了後バッチファイルを実行します。"
+		);
+	fcgTTEx->SetToolTip(fcgCBWaitForBat, L""
+		+ L"バッチ処理開始後、バッチ処理が終了するまで待機します。"
+		);
+	fcgTTEx->SetToolTip(fcgBTBatPath, L""
+		+ L"エンコード終了後実行するバッチファイルを指定します。\n"
+		+ L"実際のバッチ実行時には新たに\"<バッチファイル名>_tmp.bat\"を作成、\n"
+		+ L"指定したバッチファイルの内容をコピーし、\n"
+		+ L"さらに特定文字列を置換して実行します。\n"
+		+ L"使用できる置換文字列はreadmeをご覧下さい。"
 		);
 	//上部ツールストリップ
 	fcgTSBCMDOnly->ToolTipText = L""
@@ -1696,10 +1791,7 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path, bool as10bit) {
 	if (as10bit == fcgCBUse10bit->Checked)
 		fcgTTX264Version->SetToolTip(fcgTXX264Path, mes);
 
-	if (as10bit)
-		fcgTTX264Version->SetToolTip(fcgTXX264PathSub10bit, mes);
-	else
-		fcgTTX264Version->SetToolTip(fcgTXX264PathSub, mes);
+	fcgTTX264Version->SetToolTip((as10bit) ? fcgTXX264PathSub10bit : fcgTXX264PathSub, mes);
 }
 
 #pragma warning( pop )

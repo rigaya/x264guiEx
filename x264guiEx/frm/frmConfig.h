@@ -577,6 +577,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 
 
 
+
 	private: System::ComponentModel::IContainer^  components;
 
 
@@ -626,6 +627,8 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgLBLevel = (gcnew System::Windows::Forms::Label());
 			this->fcgCXLevel = (gcnew System::Windows::Forms::ComboBox());
 			this->fcggroupBoxColorMatrix = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCXInputRange = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgLBInputRange = (gcnew System::Windows::Forms::Label());
 			this->fcgCXTransfer = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXColorPrim = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXColorMatrix = (gcnew System::Windows::Forms::ComboBox());
@@ -875,8 +878,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgTTX264 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
-			this->fcgCXInputRange = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgLBInputRange = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcggroupBoxX264Out->SuspendLayout();
@@ -1181,7 +1182,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// fcgCBUse10bit
 			// 
 			this->fcgCBUse10bit->AutoSize = true;
-			this->fcgCBUse10bit->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
 			this->fcgCBUse10bit->Location = System::Drawing::Point(277, 10);
 			this->fcgCBUse10bit->Name = L"fcgCBUse10bit";
 			this->fcgCBUse10bit->Size = System::Drawing::Size(89, 18);
@@ -1288,6 +1288,25 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcggroupBoxColorMatrix->TabIndex = 30;
 			this->fcggroupBoxColorMatrix->TabStop = false;
 			this->fcggroupBoxColorMatrix->Text = L"色空間";
+			// 
+			// fcgCXInputRange
+			// 
+			this->fcgCXInputRange->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXInputRange->FormattingEnabled = true;
+			this->fcgCXInputRange->Location = System::Drawing::Point(101, 114);
+			this->fcgCXInputRange->Name = L"fcgCXInputRange";
+			this->fcgCXInputRange->Size = System::Drawing::Size(92, 22);
+			this->fcgCXInputRange->TabIndex = 4;
+			this->fcgCXInputRange->Tag = L"reCmd";
+			// 
+			// fcgLBInputRange
+			// 
+			this->fcgLBInputRange->AutoSize = true;
+			this->fcgLBInputRange->Location = System::Drawing::Point(14, 117);
+			this->fcgLBInputRange->Name = L"fcgLBInputRange";
+			this->fcgLBInputRange->Size = System::Drawing::Size(70, 14);
+			this->fcgLBInputRange->TabIndex = 3;
+			this->fcgLBInputRange->Text = L"input range";
 			// 
 			// fcgCXTransfer
 			// 
@@ -3920,25 +3939,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgTTX264Version->ToolTipTitle = L"x264 バージョン情報...";
 			this->fcgTTX264Version->UseAnimation = false;
 			this->fcgTTX264Version->UseFading = false;
-			// 
-			// fcgCXInputRange
-			// 
-			this->fcgCXInputRange->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXInputRange->FormattingEnabled = true;
-			this->fcgCXInputRange->Location = System::Drawing::Point(101, 114);
-			this->fcgCXInputRange->Name = L"fcgCXInputRange";
-			this->fcgCXInputRange->Size = System::Drawing::Size(92, 22);
-			this->fcgCXInputRange->TabIndex = 4;
-			this->fcgCXInputRange->Tag = L"reCmd";
-			// 
-			// fcgLBInputRange
-			// 
-			this->fcgLBInputRange->AutoSize = true;
-			this->fcgLBInputRange->Location = System::Drawing::Point(14, 117);
-			this->fcgLBInputRange->Name = L"fcgLBInputRange";
-			this->fcgLBInputRange->Size = System::Drawing::Size(70, 14);
-			this->fcgLBInputRange->TabIndex = 3;
-			this->fcgLBInputRange->Text = L"input range";
 			// 
 			// frmConfig
 			// 
