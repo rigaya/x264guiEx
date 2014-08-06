@@ -414,7 +414,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 
 		//ログウィンドウ側から制御を可能に
 		DWORD tm_x264enc_start = timeGetTime();
-		enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_x264_pass == 1, &tm_x264enc_start, oip->n);
+		enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_x264_pass == 1, tm_x264enc_start, oip->n);
 
 		//------------メインループ------------
 		for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {

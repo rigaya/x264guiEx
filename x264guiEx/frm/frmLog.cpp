@@ -47,7 +47,7 @@ void write_log_line(int log_type_index, const char *chr) {
 	frmLog::Instance::get()->WriteLogLine(chr, log_type_index);
 }
 //ログウィンドウからのx264制御を有効化
-void enable_x264_control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL add_progress, DWORD *start_time, int _total_frame) {
+void enable_x264_control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL add_progress, DWORD start_time, int _total_frame) {
 	frmLog::Instance::get()->Enablex264Control(priority, enc_pause, afs, add_progress, start_time, _total_frame);
 }
 //ログウィンドウからのx264制御を無効化

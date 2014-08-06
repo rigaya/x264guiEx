@@ -124,7 +124,7 @@ namespace x264guiEx {
 		HWND hWnd;
 		DWORD *_x264_priority;
 		BOOL *_enc_pause;
-		DWORD *_x264_start_time;
+		DWORD _x264_start_time;
 		bool closed;
 		bool prevent_log_closing;
 		bool add_progress;
@@ -150,6 +150,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemShowStatus;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTaskBarProgress;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoSaveSettings;
+private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTime;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -181,6 +182,7 @@ namespace x264guiEx {
 			this->toolStripMenuItemTaskBarProgress = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->statusStripLog = (gcnew System::Windows::Forms::StatusStrip());
 			this->toolStripStatusCurrentTask = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->toolStripStatusElapsedTime = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->toolStripCurrentProgress = (gcnew System::Windows::Forms::ToolStripProgressBar());
 			this->toolStripStatusCurrentProgress = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->contextMenuStripLog->SuspendLayout();
@@ -278,8 +280,8 @@ namespace x264guiEx {
 			// 
 			// statusStripLog
 			// 
-			this->statusStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->toolStripStatusCurrentTask, 
-				this->toolStripCurrentProgress, this->toolStripStatusCurrentProgress});
+			this->statusStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->toolStripStatusCurrentTask, 
+				this->toolStripStatusElapsedTime, this->toolStripCurrentProgress, this->toolStripStatusCurrentProgress});
 			this->statusStripLog->Location = System::Drawing::Point(0, 254);
 			this->statusStripLog->Name = L"statusStripLog";
 			this->statusStripLog->Size = System::Drawing::Size(684, 23);
@@ -289,10 +291,20 @@ namespace x264guiEx {
 			// toolStripStatusCurrentTask
 			// 
 			this->toolStripStatusCurrentTask->Name = L"toolStripStatusCurrentTask";
-			this->toolStripStatusCurrentTask->Size = System::Drawing::Size(669, 18);
-			this->toolStripStatusCurrentTask->Spring = true;
+			this->toolStripStatusCurrentTask->Size = System::Drawing::Size(35, 18);
 			this->toolStripStatusCurrentTask->Text = L"Task";
 			this->toolStripStatusCurrentTask->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
+			// toolStripStatusElapsedTime
+			// 
+			this->toolStripStatusElapsedTime->Font = (gcnew System::Drawing::Font(L"メイリオ", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->toolStripStatusElapsedTime->Margin = System::Windows::Forms::Padding(6, 3, 0, 1);
+			this->toolStripStatusElapsedTime->Name = L"toolStripStatusElapsedTime";
+			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(355, 19);
+			this->toolStripStatusElapsedTime->Spring = true;
+			this->toolStripStatusElapsedTime->Text = L"ElapsedTime";
+			this->toolStripStatusElapsedTime->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
 			// 
 			// toolStripCurrentProgress
 			// 
@@ -306,7 +318,7 @@ namespace x264guiEx {
 			// 
 			this->toolStripStatusCurrentProgress->AutoSize = false;
 			this->toolStripStatusCurrentProgress->Name = L"toolStripStatusCurrentProgress";
-			this->toolStripStatusCurrentProgress->Size = System::Drawing::Size(64, 18);
+			this->toolStripStatusCurrentProgress->Size = System::Drawing::Size(60, 18);
 			this->toolStripStatusCurrentProgress->Text = L"Progress";
 			this->toolStripStatusCurrentProgress->TextAlign = System::Drawing::ContentAlignment::MiddleRight;
 			this->toolStripStatusCurrentProgress->Visible = false;
@@ -346,8 +358,10 @@ namespace x264guiEx {
 			bool show_progress = (progress_mode != PROGRESSBAR_DISABLED);
 			toolStripCurrentProgress->Visible = show_progress;
 			toolStripStatusCurrentProgress->Visible = show_progress;
+			toolStripStatusElapsedTime->Visible = show_progress;
 			toolStripCurrentProgress->Style = (progress_mode == PROGRESSBAR_MARQUEE) ? ProgressBarStyle::Marquee : ProgressBarStyle::Continuous;
 			toolStripStatusCurrentProgress->Text = L"";
+			toolStripStatusElapsedTime->Text = L"";
 			toolStripStatusCurrentTask->Text = (show_progress) ? LogTitle : L"";
 			if (!show_progress)
 				toolStripCurrentProgress->Value = 0;
@@ -361,6 +375,7 @@ namespace x264guiEx {
 		System::Void SetProgress(double progress) {
 			toolStripCurrentProgress->Value = clamp((int)(progress * toolStripCurrentProgress->Maximum + 0.5), toolStripCurrentProgress->Minimum, toolStripCurrentProgress->Maximum);
 			toolStripStatusCurrentProgress->Text = (progress).ToString("P1");
+			toolStripStatusElapsedTime->Text = L"";
 			this->Text = L"[" + toolStripStatusCurrentProgress->Text + L"] " + LogTitle;
 			taskbar_setprogress(hWnd, progress);
 		}
@@ -369,6 +384,8 @@ namespace x264guiEx {
 			String^ title = String(chr).ToString();
 			double progress = frame_n / (double)total_frame;
 			String^ ProgressPercent = (progress).ToString("P1");
+			DWORD time_elapsed = timeGetTime() - _x264_start_time;
+			int t;
 			if (using_afs) {
 				StringBuilder^ SB = gcnew StringBuilder();
 				SB->Append(title);
@@ -377,21 +394,41 @@ namespace x264guiEx {
 				SB->Append(L"/");
 				SB->Append(frame_n);
 				if (add_progress) {
-					DWORD time_remain = (DWORD)((timeGetTime() - *_x264_start_time) * ((double)(total_frame - frame_n) / (double)frame_n)) / 1000;
+					DWORD time_remain = (DWORD)(time_elapsed * ((double)(total_frame - frame_n) / (double)frame_n)) / 1000;
 					SB->Insert(0, L"[" + ProgressPercent + "] ");
 
+					t = (int)(time_remain / 3600);
 					SB->Append(", eta ");
-					SB->Append((int)(time_remain / 3600));
+					SB->Append(t.ToString("D2"));
 					SB->Append(L":");
-					SB->Append(((time_remain % 3600) / 60).ToString("D2"));
+					time_remain -= t * 3600;
+					t = (int)(time_remain / 60);
+					SB->Append(t.ToString("D2"));
 					SB->Append(L":");
-					SB->Append((time_remain % 60).ToString("D2"));
+					time_remain -= t * 60;
+					SB->Append(time_remain.ToString("D2"));
 				}
 				title = SB->ToString();
 			}
 			toolStripCurrentProgress->Value = clamp((int)(progress * toolStripCurrentProgress->Maximum + 0.5), toolStripCurrentProgress->Minimum, toolStripCurrentProgress->Maximum);
 			toolStripStatusCurrentProgress->Text = ProgressPercent;
 			taskbar_setprogress(hWnd, progress);
+
+			time_elapsed /= 1000;
+			t = (int)(time_elapsed / 3600);
+			StringBuilder^ SBE = gcnew StringBuilder();
+			//SBE->Append(L"経過時間 ");
+			SBE->Append(t.ToString("D2"));
+			SBE->Append(L":");
+			time_elapsed -= t * 3600;
+			t = (int)(time_elapsed / 60);
+			SBE->Append(t.ToString("D2"));
+			SBE->Append(L":");
+			time_elapsed -= t * 60;
+			SBE->Append(time_elapsed.ToString("D2"));
+
+			toolStripStatusElapsedTime->Text = SBE->ToString();
+
 			this->Text = title;
 		}
 	public:
@@ -456,7 +493,7 @@ namespace x264guiEx {
 				SaveLog(String(log_filename).ToString());
 		}
 	public:
-		System::Void Enablex264Control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL _add_progress, DWORD *start_time, int _total_frame) {
+		System::Void Enablex264Control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL _add_progress, DWORD start_time, int _total_frame) {
 			int i, j;
 			_x264_priority = priority;
 			_enc_pause = enc_pause;
