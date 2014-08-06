@@ -4112,6 +4112,8 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		}
 	private:
 		System::Boolean openExeFile(TextBox^ TX, String^ ExeName) {
+			//WinXPにおいて、OpenFileDialogはCurrentDirctoryを勝手に変更しやがるので、
+			//一度保存し、あとから再適用する
 			String^ CurrentDir = Directory::GetCurrentDirectory();
 			OpenFileDialog ofd;
 			ofd.Multiselect = false;
@@ -4214,7 +4216,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 					ofd->FileName = fileName;
 			}
 			ofd->Multiselect = false;
-			ofd->Filter = fileTypeName + L"(*.*)|*.*";
+			ofd->Filter = fileTypeName + L"(*" + ext + L")|*" + ext;
 			bool ret = (ofd->ShowDialog() == Windows::Forms::DialogResult::OK);
 			if (ret) {
 				TX->Text = ofd->FileName;

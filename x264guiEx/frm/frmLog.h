@@ -631,9 +631,8 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 		}
 	private:
 		System::Void frmLog_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
-			if (e->KeyCode == Keys::Escape) {
+			if (e->KeyCode == Keys::Escape)
 				this->Close();
-			}
 		}
 };
 }
