@@ -1,0 +1,32 @@
+﻿//  -----------------------------------------------------------------------------------------
+//    拡張 x264 出力(GUI) Ex  v1.xx by rigaya
+//  -----------------------------------------------------------------------------------------
+//   ソースコードについて
+//   ・無保証です。
+//   ・本ソースコードを使用したことによるいかなる損害・トラブルについてrigayaは責任を負いません。
+//   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
+//  -----------------------------------------------------------------------------------------
+
+#ifndef _AUO_ENCODE_H_
+#define _AUO_ENCODE_H_
+
+#include <Windows.h>
+#include <stdio.h>
+
+#include "output.h"
+#include "auo_conf.h"
+#include "auo_settings.h"
+#include "auo_system.h"
+#include "auo_frm.h"
+
+static const char * const PIPE_FN = "-";
+
+typedef DWORD (*encode_task) (CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
+
+void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe); //音声一時ファイル名を作成
+void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename); //mux出力ファイル名を作成
+void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile); //コマンドラインの共通置換を実行
+DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const char *savefile, DWORD ret); //一時ファイルの最終的な移動・削除を実行
+DWORD GetExePriority(DWORD set, HANDLE h_aviutl); //実行ファイルに指定すべき優先度を取得
+
+#endif //_AUO_ENCODE_H_
