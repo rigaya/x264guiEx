@@ -3191,6 +3191,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			// fcgNUAudioBitrate
 			// 
 			this->fcgNUAudioBitrate->Location = System::Drawing::Point(218, 170);
+			this->fcgNUAudioBitrate->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1536, 0, 0, 0});
 			this->fcgNUAudioBitrate->Name = L"fcgNUAudioBitrate";
 			this->fcgNUAudioBitrate->Size = System::Drawing::Size(65, 21);
 			this->fcgNUAudioBitrate->TabIndex = 8;

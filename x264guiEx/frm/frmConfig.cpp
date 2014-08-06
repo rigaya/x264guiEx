@@ -570,10 +570,12 @@ System::Void frmConfig::AudioEncodeModeChanged() {
 		fcgCXAudioEncMode->Width = fcgCXAudioEncModeLargeWidth;
 		fcgLBAudioBitrate->Visible = false;
 		fcgNUAudioBitrate->Visible = false;
+		fcgNUAudioBitrate->Minimum = 0;
+		fcgNUAudioBitrate->Maximum = 1536;
 	}
 	fcgCBAudio2pass->Enabled = astg->mode[index].enc_2pass != 0;
 	if (!fcgCBAudio2pass->Enabled) fcgCBAudio2pass->Checked = false;
-	SetfbcBTABEnable(fcgNUAudioBitrate->Visible, (int)fcgNUAudioBitrate->Value);
+	SetfbcBTABEnable(fcgNUAudioBitrate->Visible, (int)fcgNUAudioBitrate->Maximum);
 }
 
 ///////////////   設定ファイル関連   //////////////////////
