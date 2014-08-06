@@ -768,6 +768,7 @@ System::Void frmConfig::InitComboBox() {
 	setComboBox(fcgCXBpyramid,       list_b_pyramid);
 	setComboBox(fcgCXColorMatrix,    list_colormatrix);
 	setComboBox(fcgCXColorPrim,      list_colorprim);
+	setComboBox(fcgCXInputRange,     list_input_range);
 	setComboBox(fcgCXDirectME,       list_direct);
 	setComboBox(fcgCXLevel,          list_x264guiEx_level);
 	setComboBox(fcgCXLogLevel,       list_log_type);
@@ -967,7 +968,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	SetCXIndex(fcgCXColorMatrix,      cx264->colormatrix);
 	SetCXIndex(fcgCXColorPrim,        cx264->colorprim);
 	SetCXIndex(fcgCXTransfer,         cx264->transfer);
-	fcgCBFullrange->Checked         = cx264->fullrange != 0;
+	fcgCXInputRange->SelectedIndex  = cx264->input_range;
 
 	if (cx264->sar.x * cx264->sar.y < 0)
 		cx264->sar.x = cx264->sar.y = 0;
@@ -1125,7 +1126,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->x264.colormatrix          = fcgCXColorMatrix->SelectedIndex;
 	cnf->x264.colorprim            = fcgCXColorPrim->SelectedIndex;
 	cnf->x264.transfer             = fcgCXTransfer->SelectedIndex;
-	cnf->x264.fullrange            = fcgCBFullrange->Checked;
+	cnf->x264.input_range          = fcgCXInputRange->SelectedIndex;
 	cnf->x264.sar.x                = (int)fcgNUAspectRatioX->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
 	cnf->x264.sar.y                = (int)fcgNUAspectRatioY->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
 	cnf->x264.threads              = (int)fcgNUThreads->Value;
@@ -1380,9 +1381,14 @@ System::Void frmConfig::SetHelpToolTips() {
 	SetHelpToolTipsColorMatrix(fcgCXColorMatrix, "colormatrix");
 	SetHelpToolTipsColorMatrix(fcgCXColorPrim,   "colorprim");
 	SetHelpToolTipsColorMatrix(fcgCXTransfer,    "transfer");
-	fcgTTX264->SetToolTip(fcgCBFullrange,        L"--fullrange\n"
-		+ L"フルレンジでエンコードする際に使用します。\n"
-		+ L"よくわからない場合は使用しないでください。"
+	fcgTTX264->SetToolTip(fcgCXInputRange,      L"--input-range\n"
+		+ L"\n"
+		+ L"\"" + String(list_input_range[0].desc).ToString() + L"\"  [デフォルト]\n"
+		+ L"  output-csp yuv系 … tv色調 (圧縮レンジ)\n"
+		+ L"  output-csp rgb系 … pc色調\n"
+		+ L"\n"
+		+ L"\"" + String(list_input_range[1].desc).ToString() + L"\"\n"
+		+ L"  pc色調 (フルレンジ)"
 		);
 
 	fcgTTX264->SetToolTip(fcgCXAspectRatio,      L""

@@ -324,9 +324,9 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	PathGetDirectory(x264dir, sizeof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
-	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
+	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.input_range, conf->vid.yc48_colormatrix_conv);
 	if (convert_frame == NULL) {
-		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange, conf->vid.yc48_colormatrix_conv);
+		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.input_range, conf->vid.yc48_colormatrix_conv);
 		return ret;
 	}
 	//映像バッファ用メモリ確保

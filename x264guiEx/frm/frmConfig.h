@@ -161,7 +161,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ComboBox^  fcgCXTransfer;
 	private: System::Windows::Forms::ComboBox^  fcgCXColorPrim;
 	private: System::Windows::Forms::ComboBox^  fcgCXColorMatrix;
-	private: System::Windows::Forms::CheckBox^  fcgCBFullrange;
+
 
 	private: System::Windows::Forms::Label^  fcgLBTransfer;
 
@@ -559,6 +559,10 @@ private: System::Windows::Forms::Label^  fcgLBBatPath;
 private: System::Windows::Forms::CheckBox^  fcgCBWaitForBat;
 private: System::Windows::Forms::Button^  fcgBTBatPath;
 private: System::Windows::Forms::TextBox^  fcgTXBatPath;
+private: System::Windows::Forms::ComboBox^  fcgCXInputRange;
+
+private: System::Windows::Forms::Label^  fcgLBInputRange;
+
 
 
 
@@ -625,7 +629,6 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgCXTransfer = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXColorPrim = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXColorMatrix = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgCBFullrange = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgLBTransfer = (gcnew System::Windows::Forms::Label());
 			this->fcgLBColorPrim = (gcnew System::Windows::Forms::Label());
 			this->fcgLBColorMatrix = (gcnew System::Windows::Forms::Label());
@@ -850,6 +853,12 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgCXMuxPriority = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBMuxPriority = (gcnew System::Windows::Forms::Label());
 			this->fcgCBMuxMinimize = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgtabPageBat = (gcnew System::Windows::Forms::TabPage());
+			this->fcgBTBatPath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXBatPath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgLBBatPath = (gcnew System::Windows::Forms::Label());
+			this->fcgCBWaitForBat = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCBRunBat = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgTXCmd = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTCancel = (gcnew System::Windows::Forms::Button());
 			this->fcgBTOK = (gcnew System::Windows::Forms::Button());
@@ -866,12 +875,8 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgTTX264 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
-			this->fcgtabPageBat = (gcnew System::Windows::Forms::TabPage());
-			this->fcgCBRunBat = (gcnew System::Windows::Forms::CheckBox());
-			this->fcgCBWaitForBat = (gcnew System::Windows::Forms::CheckBox());
-			this->fcgLBBatPath = (gcnew System::Windows::Forms::Label());
-			this->fcgBTBatPath = (gcnew System::Windows::Forms::Button());
-			this->fcgTXBatPath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgCXInputRange = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgLBInputRange = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcggroupBoxX264Out->SuspendLayout();
@@ -932,8 +937,8 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgtabPageMP4->SuspendLayout();
 			this->fcgtabPageMKV->SuspendLayout();
 			this->fcgtabPageMux->SuspendLayout();
-			this->fcgCSCQM->SuspendLayout();
 			this->fcgtabPageBat->SuspendLayout();
+			this->fcgCSCQM->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// fcgtabControlVideo
@@ -1269,10 +1274,11 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			// 
 			// fcggroupBoxColorMatrix
 			// 
+			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgCXInputRange);
+			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBInputRange);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgCXTransfer);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgCXColorPrim);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgCXColorMatrix);
-			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgCBFullrange);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBTransfer);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBColorPrim);
 			this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBColorMatrix);
@@ -1287,7 +1293,7 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			// 
 			this->fcgCXTransfer->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXTransfer->FormattingEnabled = true;
-			this->fcgCXTransfer->Location = System::Drawing::Point(101, 86);
+			this->fcgCXTransfer->Location = System::Drawing::Point(101, 83);
 			this->fcgCXTransfer->Name = L"fcgCXTransfer";
 			this->fcgCXTransfer->Size = System::Drawing::Size(92, 22);
 			this->fcgCXTransfer->TabIndex = 2;
@@ -1297,7 +1303,7 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			// 
 			this->fcgCXColorPrim->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXColorPrim->FormattingEnabled = true;
-			this->fcgCXColorPrim->Location = System::Drawing::Point(101, 52);
+			this->fcgCXColorPrim->Location = System::Drawing::Point(101, 51);
 			this->fcgCXColorPrim->Name = L"fcgCXColorPrim";
 			this->fcgCXColorPrim->Size = System::Drawing::Size(92, 22);
 			this->fcgCXColorPrim->TabIndex = 1;
@@ -1313,21 +1319,10 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgCXColorMatrix->TabIndex = 0;
 			this->fcgCXColorMatrix->Tag = L"reCmd";
 			// 
-			// fcgCBFullrange
-			// 
-			this->fcgCBFullrange->AutoSize = true;
-			this->fcgCBFullrange->Location = System::Drawing::Point(7, 119);
-			this->fcgCBFullrange->Name = L"fcgCBFullrange";
-			this->fcgCBFullrange->Size = System::Drawing::Size(74, 18);
-			this->fcgCBFullrange->TabIndex = 3;
-			this->fcgCBFullrange->Tag = L"reCmd";
-			this->fcgCBFullrange->Text = L"fullrange";
-			this->fcgCBFullrange->UseVisualStyleBackColor = true;
-			// 
 			// fcgLBTransfer
 			// 
 			this->fcgLBTransfer->AutoSize = true;
-			this->fcgLBTransfer->Location = System::Drawing::Point(14, 89);
+			this->fcgLBTransfer->Location = System::Drawing::Point(14, 86);
 			this->fcgLBTransfer->Name = L"fcgLBTransfer";
 			this->fcgLBTransfer->Size = System::Drawing::Size(49, 14);
 			this->fcgLBTransfer->TabIndex = 2;
@@ -1336,7 +1331,7 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			// fcgLBColorPrim
 			// 
 			this->fcgLBColorPrim->AutoSize = true;
-			this->fcgLBColorPrim->Location = System::Drawing::Point(14, 55);
+			this->fcgLBColorPrim->Location = System::Drawing::Point(14, 54);
 			this->fcgLBColorPrim->Name = L"fcgLBColorPrim";
 			this->fcgLBColorPrim->Size = System::Drawing::Size(61, 14);
 			this->fcgLBColorPrim->TabIndex = 1;
@@ -3711,6 +3706,71 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgCBMuxMinimize->Text = L"最小化";
 			this->fcgCBMuxMinimize->UseVisualStyleBackColor = true;
 			// 
+			// fcgtabPageBat
+			// 
+			this->fcgtabPageBat->Controls->Add(this->fcgBTBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgTXBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBat);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBat);
+			this->fcgtabPageBat->Location = System::Drawing::Point(4, 23);
+			this->fcgtabPageBat->Name = L"fcgtabPageBat";
+			this->fcgtabPageBat->Size = System::Drawing::Size(376, 187);
+			this->fcgtabPageBat->TabIndex = 3;
+			this->fcgtabPageBat->Text = L"エンコ後バッチ処理";
+			this->fcgtabPageBat->UseVisualStyleBackColor = true;
+			// 
+			// fcgBTBatPath
+			// 
+			this->fcgBTBatPath->Location = System::Drawing::Point(330, 85);
+			this->fcgBTBatPath->Name = L"fcgBTBatPath";
+			this->fcgBTBatPath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTBatPath->TabIndex = 5;
+			this->fcgBTBatPath->Tag = L"chValue";
+			this->fcgBTBatPath->Text = L"...";
+			this->fcgBTBatPath->UseVisualStyleBackColor = true;
+			this->fcgBTBatPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatPath_Click);
+			// 
+			// fcgTXBatPath
+			// 
+			this->fcgTXBatPath->AllowDrop = true;
+			this->fcgTXBatPath->Location = System::Drawing::Point(126, 86);
+			this->fcgTXBatPath->Name = L"fcgTXBatPath";
+			this->fcgTXBatPath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXBatPath->TabIndex = 4;
+			this->fcgTXBatPath->Tag = L"chValue";
+			// 
+			// fcgLBBatPath
+			// 
+			this->fcgLBBatPath->AutoSize = true;
+			this->fcgLBBatPath->Location = System::Drawing::Point(18, 89);
+			this->fcgLBBatPath->Name = L"fcgLBBatPath";
+			this->fcgLBBatPath->Size = System::Drawing::Size(61, 14);
+			this->fcgLBBatPath->TabIndex = 2;
+			this->fcgLBBatPath->Text = L"バッチファイル";
+			// 
+			// fcgCBWaitForBat
+			// 
+			this->fcgCBWaitForBat->AutoSize = true;
+			this->fcgCBWaitForBat->Location = System::Drawing::Point(18, 47);
+			this->fcgCBWaitForBat->Name = L"fcgCBWaitForBat";
+			this->fcgCBWaitForBat->Size = System::Drawing::Size(150, 18);
+			this->fcgCBWaitForBat->TabIndex = 1;
+			this->fcgCBWaitForBat->Tag = L"chValue";
+			this->fcgCBWaitForBat->Text = L"バッチ処理の終了を待機する";
+			this->fcgCBWaitForBat->UseVisualStyleBackColor = true;
+			// 
+			// fcgCBRunBat
+			// 
+			this->fcgCBRunBat->AutoSize = true;
+			this->fcgCBRunBat->Location = System::Drawing::Point(18, 23);
+			this->fcgCBRunBat->Name = L"fcgCBRunBat";
+			this->fcgCBRunBat->Size = System::Drawing::Size(179, 18);
+			this->fcgCBRunBat->TabIndex = 0;
+			this->fcgCBRunBat->Tag = L"chValue";
+			this->fcgCBRunBat->Text = L"エンコード終了後、バッチ処理を行う";
+			this->fcgCBRunBat->UseVisualStyleBackColor = true;
+			// 
 			// fcgTXCmd
 			// 
 			this->fcgTXCmd->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
@@ -3861,70 +3921,24 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgTTX264Version->UseAnimation = false;
 			this->fcgTTX264Version->UseFading = false;
 			// 
-			// fcgtabPageBat
+			// fcgCXInputRange
 			// 
-			this->fcgtabPageBat->Controls->Add(this->fcgBTBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgTXBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgLBBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBat);
-			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBat);
-			this->fcgtabPageBat->Location = System::Drawing::Point(4, 23);
-			this->fcgtabPageBat->Name = L"fcgtabPageBat";
-			this->fcgtabPageBat->Size = System::Drawing::Size(376, 187);
-			this->fcgtabPageBat->TabIndex = 3;
-			this->fcgtabPageBat->Text = L"エンコ後バッチ処理";
-			this->fcgtabPageBat->UseVisualStyleBackColor = true;
+			this->fcgCXInputRange->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXInputRange->FormattingEnabled = true;
+			this->fcgCXInputRange->Location = System::Drawing::Point(101, 114);
+			this->fcgCXInputRange->Name = L"fcgCXInputRange";
+			this->fcgCXInputRange->Size = System::Drawing::Size(92, 22);
+			this->fcgCXInputRange->TabIndex = 4;
+			this->fcgCXInputRange->Tag = L"reCmd";
 			// 
-			// fcgCBRunBat
+			// fcgLBInputRange
 			// 
-			this->fcgCBRunBat->AutoSize = true;
-			this->fcgCBRunBat->Location = System::Drawing::Point(18, 23);
-			this->fcgCBRunBat->Name = L"fcgCBRunBat";
-			this->fcgCBRunBat->Size = System::Drawing::Size(179, 18);
-			this->fcgCBRunBat->TabIndex = 0;
-			this->fcgCBRunBat->Tag = L"chValue";
-			this->fcgCBRunBat->Text = L"エンコード終了後、バッチ処理を行う";
-			this->fcgCBRunBat->UseVisualStyleBackColor = true;
-			// 
-			// fcgCBWaitForBat
-			// 
-			this->fcgCBWaitForBat->AutoSize = true;
-			this->fcgCBWaitForBat->Location = System::Drawing::Point(18, 47);
-			this->fcgCBWaitForBat->Name = L"fcgCBWaitForBat";
-			this->fcgCBWaitForBat->Size = System::Drawing::Size(150, 18);
-			this->fcgCBWaitForBat->TabIndex = 1;
-			this->fcgCBWaitForBat->Tag = L"chValue";
-			this->fcgCBWaitForBat->Text = L"バッチ処理の終了を待機する";
-			this->fcgCBWaitForBat->UseVisualStyleBackColor = true;
-			// 
-			// fcgLBBatPath
-			// 
-			this->fcgLBBatPath->AutoSize = true;
-			this->fcgLBBatPath->Location = System::Drawing::Point(18, 89);
-			this->fcgLBBatPath->Name = L"fcgLBBatPath";
-			this->fcgLBBatPath->Size = System::Drawing::Size(61, 14);
-			this->fcgLBBatPath->TabIndex = 2;
-			this->fcgLBBatPath->Text = L"バッチファイル";
-			// 
-			// fcgBTBatPath
-			// 
-			this->fcgBTBatPath->Location = System::Drawing::Point(330, 85);
-			this->fcgBTBatPath->Name = L"fcgBTBatPath";
-			this->fcgBTBatPath->Size = System::Drawing::Size(30, 23);
-			this->fcgBTBatPath->TabIndex = 5;
-			this->fcgBTBatPath->Tag = L"chValue";
-			this->fcgBTBatPath->Text = L"...";
-			this->fcgBTBatPath->UseVisualStyleBackColor = true;
-			this->fcgBTBatPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatPath_Click);
-			// 
-			// fcgTXBatPath
-			// 
-			this->fcgTXBatPath->AllowDrop = true;
-			this->fcgTXBatPath->Location = System::Drawing::Point(126, 86);
-			this->fcgTXBatPath->Name = L"fcgTXBatPath";
-			this->fcgTXBatPath->Size = System::Drawing::Size(202, 21);
-			this->fcgTXBatPath->TabIndex = 4;
-			this->fcgTXBatPath->Tag = L"chValue";
+			this->fcgLBInputRange->AutoSize = true;
+			this->fcgLBInputRange->Location = System::Drawing::Point(14, 117);
+			this->fcgLBInputRange->Name = L"fcgLBInputRange";
+			this->fcgLBInputRange->Size = System::Drawing::Size(70, 14);
+			this->fcgLBInputRange->TabIndex = 3;
+			this->fcgLBInputRange->Text = L"input range";
 			// 
 			// frmConfig
 			// 
@@ -4035,9 +4049,9 @@ private: System::Windows::Forms::TextBox^  fcgTXBatPath;
 			this->fcgtabPageMKV->PerformLayout();
 			this->fcgtabPageMux->ResumeLayout(false);
 			this->fcgtabPageMux->PerformLayout();
-			this->fcgCSCQM->ResumeLayout(false);
 			this->fcgtabPageBat->ResumeLayout(false);
 			this->fcgtabPageBat->PerformLayout();
+			this->fcgCSCQM->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 

@@ -122,9 +122,9 @@ const X264_OPTION_STR list_cqm[] = {
 	{ "jvt",  NULL },
 	{ NULL, NULL }
 };
-const X264_OPTION_STR list_fullrange[] = {
-	{ "off", NULL },
-	{ "on",  NULL },
+const X264_OPTION_STR list_input_range[] = {
+	{ "auto", L"auto" },
+	{ "pc",   L"pc" },
 	{ NULL, NULL }
 };
 const X264_OPTION_STR list_colorprim[] = {
@@ -276,7 +276,7 @@ typedef struct {
 	int     colormatrix;
 	int     colorprim;
 	int     transfer;
-	int     fullrange;
+	int     input_range;
 	INT2    sar;
 	int     h264_level;
 	int     videoformat;

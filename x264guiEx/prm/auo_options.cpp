@@ -130,7 +130,7 @@ static X264_OPTIONS x264_options_table[] = {
 	{ "colormatrix",      "",   OPTION_TYPE_LIST,          list_colormatrix,     offsetof(CONF_X264, colormatrix    ) },
 	{ "colorprim",        "",   OPTION_TYPE_LIST,          list_colorprim,       offsetof(CONF_X264, colorprim      ) },
 	{ "transfer",         "",   OPTION_TYPE_LIST,          list_transfer,        offsetof(CONF_X264, transfer       ) },
-	{ "fullrange",        "",   OPTION_TYPE_LIST,          list_fullrange,       offsetof(CONF_X264, fullrange      ) },
+	{ "input-range",      "",   OPTION_TYPE_LIST,          list_input_range,     offsetof(CONF_X264, input_range    ) },
 	{ "sar",              "",   OPTION_TYPE_INT2,          NULL,                 offsetof(CONF_X264, sar            ) },
 	{ "level",            "",   OPTION_TYPE_LEVEL,         list_x264guiEx_level, offsetof(CONF_X264, h264_level     ) },
 	{ "videoformat",      "",   OPTION_TYPE_LIST,          list_videoformat,     offsetof(CONF_X264, videoformat    ) },
