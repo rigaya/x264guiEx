@@ -405,6 +405,7 @@ namespace x264guiEx {
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->KeyPreview = true;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"frmBitrateCalculator";
@@ -412,6 +413,7 @@ namespace x264guiEx {
 			this->Text = L"簡易ビットレート計算機";
 			this->Load += gcnew System::EventHandler(this, &frmBitrateCalculator::frmBitrateCalculator_Load);
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmBitrateCalculator::frmBitrateCalculator_FormClosing);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmBitrateCalculator::frmBitrateCalculator_KeyDown);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthHour))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthMin))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthSec))->EndInit();
@@ -597,6 +599,11 @@ namespace x264guiEx {
 				}
 				enable_events = true;
 			}
+		}
+	private:
+		System::Void frmBitrateCalculator_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 };
 }

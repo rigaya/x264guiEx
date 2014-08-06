@@ -317,8 +317,12 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 		sys_dat->exstg->save_local();
 		InitStgFileList();
 	}
+	//再読み込み
+	guiEx_settings stg;
+	stg.load_encode_stg();
 	log_reload_settings();
-	ActivateToolTip(!frmOtherSettings::DisableToolTipHelp);
+	SetStgEscKey(stg.s_local.enable_stg_esc_key != 0);
+	ActivateToolTip(stg.s_local.disable_tooltip_help != 0);
 }
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -844,6 +848,16 @@ System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventA
 	fcgCBNulOutCLI->Visible = fcgTSBCMDOnly->Checked;
 }
 
+System::Void frmConfig::SetStgEscKey(bool Enable) {
+	if (this->KeyPreview == Enable)
+		return;
+	this->KeyPreview = Enable;
+	if (Enable)
+		this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmConfig::frmConfig_KeyDown);
+	else
+		this->KeyDown -= gcnew System::Windows::Forms::KeyEventHandler(this, &frmConfig::frmConfig_KeyDown);
+}
+
 System::Void frmConfig::AdjustLocation() {
 	//デスクトップ領域(タスクバー等除く)
 	System::Drawing::Rectangle screen = System::Windows::Forms::Screen::GetWorkingArea(this);
@@ -903,6 +917,8 @@ System::Void frmConfig::InitForm() {
 	fcgRebuildCmd(nullptr, nullptr);
 	//表示位置の調整
 	AdjustLocation();
+	//キー設定
+	SetStgEscKey(sys_dat->exstg->s_local.enable_stg_esc_key != 0);
 }
 
 /////////////         データ <-> GUI     /////////////

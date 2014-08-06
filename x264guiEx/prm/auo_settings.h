@@ -182,6 +182,7 @@ typedef struct {
 	BOOL  auto_del_chap;                       //チャプターファイルの自動削除
 	BOOL  disable_tooltip_help;                //ポップアップヘルプを抑制する
 	BOOL  disable_visual_styles;               //視覚効果をオフにする
+	BOOL  enable_stg_esc_key;                  //設定画面でEscキーを有効化する
 	char  custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char  custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ

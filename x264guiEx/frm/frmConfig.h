@@ -4035,6 +4035,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		System::Void SetTBValueToTextBox();
 		System::Void AdjustLocation();
 		System::Void ActivateToolTip(bool Enable);
+		System::Void SetStgEscKey(bool Enable);
 	public:
 		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);
@@ -4043,6 +4044,11 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 	private:
 		System::Void fcgTSItem_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 			EnableSettingsNoteChange(false);
+		}
+	private:
+		System::Void frmConfig_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 	private:
 		System::Void NUSelectAll(System::Object^  sender, System::EventArgs^  e) {

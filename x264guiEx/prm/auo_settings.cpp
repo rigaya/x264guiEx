@@ -402,11 +402,13 @@ void guiEx_settings::load_local() {
 	s_local.auto_del_chap         = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_del_chap",         1,                    conf_fileName);
 	s_local.disable_tooltip_help  = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_tooltip_help",  0,                    conf_fileName);
 	s_local.disable_visual_styles = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_visual_styles", 0,                    conf_fileName);
+	s_local.enable_stg_esc_key    = GetPrivateProfileInt(INI_SECTION_MAIN,  "enable_stg_esc_key",    0,                    conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        sizeof(s_local.custom_tmp_dir),        conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  sizeof(s_local.custom_audio_tmp_dir),  conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, sizeof(s_local.custom_mp4box_tmp_dir), conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "stg_dir",  default_stg_dir, s_local.stg_dir,               sizeof(s_local.stg_dir),               conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          "", s_local.app_dir,               sizeof(s_local.custom_mp4box_tmp_dir), conf_fileName);
+	GetPrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          "", s_local.app_dir,               sizeof(s_local.app_dir),               conf_fileName);
+	GetPrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          "", s_local.bat_dir,               sizeof(s_local.bat_dir),               conf_fileName);
 
 	s_local.audio_buffer_size   = min(GetPrivateProfileInt(INI_SECTION_MAIN, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
 
@@ -451,6 +453,7 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_del_chap",         s_local.auto_del_chap,         conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_tooltip_help",  s_local.disable_tooltip_help,  conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_visual_styles", s_local.disable_visual_styles, conf_fileName);
+	WritePrivateProfileInt(INI_SECTION_MAIN,    "enable_stg_esc_key",    s_local.enable_stg_esc_key,    conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_tmp_dir);
 	PathRemoveBackslash(s_local.custom_tmp_dir);

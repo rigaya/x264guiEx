@@ -67,7 +67,7 @@ namespace x264guiEx {
 	public:
 		static String^ stgDir;
 		static int useLastExt;
-		static bool DisableToolTipHelp;
+		//static bool DisableToolTipHelp;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
 	private: System::Windows::Forms::CheckBox^  fosCBDisableToolTip;
@@ -76,6 +76,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::CheckBox^  fosCBLogStartMinimized;
 	private: System::Windows::Forms::CheckBox^  fosCBLogDisableTransparency;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoDelChap;
+	private: System::Windows::Forms::CheckBox^  fosCBStgEscKey;
+
 
 
 	public: 
@@ -116,13 +118,14 @@ namespace x264guiEx {
 			this->fosCBLogStartMinimized = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBLogDisableTransparency = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBAutoDelChap = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBStgEscKey = (gcnew System::Windows::Forms::CheckBox());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 355);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 378);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -133,7 +136,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 355);
+			this->fosCBOK->Location = System::Drawing::Point(283, 378);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -248,12 +251,23 @@ namespace x264guiEx {
 			this->fosCBAutoDelChap->Text = L"mux正常終了後、チャプターファイルを自動的に削除する";
 			this->fosCBAutoDelChap->UseVisualStyleBackColor = true;
 			// 
+			// fosCBStgEscKey
+			// 
+			this->fosCBStgEscKey->AutoSize = true;
+			this->fosCBStgEscKey->Location = System::Drawing::Point(24, 341);
+			this->fosCBStgEscKey->Name = L"fosCBStgEscKey";
+			this->fosCBStgEscKey->Size = System::Drawing::Size(168, 19);
+			this->fosCBStgEscKey->TabIndex = 14;
+			this->fosCBStgEscKey->Text = L"設定画面でEscキーを有効化";
+			this->fosCBStgEscKey->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 394);
+			this->ClientSize = System::Drawing::Size(392, 417);
+			this->Controls->Add(this->fosCBStgEscKey);
 			this->Controls->Add(this->fosCBAutoDelChap);
 			this->Controls->Add(this->fosCBLogDisableTransparency);
 			this->Controls->Add(this->fosCBLogStartMinimized);
@@ -270,11 +284,13 @@ namespace x264guiEx {
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->KeyPreview = true;
 			this->MaximizeBox = false;
 			this->Name = L"frmOtherSettings";
 			this->ShowIcon = false;
 			this->Text = L"frmOtherSettings";
 			this->Load += gcnew System::EventHandler(this, &frmOtherSettings::frmOtherSettings_Load);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmOtherSettings::frmOtherSettings_KeyDown);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -282,7 +298,7 @@ namespace x264guiEx {
 #pragma endregion
 	private: 
 		System::Void fosCBOK_Click(System::Object^  sender, System::EventArgs^  e) {
-			DisableToolTipHelp = fosCBDisableToolTip->Checked;
+			//DisableToolTipHelp = fosCBDisableToolTip->Checked;
 
 			stgDir = fosTXStgDir->Text;
 			fos_ex_stg->load_encode_stg();
@@ -292,6 +308,7 @@ namespace x264guiEx {
 			fos_ex_stg->s_local.auto_del_chap         = fosCBAutoDelChap->Checked;
 			fos_ex_stg->s_local.disable_tooltip_help  = fosCBDisableToolTip->Checked;
 			fos_ex_stg->s_local.disable_visual_styles = fosCBDisableVisualStyles->Checked;
+			fos_ex_stg->s_local.enable_stg_esc_key    = fosCBStgEscKey->Checked;
 			fos_ex_stg->s_log.minimized               = fosCBLogStartMinimized->Checked;
 			fos_ex_stg->s_log.transparent             = !fosCBLogDisableTransparency->Checked;
 			fos_ex_stg->save_local();
@@ -309,6 +326,7 @@ namespace x264guiEx {
 			fosCBAutoDelChap->Checked            = fos_ex_stg->s_local.auto_del_chap != 0;
 			fosCBDisableToolTip->Checked         = fos_ex_stg->s_local.disable_tooltip_help != 0;
 			fosCBDisableVisualStyles->Checked    = fos_ex_stg->s_local.disable_visual_styles != 0;
+			fosCBStgEscKey->Checked              = fos_ex_stg->s_local.enable_stg_esc_key != 0;
 			fosCBLogStartMinimized->Checked      = fos_ex_stg->s_log.minimized != 0;
 			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
 		}
@@ -325,6 +343,11 @@ namespace x264guiEx {
 	private: 
 		System::Void fosCBCancel_Click(System::Object^  sender, System::EventArgs^  e) {
 			this->Close();
+		}
+	private: 
+		System::Void frmOtherSettings_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 };
 }
