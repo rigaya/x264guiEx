@@ -43,8 +43,6 @@ static void show_mux_info(const char *mux_stg_name, BOOL audmux, BOOL tcmux, con
 
 //muxの空き容量などを計算し、行えるかを確認する
 static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, __int64 expected_filesize) {
-	if (expected_filesize <= 0)
-		return AUO_RESULT_ERROR;
 	//mp4系かどうか
 	if (!(pe->muxer_to_be_used == MUXER_MP4 || pe->muxer_to_be_used == MUXER_TC2MP4))
 		return AUO_RESULT_SUCCESS;
@@ -65,6 +63,9 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 			!PathIsDirectory(temp_root) ||
 			!DirectoryExistsOrCreate(mux_tmpdir)) {
 			ret = AUO_RESULT_WARNING; warning_no_mux_tmp_root(temp_root);
+		//空き容量を取得できていなければ、チェックを終了する
+		} else if (expected_filesize <= 0) {
+			return AUO_RESULT_SUCCESS;
 		//ドライブの空き容量取得
 		} else if (!GetDiskFreeSpaceEx(temp_root, &temp_drive_avail_space, NULL, NULL)) {
 			ret = AUO_RESULT_WARNING; warning_failed_mux_tmp_drive_space();
@@ -79,6 +80,9 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 		if (tmp_same_drive_as_out && ret == AUO_RESULT_SUCCESS)
 			return ret;
 	}
+	//空き容量を取得できていなければ、チェックを終了する
+	if (expected_filesize <= 0)
+		return AUO_RESULT_SUCCESS;
 	//一時ファイルが指定されていないときにはカレントディレクトリのあるドライブ(muxerのあるドライブ)に一時ファイルが作られる
 	//その一時フォルダのドライブについて検証
 	if (!conf->mux.mp4_temp_dir || ret == AUO_RESULT_WARNING) {
@@ -115,20 +119,26 @@ static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int
 	*_expected_filesize = 0;
 	//動画ファイルのサイズ
 	__int64 vid_size = 0;
-	if (!GetFileSizeInt64(pe->temp_filename, &vid_size)) {
-		error_failed_get_vid_size(); return AUO_RESULT_ERROR;
+	if (!PathFileExists(pe->temp_filename)) {
+		error_no_vid_file(); return AUO_RESULT_ERROR;
 	}
-	*_expected_filesize += vid_size;
+	if (!GetFileSizeInt64(pe->temp_filename, &vid_size)) {
+		warning_failed_get_vid_size(); return AUO_RESULT_WARNING;
+	}
 	//音声ファイルのサイズ
 	if (enable_aud_mux) {
 		__int64 aud_size = 0;
 		char audfile[MAX_PATH_LEN] = { 0 };
 		get_aud_filename(audfile, sizeof(audfile), pe);
+		if (!PathFileExists(audfile)) {
+			error_no_vid_file(); return AUO_RESULT_ERROR;
+		}
 		if (!GetFileSizeInt64(audfile, &aud_size)) {
-			error_failed_get_aud_size(); return AUO_RESULT_ERROR;
+			warning_failed_get_aud_size(); return AUO_RESULT_WARNING;
 		}
 		*_expected_filesize += aud_size;
 	}
+	*_expected_filesize += vid_size;
 	return AUO_RESULT_SUCCESS;
 }
 
@@ -136,24 +146,21 @@ static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, __int
 //大丈夫そうならTRUEを返す
 static DWORD check_muxout_filesize(const char *muxout, __int64 expected_filesize) {
 	const double FILE_SIZE_THRESHOLD_MULTI = 0.95;
-	const int    RETRY_GET_FILESIZE = 5;
-	const int    RETRY_INTERVAL = 250;
 	__int64 muxout_filesize = 0;
 	if (!PathFileExists(muxout)) {
 		error_check_muxout_exist();
 		return AUO_RESULT_ERROR;
 	}
-	//ファイルがちゃんとあるのにCreateFileが失敗することがあるらしい。
-	for (int retry = 0; retry < RETRY_GET_FILESIZE; retry++) {
-		if (GetFileSizeInt64(muxout, &muxout_filesize)) {
-			//ファイルサイズの取得に成功したら、予想サイズとの比較を行う
-			if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
-				error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
-				return AUO_RESULT_ERROR;
-			}
-			return AUO_RESULT_SUCCESS;
+	//推定ファイルサイズの取得に失敗していたら終了
+	if (expected_filesize <= 0)
+		return AUO_RESULT_WARNING;
+	if (GetFileSizeInt64(muxout, &muxout_filesize)) {
+		//ファイルサイズの取得に成功したら、予想サイズとの比較を行う
+		if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
+			error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
+			return AUO_RESULT_ERROR;
 		}
-		Sleep(RETRY_INTERVAL); //少し待つと成功するかもしれない
+		return AUO_RESULT_SUCCESS;
 	}
 	warning_failed_check_muxout_filesize();
 	return AUO_RESULT_WARNING;
@@ -272,6 +279,16 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	return AUO_RESULT_SUCCESS;
 }
 
+static void change_mux_vid_filename(const char *muxout, const PRM_ENC *pe) {
+	char vidfile_append[MAX_APPENDIX_LEN];
+	strcpy_s(vidfile_append, sizeof(vidfile_append), "_video");
+	strcat_s(vidfile_append, sizeof(vidfile_append), PathFindExtension(pe->temp_filename));
+	char vidfile_newname[MAX_PATH_LEN];
+	apply_appendix(vidfile_newname, sizeof(vidfile_newname), pe->temp_filename, vidfile_append);
+	rename(pe->temp_filename, vidfile_newname);
+	rename(muxout, pe->temp_filename);
+}
+
 DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
 	//muxの必要がなければ終了
@@ -302,11 +319,13 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 	PathGetDirectory(muxdir, sizeof(muxdir), mux_stg->fullpath);
 
 	//mux終了後の予想サイズを取得
-	if (AUO_RESULT_SUCCESS != get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize))
+	ret |= get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
+	if (ret & AUO_RESULT_ERROR)
 		return AUO_RESULT_ERROR;
 	
 	//コマンドライン生成・情報表示
-	if (AUO_RESULT_SUCCESS != build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, expected_filesize))
+	ret |= build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, expected_filesize);
+	if (ret & AUO_RESULT_ERROR)
 		return AUO_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
 	sprintf_s(muxargs, sizeof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
 
@@ -325,6 +344,9 @@ DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
 			error_mux_failed(mux_stg->dispname, muxargs);
 			if (PathFileExists(muxout))
 				remove(muxout);
+		} else {
+			//AUO_RESULT_WARNING
+			change_mux_vid_filename(muxout, pe);
 		}
 		CloseHandle(pi_mux.hProcess);
 		CloseHandle(pi_mux.hThread);

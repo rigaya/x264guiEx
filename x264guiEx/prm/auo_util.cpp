@@ -20,6 +20,9 @@
 #include "auo_util.h"
 #include "auo_version.h"
 
+const int CREATEFILE_MAX_RETRY = 5;
+const int CREATEFILE_RETRY_INTERVAL = 250;
+
 DWORD cpu_core_count() {
 	SYSTEM_INFO si;
     GetSystemInfo(&si);
@@ -156,9 +159,15 @@ BOOL DirectoryExistsOrCreate(const char *dir) {
 
 //ファイルの存在と0byteより大きいかを確認
 BOOL FileExistsAndHasSize(const char *path) {
-	HANDLE h_file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	BOOL ret = ((DWORD)h_file != INVALID_FILE_ATTRIBUTES && GetFileSize(h_file, NULL) > 0) ? TRUE : FALSE;
-	CloseHandle(h_file);
+	BOOL ret = FALSE;
+	for (int i = 0; i < CREATEFILE_RETRY_INTERVAL; i++) {
+		HANDLE h_file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		ret = ((DWORD)h_file != INVALID_FILE_ATTRIBUTES && GetFileSize(h_file, NULL) > 0) ? TRUE : FALSE;
+		CloseHandle(h_file);
+		if (ret)
+			break;
+		Sleep(CREATEFILE_RETRY_INTERVAL);
+	}
 	return ret;
 }
 
@@ -168,33 +177,45 @@ void PathGetDirectory(char *dir, size_t nSize, const char *path) {
 }
 
 BOOL GetFileSizeInt(const char *filepath, DWORD *filesize) {
-	HANDLE h_file = CreateFile(filepath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h_file == INVALID_HANDLE_VALUE)
-		return FALSE;
-	BOOL ret = ((int)(*filesize = GetFileSize(h_file, NULL)) != -1) ? TRUE : FALSE;
-	CloseHandle(h_file);
+	BOOL ret = FALSE;
+	for (int i = 0; i < CREATEFILE_RETRY_INTERVAL; i++) {
+		HANDLE h_file = CreateFile(filepath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		ret = (h_file != INVALID_HANDLE_VALUE && (int)(*filesize = GetFileSize(h_file, NULL)) != -1) ? TRUE : FALSE;
+		CloseHandle(h_file);
+		if (ret)
+			break;
+		Sleep(CREATEFILE_RETRY_INTERVAL);
+	}
 	return ret;
 }
 
 //64bitでファイルサイズを取得,TRUEで成功
 BOOL GetFileSizeInt64(const char *filepath, __int64 *filesize) {
-	HANDLE h_file = CreateFile(filepath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h_file == INVALID_HANDLE_VALUE)
-		return FALSE;
-	LARGE_INTEGER size;
-	BOOL ret = (GetFileSizeEx(h_file, &size)) ? TRUE : FALSE;
-	CloseHandle(h_file);
-	*filesize = (ret) ? size.QuadPart : 0;
+	BOOL ret = FALSE;
+	for (int i = 0; i < CREATEFILE_RETRY_INTERVAL; i++) {
+		HANDLE h_file = CreateFile(filepath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		LARGE_INTEGER size = { 0 };
+		ret = (h_file != INVALID_HANDLE_VALUE && GetFileSizeEx(h_file, &size)) ? TRUE : FALSE;
+		CloseHandle(h_file);
+		*filesize = (ret) ? size.QuadPart : 0;
+		if (ret)
+			break;
+		Sleep(CREATEFILE_RETRY_INTERVAL);
+	}
 	return ret;
 }
 
 __int64 GetFileLastUpdate(const char *filename) {
-	HANDLE h_file = CreateFile(filename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	if (h_file == INVALID_HANDLE_VALUE)
-		return 0;
+	BOOL ret = FALSE;
 	FILETIME ft = { 0 };
-	GetFileTime(h_file, NULL, NULL, &ft);
-	CloseHandle(h_file);
+	for (int i = 0; i < CREATEFILE_RETRY_INTERVAL; i++) {
+		HANDLE h_file = CreateFile(filename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		ret = (h_file != INVALID_HANDLE_VALUE && GetFileTime(h_file, NULL, NULL, &ft));
+		CloseHandle(h_file);
+		if (ret)
+			break;
+		Sleep(CREATEFILE_RETRY_INTERVAL);
+	}
 	return ((__int64)ft.dwHighDateTime << 32) + (__int64)ft.dwLowDateTime;
 }
 int append_str(char **dst, size_t *nSize, const char *append) {

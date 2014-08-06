@@ -161,12 +161,20 @@ void error_failed_out_drive_space() {
 	write_log_auo_line(LOG_ERROR, "出力先のあるドライブの空き容量取得に失敗しました。muxを行えません。");
 }
 
-void error_failed_get_aud_size() {
-	write_log_auo_line(LOG_ERROR, "音声一時ファイルのサイズ取得に失敗しました。muxを行えません。");
+void warning_failed_get_aud_size() {
+	write_log_auo_line(LOG_WARNING, "音声一時ファイルのサイズ取得に失敗しました。muxが正常に行えるか確認できません。");
 }
 
-void error_failed_get_vid_size() {
-	write_log_auo_line(LOG_ERROR, "映像一時ファイルのサイズ取得に失敗しました。muxを行えません。");
+void warning_failed_get_vid_size() {
+	write_log_auo_line(LOG_WARNING, "映像一時ファイルのサイズ取得に失敗しました。muxが正常に行えるか確認できません。");
+}
+
+void error_no_aud_file() {
+	write_log_auo_line(LOG_ERROR, "音声一時ファイルが見つかりません。muxを行えません。");
+}
+
+void error_no_vid_file() {
+	write_log_auo_line(LOG_ERROR, "映像一時ファイルが見つかりません。muxを行えません。");
 }
 
 void warning_mux_tmp_not_enough_space() {
