@@ -145,7 +145,7 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
 	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, erase_tc, "タイムコード", FALSE);
 	//チャプターファイル
-	if (pe->muxer_to_be_used >= 0) {
+	if (pe->muxer_to_be_used >= 0 && sys_dat->exstg->s_local.auto_del_chap) {
 		char chap_file[MAX_PATH_LEN];
 		char chap_apple[MAX_PATH_LEN];
 		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
