@@ -155,8 +155,7 @@ namespace x264guiEx {
 		}
 		int AddStgToList(String^ _stgName) //ファイル名を追加、すでに存在するファイル名ならそのインデックスを返す
 		{
-			if (String::Compare(Path::GetExtension(_stgName), L".stg", true))
-				_stgName = Path::GetFileNameWithoutExtension(_stgName); //とりあえず拡張子を外す
+			//_stgNameには拡張子なしのものを渡す
 			//すでに存在するか確認
 			for (int i = 0; i < stgName->Count; i++)
 				if (String::Compare(stgName[i], _stgName, true) == 0)
