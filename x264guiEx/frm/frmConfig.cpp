@@ -1533,6 +1533,12 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTEx->SetToolTip(fcgBTCmdEx,       L""
 		+ L"入力したコマンド(オプション)をGUIに反映させます。"
 		);
+	fcgTTEx->SetToolTip(fcgCXYC48ColMatConv, L""
+		+ L"Aviutlからの入力としてYC48を使用する際のcolormatrix変換を指定します。\n"
+		+ L"自動 とすると以下のように設定します。\n"
+		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"以上 … BT.601→BT.709変換\n"
+		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"未満 … 無変換\n"
+		);
 
 	//音声
 	fcgTTEx->SetToolTip(fcgCXAudioEncoder, L""
