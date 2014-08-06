@@ -264,6 +264,13 @@ System::Void frmConfig::SetLocalStg() {
 	fcgLBMP4MuxerPath->Text       = LocalStg.MP4MuxerExeName + L" の指定";
 	fcgLBMKVMuxerPath->Text       = LocalStg.MKVMuxerExeName + L" の指定";
 	fcgLBTC2MP4Path->Text         = LocalStg.TC2MP4ExeName   + L" の指定";
+
+	fcgTXX264Path->SelectionStart         = fcgTXX264Path->Text->Length;
+	fcgTXX264PathSub->SelectionStart      = fcgTXX264PathSub->Text->Length;
+	fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
+	fcgTXMP4MuxerPath->SelectionStart     = fcgTXMP4MuxerPath->Text->Length;
+	fcgTXTC2MP4Path->SelectionStart       = fcgTXTC2MP4Path->Text->Length;
+	fcgTXMKVMuxerPath->SelectionStart     = fcgTXMKVMuxerPath->Text->Length;
 }
 
 //////////////   TrackBar用タイマー関連     /////////////////////////
@@ -335,6 +342,7 @@ System::Void frmConfig::fcgCBUse10bit_CheckedChanged(System::Object^  sender, Sy
 		fcgNUQpmax->Value = fcgNUQpmax->Maximum;
 	fcgCXX264Mode_SelectedIndexChanged(sender, e);
 	fcgTXX264Path->Text = (fcgCBUse10bit->Checked) ? LocalStg.x264Path10bit : LocalStg.x264Path;
+	fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 	fcgLBX264Path->Text = (fcgCBUse10bit->Checked) ? L"x264.exe(10bit) の指定" : L"x264.exe の指定";
 	SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
 	SetTBValueToTextBox();
@@ -533,6 +541,7 @@ System::Void frmConfig::setAudioDisplay() {
 	//～の指定
 	fcgLBAudioEncoderPath->Text = String(astg->filename).ToString() + L" の指定";
 	fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[index];
+	fcgTXAudioEncoderPath->SelectionStart = fcgTXAudioEncoderPath->Text->Length;
 	fcgCXAudioEncMode->BeginUpdate();
 	fcgCXAudioEncMode->Items->Clear();
 	for (int i = 0; i < astg->mode_count; i++)

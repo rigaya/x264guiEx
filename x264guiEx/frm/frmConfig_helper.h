@@ -190,13 +190,23 @@ const WCHAR * const x264_encodemode_desc[] = {
 	NULL
 };
 
-const int x264_encmode_toint[] = {
+const int x264_encmode_to_RCint[] = {
 	X264_RC_BITRATE,
 	X264_RC_QP,
 	X264_RC_CRF,
 	X264_RC_BITRATE,
 	X264_RC_BITRATE,
 	X264_RC_BITRATE,
+	NULL
+};
+
+const int x264_encmode_to_passint[] = {
+	0,
+	0,
+	0,
+	1,
+	3,
+	3,
 	NULL
 };
 

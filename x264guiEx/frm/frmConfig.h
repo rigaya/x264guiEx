@@ -4016,6 +4016,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			if (ofd.ShowDialog() == Windows::Forms::DialogResult::OK) {
 				LocalStg.LastAppDir = Path::GetDirectoryName(ofd.FileName);
 				TX->Text = ofd.FileName;
+				TX->SelectionStart = TX->Text->Length;
 				return true;
 			}
 			return false;
@@ -4071,6 +4072,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 				fbd->SelectedPath = TX->Text;
 			if (fbd->ShowDialog() == Windows::Forms::DialogResult::OK) {
 				TX->Text = fbd->SelectedPath;
+				TX->SelectionStart = TX->Text->Length;
 			}
 		}
 	private: 
@@ -4103,6 +4105,7 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 			ofd->Filter = fileTypeName + L"(*.*)|*.*";
 			if (ofd->ShowDialog() == Windows::Forms::DialogResult::OK) {
 				TX->Text = ofd->FileName;
+				TX->SelectionStart = TX->Text->Length;
 				return true;
 			}
 			return false;
@@ -4316,55 +4319,53 @@ private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 		}
 	private: 
 		System::Void fcgTXX264Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			int c = fcgTXX264Path->SelectionStart;
 			if (fcgCBUse10bit->Checked) {
 				LocalStg.x264Path10bit = fcgTXX264Path->Text;
 				fcgTXX264PathSub10bit->Text = LocalStg.x264Path10bit;
-				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 				fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
 			} else {
 				LocalStg.x264Path      = fcgTXX264Path->Text;
 				fcgTXX264PathSub->Text = LocalStg.x264Path;
-				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 				fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
 			}
+			fcgTXX264Path->SelectionStart = c;
 		}
 	private: 
 		System::Void fcgTXX264PathSub_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.x264Path   = fcgTXX264PathSub->Text;
+			int c = fcgTXX264PathSub->SelectionStart;
 			if (!fcgCBUse10bit->Checked) {
 				fcgTXX264Path->Text = LocalStg.x264Path;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
-				fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
 			}
+			fcgTXX264PathSub->SelectionStart = c;
 		}
 	private: 
 		System::Void fcgTXX264PathSub10bit_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.x264Path10bit   = fcgTXX264PathSub10bit->Text;
+			int c = fcgTXX264PathSub10bit->SelectionStart;
 			if (fcgCBUse10bit->Checked) {
 				fcgTXX264Path->Text = LocalStg.x264Path10bit;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
-				fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
 			}
+			fcgTXX264PathSub10bit->SelectionStart = c;
 		}
 	private: 
 		System::Void fcgTXAudioEncoderPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex] = fcgTXAudioEncoderPath->Text;
-			fcgTXAudioEncoderPath->SelectionStart = fcgTXAudioEncoderPath->Text->Length;
 		}
 	private: 
 		System::Void fcgTXMP4MuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MP4MuxerPath = fcgTXMP4MuxerPath->Text;
-			fcgTXMP4MuxerPath->SelectionStart = fcgTXMP4MuxerPath->Text->Length;
 		}
 	private: 
 		System::Void fcgTXTC2MP4Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.TC2MP4Path = fcgTXTC2MP4Path->Text;
-			fcgTXTC2MP4Path->SelectionStart = fcgTXTC2MP4Path->Text->Length;
 		}
 	private: 
 		System::Void fcgTXMKVMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MKVMuxerPath = fcgTXMKVMuxerPath->Text;
-			fcgTXMKVMuxerPath->SelectionStart = fcgTXMKVMuxerPath->Text->Length;
 		}
 	private: 
 		System::Void fcgTXMP4BoxTempDir_TextChanged(System::Object^  sender, System::EventArgs^  e) {
