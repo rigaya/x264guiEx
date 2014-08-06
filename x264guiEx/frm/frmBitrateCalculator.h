@@ -297,7 +297,7 @@ namespace x264guiEx {
 			// 
 			this->fbcBTVBApply->Location = System::Drawing::Point(245, 90);
 			this->fbcBTVBApply->Name = L"fbcBTVBApply";
-			this->fbcBTVBApply->Size = System::Drawing::Size(115, 25);
+			this->fbcBTVBApply->Size = System::Drawing::Size(129, 25);
 			this->fbcBTVBApply->TabIndex = 8;
 			this->fbcBTVBApply->Text = L"映像ビットレートを反映";
 			this->fbcBTVBApply->UseVisualStyleBackColor = true;
@@ -307,7 +307,7 @@ namespace x264guiEx {
 			// 
 			this->fbcBTABApply->Location = System::Drawing::Point(245, 123);
 			this->fbcBTABApply->Name = L"fbcBTABApply";
-			this->fbcBTABApply->Size = System::Drawing::Size(115, 25);
+			this->fbcBTABApply->Size = System::Drawing::Size(129, 25);
 			this->fbcBTABApply->TabIndex = 9;
 			this->fbcBTABApply->Text = L"音声ビットレートを反映";
 			this->fbcBTABApply->UseVisualStyleBackColor = true;
@@ -354,7 +354,7 @@ namespace x264guiEx {
 			// 
 			this->fbcRBCalcRate->AutoSize = true;
 			this->fbcRBCalcRate->Checked = true;
-			this->fbcRBCalcRate->Location = System::Drawing::Point(15, 12);
+			this->fbcRBCalcRate->Location = System::Drawing::Point(25, 12);
 			this->fbcRBCalcRate->Name = L"fbcRBCalcRate";
 			this->fbcRBCalcRate->Size = System::Drawing::Size(151, 18);
 			this->fbcRBCalcRate->TabIndex = 25;
@@ -366,7 +366,7 @@ namespace x264guiEx {
 			// fbcRBCalcSize
 			// 
 			this->fbcRBCalcSize->AutoSize = true;
-			this->fbcRBCalcSize->Location = System::Drawing::Point(196, 12);
+			this->fbcRBCalcSize->Location = System::Drawing::Point(206, 12);
 			this->fbcRBCalcSize->Name = L"fbcRBCalcSize";
 			this->fbcRBCalcSize->Size = System::Drawing::Size(151, 18);
 			this->fbcRBCalcSize->TabIndex = 26;
@@ -378,7 +378,7 @@ namespace x264guiEx {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
-			this->ClientSize = System::Drawing::Size(372, 220);
+			this->ClientSize = System::Drawing::Size(386, 220);
 			this->Controls->Add(this->fbcRBCalcSize);
 			this->Controls->Add(this->fbcRBCalcRate);
 			this->Controls->Add(this->label11);
