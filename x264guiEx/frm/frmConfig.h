@@ -541,6 +541,10 @@ private: System::Windows::Forms::Button^  fcgBTX264PathSub;
 private: System::Windows::Forms::TextBox^  fcgTXX264PathSub;
 
 private: System::Windows::Forms::Label^  fcgLBX264PathSub;
+private: System::Windows::Forms::Label^  fcgLBX264PathSub10bit;
+private: System::Windows::Forms::Label^  fcgLBX264PathSub8bit;
+private: System::Windows::Forms::Button^  fcgBTX264PathSub10bit;
+private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
 
 
 
@@ -743,6 +747,10 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			this->fcgLBDeblockThreshold = (gcnew System::Windows::Forms::Label());
 			this->fcgLBDeblockStrength = (gcnew System::Windows::Forms::Label());
 			this->fcgtabPageExSettings = (gcnew System::Windows::Forms::TabPage());
+			this->fcgLBX264PathSub10bit = (gcnew System::Windows::Forms::Label());
+			this->fcgLBX264PathSub8bit = (gcnew System::Windows::Forms::Label());
+			this->fcgBTX264PathSub10bit = (gcnew System::Windows::Forms::Button());
+			this->fcgTXX264PathSub10bit = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTX264PathSub = (gcnew System::Windows::Forms::Button());
 			this->fcgTXX264PathSub = (gcnew System::Windows::Forms::TextBox());
 			this->fcgLBX264PathSub = (gcnew System::Windows::Forms::Label());
@@ -2732,6 +2740,10 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			// 
 			// fcgtabPageExSettings
 			// 
+			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub10bit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub8bit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgBTX264PathSub10bit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgTXX264PathSub10bit);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgBTX264PathSub);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgTXX264PathSub);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub);
@@ -2750,9 +2762,47 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			this->fcgtabPageExSettings->Text = L"拡張";
 			this->fcgtabPageExSettings->UseVisualStyleBackColor = true;
 			// 
+			// fcgLBX264PathSub10bit
+			// 
+			this->fcgLBX264PathSub10bit->AutoSize = true;
+			this->fcgLBX264PathSub10bit->Location = System::Drawing::Point(344, 64);
+			this->fcgLBX264PathSub10bit->Name = L"fcgLBX264PathSub10bit";
+			this->fcgLBX264PathSub10bit->Size = System::Drawing::Size(46, 14);
+			this->fcgLBX264PathSub10bit->TabIndex = 11;
+			this->fcgLBX264PathSub10bit->Text = L"10bit用";
+			// 
+			// fcgLBX264PathSub8bit
+			// 
+			this->fcgLBX264PathSub8bit->AutoSize = true;
+			this->fcgLBX264PathSub8bit->Location = System::Drawing::Point(351, 37);
+			this->fcgLBX264PathSub8bit->Name = L"fcgLBX264PathSub8bit";
+			this->fcgLBX264PathSub8bit->Size = System::Drawing::Size(39, 14);
+			this->fcgLBX264PathSub8bit->TabIndex = 10;
+			this->fcgLBX264PathSub8bit->Text = L"8bit用";
+			// 
+			// fcgBTX264PathSub10bit
+			// 
+			this->fcgBTX264PathSub10bit->Location = System::Drawing::Point(575, 60);
+			this->fcgBTX264PathSub10bit->Name = L"fcgBTX264PathSub10bit";
+			this->fcgBTX264PathSub10bit->Size = System::Drawing::Size(27, 22);
+			this->fcgBTX264PathSub10bit->TabIndex = 9;
+			this->fcgBTX264PathSub10bit->Text = L"...";
+			this->fcgBTX264PathSub10bit->UseVisualStyleBackColor = true;
+			this->fcgBTX264PathSub10bit->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTX264PathSub10bit_Click);
+			// 
+			// fcgTXX264PathSub10bit
+			// 
+			this->fcgTXX264PathSub10bit->AllowDrop = true;
+			this->fcgTXX264PathSub10bit->Location = System::Drawing::Point(395, 61);
+			this->fcgTXX264PathSub10bit->Name = L"fcgTXX264PathSub10bit";
+			this->fcgTXX264PathSub10bit->Size = System::Drawing::Size(176, 21);
+			this->fcgTXX264PathSub10bit->TabIndex = 8;
+			this->fcgTXX264PathSub10bit->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub10bit_TextChanged);
+			this->fcgTXX264PathSub10bit->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub10bit_Leave);
+			// 
 			// fcgBTX264PathSub
 			// 
-			this->fcgBTX264PathSub->Location = System::Drawing::Point(570, 53);
+			this->fcgBTX264PathSub->Location = System::Drawing::Point(575, 33);
 			this->fcgBTX264PathSub->Name = L"fcgBTX264PathSub";
 			this->fcgBTX264PathSub->Size = System::Drawing::Size(27, 22);
 			this->fcgBTX264PathSub->TabIndex = 2;
@@ -2763,9 +2813,9 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			// fcgTXX264PathSub
 			// 
 			this->fcgTXX264PathSub->AllowDrop = true;
-			this->fcgTXX264PathSub->Location = System::Drawing::Point(358, 54);
+			this->fcgTXX264PathSub->Location = System::Drawing::Point(395, 34);
 			this->fcgTXX264PathSub->Name = L"fcgTXX264PathSub";
-			this->fcgTXX264PathSub->Size = System::Drawing::Size(206, 21);
+			this->fcgTXX264PathSub->Size = System::Drawing::Size(176, 21);
 			this->fcgTXX264PathSub->TabIndex = 1;
 			this->fcgTXX264PathSub->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub_TextChanged);
 			this->fcgTXX264PathSub->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub_Leave);
@@ -2773,7 +2823,7 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			// fcgLBX264PathSub
 			// 
 			this->fcgLBX264PathSub->AutoSize = true;
-			this->fcgLBX264PathSub->Location = System::Drawing::Point(355, 30);
+			this->fcgLBX264PathSub->Location = System::Drawing::Point(355, 13);
 			this->fcgLBX264PathSub->Name = L"fcgLBX264PathSub";
 			this->fcgLBX264PathSub->Size = System::Drawing::Size(49, 14);
 			this->fcgLBX264PathSub->TabIndex = 5;
@@ -2888,7 +2938,7 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFS);
 			this->fcggroupBoxExSettings->Location = System::Drawing::Point(8, 3);
 			this->fcggroupBoxExSettings->Name = L"fcggroupBoxExSettings";
-			this->fcggroupBoxExSettings->Size = System::Drawing::Size(331, 234);
+			this->fcggroupBoxExSettings->Size = System::Drawing::Size(323, 234);
 			this->fcggroupBoxExSettings->TabIndex = 0;
 			this->fcggroupBoxExSettings->TabStop = false;
 			this->fcggroupBoxExSettings->Text = L"拡張設定";
@@ -3872,7 +3922,7 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 		System::Void CheckTSItemsEnabled(CONF_X264GUIEX *current_conf);
 		System::Void SetHelpToolTips();
 		System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
-		System::Void SetX264VersionToolTip(String^ x264Path);
+		System::Void SetX264VersionToolTip(String^ x264Path, bool as10bit);
 		System::Void fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBBitrateCalc_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
@@ -3973,20 +4023,29 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 	private: 
 		System::Void fcgBTX264Path_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (openExeFile(fcgTXX264Path, LocalStg.x264ExeName))
-				SetX264VersionToolTip(fcgTXX264Path->Text);
+				SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
 		}
 	private: 
 		System::Void fcgBTX264PathSub_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (openExeFile(fcgTXX264PathSub, LocalStg.x264ExeName))
-				SetX264VersionToolTip(fcgTXX264PathSub->Text);
+				SetX264VersionToolTip(fcgTXX264PathSub->Text, false);
+		}
+	private: 
+		System::Void fcgBTX264PathSub10bit_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (openExeFile(fcgTXX264PathSub10bit, LocalStg.x264ExeName))
+				SetX264VersionToolTip(fcgTXX264PathSub10bit->Text, true);
 		}
 	private: 
 		System::Void fcgTXX264Path_Leave(System::Object^  sender, System::EventArgs^  e) {
-			SetX264VersionToolTip(fcgTXX264Path->Text);
+			SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
 		}
 	private: 
 		System::Void fcgTXX264PathSub_Leave(System::Object^  sender, System::EventArgs^  e) {
-			SetX264VersionToolTip(fcgTXX264PathSub->Text);
+			SetX264VersionToolTip(fcgTXX264PathSub->Text, false);
+		}
+	private: 
+		System::Void fcgTXX264PathSub10bit_Leave(System::Object^  sender, System::EventArgs^  e) {
+			SetX264VersionToolTip(fcgTXX264PathSub10bit->Text, true);
 		}
 	private: 
 		System::Void fcgBTMP4MuxerPath_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -4257,17 +4316,35 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 		}
 	private: 
 		System::Void fcgTXX264Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-			LocalStg.x264Path = fcgTXX264Path->Text;
-			fcgTXX264PathSub->Text = LocalStg.x264Path;
-			fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
-			fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
+			if (fcgCBUse10bit->Checked) {
+				LocalStg.x264Path10bit = fcgTXX264Path->Text;
+				fcgTXX264PathSub10bit->Text = LocalStg.x264Path10bit;
+				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
+				fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
+			} else {
+				LocalStg.x264Path      = fcgTXX264Path->Text;
+				fcgTXX264PathSub->Text = LocalStg.x264Path;
+				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
+				fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
+			}
 		}
 	private: 
 		System::Void fcgTXX264PathSub_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-			LocalStg.x264Path = fcgTXX264PathSub->Text;
-			fcgTXX264Path->Text = LocalStg.x264Path;
-			fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
-			fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
+			LocalStg.x264Path   = fcgTXX264PathSub->Text;
+			if (!fcgCBUse10bit->Checked) {
+				fcgTXX264Path->Text = LocalStg.x264Path;
+				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
+				fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
+			}
+		}
+	private: 
+		System::Void fcgTXX264PathSub10bit_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			LocalStg.x264Path10bit   = fcgTXX264PathSub10bit->Text;
+			if (fcgCBUse10bit->Checked) {
+				fcgTXX264Path->Text = LocalStg.x264Path10bit;
+				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
+				fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
+			}
 		}
 	private: 
 		System::Void fcgTXAudioEncoderPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {

@@ -157,6 +157,7 @@ System::Void frmConfig::LoadLocalStg() {
 	_ex_stg->load_encode_stg();
 	LocalStg.x264ExeName     = L"x264.exe";
 	LocalStg.x264Path        = String(_ex_stg->s_x264.fullpath).ToString();
+	LocalStg.x264Path10bit   = String(_ex_stg->s_x264.fullpath_10bit).ToString();
 	LocalStg.CustomTmpDir    = String(_ex_stg->s_local.custom_tmp_dir).ToString();
 	LocalStg.CustomAudTmpDir = String(_ex_stg->s_local.custom_audio_tmp_dir).ToString();
 	LocalStg.CustomMP4TmpDir = String(_ex_stg->s_local.custom_mp4box_tmp_dir).ToString();
@@ -184,9 +185,25 @@ System::Boolean frmConfig::CheckLocalStg() {
 	bool error = false;
 	String^ err = "";
 	//x264のチェック
-	if (!File::Exists(LocalStg.x264Path)) {
+	bool CheckX26410bit;
+	if (fcgTSBCMDOnly->Checked) {
+		//CLIモードの時はコマンドラインを解析して10bitかどうか判定
+		CONF_X264GUIEX cnf;
+		init_CONF_X264GUIEX(&cnf, FALSE);
+		char cmdex[2048] = { 0 };
+		GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
+		set_cmd_to_conf(cmdex, &cnf.x264);
+		CheckX26410bit = cnf.x264.use_10bit_depth != 0;
+	} else {
+		CheckX26410bit = fcgCBUse10bit->Checked;
+	}
+	if (!CheckX26410bit && !File::Exists(LocalStg.x264Path)) {
 		error = true;
 		err += L"指定された x264 は存在しません。\n [ " + LocalStg.x264Path + L" ]\n";
+	}
+	if (CheckX26410bit && !File::Exists(LocalStg.x264Path10bit)) {
+		error = true;
+		err += L"指定された x264 (10bit用) は存在しません。\n [ " + LocalStg.x264Path10bit + L" ]\n";
 	}
 	//音声エンコーダのチェック
 	String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
@@ -219,6 +236,7 @@ System::Void frmConfig::SaveLocalStg() {
 	guiEx_settings *_ex_stg = sys_dat->exstg;
 	_ex_stg->s_local.large_cmdbox = fcgTXCmd->Multiline;
 	GetCHARfromString(_ex_stg->s_x264.fullpath,               sizeof(_ex_stg->s_x264.fullpath),               LocalStg.x264Path);
+	GetCHARfromString(_ex_stg->s_x264.fullpath_10bit,         sizeof(_ex_stg->s_x264.fullpath_10bit),         LocalStg.x264Path10bit);
 	GetCHARfromString(_ex_stg->s_local.custom_tmp_dir,        sizeof(_ex_stg->s_local.custom_tmp_dir),        LocalStg.CustomTmpDir);
 	GetCHARfromString(_ex_stg->s_local.custom_mp4box_tmp_dir, sizeof(_ex_stg->s_local.custom_mp4box_tmp_dir), LocalStg.CustomMP4TmpDir);
 	GetCHARfromString(_ex_stg->s_local.custom_audio_tmp_dir,  sizeof(_ex_stg->s_local.custom_audio_tmp_dir),  LocalStg.CustomAudTmpDir);
@@ -234,7 +252,9 @@ System::Void frmConfig::SaveLocalStg() {
 System::Void frmConfig::SetLocalStg() {
 	fcgLBX264Path->Text           = L"x264.exe の指定";
 	fcgLBX264PathSub->Text        = L"x264.exe の指定";
-	fcgTXX264Path->Text           = LocalStg.x264Path;
+	fcgTXX264Path->Text           = (fcgCBUse10bit->Checked) ? LocalStg.x264Path10bit : LocalStg.x264Path;
+	fcgTXX264PathSub->Text        = LocalStg.x264Path;
+	fcgTXX264PathSub10bit->Text   = LocalStg.x264Path10bit;
 	fcgTXMP4MuxerPath->Text       = LocalStg.MP4MuxerPath;
 	fcgTXMKVMuxerPath->Text       = LocalStg.MKVMuxerPath;
 	fcgTXTC2MP4Path->Text         = LocalStg.TC2MP4Path;
@@ -314,6 +334,9 @@ System::Void frmConfig::fcgCBUse10bit_CheckedChanged(System::Object^  sender, Sy
 	if ((int)fcgNUQpmax->Value == old_max)
 		fcgNUQpmax->Value = fcgNUQpmax->Maximum;
 	fcgCXX264Mode_SelectedIndexChanged(sender, e);
+	fcgTXX264Path->Text = (fcgCBUse10bit->Checked) ? LocalStg.x264Path10bit : LocalStg.x264Path;
+	fcgLBX264Path->Text = (fcgCBUse10bit->Checked) ? L"x264.exe(10bit) の指定" : L"x264.exe の指定";
+	SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
 	SetTBValueToTextBox();
 }
 
@@ -716,6 +739,9 @@ System::Void frmConfig::SetTXMaxLen(TextBox^ TX, int max_len) {
 System::Void frmConfig::SetTXMaxLenAll() {
 	//MaxLengthに最大文字数をセットし、それをもとにバイト数計算を行うイベントをセットする。
 	SetTXMaxLen(fcgTXCmdEx,              sizeof(conf->vid.cmdex) - 1);
+	SetTXMaxLen(fcgTXX264Path,           sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
+	SetTXMaxLen(fcgTXX264PathSub,        sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
+	SetTXMaxLen(fcgTXX264PathSub10bit,   sizeof(sys_dat->exstg->s_x264.fullpath_10bit) - 1);
 	SetTXMaxLen(fcgTXAudioEncoderPath,   sizeof(sys_dat->exstg->s_aud[0].fullpath) - 1);
 	SetTXMaxLen(fcgTXMP4MuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
 	SetTXMaxLen(fcgTXMKVMuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);
@@ -739,9 +765,13 @@ System::Void frmConfig::InitStgFileList() {
 }
 
 System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e) {
-	fcgTXX264PathSub->Visible = fcgTSBCMDOnly->Checked;
 	fcgLBX264PathSub->Visible = fcgTSBCMDOnly->Checked;
+	fcgLBX264PathSub8bit->Visible = fcgTSBCMDOnly->Checked;
+	fcgLBX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
+	fcgTXX264PathSub->Visible = fcgTSBCMDOnly->Checked;
 	fcgBTX264PathSub->Visible = fcgTSBCMDOnly->Checked;
+	fcgTXX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
+	fcgBTX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
 	fcggroupBoxDeblock->Enabled = fcgCBDeblock->Checked;
 	fcgTXTCIN->Enabled = fcgCBTCIN->Checked;
 	fcgBTTCIN->Enabled = fcgCBTCIN->Checked;
@@ -794,7 +824,8 @@ System::Void frmConfig::InitForm() {
 	InitTimer();
 	//ツールチップ
 	SetHelpToolTips();
-	SetX264VersionToolTip(LocalStg.x264Path);
+	SetX264VersionToolTip(LocalStg.x264Path, false);
+	SetX264VersionToolTip(LocalStg.x264Path10bit, true);
 	//パラメータセット
 	ConfToFrm(conf, true);
 	//イベントセット
@@ -1502,7 +1533,7 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"デフォルト設定をロードします。"
 		);
 }
-System::Void frmConfig::SetX264VersionToolTip(String^ x264Path) {
+System::Void frmConfig::SetX264VersionToolTip(String^ x264Path, bool as10bit) {
 	String^ mes;
 	if (File::Exists(x264Path)) {
 		char mes_buf[2560];
@@ -1515,8 +1546,13 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path) {
 	} else {
 		mes = L"指定されたx264が存在しません。";
 	}
-	fcgTTX264Version->SetToolTip(fcgTXX264Path,    mes);
-	fcgTTX264Version->SetToolTip(fcgTXX264PathSub, mes);
+	if (as10bit == fcgCBUse10bit->Checked)
+		fcgTTX264Version->SetToolTip(fcgTXX264Path, mes);
+
+	if (as10bit)
+		fcgTTX264Version->SetToolTip(fcgTXX264PathSub10bit, mes);
+	else
+		fcgTTX264Version->SetToolTip(fcgTXX264PathSub, mes);
 }
 
 #pragma warning( pop )

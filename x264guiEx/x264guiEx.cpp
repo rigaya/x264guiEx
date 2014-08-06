@@ -311,9 +311,12 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 
 	//必要な実行ファイル
 	//x264
-	if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(sys_dat.exstg->s_x264.fullpath)) {
-		error_no_exe_file("x264.exe", sys_dat.exstg->s_x264.fullpath);
-		check = FALSE;
+	if (!conf.oth.disable_guicmd) {
+		char *x264fullpath = (conf.x264.use_10bit_depth) ? sys_dat.exstg->s_x264.fullpath_10bit : sys_dat.exstg->s_x264.fullpath;
+		if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(x264fullpath)) {
+			error_no_exe_file("x264.exe", x264fullpath);
+			check = FALSE;
+		}
 	}
 
 	//音声エンコーダ

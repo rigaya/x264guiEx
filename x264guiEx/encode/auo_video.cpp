@@ -323,6 +323,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	char x264cmd[MAX_CMD_LEN]  = { 0 };
 	char x264args[MAX_CMD_LEN] = { 0 };
 	char x264dir[MAX_PATH_LEN] = { 0 };
+	char *x264fullpath = (conf->x264.use_10bit_depth) ? sys_dat->exstg->s_x264.fullpath_10bit : sys_dat->exstg->s_x264.fullpath;
 	
 	const BOOL afs = conf->vid.afs != 0;
 	CONVERT_CF_DATA pixel_data;
@@ -335,11 +336,11 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	DWORD set_priority = (pe->h_p_aviutl || conf->vid.priority != AVIUTLSYNC_PRIORITY_CLASS) ? priority_table[conf->vid.priority].value : NORMAL_PRIORITY_CLASS;
 
 	//プロセス用情報準備
-	if (!PathFileExists(sys_dat->exstg->s_x264.fullpath)) {
-		ret |= OUT_RESULT_ERROR; error_no_exe_file("x264", sys_dat->exstg->s_x264.fullpath);
+	if (!PathFileExists(x264fullpath)) {
+		ret |= OUT_RESULT_ERROR; error_no_exe_file("x264", x264fullpath);
 		return ret;
 	}
-	PathGetDirectory(x264dir, sizeof(x264dir), sys_dat->exstg->s_x264.fullpath);
+	PathGetDirectory(x264dir, sizeof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
 	const func_convert_frame convert_frame = get_convert_func(oip->w, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.fullrange);
@@ -359,7 +360,7 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	build_full_cmd(x264cmd, sizeof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
 	write_log_auo_line(LOG_INFO, "arguments passed...");
 	write_args(x264cmd);
-	sprintf_s(x264args, sizeof(x264args), "\"%s\" %s", sys_dat->exstg->s_x264.fullpath, x264cmd);
+	sprintf_s(x264args, sizeof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
 	
 	//jitter用領域確保
 	if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
