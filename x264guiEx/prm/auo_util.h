@@ -99,6 +99,7 @@ static int countchr(const char *str, int ch) {
 
 DWORD cpu_core_count();
 BOOL check_sse2();
+BOOL check_sse3();
 BOOL check_ssse3();
 BOOL check_sse4_1();
 BOOL check_OS_Win7orLater();

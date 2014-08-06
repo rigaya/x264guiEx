@@ -45,6 +45,12 @@ BOOL check_ssse3() {
 	return (CPUInfo[2] & 0x00000200) != 0;
 }
 
+BOOL check_sse3() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	return (CPUInfo[2] & 0x00000001) != 0;
+}
+
 BOOL check_sse4_1() {
 	int CPUInfo[4];
 	__cpuid(CPUInfo, 1);
