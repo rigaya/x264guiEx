@@ -12,6 +12,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
+#include "auo.h"
 #include "auo_util.h"
 #include "auo_conf.h"
 #include "auo_settings.h"
@@ -137,4 +138,26 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 		return (h_aviutl) ? GetPriorityClass(h_aviutl) : NORMAL_PRIORITY_CLASS;
 	else
 		return priority_table[set].value;
+}
+
+int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf->oth.out_audio_only)
+		return (check_ext(oip->savefile, ".mp4")) ? VIDEO_OUTPUT_MP4 : ((check_ext(oip->savefile, ".mkv")) ? VIDEO_OUTPUT_MKV : VIDEO_OUTPUT_RAW);
+	return VIDEO_OUTPUT_DISABLED;
+}
+
+int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BOOL audio_output) {
+	//if (conf.vid.afs)
+	//	conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
+
+	//音声なし、afsなしならmuxしない
+	if (!audio_output && !conf->vid.afs)
+		return MUXER_DISABLED;
+
+	if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
+		return (conf->vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
+	else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
+		return MUXER_MKV;
+	else
+		return MUXER_DISABLED;
 }

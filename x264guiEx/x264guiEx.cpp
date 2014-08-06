@@ -359,28 +359,6 @@ void open_log_window(const char *savefile, int current_pass, int total_pass) {
 	write_log_line(LOG_INFO, mes);
 }
 
-static int check_video_ouput(const OUTPUT_INFO *oip) {
-	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf.oth.out_audio_only)
-		return (check_ext(oip->savefile, ".mp4")) ? VIDEO_OUTPUT_MP4 : ((check_ext(oip->savefile, ".mkv")) ? VIDEO_OUTPUT_MKV : VIDEO_OUTPUT_RAW);
-	return VIDEO_OUTPUT_DISABLED;
-}
-
-static int check_muxer_to_be_used(int video_output_type, BOOL audio_output) {
-	//if (conf.vid.afs)
-	//	conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
-
-	//音声なし、afsなしならmuxしない
-	if (!audio_output && !conf.vid.afs)
-		return MUXER_DISABLED;
-
-	if (video_output_type == VIDEO_OUTPUT_MP4 && !conf.mux.disable_mp4ext)
-		return (conf.vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
-	else if (video_output_type == VIDEO_OUTPUT_MKV && !conf.mux.disable_mkvext)
-		return MUXER_MKV;
-	else
-		return MUXER_DISABLED;
-}
-
 static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 	if (tmp_dir_index < TMP_DIR_OUTPUT || TMP_DIR_CUSTOM < tmp_dir_index)
 		tmp_dir_index = TMP_DIR_OUTPUT;

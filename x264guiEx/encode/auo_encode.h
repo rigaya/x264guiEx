@@ -29,4 +29,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const char *savefile, DWORD ret); //一時ファイルの最終的な移動・削除を実行
 DWORD GetExePriority(DWORD set, HANDLE h_aviutl); //実行ファイルに指定すべき優先度を取得
 
+int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip);
+int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BOOL audio_output);
+
 #endif //_AUO_ENCODE_H_
