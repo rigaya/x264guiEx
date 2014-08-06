@@ -113,7 +113,7 @@ System::Void frmConfig::CloseBitrateCalc() {
 }
 System::Void frmConfig::fcgTSBBitrateCalc_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 	if (fcgTSBBitrateCalc->Checked) {
-		bool videoBitrateMode = (x264_encmode_toint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE);
+		bool videoBitrateMode = (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE);
 		
 		frmBitrateCalculator::Instance::get()->Init(
 			(videoBitrateMode) ? Convert::ToInt32(fcgTXQuality->Text) : 0,
@@ -136,7 +136,7 @@ System::Void frmConfig::SetfbcBTVBEnable(bool enable) {
 }
 
 System::Void frmConfig::SetVideoBitrate(int bitrate) {
-	if (x264_encmode_toint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE)
+	if (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE)
 		fcgTXQuality->Text = bitrate.ToString();
 }
 
@@ -358,7 +358,7 @@ System::Void frmConfig::fcgCBAFS_CheckedChanged(System::Object^  sender, System:
 
 System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 	int index = fcgCXX264Mode->SelectedIndex;
-	cnf_fcgTemp->rc_mode = x264_encmode_toint[index];
+	cnf_fcgTemp->rc_mode = x264_encmode_to_RCint[index];
 	cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5);
 	switch (cnf_fcgTemp->rc_mode) {
 		case X264_RC_BITRATE:
@@ -367,10 +367,10 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			fcgLBQualityRight->Text = L"高品質";
 			fcgTBQuality->Minimum = 0;
 			fcgTBQuality->Maximum = TBBConvert.getMaxCount();
+			cnf_fcgTemp->pass = x264_encmode_to_passint[index];
 			if (fcgCXX264Mode->SelectedIndex >= 3) {
 				fcgCBNulOut->Enabled = true;
 				fcgCBNulOut->Checked = cnf_fcgTemp->nul_out != 0;
-				cnf_fcgTemp->pass = (fcgCXX264Mode->SelectedIndex == 3) ? 1 : 3;
 				if (fcgCXX264Mode->SelectedIndex == 4) {
 					fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 					fcgCBFastFirstPass->Checked = false;
@@ -430,7 +430,7 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
 		fcgTXQuality->Text = lastQualityStr;
 		restore = true;
 	} else {
-		switch (x264_encmode_toint[index]) {
+		switch (x264_encmode_to_RCint[index]) {
 		case X264_RC_BITRATE:
 			if (Int32::TryParse(fcgTXQuality->Text, i) && i >= 0) {
 				cnf_fcgTemp->bitrate = i;
@@ -470,7 +470,7 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
 }
 
 System::Void frmConfig::fcgTXQuality_Validating(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
-	switch (x264_encmode_toint[fcgCXX264Mode->SelectedIndex]) {
+	switch (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex]) {
 		case X264_RC_BITRATE:
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
 			break;
@@ -486,7 +486,7 @@ System::Void frmConfig::fcgTXQuality_Validating(System::Object^  sender, System:
 
 System::Void frmConfig::SetTBValueToTextBox() {
 	int index = fcgCXX264Mode->SelectedIndex;
-	switch (x264_encmode_toint[index]) {
+	switch (x264_encmode_to_RCint[index]) {
 		case X264_RC_BITRATE:
 			cnf_fcgTemp->bitrate = TBBConvert.TBToBitrate(fcgTBQuality->Value);
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
