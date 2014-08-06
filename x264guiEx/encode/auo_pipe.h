@@ -34,8 +34,8 @@ typedef struct {
 	PIPE stdOut;
 	PIPE stdErr;
 	FILE *f_stdin;
-	char read_buf[PIPE_READ_BUF];
 	DWORD buf_len;
+	char read_buf[PIPE_READ_BUF];
 } PIPE_SET;
 
 void InitPipes(PIPE_SET *pipes);
