@@ -324,7 +324,7 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 	stg.load_encode_stg();
 	log_reload_settings();
 	SetStgEscKey(stg.s_local.enable_stg_esc_key != 0);
-	ActivateToolTip(stg.s_local.disable_tooltip_help != 0);
+	ActivateToolTip(stg.s_local.disable_tooltip_help == FALSE);
 }
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
