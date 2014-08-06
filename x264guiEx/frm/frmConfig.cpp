@@ -1254,7 +1254,7 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTX264->SetToolTip(fcgCXLevel,            L"--level");
 	fcgTTX264->SetToolTip(fcgCXVideoFormat,      L"--videoformat");
 	fcgTTX264->SetToolTip(fcgCBAud,              L"--aud");
-	fcgTTX264->SetToolTip(fcgCBPicStruct,        L"--pic-strcut");
+	fcgTTX264->SetToolTip(fcgCBPicStruct,        L"--pic-struct");
 	fcgTTX264->SetToolTip(fcgCXNalHrd,           L"--nal-hrd\n"
 		+ L" vbr 時は ビデオバッファ制御(VBV)の設定を行う必要があります。"
 		);
@@ -1291,7 +1291,7 @@ System::Void frmConfig::SetHelpToolTips() {
 	//量子化
 	fcgTTX264->SetToolTip(fcgNUIPRatio,          L"--ipratio 1.00 + (設定値)%");
 	fcgTTX264->SetToolTip(fcgNUPBRatio,          L"--pbratio 1.00 + (設定値)%");
-	fcgTTX264->SetToolTip(fcgNUQcomp,            L"--qpcomp (設定値)%");
+	fcgTTX264->SetToolTip(fcgNUQcomp,            L"--qcomp (設定値)%");
 	fcgTTX264->SetToolTip(fcgNUQpmin,            L"--qpmin");
 	fcgTTX264->SetToolTip(fcgNUQpmax,            L"--qpmax");
 	fcgTTX264->SetToolTip(fcgNUQpstep,           L"--qpstep");
@@ -1352,7 +1352,7 @@ System::Void frmConfig::SetHelpToolTips() {
 
 	//Bフレーム
 	fcgTTX264->SetToolTip(fcgNUBframes,          L"--bframes");
-	fcgTTX264->SetToolTip(fcgCXBAdpapt,          L"--badapt");
+	fcgTTX264->SetToolTip(fcgCXBAdpapt,          L"--b-adapt");
 	fcgTTX264->SetToolTip(fcgNUBBias,            L"--b-bias");
 	fcgTTX264->SetToolTip(fcgCXBpyramid,         L"--b-pyramid");
 	fcgTTX264->SetToolTip(fcgCBWeightB,          L"--wieghtb");
