@@ -71,6 +71,7 @@ typedef struct {
 	BOOL disable_guicmd; //GUIによるコマンドライン生成を停止(CLIモード)
 	int  temp_dir;       //一時ディレクトリ
 	BOOL out_audio_only; //音声のみ出力
+	char notes[128];     //メモ
 } CONF_OTHER;
 
 typedef struct {

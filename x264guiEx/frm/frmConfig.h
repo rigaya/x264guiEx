@@ -545,6 +545,10 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub10bit;
 private: System::Windows::Forms::Label^  fcgLBX264PathSub8bit;
 private: System::Windows::Forms::Button^  fcgBTX264PathSub10bit;
 private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
+private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
+
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
+private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
 private: System::Windows::Forms::ComboBox^  fcgCXYC48ColMatConv;
 private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 
@@ -783,6 +787,9 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBBitrateCalc = (gcnew System::Windows::Forms::ToolStripButton());
 			this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->fcgTSBOtherSettings = (gcnew System::Windows::Forms::ToolStripButton());
+			this->fcgTSLSettingsNotes = (gcnew System::Windows::Forms::ToolStripLabel());
+			this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
+			this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->fcggroupBoxAudio = (gcnew System::Windows::Forms::GroupBox());
 			this->fcgLBAudioTemp = (gcnew System::Windows::Forms::Label());
 			this->fcgCXAudioTempDir = (gcnew System::Windows::Forms::ComboBox());
@@ -2997,11 +3004,15 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			// 
 			// fcgtoolStripSettings
 			// 
-			this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->fcgTSBSave, 
+			this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(13) {this->fcgTSBSave, 
 				this->fcgTSBSaveNew, this->fcgTSBDelete, this->fcgtoolStripSeparator1, this->fcgTSSettings, this->fcgTSBCMDOnly, this->toolStripSeparator3, 
-				this->fcgTSBBitrateCalc, this->toolStripSeparator2, this->fcgTSBOtherSettings});
+				this->fcgTSBBitrateCalc, this->toolStripSeparator2, this->fcgTSBOtherSettings, this->fcgTSLSettingsNotes, this->fcgTSTSettingsNotes, 
+				this->toolStripSeparator4});
 			this->fcgtoolStripSettings->Location = System::Drawing::Point(0, 0);
 			this->fcgtoolStripSettings->Name = L"fcgtoolStripSettings";
+			this->fcgtoolStripSettings->Padding = System::Windows::Forms::Padding(0);
 			this->fcgtoolStripSettings->Size = System::Drawing::Size(1008, 25);
 			this->fcgtoolStripSettings->TabIndex = 1;
 			this->fcgtoolStripSettings->Text = L"toolStrip1";
@@ -3011,7 +3022,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBSave->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBSave.Image")));
 			this->fcgTSBSave->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSBSave->Name = L"fcgTSBSave";
-			this->fcgTSBSave->Size = System::Drawing::Size(88, 22);
+			this->fcgTSBSave->Size = System::Drawing::Size(84, 22);
 			this->fcgTSBSave->Text = L"上書き保存";
 			this->fcgTSBSave->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSave_Click);
 			// 
@@ -3020,7 +3031,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBSaveNew->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBSaveNew.Image")));
 			this->fcgTSBSaveNew->ImageTransparentColor = System::Drawing::Color::Black;
 			this->fcgTSBSaveNew->Name = L"fcgTSBSaveNew";
-			this->fcgTSBSaveNew->Size = System::Drawing::Size(76, 22);
+			this->fcgTSBSaveNew->Size = System::Drawing::Size(75, 22);
 			this->fcgTSBSaveNew->Text = L"新規保存";
 			this->fcgTSBSaveNew->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSaveNew_Click);
 			// 
@@ -3029,7 +3040,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBDelete->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBDelete.Image")));
 			this->fcgTSBDelete->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSBDelete->Name = L"fcgTSBDelete";
-			this->fcgTSBDelete->Size = System::Drawing::Size(52, 22);
+			this->fcgTSBDelete->Size = System::Drawing::Size(51, 22);
 			this->fcgTSBDelete->Text = L"削除";
 			this->fcgTSBDelete->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBDelete_Click);
 			// 
@@ -3091,9 +3102,41 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTSBOtherSettings->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"fcgTSBOtherSettings.Image")));
 			this->fcgTSBOtherSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->fcgTSBOtherSettings->Name = L"fcgTSBOtherSettings";
-			this->fcgTSBOtherSettings->Size = System::Drawing::Size(84, 22);
+			this->fcgTSBOtherSettings->Size = System::Drawing::Size(76, 22);
 			this->fcgTSBOtherSettings->Text = L"その他の設定";
 			this->fcgTSBOtherSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBOtherSettings_Click);
+			// 
+			// fcgTSLSettingsNotes
+			// 
+			this->fcgTSLSettingsNotes->DoubleClickEnabled = true;
+			this->fcgTSLSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fcgTSLSettingsNotes->Margin = System::Windows::Forms::Padding(3, 1, 0, 2);
+			this->fcgTSLSettingsNotes->Name = L"fcgTSLSettingsNotes";
+			this->fcgTSLSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
+			this->fcgTSLSettingsNotes->Size = System::Drawing::Size(45, 22);
+			this->fcgTSLSettingsNotes->Text = L"メモ表示";
+			this->fcgTSLSettingsNotes->DoubleClick += gcnew System::EventHandler(this, &frmConfig::fcgTSLSettingsNotes_DoubleClick);
+			// 
+			// fcgTSTSettingsNotes
+			// 
+			this->fcgTSTSettingsNotes->BackColor = System::Drawing::SystemColors::Window;
+			this->fcgTSTSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fcgTSTSettingsNotes->Margin = System::Windows::Forms::Padding(3, 0, 1, 0);
+			this->fcgTSTSettingsNotes->Name = L"fcgTSTSettingsNotes";
+			this->fcgTSTSettingsNotes->Size = System::Drawing::Size(200, 25);
+			this->fcgTSTSettingsNotes->Text = L"メモ...";
+			this->fcgTSTSettingsNotes->Visible = false;
+			this->fcgTSTSettingsNotes->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_Leave);
+			this->fcgTSTSettingsNotes->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmConfig::fcgTSTSettingsNotes_KeyDown);
+			this->fcgTSTSettingsNotes->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_TextChanged);
+			// 
+			// toolStripSeparator4
+			// 
+			this->toolStripSeparator4->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+			this->toolStripSeparator4->Name = L"toolStripSeparator4";
+			this->toolStripSeparator4->Size = System::Drawing::Size(6, 25);
 			// 
 			// fcggroupBoxAudio
 			// 
@@ -3938,9 +3981,18 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		System::Void ConfToFrm(CONF_X264GUIEX *cnf, bool all);
 		System::Void FrmToConf(CONF_X264GUIEX *cnf);
 		System::Void SetChangedEvent(Control^ control, System::EventHandler^ _event);
+		System::Void SetToolStripEvents(ToolStrip^ TS, System::Windows::Forms::MouseEventHandler^ _event);
 		System::Void SetAllCheckChangedEvents(Control ^top);
 		System::Void SaveToStgFile(String^ stgName);
 		System::Void DeleteStgFile(int index);
+		System::Boolean EnableSettingsNoteChange(bool Enable);
+		System::Void fcgTSLSettingsNotes_DoubleClick(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgTSTSettingsNotes_Leave(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgTSTSettingsNotes_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e);
+		System::Void fcgTSTSettingsNotes_TextChanged(System::Object^  sender, System::EventArgs^  e);
+		System::Void GetfcgTSLSettingsNotes(char *notes, int nSize);
+		System::Void SetfcgTSLSettingsNotes(const char *notes);
+		System::Void SetfcgTSLSettingsNotes(String^ notes);
 		System::Void fcgTSBSave_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBSaveNew_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBDelete_Click(System::Object^  sender, System::EventArgs^  e);
@@ -3974,6 +4026,10 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		System::Void SetVideoBitrate(int bitrate);
 		System::Void SetAudioBitrate(int bitrate);
 		System::Void InformfbcClosed();
+	private:
+		System::Void fcgTSItem_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+			EnableSettingsNoteChange(false);
+		}
 	private:
 		System::Void NUSelectAll(System::Object^  sender, System::EventArgs^  e) {
 			 NumericUpDown^ NU = dynamic_cast<NumericUpDown^>(sender);
@@ -4022,11 +4078,16 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		}
 	private:
 		System::Void TX_LimitbyBytes(System::Object^  sender, System::ComponentModel::CancelEventArgs^ e) {
-			TextBox^ TX = (TextBox^)sender;
-			if (CountStringBytes(TX->Text) > TX->MaxLength - 1) {
+			int maxLength = 0;
+			int stringBytes = 0;
+			TextBox^ TX = nullptr;
+			if ((TX = dynamic_cast<TextBox^>(sender)) == nullptr)
+				return;
+			stringBytes = CountStringBytes(TX->Text);
+			maxLength = TX->MaxLength;
+			if (stringBytes > maxLength - 1) {
 				e->Cancel = true;
 				MessageBox::Show(this, L"入力された文字数が多すぎます。減らしてください。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
-				TX->Select(0, TX->Text->Length);
 			}
 		}
 	private:
@@ -4280,6 +4341,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 				return;
 			FrmToConf(conf);
 			SaveLocalStg();
+			ZeroMemory(conf->oth.notes, sizeof(conf->oth.notes));
 			this->Close();
 		}
 	private: 
@@ -4329,7 +4391,8 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		}
 	private: 
 		System::Void fcgTSSettings_Click(System::Object^  sender, System::EventArgs^  e) {
-			fcgTSSettings->ShowDropDown();
+			if (EnableSettingsNoteChange(false))
+				fcgTSSettings->ShowDropDown();
 		}
 	private: 
 		System::Void fcgBTTBQualityAdd_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {

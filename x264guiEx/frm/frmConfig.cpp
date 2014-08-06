@@ -522,7 +522,43 @@ System::Void frmConfig::SetTBValueToTextBox() {
 			break;
 	}
 }
-
+System::Boolean frmConfig::EnableSettingsNoteChange(bool Enable) {
+	if (fcgTSTSettingsNotes->Visible == Enable &&
+		fcgTSLSettingsNotes->Visible == !Enable)
+		return true;
+	if (CountStringBytes(fcgTSTSettingsNotes->Text) > fcgTSTSettingsNotes->MaxLength - 1) {
+		MessageBox::Show(this, L"入力された文字数が多すぎます。減らしてください。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		fcgTSTSettingsNotes->Focus();
+		fcgTSTSettingsNotes->SelectionStart = fcgTSTSettingsNotes->Text->Length;
+		return false;
+	}
+	fcgTSTSettingsNotes->Visible = Enable;
+	fcgTSLSettingsNotes->Visible = !Enable;
+	if (Enable) {
+		fcgTSTSettingsNotes->Text = fcgTSLSettingsNotes->Text;
+		fcgTSTSettingsNotes->Focus();
+		bool isDefaultNote = String::Compare(fcgTSTSettingsNotes->Text, String(DefaultStgNotes).ToString()) == 0;
+		fcgTSTSettingsNotes->Select((isDefaultNote) ? 0 : fcgTSTSettingsNotes->Text->Length, fcgTSTSettingsNotes->Text->Length);
+	} else {
+		SetfcgTSLSettingsNotes(fcgTSTSettingsNotes->Text);
+		CheckOtherChanges(nullptr, nullptr);
+	}
+	return true;
+}
+System::Void frmConfig::fcgTSLSettingsNotes_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+	EnableSettingsNoteChange(true);
+}
+System::Void frmConfig::fcgTSTSettingsNotes_Leave(System::Object^  sender, System::EventArgs^  e) {
+	EnableSettingsNoteChange(false);
+}
+System::Void frmConfig::fcgTSTSettingsNotes_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+	if (e->KeyCode == Keys::Return)
+		EnableSettingsNoteChange(false);
+}
+System::Void frmConfig::fcgTSTSettingsNotes_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+	SetfcgTSLSettingsNotes(fcgTSTSettingsNotes->Text);
+	CheckOtherChanges(nullptr, nullptr);
+}
 
 /////////////    音声設定関連の関数    ///////////////
 System::Void frmConfig::fcgCBAudio2pass_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -669,6 +705,7 @@ System::Void frmConfig::DeleteStgFile(int index) {
 		stgControl->DeleteFromList(index);
 		RebuildStgFileDropDown();
 		CheckTSDropDownItem(-1);
+		SetfcgTSLSettingsNotes(L"");
 	}
 }
 
@@ -776,6 +813,8 @@ System::Void frmConfig::SetTXMaxLenAll() {
 	SetTXMaxLen(fcgTXStatusFile,         sizeof(conf->vid.stats) - 1);
 	SetTXMaxLen(fcgTXTCIN,               sizeof(conf->vid.tcfile_in) - 1);
 	SetTXMaxLen(fcgTXCQM,                sizeof(conf->vid.cqmfile) - 1);
+
+	fcgTSTSettingsNotes->MaxLength     = sizeof(conf->oth.notes) - 1;
 }
 
 System::Void frmConfig::InitStgFileList() {
@@ -859,6 +898,7 @@ System::Void frmConfig::InitForm() {
 	//フォームの変更可不可を更新
 	fcgChangeEnabled(nullptr, nullptr);
 	fcgCBAFS_CheckedChanged(nullptr, nullptr);
+	EnableSettingsNoteChange(false);
 	//コマンドラインの更新
 	fcgRebuildCmd(nullptr, nullptr);
 	//表示位置の調整
@@ -1025,6 +1065,8 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
+		SetfcgTSLSettingsNotes(cnf->oth.notes);
+
 		//cli mode
 		fcgTSBCMDOnly->Checked             = cnf->oth.disable_guicmd != 0;
 	}
@@ -1163,6 +1205,8 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->mux.minimized              = fcgCBMuxMinimize->Checked;
 	cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
 
+	GetfcgTSLSettingsNotes(cnf->oth.notes, sizeof(cnf->oth.notes));
+
 	//cli mode
 	cnf->oth.disable_guicmd         = fcgTSBCMDOnly->Checked;
 	if (cnf->oth.disable_guicmd)
@@ -1170,6 +1214,32 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 
 	//制約条件として適用
 	set_profile_to_conf(&cnf->x264, cnf->x264.profile);
+}
+
+System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {
+	ZeroMemory(notes, nSize);
+	if (fcgTSLSettingsNotes->ForeColor == Color::FromName(String(StgNotesColorName[0]).ToString()))
+		GetCHARfromString(notes, nSize, fcgTSLSettingsNotes->Text);
+}
+
+System::Void frmConfig::SetfcgTSLSettingsNotes(const char *notes) {
+	if (strlen(notes)) {
+		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[0]).ToString());
+		fcgTSLSettingsNotes->Text = String(notes).ToString();
+	} else {
+		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[1]).ToString());
+		fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
+	}
+}
+
+System::Void frmConfig::SetfcgTSLSettingsNotes(String^ notes) {
+	if (notes->Length && String::Compare(notes, String(DefaultStgNotes).ToString()) != 0) {
+		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[0]).ToString());
+		fcgTSLSettingsNotes->Text = notes;
+	} else {
+		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[1]).ToString());
+		fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
+	}
 }
 
 System::Void frmConfig::SetChangedEvent(Control^ control, System::EventHandler^ _event) {
@@ -1184,6 +1254,13 @@ System::Void frmConfig::SetChangedEvent(Control^ control, System::EventHandler^ 
 		((TextBox^)control)->TextChanged += _event;
 }
 
+System::Void frmConfig::SetToolStripEvents(ToolStrip^ TS, System::Windows::Forms::MouseEventHandler^ _event) {
+	for (int i = 0; i < TS->Items->Count; i++) {
+		ToolStripButton^ TSB = dynamic_cast<ToolStripButton^>(TS->Items[i]);
+		if (TSB != nullptr) TSB->MouseDown += _event;
+	}
+}
+
 System::Void frmConfig::SetAllCheckChangedEvents(Control ^top) {
 	//再帰を使用してすべてのコントロールのtagを調べ、イベントをセットする
 	for (int i = 0; i < top->Controls->Count; i++) {
@@ -1193,6 +1270,8 @@ System::Void frmConfig::SetAllCheckChangedEvents(Control ^top) {
 
 		if (type == Label::typeid || type == Button::typeid)
 			;
+		else if (type == ToolStrip::typeid)
+			SetToolStripEvents((ToolStrip^)(top->Controls[i]), gcnew System::Windows::Forms::MouseEventHandler(this, &frmConfig::fcgTSItem_MouseDown));
 		else if (top->Controls[i]->Tag == nullptr)
 			SetAllCheckChangedEvents(top->Controls[i]);
 		else if (String::Equals(top->Controls[i]->Tag->ToString(), L"reCmd"))
