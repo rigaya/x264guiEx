@@ -82,6 +82,9 @@ int RunProcess(char *args, const char *exe_dir, PROCESS_INFORMATION *pi, PIPE_SE
 	if (hidden)
 		flag |= CREATE_NO_WINDOW;
 
+	if (!PathIsDirectory(exe_dir))
+		exe_dir = NULL; //とりあえずカレントディレクトリで起動しとく
+
 	ret = (CreateProcess(NULL, args, NULL, NULL, Inherit, flag, NULL, exe_dir, &si, pi)) ? RP_SUCCESS : RP_ERROR_CREATE_PROCESS;
 
 	if (pipes) {
