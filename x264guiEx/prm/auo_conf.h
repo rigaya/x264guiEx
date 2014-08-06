@@ -95,6 +95,8 @@ private:
 	static const int conf_block_data[CONF_BLOCK_COUNT];
 public:
 	guiEx_config();
+	static void write_conf_header(CONF_X264GUIEX *conf);
+	static int  adjust_conf_size(CONF_X264GUIEX *conf_buf, void *old_data, int old_size);
 	int  load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file);       //設定をstgファイルから読み込み
 	int  save_x264guiEx_conf(const CONF_X264GUIEX *conf, const char *stg_file); //設定をstgファイルとして保存
 };

@@ -4353,6 +4353,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		System::Void fcgBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (CheckLocalStg())
 				return;
+			init_CONF_X264GUIEX(conf, fcgCBUse10bit->Checked);
 			FrmToConf(conf);
 			SaveLocalStg();
 			ZeroMemory(conf->oth.notes, sizeof(conf->oth.notes));

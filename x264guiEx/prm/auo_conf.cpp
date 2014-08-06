@@ -33,7 +33,66 @@ const size_t guiEx_config::conf_block_pointer[CONF_BLOCK_COUNT] = {
 	offsetof(CONF_X264GUIEX, oth)
 };
 
+//v1.16以降このデータは不要
+static const CONF_X264GUIEX CONF_OLD_DATA[] = {
+	{ { 0 }, 5848, 300, 5, { 328, 5140, 40, 28,  12, 0 }, { 300, 628, 5768, 5808, 5836, 0 } }, //v1.00 - v1.13
+	{ { 0 }, 5984, 300, 5, { 328, 5144, 40, 32, 120, 0 }, { 300, 628, 5772, 5812, 5844, 0 } }  //v1.14 - v1.15
+};
+
 guiEx_config::guiEx_config() { }
+
+void guiEx_config::write_conf_header(CONF_X264GUIEX *save_conf) {
+	sprintf_s(save_conf->conf_name, sizeof(save_conf->conf_name), CONF_NAME);
+	save_conf->size_all = sizeof(CONF_X264GUIEX);
+	save_conf->head_size = CONF_HEAD_SIZE;
+	save_conf->block_count = CONF_BLOCK_COUNT;
+	for (int i = 0; i < CONF_BLOCK_COUNT; ++i) {
+		save_conf->block_size[i] = conf_block_data[i];
+		save_conf->block_head_p[i] = conf_block_pointer[i];
+	}
+}
+
+//設定ファイルサイズを自動拡張する
+//拡張できない場合 FALSEを返す
+BOOL guiEx_config::adjust_conf_size(CONF_X264GUIEX *conf_buf, void *old_data, int old_size) {
+	BOOL ret = FALSE;
+	init_CONF_X264GUIEX(conf_buf, FALSE);
+	if (((CONF_X264GUIEX *)old_data)->size_all != CONF_INITIALIZED)
+		return ret;
+	if (old_size == sizeof(CONF_X264GUIEX)) {
+		memcpy(conf_buf, old_data, old_size);
+		ret = TRUE;
+	} else {
+		const void *data_table = NULL;
+		if (((CONF_X264GUIEX *)old_data)->block_count) {
+			//新しい形式からの調整
+			//ブロックサイズは保存されている
+			data_table = old_data;
+		} else {
+			//古い形式からの調整
+			//保存されるプリセットにブロックサイズが保存されていないため、データテーブルを参照する
+			for (int j = 0; j < sizeof(CONF_OLD_DATA) / sizeof(CONF_OLD_DATA[0]); j++) {
+				if (old_size == CONF_OLD_DATA[j].size_all) {
+					data_table = &CONF_OLD_DATA[j];
+					break;
+				}
+			}
+		}
+		if (data_table == NULL)
+			return ret;
+		BYTE *dst = (BYTE *)conf_buf;
+		BYTE *block = NULL;
+		dst += CONF_HEAD_SIZE;
+		//ブロック部分のコピー
+		for (int i = 0; i < ((CONF_X264GUIEX *)data_table)->block_count; ++i) {
+			block = (BYTE *)old_data + ((CONF_X264GUIEX *)data_table)->block_head_p[i];
+			memcpy(dst, block, ((CONF_X264GUIEX *)data_table)->block_size[i]);
+			dst += conf_block_data[i];
+		}
+		ret = TRUE;
+	}
+	return ret;
+}
 
 int guiEx_config::load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file) {
 	size_t conf_size = 0;
@@ -62,7 +121,8 @@ int guiEx_config::load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file
 	if (((CONF_X264GUIEX *)dat)->block_count > CONF_BLOCK_COUNT)
 		return CONF_ERROR_BLOCK_SIZE;
 
-	//サイズ情報部分のコピーはしない
+	write_conf_header(conf);
+
 	dst = (BYTE *)conf;
 	//filedat = (BYTE *)data;
 	//memcpy(dst, filedat, data->head_size);

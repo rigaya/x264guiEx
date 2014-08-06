@@ -212,11 +212,7 @@ int func_config_set( void *data,int size )
 	if (!sys_dat.exstg->get_init_success(TRUE))
 		return NULL;
 	init_CONF_X264GUIEX(&conf, FALSE);
-	if (size != sizeof(CONF_X264GUIEX) || 
-		((CONF_X264GUIEX *)data)->size_all != CONF_INITIALIZED)
-		return NULL;
-	memcpy(&conf, data, size);
-	return size;
+	return (guiEx_config::adjust_conf_size(&conf, data, size)) ? size : NULL;
 }
 
 
@@ -242,6 +238,7 @@ void delete_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
 }
 void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_10bit) {
 	ZeroMemory(conf, sizeof(CONF_X264GUIEX));
+	guiEx_config::write_conf_header(conf);
 	get_default_conf_x264(&conf->x264, use_10bit);
 	conf->size_all = CONF_INITIALIZED;
 }
