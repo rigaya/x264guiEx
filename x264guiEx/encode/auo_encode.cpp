@@ -55,7 +55,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	}
 	//%{tmpdir}
 	strcpy_s(tmp, sizeof(tmp), pe->temp_filename);
-	PathRemoveFileSpec(tmp);
+	PathRemoveFileSpecFixed(tmp);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{tmpdir}", tmp);
 	//%{tmpfile}
@@ -78,7 +78,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	replace(cmd, nSize, "%{savname}", tmp);
 	//%{savdir}
 	strcpy_s(tmp, sizeof(tmp), savefile);
-	PathRemoveFileSpec(tmp);
+	PathRemoveFileSpecFixed(tmp);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{savdir}", tmp);
 	//%{aviutldir}

@@ -15,6 +15,7 @@
 #pragma comment(lib, "shlwapi.lib")
 
 #include "auo.h"
+#include "auo_util.h"
 #include "auo_pipe.h"
 
 //参考 : http://support.microsoft.com/kb/190351/ja
@@ -149,7 +150,7 @@ BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t n
 	pipes.stdOut.enable = TRUE;
 
 	strcpy_s(exe_dir, sizeof(exe_dir), exe_path);
-	PathRemoveFileSpec(exe_dir);
+	PathRemoveFileSpecFixed(exe_dir);
 
 	sprintf_s(fullargs, len, "\"%s\" %s", exe_path, args);
 	if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {

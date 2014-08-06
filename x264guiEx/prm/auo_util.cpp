@@ -71,7 +71,7 @@ void get_auo_path(char *auo_path, size_t nSize) {
 //最後に"\"なしで戻る
 void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
 	GetModuleFileName(NULL, aviutl_dir, nSize);
-	PathRemoveFileSpec(aviutl_dir);
+	PathRemoveFileSpecFixed(aviutl_dir);
 }
 //文字列の置換に必要な領域を計算する
 size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str) {
@@ -138,6 +138,15 @@ BOOL PathRootExists(const char *path) {
 	return (PathGetRoot(path, root, sizeof(root)) && PathIsDirectory(root));
 }
 
+//PathRemoveFileSpecFixedがVistaでは5C問題を発生させるため、その回避策
+BOOL PathRemoveFileSpecFixed(char *path) {
+	char *ptr = PathFindFileName(path);
+	if (path == ptr)
+		return FALSE;
+	*(ptr - 1) = '\0';
+	return TRUE;
+}
+
 //フォルダがあればOK、なければ作成する
 BOOL DirectoryExistsOrCreate(const char *dir) {
 	if (PathIsDirectory(dir))
@@ -155,7 +164,7 @@ BOOL FileExistsAndHasSize(const char *path) {
 
 void PathGetDirectory(char *dir, size_t nSize, const char *path) {
 	strcpy_s(dir, nSize, path);
-	PathRemoveFileSpec(dir);
+	PathRemoveFileSpecFixed(dir);
 }
 
 BOOL GetFileSizeInt(const char *filepath, DWORD *filesize) {

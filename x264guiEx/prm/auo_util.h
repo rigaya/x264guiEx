@@ -134,6 +134,8 @@ static size_t deleteCRLFSpace_at_End(char *str) {
 	return qw - pw;
 }
 
+
+
 DWORD cpu_core_count();
 BOOL check_sse2();
 BOOL check_sse3();
@@ -148,6 +150,7 @@ void apply_appendix(char *new_filename, size_t new_filename_size, const char *or
 BOOL check_ext(const char *filename, const char *ext);
 BOOL PathGetRoot(const char *path, char *root, size_t nSize);
 BOOL PathRootExists(const char *path);
+BOOL PathRemoveFileSpecFixed(char *path);
 BOOL DirectoryExistsOrCreate(const char *dir);
 BOOL FileExistsAndHasSize(const char *path);
 void PathGetDirectory(char *dir, size_t nSize, const char *path);

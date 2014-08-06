@@ -386,7 +386,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 	if (tmp_dir_index == TMP_DIR_OUTPUT) {
 		//出力フォルダと同じ("\"なし)
 		strcpy_s(pe->temp_filename, sizeof(pe->temp_filename), savefile);
-		PathRemoveFileSpec(pe->temp_filename);
+		PathRemoveFileSpecFixed(pe->temp_filename);
 	}
 }
 
