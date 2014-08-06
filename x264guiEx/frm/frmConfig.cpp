@@ -968,7 +968,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	SetCXIndex(fcgCXColorMatrix,      cx264->colormatrix);
 	SetCXIndex(fcgCXColorPrim,        cx264->colorprim);
 	SetCXIndex(fcgCXTransfer,         cx264->transfer);
-	fcgCXInputRange->SelectedIndex  = cx264->input_range;
+	SetCXIndex(fcgCXInputRange,       cx264->input_range);
 
 	if (cx264->sar.x * cx264->sar.y < 0)
 		cx264->sar.x = cx264->sar.y = 0;
