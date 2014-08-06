@@ -428,12 +428,12 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 }
 
 static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
-	char log_file_path[MAX_PATH_LEN];
 	guiEx_settings ex_stg(true);
 	ex_stg.load_log_win();
 	if (!ex_stg.s_log.auto_save_log)
 		return;
-	if (!getLogFilePath(log_file_path, sizeof(log_file_path), pe, oip->savefile, &sys_dat))
+	char log_file_path[MAX_PATH_LEN];
+	if (AUO_RESULT_SUCCESS != getLogFilePath(log_file_path, sizeof(log_file_path), pe, oip->savefile, &sys_dat))
 		warning_no_auto_save_log_dir();
 	auto_save_log_file(log_file_path);
 	return;
