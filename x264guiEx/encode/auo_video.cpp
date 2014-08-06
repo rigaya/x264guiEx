@@ -239,7 +239,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	//AviUtlのkeyframe指定があれば、それをqpfileで読み込む
 	char auoqpfile[MAX_PATH_LEN];
 	apply_appendix(auoqpfile, sizeof(auoqpfile), pe->temp_filename, pe->append.qp);
-	if (prm.vid.check_keyframe && FileExistsAndHasSize(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
+	if (prm.vid.check_keyframe && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
 	//1pass目でafsでない、--framesがなければ--framesを指定
 	if ((!prm.vid.afs || pe->current_x264_pass > 1) && strstr(cmd, "--frames") == NULL)
@@ -261,7 +261,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 
 static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *conf, int w, int h) {
 	int byte_per_pixel = (conf->x264.use_10bit_depth) ? sizeof(short) : sizeof(BYTE);
-	ZeroMemory(pixel_data,  sizeof(CONVERT_CF_DATA));
+	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
 		case OUT_CSP_YUV422: //nv16 (YUV422)
 			pixel_data->count = 2;
