@@ -384,10 +384,11 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox         = GetPrivateProfileInt(INI_SECTION_MAIN,  "large_cmdbox",         0,                    conf_fileName);
-	s_local.auto_afs_disable     = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_afs_disable",     0,                    conf_fileName);
-	s_local.auto_del_stats       = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_del_stats",       0,                    conf_fileName);
-	s_local.disable_tooltip_help = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_tooltip_help", 0,                    conf_fileName);
+	s_local.large_cmdbox          = GetPrivateProfileInt(INI_SECTION_MAIN,  "large_cmdbox",          0,                    conf_fileName);
+	s_local.auto_afs_disable      = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_afs_disable",      0,                    conf_fileName);
+	s_local.auto_del_stats        = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_del_stats",        0,                    conf_fileName);
+	s_local.disable_tooltip_help  = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_tooltip_help",  0,                    conf_fileName);
+	s_local.disable_visual_styles = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_visual_styles", 0,                    conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        sizeof(s_local.custom_tmp_dir),        conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  sizeof(s_local.custom_audio_tmp_dir),  conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, sizeof(s_local.custom_mp4box_tmp_dir), conf_fileName);
@@ -434,6 +435,7 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_afs_disable",      s_local.auto_afs_disable,      conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_del_stats",        s_local.auto_del_stats,        conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_tooltip_help",  s_local.disable_tooltip_help,  conf_fileName);
+	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_visual_styles", s_local.disable_visual_styles, conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_tmp_dir);
 	PathRemoveBackslash(s_local.custom_tmp_dir);

@@ -352,6 +352,15 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			 taskbar_progress_init();
 		}
 	public:
+		System::Void ReloadLogWindowSettings() {
+			guiEx_settings exstg;
+			exstg.load_log_win();
+			ToolStripMenuItemTransparent->Checked    = exstg.s_log.transparent != 0;
+			toolStripMenuItemAutoSave->Checked       = exstg.s_log.auto_save_log != 0;
+			toolStripMenuItemShowStatus->Checked     = exstg.s_log.show_status_bar != 0;
+			ToolStripMenuItemStartMinimized->Checked = exstg.s_log.minimized != 0;
+		}
+	public:
 		System::Void SetWindowTitle(const char *chr, int progress_mode) {
 			LogTitle = String(chr).ToString();
 			this->Text = LogTitle;

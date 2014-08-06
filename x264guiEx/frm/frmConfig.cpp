@@ -13,6 +13,7 @@
 #pragma warning( disable: 4100 )
 
 #include "auo_version.h"
+#include "auo_frm.h"
 #include "frmConfig.h"
 #include "frmSaveNewStg.h"
 #include "frmOtherSettings.h"
@@ -24,7 +25,8 @@ using namespace x264guiEx;
 ///     設定画面の表示
 /// -------------------------------------------------
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat) {
-	System::Windows::Forms::Application::EnableVisualStyles();
+	if (!sys_dat->exstg->s_local.disable_visual_styles)
+		System::Windows::Forms::Application::EnableVisualStyles();
 	System::IO::Directory::SetCurrentDirectory(String(sys_dat->aviutl_dir).ToString());
 	frmConfig frmConf(conf, sys_dat);
 	frmConf.ShowDialog();
@@ -315,6 +317,7 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 		sys_dat->exstg->save_local();
 		InitStgFileList();
 	}
+	log_reload_settings();
 	ActivateToolTip(!frmOtherSettings::DisableToolTipHelp);
 }
 

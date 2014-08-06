@@ -355,7 +355,7 @@ void open_log_window(const char *savefile, int current_pass, int total_pass) {
 	else
 		sprintf_s(mes, sizeof(mes), "%s%s\r\n[%s] (%d / %d pass)\r\n%s", newLine, SEPARATOR, savefile, current_pass, total_pass, SEPARATOR);
 	
-	show_log_window(sys_dat.aviutl_dir);
+	show_log_window(sys_dat.aviutl_dir, sys_dat.exstg->s_local.disable_visual_styles);
 	write_log_line(LOG_INFO, mes);
 }
 

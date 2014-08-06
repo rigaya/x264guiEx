@@ -71,6 +71,11 @@ namespace x264guiEx {
 	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
 	private: System::Windows::Forms::CheckBox^  fosCBDisableToolTip;
+	private: System::Windows::Forms::CheckBox^  fosCBDisableVisualStyles;
+	private: System::Windows::Forms::Label^  fosLBDisableVisualStyles;
+	private: System::Windows::Forms::CheckBox^  fosCBLogStartMinimized;
+	private: System::Windows::Forms::CheckBox^  fosCBLogDisableTransparency;
+
 	public: 
 
 	public:
@@ -104,13 +109,17 @@ namespace x264guiEx {
 			this->fosCBAutoAFSDisable = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBDisableToolTip = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBDisableVisualStyles = (gcnew System::Windows::Forms::CheckBox());
+			this->fosLBDisableVisualStyles = (gcnew System::Windows::Forms::Label());
+			this->fosCBLogStartMinimized = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBLogDisableTransparency = (gcnew System::Windows::Forms::CheckBox());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 219);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 316);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -121,7 +130,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 219);
+			this->fosCBOK->Location = System::Drawing::Point(283, 316);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -177,19 +186,65 @@ namespace x264guiEx {
 			// fosCBDisableToolTip
 			// 
 			this->fosCBDisableToolTip->AutoSize = true;
-			this->fosCBDisableToolTip->Location = System::Drawing::Point(24, 186);
+			this->fosCBDisableToolTip->Location = System::Drawing::Point(24, 175);
 			this->fosCBDisableToolTip->Name = L"fosCBDisableToolTip";
 			this->fosCBDisableToolTip->Size = System::Drawing::Size(158, 19);
 			this->fosCBDisableToolTip->TabIndex = 8;
 			this->fosCBDisableToolTip->Text = L"ポップアップヘルプを抑制する";
 			this->fosCBDisableToolTip->UseVisualStyleBackColor = true;
 			// 
+			// fosCBDisableVisualStyles
+			// 
+			this->fosCBDisableVisualStyles->AutoSize = true;
+			this->fosCBDisableVisualStyles->Location = System::Drawing::Point(24, 205);
+			this->fosCBDisableVisualStyles->Name = L"fosCBDisableVisualStyles";
+			this->fosCBDisableVisualStyles->Size = System::Drawing::Size(128, 19);
+			this->fosCBDisableVisualStyles->TabIndex = 9;
+			this->fosCBDisableVisualStyles->Text = L"視覚効果をオフにする";
+			this->fosCBDisableVisualStyles->UseVisualStyleBackColor = true;
+			// 
+			// fosLBDisableVisualStyles
+			// 
+			this->fosLBDisableVisualStyles->AutoSize = true;
+			this->fosLBDisableVisualStyles->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fosLBDisableVisualStyles->ForeColor = System::Drawing::Color::OrangeRed;
+			this->fosLBDisableVisualStyles->Location = System::Drawing::Point(45, 224);
+			this->fosLBDisableVisualStyles->Name = L"fosLBDisableVisualStyles";
+			this->fosLBDisableVisualStyles->Size = System::Drawing::Size(161, 14);
+			this->fosLBDisableVisualStyles->TabIndex = 10;
+			this->fosLBDisableVisualStyles->Text = L"※反映にはAviutlの再起動が必要";
+			// 
+			// fosCBLogStartMinimized
+			// 
+			this->fosCBLogStartMinimized->AutoSize = true;
+			this->fosCBLogStartMinimized->Location = System::Drawing::Point(24, 251);
+			this->fosCBLogStartMinimized->Name = L"fosCBLogStartMinimized";
+			this->fosCBLogStartMinimized->Size = System::Drawing::Size(184, 19);
+			this->fosCBLogStartMinimized->TabIndex = 11;
+			this->fosCBLogStartMinimized->Text = L"ログウィンドウを最小化で開始する";
+			this->fosCBLogStartMinimized->UseVisualStyleBackColor = true;
+			// 
+			// fosCBLogDisableTransparency
+			// 
+			this->fosCBLogDisableTransparency->AutoSize = true;
+			this->fosCBLogDisableTransparency->Location = System::Drawing::Point(24, 281);
+			this->fosCBLogDisableTransparency->Name = L"fosCBLogDisableTransparency";
+			this->fosCBLogDisableTransparency->Size = System::Drawing::Size(174, 19);
+			this->fosCBLogDisableTransparency->TabIndex = 12;
+			this->fosCBLogDisableTransparency->Text = L"ログウィンドウの透過をオフにする";
+			this->fosCBLogDisableTransparency->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 258);
+			this->ClientSize = System::Drawing::Size(392, 355);
+			this->Controls->Add(this->fosCBLogDisableTransparency);
+			this->Controls->Add(this->fosCBLogStartMinimized);
+			this->Controls->Add(this->fosLBDisableVisualStyles);
+			this->Controls->Add(this->fosCBDisableVisualStyles);
 			this->Controls->Add(this->fosCBDisableToolTip);
 			this->Controls->Add(this->fosCBAutoDelStats);
 			this->Controls->Add(this->fosCBAutoAFSDisable);
@@ -217,10 +272,15 @@ namespace x264guiEx {
 
 			stgDir = fosTXStgDir->Text;
 			fos_ex_stg->load_encode_stg();
-			fos_ex_stg->s_local.auto_afs_disable     = fosCBAutoAFSDisable->Checked;
-			fos_ex_stg->s_local.auto_del_stats       = fosCBAutoDelStats->Checked;
-			fos_ex_stg->s_local.disable_tooltip_help = fosCBDisableToolTip->Checked;
+			fos_ex_stg->load_log_win();
+			fos_ex_stg->s_local.auto_afs_disable      = fosCBAutoAFSDisable->Checked;
+			fos_ex_stg->s_local.auto_del_stats        = fosCBAutoDelStats->Checked;
+			fos_ex_stg->s_local.disable_tooltip_help  = fosCBDisableToolTip->Checked;
+			fos_ex_stg->s_local.disable_visual_styles = fosCBDisableVisualStyles->Checked;
+			fos_ex_stg->s_log.minimized               = fosCBLogStartMinimized->Checked;
+			fos_ex_stg->s_log.transparent             = !fosCBLogDisableTransparency->Checked;
 			fos_ex_stg->save_local();
+			fos_ex_stg->save_log_win();
 			this->Close();
 		}
 	private: 
@@ -228,9 +288,13 @@ namespace x264guiEx {
 			this->Text = String(AUO_FULL_NAME).ToString();
 			fosTXStgDir->Text = stgDir;
 			fos_ex_stg->load_encode_stg();
-			fosCBAutoAFSDisable->Checked = fos_ex_stg->s_local.auto_afs_disable != 0;
-			fosCBAutoDelStats->Checked = fos_ex_stg->s_local.auto_del_stats != 0;
-			fosCBDisableToolTip->Checked = fos_ex_stg->s_local.disable_tooltip_help != 0;
+			fos_ex_stg->load_log_win();
+			fosCBAutoAFSDisable->Checked         = fos_ex_stg->s_local.auto_afs_disable != 0;
+			fosCBAutoDelStats->Checked           = fos_ex_stg->s_local.auto_del_stats != 0;
+			fosCBDisableToolTip->Checked         = fos_ex_stg->s_local.disable_tooltip_help != 0;
+			fosCBDisableVisualStyles->Checked    = fos_ex_stg->s_local.disable_visual_styles != 0;
+			fosCBLogStartMinimized->Checked      = fos_ex_stg->s_log.minimized != 0;
+			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {
