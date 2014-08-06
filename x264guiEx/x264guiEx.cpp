@@ -181,7 +181,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 	set_prevent_log_close(FALSE); //※1 end
 	auto_save_log(oip, &pe); //※1 end のあとで行うこと
 
-	if (!ret)
+	if (!(ret & (AUO_RESULT_ERROR | AUO_RESULT_ABORT)))
 		ret |= run_bat_file(&conf, oip, &pe, &sys_dat);
 
 	return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
