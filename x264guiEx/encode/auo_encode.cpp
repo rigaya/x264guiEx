@@ -13,12 +13,13 @@
 #pragma comment(lib, "shlwapi.lib")
 
 #include "auo.h"
+#include "auo_version.h"
 #include "auo_util.h"
 #include "auo_conf.h"
 #include "auo_settings.h"
 #include "auo_system.h"
+#include "auo_pipe.h"
 
-#include "auo_frm.h"
 #include "auo_encode.h"
 
 void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe) {
@@ -199,4 +200,26 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 		return MUXER_MKV;
 	else
 		return MUXER_DISABLED;
+}
+
+DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat) {
+	DWORD ret = AUO_RESULT_SUCCESS;
+	switch (sys_dat->exstg->s_log.auto_save_log_mode) {
+		case AUTO_SAVE_LOG_CUSTOM:
+			{
+				char log_file_dir[MAX_PATH_LEN];
+				strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
+				cmd_replace(log_file_path, nSize, pe, sys_dat, savefile);
+				PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
+				if (DirectoryExistsOrCreate(log_file_dir))
+					break;
+			}
+			ret = AUO_RESULT_WARNING;
+			//下へフォールスルー
+		case AUTO_SAVE_LOG_OUTPUT_DIR:
+		default:
+			apply_appendix(log_file_path, nSize, savefile, "_log.txt"); 
+			break;
+	}
+	return ret;
 }

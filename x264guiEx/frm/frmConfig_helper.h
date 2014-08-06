@@ -36,6 +36,7 @@ namespace x264guiEx {
 		String^ CustomAudTmpDir;
 		String^ CustomMP4TmpDir;
 		String^ LastAppDir;
+		String^ LastBatDir;
 
 		LocalSettings() {
 			audEncName = gcnew List<String^>();

@@ -69,10 +69,13 @@ typedef struct {
 } CONF_MUX; //muxer用設定
 
 typedef struct {
-	BOOL disable_guicmd; //GUIによるコマンドライン生成を停止(CLIモード)
-	int  temp_dir;       //一時ディレクトリ
-	BOOL out_audio_only; //音声のみ出力
-	char notes[128];     //メモ
+	BOOL disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
+	int  temp_dir;               //一時ディレクトリ
+	BOOL out_audio_only;         //音声のみ出力
+	char notes[128];             //メモ
+	BOOL run_bat;                //バッチファイルを実行するかどうか
+	BOOL dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか
+	char batfile[MAX_PATH_LEN];  //バッチファイルのパス
 } CONF_OTHER;
 
 typedef struct {

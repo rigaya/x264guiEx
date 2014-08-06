@@ -86,7 +86,7 @@ BOOL guiEx_config::adjust_conf_size(CONF_X264GUIEX *conf_buf, void *old_data, in
 		//ブロック部分のコピー
 		for (int i = 0; i < ((CONF_X264GUIEX *)data_table)->block_count; ++i) {
 			block = (BYTE *)old_data + ((CONF_X264GUIEX *)data_table)->block_head_p[i];
-			memcpy(dst, block, ((CONF_X264GUIEX *)data_table)->block_size[i]);
+			memcpy(dst, block, min(((CONF_X264GUIEX *)data_table)->block_size[i], conf_block_data[i]));
 			dst += conf_block_data[i];
 		}
 		ret = TRUE;

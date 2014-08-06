@@ -552,6 +552,14 @@ private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
 private: System::Windows::Forms::CheckBox^  fcgCBMP4MuxApple;
 private: System::Windows::Forms::ComboBox^  fcgCXYC48ColMatConv;
 private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
+private: System::Windows::Forms::TabPage^  fcgtabPageBat;
+private: System::Windows::Forms::CheckBox^  fcgCBRunBat;
+
+private: System::Windows::Forms::Label^  fcgLBBatPath;
+private: System::Windows::Forms::CheckBox^  fcgCBWaitForBat;
+private: System::Windows::Forms::Button^  fcgBTBatPath;
+private: System::Windows::Forms::TextBox^  fcgTXBatPath;
+
 
 
 
@@ -773,6 +781,8 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
 			this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCXYC48ColMatConv = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgLBYC48ColMatConv = (gcnew System::Windows::Forms::Label());
 			this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAuoTcfileout = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAFSBitrateCorrection = (gcnew System::Windows::Forms::CheckBox());
@@ -856,8 +866,12 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTTX264 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
-			this->fcgLBYC48ColMatConv = (gcnew System::Windows::Forms::Label());
-			this->fcgCXYC48ColMatConv = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgtabPageBat = (gcnew System::Windows::Forms::TabPage());
+			this->fcgCBRunBat = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCBWaitForBat = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgLBBatPath = (gcnew System::Windows::Forms::Label());
+			this->fcgBTBatPath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXBatPath = (gcnew System::Windows::Forms::TextBox());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcggroupBoxX264Out->SuspendLayout();
@@ -919,6 +933,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabPageMKV->SuspendLayout();
 			this->fcgtabPageMux->SuspendLayout();
 			this->fcgCSCQM->SuspendLayout();
+			this->fcgtabPageBat->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// fcgtabControlVideo
@@ -2959,6 +2974,25 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcggroupBoxExSettings->TabStop = false;
 			this->fcggroupBoxExSettings->Text = L"拡張設定";
 			// 
+			// fcgCXYC48ColMatConv
+			// 
+			this->fcgCXYC48ColMatConv->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXYC48ColMatConv->FormattingEnabled = true;
+			this->fcgCXYC48ColMatConv->Location = System::Drawing::Point(97, 148);
+			this->fcgCXYC48ColMatConv->Name = L"fcgCXYC48ColMatConv";
+			this->fcgCXYC48ColMatConv->Size = System::Drawing::Size(132, 22);
+			this->fcgCXYC48ColMatConv->TabIndex = 5;
+			this->fcgCXYC48ColMatConv->Tag = L"chValue";
+			// 
+			// fcgLBYC48ColMatConv
+			// 
+			this->fcgLBYC48ColMatConv->AutoSize = true;
+			this->fcgLBYC48ColMatConv->Location = System::Drawing::Point(15, 151);
+			this->fcgLBYC48ColMatConv->Name = L"fcgLBYC48ColMatConv";
+			this->fcgLBYC48ColMatConv->Size = System::Drawing::Size(57, 14);
+			this->fcgLBYC48ColMatConv->TabIndex = 4;
+			this->fcgLBYC48ColMatConv->Text = L"YC48出力";
+			// 
 			// fcgCBCheckKeyframes
 			// 
 			this->fcgCBCheckKeyframes->AutoSize = true;
@@ -3390,6 +3424,7 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabControlMux->Controls->Add(this->fcgtabPageMP4);
 			this->fcgtabControlMux->Controls->Add(this->fcgtabPageMKV);
 			this->fcgtabControlMux->Controls->Add(this->fcgtabPageMux);
+			this->fcgtabControlMux->Controls->Add(this->fcgtabPageBat);
 			this->fcgtabControlMux->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fcgtabControlMux->Location = System::Drawing::Point(622, 326);
@@ -3826,24 +3861,70 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgTTX264Version->UseAnimation = false;
 			this->fcgTTX264Version->UseFading = false;
 			// 
-			// fcgLBYC48ColMatConv
+			// fcgtabPageBat
 			// 
-			this->fcgLBYC48ColMatConv->AutoSize = true;
-			this->fcgLBYC48ColMatConv->Location = System::Drawing::Point(15, 151);
-			this->fcgLBYC48ColMatConv->Name = L"fcgLBYC48ColMatConv";
-			this->fcgLBYC48ColMatConv->Size = System::Drawing::Size(57, 14);
-			this->fcgLBYC48ColMatConv->TabIndex = 4;
-			this->fcgLBYC48ColMatConv->Text = L"YC48出力";
+			this->fcgtabPageBat->Controls->Add(this->fcgBTBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgTXBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBat);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBat);
+			this->fcgtabPageBat->Location = System::Drawing::Point(4, 23);
+			this->fcgtabPageBat->Name = L"fcgtabPageBat";
+			this->fcgtabPageBat->Size = System::Drawing::Size(376, 187);
+			this->fcgtabPageBat->TabIndex = 3;
+			this->fcgtabPageBat->Text = L"エンコ後バッチ処理";
+			this->fcgtabPageBat->UseVisualStyleBackColor = true;
 			// 
-			// fcgCXYC48ColMatConv
+			// fcgCBRunBat
 			// 
-			this->fcgCXYC48ColMatConv->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXYC48ColMatConv->FormattingEnabled = true;
-			this->fcgCXYC48ColMatConv->Location = System::Drawing::Point(97, 148);
-			this->fcgCXYC48ColMatConv->Name = L"fcgCXYC48ColMatConv";
-			this->fcgCXYC48ColMatConv->Size = System::Drawing::Size(132, 22);
-			this->fcgCXYC48ColMatConv->TabIndex = 5;
-			this->fcgCXYC48ColMatConv->Tag = L"chValue";
+			this->fcgCBRunBat->AutoSize = true;
+			this->fcgCBRunBat->Location = System::Drawing::Point(18, 23);
+			this->fcgCBRunBat->Name = L"fcgCBRunBat";
+			this->fcgCBRunBat->Size = System::Drawing::Size(179, 18);
+			this->fcgCBRunBat->TabIndex = 0;
+			this->fcgCBRunBat->Tag = L"chValue";
+			this->fcgCBRunBat->Text = L"エンコード終了後、バッチ処理を行う";
+			this->fcgCBRunBat->UseVisualStyleBackColor = true;
+			// 
+			// fcgCBWaitForBat
+			// 
+			this->fcgCBWaitForBat->AutoSize = true;
+			this->fcgCBWaitForBat->Location = System::Drawing::Point(18, 47);
+			this->fcgCBWaitForBat->Name = L"fcgCBWaitForBat";
+			this->fcgCBWaitForBat->Size = System::Drawing::Size(150, 18);
+			this->fcgCBWaitForBat->TabIndex = 1;
+			this->fcgCBWaitForBat->Tag = L"chValue";
+			this->fcgCBWaitForBat->Text = L"バッチ処理の終了を待機する";
+			this->fcgCBWaitForBat->UseVisualStyleBackColor = true;
+			// 
+			// fcgLBBatPath
+			// 
+			this->fcgLBBatPath->AutoSize = true;
+			this->fcgLBBatPath->Location = System::Drawing::Point(18, 89);
+			this->fcgLBBatPath->Name = L"fcgLBBatPath";
+			this->fcgLBBatPath->Size = System::Drawing::Size(61, 14);
+			this->fcgLBBatPath->TabIndex = 2;
+			this->fcgLBBatPath->Text = L"バッチファイル";
+			// 
+			// fcgBTBatPath
+			// 
+			this->fcgBTBatPath->Location = System::Drawing::Point(330, 85);
+			this->fcgBTBatPath->Name = L"fcgBTBatPath";
+			this->fcgBTBatPath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTBatPath->TabIndex = 5;
+			this->fcgBTBatPath->Tag = L"chValue";
+			this->fcgBTBatPath->Text = L"...";
+			this->fcgBTBatPath->UseVisualStyleBackColor = true;
+			this->fcgBTBatPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatPath_Click);
+			// 
+			// fcgTXBatPath
+			// 
+			this->fcgTXBatPath->AllowDrop = true;
+			this->fcgTXBatPath->Location = System::Drawing::Point(126, 86);
+			this->fcgTXBatPath->Name = L"fcgTXBatPath";
+			this->fcgTXBatPath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXBatPath->TabIndex = 4;
+			this->fcgTXBatPath->Tag = L"chValue";
 			// 
 			// frmConfig
 			// 
@@ -3955,6 +4036,8 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 			this->fcgtabPageMux->ResumeLayout(false);
 			this->fcgtabPageMux->PerformLayout();
 			this->fcgCSCQM->ResumeLayout(false);
+			this->fcgtabPageBat->ResumeLayout(false);
+			this->fcgtabPageBat->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -4202,9 +4285,24 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 		}
 	private:
 		System::Boolean openAndSetFilePath(TextBox^ TX, String^ fileTypeName) {
+			return openAndSetFilePath(TX, fileTypeName, nullptr, nullptr);
+		}
+	private:
+		System::Boolean openAndSetFilePath(TextBox^ TX, String^ fileTypeName, String^ ext) {
+			return openAndSetFilePath(TX, fileTypeName, ext, nullptr);
+		}
+	private:
+		System::Boolean openAndSetFilePath(TextBox^ TX, String^ fileTypeName, String^ ext, String^ dir) {
+			//WinXPにおいて、OpenFileDialogはCurrentDirctoryを勝手に変更しやがるので、
+			//一度保存し、あとから再適用する
 			String^ CurrentDir = Directory::GetCurrentDirectory();
+			//設定
+			if (ext == nullptr)
+				ext = L".*";
 			OpenFileDialog^ ofd = fcgOpenFileDialog;
 			ofd->FileName = L"";
+			if (dir != nullptr && Directory::Exists(dir))
+				ofd->InitialDirectory = dir;
 			if (TX->Text->Length) {
 				String^ fileName = nullptr;
 				try {
@@ -4232,6 +4330,11 @@ private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
 	private: 
 		System::Void fcgBTTCIN_Click(System::Object^  sender, System::EventArgs^  e) {
 			openAndSetFilePath(fcgTXTCIN, L"タイムコードファイル");
+		}
+	private:
+		System::Void fcgBTBatPath_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (openAndSetFilePath(fcgTXBatPath, L"バッチファイル", ".bat", LocalStg.LastBatDir))
+				LocalStg.LastBatDir = Path::GetDirectoryName(fcgTXBatPath->Text);
 		}
 	private:
 		System::Void SetCXIndex(ComboBox^ CX, int index) {

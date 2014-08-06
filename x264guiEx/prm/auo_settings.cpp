@@ -475,6 +475,10 @@ void guiEx_settings::save_local() {
 	PathRemoveBackslash(s_local.app_dir);
 	WritePrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          s_local.app_dir,               conf_fileName);
 
+	PathRemoveBlanks(s_local.bat_dir);
+	PathRemoveBackslash(s_local.bat_dir);
+	WritePrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
+
 	PathRemoveBlanks(s_x264.fullpath);
 	PathRemoveBlanks(s_x264.fullpath_10bit);
 	WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_x264.fullpath,       conf_fileName);

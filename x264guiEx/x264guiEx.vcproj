@@ -363,6 +363,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\encode\auo_runbat.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\encode\auo_video.cpp"
 					>
 					<FileConfiguration
@@ -638,6 +658,10 @@
 				</File>
 				<File
 					RelativePath=".\encode\auo_pipe.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\auo_runbat.h"
 					>
 				</File>
 				<File

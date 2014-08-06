@@ -165,6 +165,7 @@ System::Void frmConfig::LoadLocalStg() {
 	LocalStg.CustomAudTmpDir = String(_ex_stg->s_local.custom_audio_tmp_dir).ToString();
 	LocalStg.CustomMP4TmpDir = String(_ex_stg->s_local.custom_mp4box_tmp_dir).ToString();
 	LocalStg.LastAppDir      = String(_ex_stg->s_local.app_dir).ToString();
+	LocalStg.LastBatDir      = String(_ex_stg->s_local.bat_dir).ToString();
 	LocalStg.MP4MuxerExeName = String(_ex_stg->s_mux[MUXER_MP4].filename).ToString();
 	LocalStg.MP4MuxerPath    = String(_ex_stg->s_mux[MUXER_MP4].fullpath).ToString();
 	LocalStg.MKVMuxerExeName = String(_ex_stg->s_mux[MUXER_MKV].filename).ToString();
@@ -245,6 +246,7 @@ System::Void frmConfig::SaveLocalStg() {
 	GetCHARfromString(_ex_stg->s_local.custom_mp4box_tmp_dir, sizeof(_ex_stg->s_local.custom_mp4box_tmp_dir), LocalStg.CustomMP4TmpDir);
 	GetCHARfromString(_ex_stg->s_local.custom_audio_tmp_dir,  sizeof(_ex_stg->s_local.custom_audio_tmp_dir),  LocalStg.CustomAudTmpDir);
 	GetCHARfromString(_ex_stg->s_local.app_dir,               sizeof(_ex_stg->s_local.app_dir),               LocalStg.LastAppDir);
+	GetCHARfromString(_ex_stg->s_local.bat_dir,               sizeof(_ex_stg->s_local.bat_dir),               LocalStg.LastBatDir);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MP4].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MP4].fullpath),     LocalStg.MP4MuxerPath);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MKV].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MKV].fullpath),     LocalStg.MKVMuxerPath);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_TC2MP4].fullpath,  sizeof(_ex_stg->s_mux[MUXER_TC2MP4].fullpath),  LocalStg.TC2MP4Path);
@@ -817,6 +819,7 @@ System::Void frmConfig::SetTXMaxLenAll() {
 	SetTXMaxLen(fcgTXStatusFile,         sizeof(conf->vid.stats) - 1);
 	SetTXMaxLen(fcgTXTCIN,               sizeof(conf->vid.tcfile_in) - 1);
 	SetTXMaxLen(fcgTXCQM,                sizeof(conf->vid.cqmfile) - 1);
+	SetTXMaxLen(fcgTXBatPath,            sizeof(conf->oth.batfile) - 1);
 
 	fcgTSTSettingsNotes->MaxLength     = sizeof(conf->oth.notes) - 1;
 }
@@ -1082,6 +1085,10 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
+		fcgCBRunBat->Checked               = cnf->oth.run_bat != 0;
+		fcgCBWaitForBat->Checked           = cnf->oth.dont_wait_bat_fin == 0;
+		fcgTXBatPath->Text                 = String(cnf->oth.batfile).ToString();
+
 		SetfcgTSLSettingsNotes(cnf->oth.notes);
 
 		//cli mode
@@ -1222,6 +1229,10 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->mux.mkv_mode               = fcgCXMKVCmdEx->SelectedIndex;
 	cnf->mux.minimized              = fcgCBMuxMinimize->Checked;
 	cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
+
+	cnf->oth.run_bat                = fcgCBRunBat->Checked;
+	cnf->oth.dont_wait_bat_fin      = !fcgCBWaitForBat->Checked;
+	GetCHARfromString(cnf->oth.batfile, sizeof(cnf->oth.batfile), fcgTXBatPath->Text);
 
 	GetfcgTSLSettingsNotes(cnf->oth.notes, sizeof(cnf->oth.notes));
 

@@ -233,3 +233,20 @@ void error_select_convert_func(int width, int height, BOOL use10bit, BOOL interl
 		yc48_colmat_conv
 		);
 }
+
+void warning_no_batfile(const char *batfile) {
+	write_log_auo_line_fmt(LOG_WARNING, "指定されたバッチファイル \"%s\"が存在しません。", batfile);
+}
+
+void warning_malloc_batfile_tmp() {
+	write_log_auo_line(LOG_WARNING, "一時バッチファイル作成用バッファの確保に失敗しました。");
+}
+
+void warning_failed_open_bat_orig() {
+	write_log_auo_line(LOG_WARNING, "バッチファイルを開けませんでした。");
+}
+
+void warning_failed_open_bat_new() {
+	write_log_auo_line(LOG_WARNING, "一時バッチファイルを作成できませんでした。");
+}
+

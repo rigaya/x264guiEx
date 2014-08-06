@@ -56,4 +56,9 @@ void warning_mux_chapter(int sts);
 
 void error_select_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv);
 
+void warning_no_batfile(const char *batfile);
+void warning_malloc_batfile_tmp();
+void warning_failed_open_bat_orig();
+void warning_failed_open_bat_new();
+
 #endif //_AUO_ERROR_H_

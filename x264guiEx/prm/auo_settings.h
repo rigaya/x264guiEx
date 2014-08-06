@@ -188,6 +188,7 @@ typedef struct {
 	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
 	char  stg_dir[MAX_PATH_LEN];               //プロファイル設定ファイル保存フォルダ
 	char  app_dir[MAX_PATH_LEN];               //実行ファイルのフォルダ
+	char  bat_dir[MAX_PATH_LEN];               //バッチファイルのフォルダ
 } LOCAL_SETTINGS;
 
 typedef struct {

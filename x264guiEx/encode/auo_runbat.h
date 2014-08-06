@@ -7,13 +7,14 @@
 //   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
 //  -----------------------------------------------------------------------------------------
 
-#ifndef _AUO_VERSION_H_
-#define _AUO_VERSION_H_
+#ifndef _AUO_RUNBAT_H_
+#define _AUO_RUNBAT_H_
 
-#define AUO_NAME         "x264guiEx.auo"
-#define AUO_FULL_NAME    "拡張 x264 出力(GUI) Ex"
-#define AUO_VERSION_NAME "拡張 x264 出力(GUI) Ex 1.19"
-#define AUO_VERSION_INFO "拡張 x264 出力(GUI) Ex (x264guiEx) 1.19 by rigaya"
-#define AUO_EXT_FILTER   "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
+#include <Windows.h>
+#include "auo_conf.h"
+#include "auo_settings.h"
+#include "auo_system.h"
 
-#endif //_AUO_VERSION_H_
+DWORD run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
+
+#endif //_AUO_RUNBAT_H_

@@ -27,6 +27,7 @@
 #include "auo_audio.h"
 #include "auo_mux.h"
 #include "auo_encode.h"
+#include "auo_runbat.h"
 
 //---------------------------------------------------------------------
 //		関数プロトタイプ宣言
@@ -179,6 +180,9 @@ BOOL func_output( OUTPUT_INFO *oip )
 	CloseHandle(pe.h_p_aviutl); //※2 end
 	set_prevent_log_close(FALSE); //※1 end
 	auto_save_log(oip, &pe); //※1 end のあとで行うこと
+
+	if (!ret)
+		ret |= run_bat_file(&conf, oip, &pe, &sys_dat);
 
 	return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
 }
@@ -429,23 +433,8 @@ static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	ex_stg.load_log_win();
 	if (!ex_stg.s_log.auto_save_log)
 		return;
-	switch (ex_stg.s_log.auto_save_log_mode) {
-		case AUTO_SAVE_LOG_CUSTOM:
-		{
-			char log_file_dir[MAX_PATH_LEN];
-			strcpy_s(log_file_path, sizeof(log_file_path), ex_stg.s_log.auto_save_log_path);
-			cmd_replace(log_file_path, sizeof(log_file_path), pe, &sys_dat, oip->savefile);
-			PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
-			if (DirectoryExistsOrCreate(log_file_dir))
-				break;
-		}
-			warning_no_auto_save_log_dir();
-			//下へフォールスルー
-		case AUTO_SAVE_LOG_OUTPUT_DIR:
-		default:
-			apply_appendix(log_file_path, sizeof(log_file_path), oip->savefile, "_log.txt"); 
-			break;
-	}
+	if (!getLogFilePath(log_file_path, sizeof(log_file_path), pe, oip->savefile, &sys_dat))
+		warning_no_auto_save_log_dir();
 	auto_save_log_file(log_file_path);
 	return;
 }
