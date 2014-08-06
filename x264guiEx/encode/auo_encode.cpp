@@ -90,7 +90,11 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 
 static BOOL move_temp_file(const char *appendix, const char *temp_filename, const char *savefile, DWORD ret, BOOL erase, const char *name, BOOL must_exist) {
 	char move_from[MAX_PATH_LEN] = { 0 };
-	apply_appendix(move_from, sizeof(move_from), temp_filename, appendix);
+	if (appendix)
+		apply_appendix(move_from, sizeof(move_from), temp_filename, appendix);
+	else
+		strcpy_s(move_from, sizeof(move_from), temp_filename);
+
 	if (!PathFileExists(move_from)) {
 		if (must_exist)
 			write_log_auo_line_fmt(LOG_WARNING, "%sファイルが見つかりませんでした。", name);
@@ -98,8 +102,10 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	}
 	if (ret == OUT_RESULT_SUCCESS && erase) {
 		remove(move_from);
-		return 1;
+		return TRUE;
 	}
+	if (savefile == NULL || appendix == NULL)
+		return TRUE;
 	char move_to[MAX_PATH_LEN] = { 0 };
 	apply_appendix(move_to, sizeof(move_to), savefile, appendix);
 	if (_stricmp(move_from, move_to) != NULL) {
@@ -111,7 +117,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	return TRUE;
 }
 
-DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const char *savefile, DWORD ret) {
+DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret) {
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
 		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
@@ -123,6 +129,15 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, erase_tc, "タイムコード", FALSE);
 	//チャプターファイル
 	move_temp_file(pe->append.chap, pe->temp_filename, savefile, ret, FALSE, "チャプター", FALSE);
+	//ステータスファイル
+	char stats[MAX_PATH_LEN];
+	if (conf->x264.use_auto_npass && sys_dat->exstg->s_local.auto_del_stats) {
+		strcpy_s(stats, sizeof(stats), conf->vid.stats);
+		cmd_replace(stats, sizeof(stats), pe, sys_dat, savefile);
+		move_temp_file(NULL, stats, NULL, ret, TRUE, "ステータス", FALSE);
+		strcat_s(stats, sizeof(stats), ".mbtree");
+		move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
+	}
 	//音声ファイル(wav)
 	move_temp_file(pe->append.wav,  pe->temp_filename, savefile, ret, TRUE, "wav", FALSE);
 	//音声ファイル(エンコード後ファイル)

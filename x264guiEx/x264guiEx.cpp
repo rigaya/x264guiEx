@@ -164,7 +164,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 		if (!ret)
 			ret |= mux(&conf, oip, &pe, &sys_dat);
 
-		ret |= move_temporary_files(&conf, &pe, oip->savefile, ret);
+		ret |= move_temporary_files(&conf, &pe, &sys_dat, oip->savefile, ret);
 
 		write_log_auo_enc_time("総エンコード時間  ", timeGetTime() - tm_start_enc);
 

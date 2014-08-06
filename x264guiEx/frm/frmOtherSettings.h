@@ -68,6 +68,7 @@ namespace x264guiEx {
 		static String^ stgDir;
 		static int useLastExt;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
+	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
 	public: 
 
 	public:
@@ -99,13 +100,14 @@ namespace x264guiEx {
 			this->fosLBStgDir = (gcnew System::Windows::Forms::Label());
 			this->fosBTStgDir = (gcnew System::Windows::Forms::Button());
 			this->fosCBAutoAFSDisable = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 147);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 198);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -116,7 +118,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 147);
+			this->fosCBOK->Location = System::Drawing::Point(283, 198);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -159,12 +161,23 @@ namespace x264guiEx {
 			this->fosCBAutoAFSDisable->Text = L"自動フィールドシフト(afs)オンで初期化に失敗した場合、afsをオフにしてエンコード続行を試みる";
 			this->fosCBAutoAFSDisable->UseVisualStyleBackColor = true;
 			// 
+			// fosCBAutoDelStats
+			// 
+			this->fosCBAutoDelStats->AutoSize = true;
+			this->fosCBAutoDelStats->Location = System::Drawing::Point(24, 144);
+			this->fosCBAutoDelStats->Name = L"fosCBAutoDelStats";
+			this->fosCBAutoDelStats->Size = System::Drawing::Size(293, 19);
+			this->fosCBAutoDelStats->TabIndex = 7;
+			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
+			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 186);
+			this->ClientSize = System::Drawing::Size(392, 237);
+			this->Controls->Add(this->fosCBAutoDelStats);
 			this->Controls->Add(this->fosCBAutoAFSDisable);
 			this->Controls->Add(this->fosBTStgDir);
 			this->Controls->Add(this->fosLBStgDir);
@@ -189,6 +202,7 @@ namespace x264guiEx {
 			stgDir = fosTXStgDir->Text;
 			fos_ex_stg->load_encode_stg();
 			fos_ex_stg->s_local.auto_afs_disable = fosCBAutoAFSDisable->Checked;
+			fos_ex_stg->s_local.auto_del_stats   = fosCBAutoDelStats->Checked;
 			fos_ex_stg->save_local();
 			this->Close();
 		}
@@ -198,6 +212,7 @@ namespace x264guiEx {
 			fosTXStgDir->Text = stgDir;
 			fos_ex_stg->load_encode_stg();
 			fosCBAutoAFSDisable->Checked = fos_ex_stg->s_local.auto_afs_disable != 0;
+			fosCBAutoDelStats->Checked = fos_ex_stg->s_local.auto_del_stats != 0;
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {
