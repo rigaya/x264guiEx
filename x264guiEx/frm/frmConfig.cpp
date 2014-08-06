@@ -234,6 +234,7 @@ System::Boolean frmConfig::CheckLocalStg() {
 
 System::Void frmConfig::SaveLocalStg() {
 	guiEx_settings *_ex_stg = sys_dat->exstg;
+	_ex_stg->load_encode_stg();
 	_ex_stg->s_local.large_cmdbox = fcgTXCmd->Multiline;
 	GetCHARfromString(_ex_stg->s_x264.fullpath,               sizeof(_ex_stg->s_x264.fullpath),               LocalStg.x264Path);
 	GetCHARfromString(_ex_stg->s_x264.fullpath_10bit,         sizeof(_ex_stg->s_x264.fullpath_10bit),         LocalStg.x264Path10bit);

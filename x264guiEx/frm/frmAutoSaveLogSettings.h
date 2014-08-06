@@ -41,7 +41,6 @@ namespace x264guiEx {
 		frmAutoSaveLogSettings(void)
 		{
 			fas_ex_stg = new guiEx_settings(true);
-			fas_ex_stg->load_log_win();
 
 			InitializeComponent();
 			//
@@ -82,6 +81,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Button^  fasBTAutoSaveLog;
 	private: System::Windows::Forms::Button^  fasBTCancel;
 	private: System::Windows::Forms::Button^  fasBTOK;
+
+
 
 
 
@@ -194,12 +195,14 @@ namespace x264guiEx {
 		}
 	private:
 		System::Void SavefasToStg() {
+			fas_ex_stg->load_log_win();
 			fas_ex_stg->s_log.auto_save_log_mode = fasCXAutoSaveLog->SelectedIndex;
 			GetCHARfromString(fas_ex_stg->s_log.auto_save_log_path, sizeof(fas_ex_stg->s_log.auto_save_log_path), fasTXAutoSaveLog->Text);
 			fas_ex_stg->save_log_win();
 		}
 	private: 
 		System::Void frmAutoSaveLogSettings_Load(System::Object^  sender, System::EventArgs^  e) {
+			fas_ex_stg->load_log_win();
 			SetCXIndex(fasCXAutoSaveLog, fas_ex_stg->s_log.auto_save_log_mode);
 			fasTXAutoSaveLog->Text = String(fas_ex_stg->s_log.auto_save_log_path).ToString();
 		}

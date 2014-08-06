@@ -48,17 +48,25 @@ void error_no_exe_file(const char *name, const char *path) {
 	write_log_auo_line_fmt(LOG_ERROR, "%s を用意し、その場所を設定画面かから正しく指定してください。", name);
 }
 
-void error_afs_setup(BOOL afs) {
-	if (afs) {
-		char mes[1024];
-		sprintf_s(mes, sizeof(mes), "%s\n%s\n%s\n%s\n%s", 
-			"auo [error]: Aviutlからの映像入力の初期化に失敗しました。以下のような原因が考えられます。",
-			"             ・自動フィールドシフト(afs)をAviutlで使用していないにもかかわらず、",
-			"               x264guiExの設定画面で自動フィールドシフトにチェックを入れていたり、",
-			"               自動フィールドシフト非対応の動画(60fps読み込み等)を入力したりしている。",
+void warning_auto_afs_disable() {
+	write_log_line(LOG_WARNING, ""
+		"auo [warning]: Aviutlからの映像入力の初期化に失敗したため、\n"
+		"               自動フィールドシフト(afs)をオフにして再初期化を行いました。\n"
+		"               この問題は、Aviutlでafsを使用していないにも関わらず、\n"
+		"               x264guiEx側でafsをオンにしていると発生します。\n"
+		"               他のエラーの可能性も考えられます。afsがオフになっている点に注意してください。"
+		);
+}
+
+void error_afs_setup(BOOL afs, BOOL auto_afs_disable) {
+	if (afs && !auto_afs_disable) {
+		write_log_line(LOG_ERROR, ""
+			"auo [error]: Aviutlからの映像入力の初期化に失敗しました。以下のような原因が考えられます。\n"
+			"             ・自動フィールドシフト(afs)をAviutlで使用していないにもかかわらず、\n"
+			"               x264guiExの設定画面で自動フィールドシフトにチェックを入れていたり、\n"
+			"               自動フィールドシフト非対応の動画(60fps読み込み等)を入力したりしている。\n"
 			"             ・メモリ不足による、メモリ確保の失敗。"
 			);
-		write_log_line(LOG_ERROR, mes);
 	} else
 		write_log_auo_line(LOG_ERROR, "Aviutlからの映像入力の初期化に失敗しました。メモリを確保できませんでした。");
 }

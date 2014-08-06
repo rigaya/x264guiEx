@@ -384,7 +384,8 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox = GetPrivateProfileInt(INI_SECTION_MAIN,  "large_cmdbox",        0,                    conf_fileName);
+	s_local.large_cmdbox     = GetPrivateProfileInt(INI_SECTION_MAIN,  "large_cmdbox",        0,                    conf_fileName);
+	s_local.auto_afs_disable = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_afs_disable",    0,                    conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        sizeof(s_local.custom_tmp_dir),        conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  sizeof(s_local.custom_audio_tmp_dir),  conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, sizeof(s_local.custom_mp4box_tmp_dir), conf_fileName);
@@ -428,6 +429,7 @@ void guiEx_settings::load_fbc() {
 
 void guiEx_settings::save_local() {
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "large_cmdbox",          s_local.large_cmdbox,          conf_fileName);
+	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_afs_disable",      s_local.auto_afs_disable,      conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_tmp_dir);
 	PathRemoveBackslash(s_local.custom_tmp_dir);

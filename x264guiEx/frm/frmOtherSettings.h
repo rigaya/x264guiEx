@@ -10,6 +10,7 @@
 #pragma once
 
 #include "auo_version.h"
+#include "auo_settings.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -34,6 +35,7 @@ namespace x264guiEx {
 	public:
 		frmOtherSettings(void)
 		{
+			fos_ex_stg = new guiEx_settings(TRUE);
 			InitializeComponent();
 			//
 			//TODO: ここにコンストラクタ コードを追加します
@@ -50,8 +52,10 @@ namespace x264guiEx {
 			{
 				delete components;
 			}
+			delete fos_ex_stg;
 		}
 	private:
+		guiEx_settings *fos_ex_stg;
 		static frmOtherSettings^ _instance;
 
 	protected: 
@@ -63,6 +67,8 @@ namespace x264guiEx {
 	public:
 		static String^ stgDir;
 		static int useLastExt;
+	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
+	public: 
 
 	public:
 		static property frmOtherSettings^ Instance {
@@ -92,12 +98,14 @@ namespace x264guiEx {
 			this->fosTXStgDir = (gcnew System::Windows::Forms::TextBox());
 			this->fosLBStgDir = (gcnew System::Windows::Forms::Label());
 			this->fosBTStgDir = (gcnew System::Windows::Forms::Button());
+			this->fosCBAutoAFSDisable = (gcnew System::Windows::Forms::CheckBox());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
+			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 82);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 147);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -107,7 +115,8 @@ namespace x264guiEx {
 			// 
 			// fosCBOK
 			// 
-			this->fosCBOK->Location = System::Drawing::Point(283, 82);
+			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
+			this->fosCBOK->Location = System::Drawing::Point(283, 147);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -141,12 +150,22 @@ namespace x264guiEx {
 			this->fosBTStgDir->UseVisualStyleBackColor = true;
 			this->fosBTStgDir->Click += gcnew System::EventHandler(this, &frmOtherSettings::fosBTStgDir_Click);
 			// 
+			// fosCBAutoAFSDisable
+			// 
+			this->fosCBAutoAFSDisable->Location = System::Drawing::Point(24, 84);
+			this->fosCBAutoAFSDisable->Name = L"fosCBAutoAFSDisable";
+			this->fosCBAutoAFSDisable->Size = System::Drawing::Size(308, 53);
+			this->fosCBAutoAFSDisable->TabIndex = 6;
+			this->fosCBAutoAFSDisable->Text = L"自動フィールドシフト(afs)オンで初期化に失敗した場合、afsをオフにしてエンコード続行を試みる";
+			this->fosCBAutoAFSDisable->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 121);
+			this->ClientSize = System::Drawing::Size(392, 186);
+			this->Controls->Add(this->fosCBAutoAFSDisable);
 			this->Controls->Add(this->fosBTStgDir);
 			this->Controls->Add(this->fosLBStgDir);
 			this->Controls->Add(this->fosTXStgDir);
@@ -168,12 +187,17 @@ namespace x264guiEx {
 	private: 
 		System::Void fosCBOK_Click(System::Object^  sender, System::EventArgs^  e) {
 			stgDir = fosTXStgDir->Text;
+			fos_ex_stg->load_encode_stg();
+			fos_ex_stg->s_local.auto_afs_disable = fosCBAutoAFSDisable->Checked;
+			fos_ex_stg->save_local();
 			this->Close();
 		}
 	private: 
 		System::Void frmOtherSettings_Load(System::Object^  sender, System::EventArgs^  e) {
 			this->Text = String(AUO_FULL_NAME).ToString();
 			fosTXStgDir->Text = stgDir;
+			fos_ex_stg->load_encode_stg();
+			fosCBAutoAFSDisable->Checked = fos_ex_stg->s_local.auto_afs_disable != 0;
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {

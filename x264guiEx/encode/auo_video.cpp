@@ -65,20 +65,32 @@ static int calc_input_frame_size(int width, int height, int color_format) {
 	return width * height * COLORFORMATS[color_format].size;
 }
 
-BOOL setup_afsvideo(const OUTPUT_INFO *oip, const CONF_X264GUIEX *conf, PRM_ENC *pe) {
+BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable) {
 	//すでに初期化してある
 	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return TRUE;
 
 	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp);
+	int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
 	//Aviutl(自動フィールドシフト)からの映像入力
-	if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, calc_input_frame_size(oip->w, oip->h, color_format), COLORFORMATS[color_format].FOURCC)) {
+	if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, COLORFORMATS[color_format].FOURCC)) {
 		pe->afs_init = TRUE;
 		return TRUE;
-	} else {
-		error_afs_setup(conf->vid.afs); //エラー
-		return FALSE;
+	} else if (conf->vid.afs && auto_afs_disable) {
+		afs_vbuf_release(); //一度解放
+		//afs無効で再初期化
+		if (afs_vbuf_setup((OUTPUT_INFO *)oip, FALSE, frame_size, COLORFORMATS[color_format].FOURCC)) {
+			warning_auto_afs_disable();
+			conf->vid.afs = FALSE;
+			//再度使用するmuxerをチェックする
+			pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+			pe->afs_init = TRUE;
+			return TRUE;
+		}
 	}
+	//エラー
+	error_afs_setup(conf->vid.afs, auto_afs_disable);
+	return FALSE;
 }
 
 void close_afsvideo(PRM_ENC *pe) {
@@ -90,7 +102,7 @@ void close_afsvideo(PRM_ENC *pe) {
 	pe->afs_init = FALSE;
 }
 
-static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe) {
+static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = OUT_RESULT_SUCCESS;
 	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
@@ -101,8 +113,8 @@ static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 	if (color_format != get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp)) {
 		//cmdexで入力色形式が変更になる場合、再初期化
 		close_afsvideo(pe);
-		if (!setup_afsvideo(oip, conf, pe)) {
-			ret |= OUT_RESULT_ERROR; error_afs_setup(conf->vid.afs); //Aviutl(afs)からのフレーム読み込みに失敗
+		if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
+			ret |= OUT_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
 		}
 	}
 	return ret;
@@ -377,8 +389,8 @@ static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
 	if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
 		ret |= OUT_RESULT_ERROR; error_malloc_tc();
 	//Aviutl(afs)からのフレーム読み込み
-	} else if (!setup_afsvideo(oip, conf, pe)) {
-		ret |= OUT_RESULT_ERROR; error_afs_setup(afs); //Aviutl(afs)からのフレーム読み込みに失敗
+	} else if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
+		ret |= OUT_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
 	//x264プロセス開始
 	} else if ((rp_ret = RunProcess(x264args, x264dir, &pi_x264, &pipes, (set_priority == AVIUTLSYNC_PRIORITY_CLASS) ? GetPriorityClass(pe->h_p_aviutl) : set_priority, TRUE, FALSE)) != RP_SUCCESS) {
 		ret |= OUT_RESULT_ERROR; error_run_process("x264", rp_ret);
@@ -513,7 +525,7 @@ DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 		return ret;
 
 	//追加コマンドをパラメータに適用する
-	ret |= check_cmdex(conf, oip, pe);
+	ret |= check_cmdex(conf, oip, pe, sys_dat);
 
 	//キーフレーム検出
 	if (!ret && conf->vid.check_keyframe && !conf->vid.afs && strstr(conf->vid.cmdex, "--qpfile") == NULL)

@@ -156,7 +156,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 	pe.h_p_aviutl = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId()); //※2 start
 
 	//チェックを行い、エンコード可能ならエンコードを開始する
-	if (check_output(oip, &pe) && setup_afsvideo(oip, &conf, &pe)) { //※3 start
+	if (check_output(oip, &pe) && setup_afsvideo(oip, &conf, &pe, sys_dat.exstg->s_local.auto_afs_disable)) { //※3 start
 
 		for (int i = 0; !ret && i < 2; i++)
 			ret |= task[conf.aud.audio_encode_first != FALSE][i](&conf, oip, &pe, &sys_dat);
@@ -399,8 +399,8 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	sys_dat.exstg->load_append();
 	sys_dat.exstg->load_fn_replace();
 	
-	pe->video_out_type = check_video_ouput(oip);
-	pe->muxer_to_be_used = check_muxer_to_be_used(pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+	pe->video_out_type = check_video_ouput(&conf, oip);
+	pe->muxer_to_be_used = check_muxer_to_be_used(&conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 	pe->total_x264_pass = (conf.x264.use_auto_npass && !conf.oth.disable_guicmd) ? conf.x264.auto_npass : 1;
 	pe->current_x264_pass = 1;
 	pe->drop_count = 0;

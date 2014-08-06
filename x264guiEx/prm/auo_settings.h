@@ -168,18 +168,19 @@ typedef struct {
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {
-	BOOL calc_bitrate;    //ビットレート計算モード
+	BOOL   calc_bitrate;  //ビットレート計算モード
 	double initial_size;  //初期サイズ
 } BITRATE_CALC_SETTINGS;
 
 typedef struct {
-	BOOL large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
-	DWORD audio_buffer_size;                  //音声用バッファサイズ
-	char custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
-	char custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
-	char custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
-	char stg_dir[MAX_PATH_LEN];               //プロファイル設定ファイル保存フォルダ
-	char app_dir[MAX_PATH_LEN];               //実行ファイルのフォルダ
+	BOOL  large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
+	DWORD audio_buffer_size;                   //音声用バッファサイズ
+	BOOL  auto_afs_disable;                    //自動的にafsを無効化
+	char  custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
+	char  custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
+	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
+	char  stg_dir[MAX_PATH_LEN];               //プロファイル設定ファイル保存フォルダ
+	char  app_dir[MAX_PATH_LEN];               //実行ファイルのフォルダ
 } LOCAL_SETTINGS;
 
 typedef struct {
