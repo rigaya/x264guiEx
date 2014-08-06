@@ -209,9 +209,14 @@ static func_convert_frame get_convert_func_yuv444(BOOL use10bit, BOOL fullrange)
 	if (!use10bit) {
 		return         (check_sse2()) ? convert_yc48_to_yuv444_sse2            : convert_yc48_to_yuv444;
 	} else {
-		if (!fullrange)
-			return     (check_sse2()) ? convert_yc48_to_yuv444_10bit_sse2      : convert_yc48_to_yuv444_10bit;
-		else
+		if (!fullrange) {
+			if         (check_sse4_1())
+				return                  convert_yc48_to_yuv444_10bit_sse4_1;
+			else if    (check_sse2())
+				return                  convert_yc48_to_yuv444_10bit_sse2;
+			else
+				return                  convert_yc48_to_yuv444_10bit;
+		} else
 			return     (check_sse2()) ? convert_yc48_to_yuv444_10bit_full_sse2 : convert_yc48_to_yuv444_10bit_full;
 	}
 }
@@ -3458,6 +3463,109 @@ void convert_yc48_to_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 	}
 }
 
+void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	short *Y = (short *)pixel_data->data[0];
+	short *U = (short *)pixel_data->data[1];
+	short *V = (short *)pixel_data->data[2];
+	short *ycp;
+	short *const ycp_fin = (short *)pixel + width * height * 3;
+	const int MASK_INT = 0x40 + 0x08 + 0x01;
+	__m128i x0, x1, x2, x3, x6, x7;
+	for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 24, Y += 8, U += 8, V += 8) {
+		x1 = _mm_loadu_si128((const __m128i *)(ycp +  0));
+		x2 = _mm_loadu_si128((const __m128i *)(ycp +  8));
+		x3 = _mm_loadu_si128((const __m128i *)(ycp + 16));
+
+		x0 = _mm_blend_epi16(x3, x1, MASK_INT);
+		x6 = _mm_blend_epi16(x2, x3, MASK_INT);
+		x7 = _mm_blend_epi16(x1, x2, MASK_INT);
+
+		x0 = _mm_blend_epi16(x0, x2, MASK_INT<<1);
+		x6 = _mm_blend_epi16(x6, x1, MASK_INT<<1);
+		x3 = _mm_blend_epi16(x7, x3, MASK_INT<<1);
+
+		x1 = SUFFLE_YCP_Y;
+		x0 = _mm_shuffle_epi8(x0, x1);
+		x1 = _mm_alignr_epi8(x1, x1, 6);
+		x6 = _mm_shuffle_epi8(x6, x1);
+		x1 = _mm_alignr_epi8(x1, x1, 6);
+		x7 = _mm_shuffle_epi8(x7, x1);
+
+			//Y計算
+			x1 = _mm_cmpeq_epi8(x1, x1);
+			x1 = _mm_srli_epi16(x1, RSFT_ONE);
+			x7 = _mm_unpackhi_epi16(x0, x1);
+			x0 = _mm_unpacklo_epi16(x0, x1);
+
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
+
+			x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+			x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
+
+			x0 = _mm_packs_epi32(x0, x7);
+
+			x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+			x0 = _mm_add_epi16(x0, x1);
+			x7 = _mm_cmpeq_epi8(x7, x7);
+			x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+			x0 = _mm_min_epi16(x0, x7);
+			x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+		_mm_stream_si128((__m128i *)Y, x0);
+
+			//U計算
+			x0 = _mm_add_epi16(x6, xC_UV_OFFSET);
+
+			x1 = _mm_cmpeq_epi8(x1, x1);
+			x1 = _mm_srli_epi16(x1, RSFT_ONE);
+			x7 = _mm_unpackhi_epi16(x0, x1);
+			x0 = _mm_unpacklo_epi16(x0, x1);
+
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
+
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
+
+			x0 = _mm_packs_epi32(x0, x7);
+
+			x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+			x0 = _mm_add_epi16(x0, x1);
+			x7 = _mm_cmpeq_epi8(x7, x7);
+			x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+			x0 = _mm_min_epi16(x0, x7);
+			x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+		_mm_stream_si128((__m128i *)U, x0);
+
+			//V計算
+			x0 = _mm_add_epi16(x7, xC_UV_OFFSET);
+
+			x1 = _mm_cmpeq_epi8(x1, x1);
+			x1 = _mm_srli_epi16(x1, RSFT_ONE);
+			x7 = _mm_unpackhi_epi16(x0, x1);
+			x0 = _mm_unpacklo_epi16(x0, x1);
+
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
+
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
+
+			x0 = _mm_packs_epi32(x0, x7);
+
+			x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+			x0 = _mm_add_epi16(x0, x1);
+			x7 = _mm_cmpeq_epi8(x7, x7);
+			x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+			x0 = _mm_min_epi16(x0, x7);
+			x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+		_mm_stream_si128((__m128i *)V, x0);
+	}
+}
+
 void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	short *Y      = (short *)pixel_data->data[0];
 	short *C[2] = { (short *)pixel_data->data[1], (short *)pixel_data->data[2] };
@@ -3508,6 +3616,106 @@ void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_
 
 			_mm_stream_si128((__m128i *)C[i], x0);
 		}
+	}
+}
+
+void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	short *Y = (short *)pixel_data->data[0];
+	short *U = (short *)pixel_data->data[1];
+	short *V = (short *)pixel_data->data[2];
+	short *ycp;
+	short *const ycp_fin = (short *)pixel + width * height * 3;
+	const int MASK_INT = 0x40 + 0x08 + 0x01;
+	__m128i x0, x1, x2, x3, x6, x7;
+	for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 24, Y += 8, U += 8, V += 8) {
+			x1 = _mm_loadu_si128((const __m128i *)(ycp +  0));
+			x2 = _mm_loadu_si128((const __m128i *)(ycp +  8));
+			x3 = _mm_loadu_si128((const __m128i *)(ycp + 16));
+
+			x0 = _mm_blend_epi16(x3, x1, MASK_INT);
+			x6 = _mm_blend_epi16(x2, x3, MASK_INT);
+			x7 = _mm_blend_epi16(x1, x2, MASK_INT);
+
+			x0 = _mm_blend_epi16(x0, x2, MASK_INT<<1);
+			x6 = _mm_blend_epi16(x6, x1, MASK_INT<<1);
+			x3 = _mm_blend_epi16(x7, x3, MASK_INT<<1);
+
+			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x6 = _mm_shuffle_epi8(x6, _mm_alignr_epi8(SUFFLE_YCP_Y, SUFFLE_YCP_Y, 6));
+			x3 = _mm_shuffle_epi8(x3, _mm_alignr_epi8(SUFFLE_YCP_Y, SUFFLE_YCP_Y, 12));
+
+				//Y計算
+				x1 = _mm_cmpeq_epi8(x1, x1);
+				x1 = _mm_srli_epi16(x1, RSFT_ONE);
+				x7 = _mm_unpackhi_epi16(x0, x1);
+				x0 = _mm_unpacklo_epi16(x0, x1);
+
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
+
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
+
+				x0 = _mm_packs_epi32(x0, x7);
+
+				x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+				x0 = _mm_add_epi16(x0, x1);
+				x7 = _mm_cmpeq_epi8(x7, x7);
+				x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+				x0 = _mm_min_epi16(x0, x7);
+				x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+			_mm_stream_si128((__m128i *)Y, x0);
+
+				//U計算
+				x0 = _mm_add_epi16(x6, xC_UV_OFFSET);
+
+				x1 = _mm_cmpeq_epi8(x1, x1);
+				x1 = _mm_srli_epi16(x1, RSFT_ONE);
+				x7 = _mm_unpackhi_epi16(x0, x1);
+				x0 = _mm_unpacklo_epi16(x0, x1);
+
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
+
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
+
+				x0 = _mm_packs_epi32(x0, x7);
+
+				x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+				x0 = _mm_add_epi16(x0, x1);
+				x7 = _mm_cmpeq_epi8(x7, x7);
+				x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+				x0 = _mm_min_epi16(x0, x7);
+				x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+			_mm_stream_si128((__m128i *)U, x0);
+
+				//V計算
+				x0 = _mm_add_epi16(x7, xC_UV_OFFSET);
+
+				x1 = _mm_cmpeq_epi8(x1, x1);
+				x1 = _mm_srli_epi16(x1, RSFT_ONE);
+				x7 = _mm_unpackhi_epi16(x0, x1);
+				x0 = _mm_unpacklo_epi16(x0, x1);
+
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
+
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
+
+				x0 = _mm_packs_epi32(x0, x7);
+
+				x1 = _mm_slli_epi16(x1, LSFT_YCC_10);
+				x0 = _mm_add_epi16(x0, x1);
+				x7 = _mm_cmpeq_epi8(x7, x7);
+				x7 = _mm_srli_epi16(x7, RSFT_LIMIT_10);
+				x0 = _mm_min_epi16(x0, x7);
+				x0 = _mm_max_epi16(x0, _mm_xor_si128(x7, x7));
+
+			_mm_stream_si128((__m128i *)V, x0);
 	}
 }
 

@@ -105,6 +105,8 @@ void convert_yc48_to_yuv444_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data,
 
 void convert_yc48_to_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 #endif //_CONVERT_H_

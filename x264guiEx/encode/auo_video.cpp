@@ -219,9 +219,11 @@ static void convert_func_info(const CONF_X264 *cx) {
 	const char *output_fmt = NULL;
 	static const char * const USE_SIMD[]   = { "", ", using" };
 	static const char * const USE_SSE2[]   = { "", " SSE2" };
+	static const char * const USE_SSE3[]   = { "", " SSE3" };
 	static const char * const USE_SSSE3[]  = { "", " SSSE3" };
 	static const char * const USE_SSE4_1[] = { "", " SSE4.1" };
 	BOOL use_sse2 = FALSE;
+	BOOL use_sse3 = FALSE;
 	BOOL use_ssse3 = FALSE;
 	BOOL use_sse4_1 = FALSE;
 	const char *ip_mode = "";
@@ -230,6 +232,11 @@ static void convert_func_info(const CONF_X264 *cx) {
 			input_fmt = "YC48";
 			output_fmt = "YUV444";
 			use_sse2 = check_sse2();
+			if (cx->use_10bit_depth && check_sse4_1()) {
+				use_sse3 = TRUE;
+				use_ssse3 = TRUE;
+				use_sse4_1 = TRUE;
+			}
 			break;
 		case OUT_CSP_RGB:
 			if ((use_ssse3 = (check_ssse3())) == FALSE)
@@ -252,8 +259,8 @@ static void convert_func_info(const CONF_X264 *cx) {
 	const char *bit_depth  = (cx->use_10bit_depth) ? "(10bit)" : "";
 	const char *ycc        = (cx->use_10bit_depth && cx->fullrange) ? " fullrange mode" : "";
 	//以上情報を表示
-	write_log_auo_line_fmt(LOG_INFO, "converting %s -> %s%s%s%s%s%s%s%s", input_fmt, output_fmt, ip_mode, bit_depth, ycc, 
-		USE_SIMD[(use_sse2 | use_ssse3 | use_sse4_1) != 0], USE_SSE2[use_sse2 != 0], USE_SSSE3[use_ssse3 != 0], USE_SSE4_1[use_sse4_1 != 0]); 
+	write_log_auo_line_fmt(LOG_INFO, "converting %s -> %s%s%s%s%s%s%s%s%s", input_fmt, output_fmt, ip_mode, bit_depth, ycc, 
+		USE_SIMD[(use_sse2 | use_sse3 | use_ssse3 | use_sse4_1) != 0], USE_SSE2[use_sse2 != 0], USE_SSE3[use_sse3 != 0], USE_SSSE3[use_ssse3 != 0], USE_SSE4_1[use_sse4_1 != 0]); 
 }
 
 static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
