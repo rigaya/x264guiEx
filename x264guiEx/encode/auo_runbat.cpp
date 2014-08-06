@@ -101,8 +101,12 @@ DWORD run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM
 	//バッチ処理の実行
 	PROCESS_INFORMATION pi_bat;
 	int rp_ret;
+	char bat_args[MAX_PATH_LEN];
+	char bat_dir[MAX_PATH_LEN];
+	sprintf_s(bat_args, sizeof(bat_args), "\"%s\"", bat_tmp);
+	sprintf_s(bat_dir, sizeof(bat_dir), "\"%s\"", sys_dat->aviutl_dir);
 	set_window_title("バッチファイル処理", PROGRESSBAR_MARQUEE);
-	if (RP_SUCCESS != (rp_ret = RunProcess(bat_tmp, sys_dat->aviutl_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, FALSE))) {
+	if (RP_SUCCESS != (rp_ret = RunProcess(bat_args, bat_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, FALSE))) {
 		ret |= AUO_RESULT_ERROR; error_run_process("バッチファイル処理", rp_ret);
 	}
 	if (!ret && !conf->oth.dont_wait_bat_fin)
