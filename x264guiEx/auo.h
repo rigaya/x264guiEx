@@ -34,10 +34,6 @@ const DWORD OUT_RESULT_SUCCESS    = 0x0000;
 const DWORD OUT_RESULT_ERROR      = 0x0001;
 const DWORD OUT_RESULT_ABORT      = 0x0002;
 
-const int   OUT_CSP_YUV420 = 0;
-const int   OUT_CSP_YUV444 = 1;
-const int   OUT_CSP_RGB    = 2;
-
 typedef struct {
 	WCHAR *text;
 	DWORD value;

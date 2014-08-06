@@ -285,6 +285,9 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 		case OUT_CSP_RGB:
 			w_mul = 1, h_mul = 1;
 			break;
+		case OUT_CSP_YUV422:
+			w_mul = 2, h_mul = 1;
+			break;
 		case OUT_CSP_YUV420:
 		default:
 			w_mul = 2; h_mul = 2;

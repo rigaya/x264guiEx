@@ -37,15 +37,28 @@ const DWORD MB_PARTITION_I8x8 = 0x00000008;
 const DWORD MB_PARTITION_I4x4 = 0x00000010;
 const DWORD MB_PARTITION_ALL  = 0x0000001F;
 
+const int   OUT_CSP_YUV420 = 0;
+const int   OUT_CSP_YUV422 = 4;
+const int   OUT_CSP_YUV444 = 1;
+const int   OUT_CSP_RGB    = 2;
+
+//x264のinput-cspとして使用するもの
+//OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
+static const char * const specify_csp[] = {
+	"nv12", //OUT_CSP_YUV420
+	//"nv16", //OUT_CSP_YUV422
+	"i444", //OUT_CSP_YUV444
+	"rgb"   //OUT_CSP_RGB
+};
 //文字列を引数にとるオプションの引数リスト
-//"auo.h"の OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
+//OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 const X264_OPTION_STR list_output_csp[] = {
 	{ "i420", L"i420" },
+	//{ "i422", L"i422" },
 	{ "i444", L"i444" },
 	{ "rgb",  L"rgb"  },
 	{ NULL, NULL }
 };
-
 const X264_OPTION_STR list_aq[] = { 
 	{ NULL, L"none"    }, 
 	{ NULL, L"VAQ"     }, 

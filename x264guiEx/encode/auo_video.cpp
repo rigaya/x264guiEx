@@ -42,6 +42,10 @@
 
 const int DROP_FRAME_FLAG = INT_MAX;
 
+static const char * specify_x264_input_csp(int output_csp) {
+	return specify_csp[output_csp];
+}
+
 int get_aviutl_color_format(int use_10bit, int output_csp) {
 	//Aviutlからの入力に使用するフォーマット
 	switch (output_csp) {
@@ -50,6 +54,7 @@ int get_aviutl_color_format(int use_10bit, int output_csp) {
 		case OUT_CSP_RGB:
 			return CF_RGB;
 		case OUT_CSP_YUV420:
+		case OUT_CSP_YUV422:
 		default:
 			return (use_10bit) ? CF_YC48 : CF_YUY2;
 	}
@@ -198,8 +203,8 @@ static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
 }
 
 static void convert_func_info(const CONF_X264 *cx) {
-	char *input_fmt = NULL;
-	char *output_fmt = NULL;
+	const char *input_fmt = NULL;
+	const char *output_fmt = NULL;
 	static const char * const USE_SIMD[]   = { "", ", using" };
 	static const char * const USE_SSE2[]   = { "", " SSE2" };
 	static const char * const USE_SSSE3[]  = { "", " SSSE3" };
@@ -207,7 +212,7 @@ static void convert_func_info(const CONF_X264 *cx) {
 	BOOL use_sse2 = FALSE;
 	BOOL use_ssse3 = FALSE;
 	BOOL use_sse4_1 = FALSE;
-	char *ip_mode = "";
+	const char *ip_mode = "";
 	switch (cx->output_csp) {
 		case OUT_CSP_YUV444:
 			input_fmt = "YC48";
@@ -221,17 +226,19 @@ static void convert_func_info(const CONF_X264 *cx) {
 				USE_SIMD[(use_sse2 | use_ssse3) != 0], USE_SSE2[use_sse2 != 0], USE_SSSE3[use_ssse3 != 0]);
 			return;
 		case OUT_CSP_YUV420:
+			ip_mode = (cx->interlaced) ? "i" : "p";
+			//下へフォールスルー
+		case OUT_CSP_YUV422:
 		default:
 			input_fmt = (cx->use_10bit_depth) ? "YC48" : "YUY2";
-			output_fmt = "NV12";
-			ip_mode = (cx->interlaced) ? "i" : "p";
+			output_fmt = specify_x264_input_csp(cx->output_csp);
 			use_sse2 = check_sse2();
 			use_ssse3 = (cx->use_10bit_depth && check_ssse3());
 			use_sse4_1 = (cx->use_10bit_depth && check_sse4_1());
 			break;
 	}
-	char *bit_depth  = (cx->use_10bit_depth) ? "(10bit)" : "";
-	char *ycc        = (cx->use_10bit_depth && cx->fullrange) ? " fullrange mode" : "";
+	const char *bit_depth  = (cx->use_10bit_depth) ? "(10bit)" : "";
+	const char *ycc        = (cx->use_10bit_depth && cx->fullrange) ? " fullrange mode" : "";
 	//以上情報を表示
 	write_log_auo_line_fmt(LOG_INFO, "converting %s -> %s%s%s%s%s%s%s%s", input_fmt, output_fmt, ip_mode, bit_depth, ycc, 
 		USE_SIMD[(use_sse2 | use_ssse3 | use_sse4_1) != 0], USE_SSE2[use_sse2 != 0], USE_SSSE3[use_ssse3 != 0], USE_SSE4_1[use_sse4_1 != 0]); 
@@ -271,8 +278,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	if (strcmp(input, PIPE_FN) == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-res %dx%d", oip->w, oip->h);
 	//rawの形式情報追加
-	char *input_csp = (prm.x264.output_csp == OUT_CSP_RGB) ? "rgb" : ((prm.x264.output_csp == OUT_CSP_YUV444) ? "i444" : "nv12");
-	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", input_csp);
+	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_x264_input_csp(prm.x264.output_csp));
 	//fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
 	if (!prm.x264.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate, oip->scale);
@@ -287,6 +293,11 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 	int byte_per_pixel = (conf->x264.use_10bit_depth) ? sizeof(short) : sizeof(BYTE);
 	ZeroMemory(pixel_data,  sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
+		case OUT_CSP_YUV422: //nv16 (YUV422)
+			pixel_data->count = 2;
+			pixel_data->size[0] = w * h * byte_per_pixel;
+			pixel_data->size[1] = pixel_data->size[0];
+			break;
 		case OUT_CSP_YUV444: //i444 (YUV444 planar)
 			pixel_data->count = 3;
 			pixel_data->size[0] = w * h * byte_per_pixel;
@@ -297,7 +308,7 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 			pixel_data->count = 1;
 			pixel_data->size[0] = w * h * 3 * sizeof(BYTE); //8bit only
 			break;
-		case OUT_CSP_YUV420: //i420 (YUV420)
+		case OUT_CSP_YUV420: //nv12 (YUV420)
 		default:
 			pixel_data->count = 2;
 			pixel_data->size[0] = w * h * byte_per_pixel;
