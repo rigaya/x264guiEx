@@ -69,11 +69,11 @@ BOOL check_OS_Win7orLater() {
 }
 
 void get_auo_path(char *auo_path, size_t nSize) {
-	GetModuleFileName(GetModuleHandle(AUO_NAME), auo_path, nSize);
+	GetModuleFileName(GetModuleHandle(AUO_NAME), auo_path, (DWORD)nSize);
 }
 //最後に"\"なしで戻る
 void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
-	GetModuleFileName(NULL, aviutl_dir, nSize);
+	GetModuleFileName(NULL, aviutl_dir, (DWORD)nSize);
 	PathRemoveFileSpecFixed(aviutl_dir);
 }
 //文字列の置換に必要な領域を計算する
@@ -96,7 +96,7 @@ int replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
 	int count = 0;
 	const size_t old_len = strlen(old_str);
 	const size_t new_len = strlen(new_str);
-	const int move_len = new_len - old_len;
+	const size_t move_len = new_len - old_len;
 	if (old_len) {
 		while ((p = strstr(c, old_str)) != NULL) {
 			if (move_len) {
@@ -218,7 +218,7 @@ __int64 GetFileLastUpdate(const char *filename) {
 	}
 	return ((__int64)ft.dwHighDateTime << 32) + (__int64)ft.dwLowDateTime;
 }
-int append_str(char **dst, size_t *nSize, const char *append) {
+size_t append_str(char **dst, size_t *nSize, const char *append) {
 	size_t len = strlen(append);
 	if (*nSize - 1 <= len)
 		return 0;
@@ -231,7 +231,7 @@ int append_str(char **dst, size_t *nSize, const char *append) {
 //多くのPath～関数はMAX_LEN(260)以上でもOKだが、一部は不可
 //これもそのひとつ
 BOOL PathAddBackSlashLong(char *dir) {
-	int len = strlen(dir);
+	size_t len = strlen(dir);
 	if (dir[len-1] != '\\') {
 		dir[len] = '\\';
 		dir[len+1] = '\0';
@@ -275,7 +275,7 @@ BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace) {
 }
 
 BOOL PathForceRemoveBackSlash(char *path) {
-	int len = strlen(path);
+	size_t len = strlen(path);
 	int ret = FALSE;
 	if (path != NULL && len) {
 		char *ptr = path + len - 1;

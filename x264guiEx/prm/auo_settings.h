@@ -41,7 +41,7 @@ public:
 	~mem_cutter() {
 		clear();
 	};
-	void init(int size) {
+	void init(size_t size) {
 		clear();
 		mp_init_size = size;
 		mp_size = mp_init_size;
@@ -53,7 +53,7 @@ public:
 		mp = NULL;
 		mp_size = 0;
 	};
-	void *CutMem(int size) {
+	void *CutMem(size_t size) {
 		if (mp_size - size < 0)
 			return NULL;
 		void *ptr = mp;
@@ -63,7 +63,7 @@ public:
 	};
 	char *SetPrivateProfileString(const char *section, const char *keyname, const char *defaultString, const char *ini_file) {
 		if (mp_size > 0) {
-			size_t len = GetPrivateProfileString(section, keyname, defaultString, mp, mp_size, ini_file) + 1;
+			size_t len = GetPrivateProfileString(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file) + 1;
 			char *ptr = mp;
 			mp += len;
 			mp_size -= len;

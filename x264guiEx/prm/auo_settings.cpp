@@ -161,7 +161,7 @@ void guiEx_settings::load_aud() {
 	int i, j, k;
 	char encoder_section[INI_KEY_MAX_LEN];
 	char key[INI_KEY_MAX_LEN];
-	int keybase_len;
+	size_t keybase_len;
 
 	clear_aud();
 
@@ -265,7 +265,8 @@ void guiEx_settings::load_aud() {
 }
 
 void guiEx_settings::load_mux() {
-	int i, j, len, keybase_len;
+	int i, j;
+	size_t len, keybase_len;
 	char muxer_section[INI_KEY_MAX_LEN];
 	char key[INI_KEY_MAX_LEN];
 
@@ -313,7 +314,7 @@ void guiEx_settings::load_fn_replace() {
 	fn_rep_mc.init(ini_filesize);
 
 	char *ptr = (char *)fn_rep_mc.GetPtr();
-	size_t len = GetPrivateProfileSection(INI_SECTION_FN, ptr, fn_rep_mc.GetRemain(), ini_fileName) + 1;
+	size_t len = GetPrivateProfileSection(INI_SECTION_FN, ptr, (DWORD)fn_rep_mc.GetRemain(), ini_fileName) + 1;
 	fn_rep_mc.CutMem(len);
 	for (; *ptr != NULL; ptr += strlen(ptr) + 1) {
 		FILENAME_REPLACE rep = { 0 };
@@ -352,7 +353,7 @@ void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_i
 	*default_index = 0;
 	char *def = s_x264_mc.SetPrivateProfileString(section, "disp", "", ini_fileName);
 	sprintf_s(key,  sizeof(key), "cmd_");
-	int keybase_len = strlen(key);
+	size_t keybase_len = strlen(key);
 	for (i = 0; x264cmd->name[i].name; i++) {
 		strcpy_s(key + keybase_len, sizeof(key) - keybase_len, x264cmd->name[i].name);
 		x264cmd->cmd[i] = s_x264_mc.SetPrivateProfileString(section, key, "", ini_fileName);
@@ -386,7 +387,7 @@ void guiEx_settings::load_x264() {
 
 void guiEx_settings::make_default_stg_dir(char *default_stg_dir, DWORD nSize) {
 	strcpy_s(default_stg_dir, nSize, auo_path);
-	DWORD buf_space = nSize - (strlen(default_stg_dir) - strlen(PathFindFileName(default_stg_dir)));
+	DWORD buf_space = nSize - (DWORD)(strlen(default_stg_dir) - strlen(PathFindFileName(default_stg_dir)));
 	strcpy_s(PathFindFileName(default_stg_dir), buf_space, STG_DEFAULT_DIRECTORY_NAME);
 }
 

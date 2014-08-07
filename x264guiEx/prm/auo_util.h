@@ -52,14 +52,14 @@ static inline __int64 ceil_div_int64(__int64 i, int div) {
 }
 
 //大文字小文字を無視して、1文字検索
-static const char *strichr(const char *str, int c) {
+static inline const char *strichr(const char *str, int c) {
 	c = tolower(c);
 	for (; *str; str++)
 		if (c == tolower(*str))
 			return str;
 	return NULL;
 }
-static char *strichr(char *str, int c) {
+static inline char *strichr(char *str, int c) {
 	c = tolower(c);
 	for (; *str; str++)
 		if (c == tolower(*str))
@@ -68,16 +68,16 @@ static char *strichr(char *str, int c) {
 }
 
 //大文字小文字を無視して、文字列を検索
-static const char *stristr(const char *str, const char *substr) {
-	int len = 0;
+static inline const char *stristr(const char *str, const char *substr) {
+	size_t len = 0;
 	if (substr && (len = strlen(substr)) != NULL)
 		for (; (str = strichr(str, substr[0])) != NULL; str++)
 			if (_strnicmp(str, substr, len) == NULL)
 				return str;
 	return NULL;
 }
-static char *stristr(char *str, const char *substr) {
-	int len = 0;
+static inline char *stristr(char *str, const char *substr) {
+	size_t len = 0;
 	if (substr && (len = strlen(substr)) != NULL)
 		for (; (str = strichr(str, substr[0])) != NULL; str++)
 			if (_strnicmp(str, substr, len) == NULL)
@@ -86,7 +86,7 @@ static char *stristr(char *str, const char *substr) {
 }
 
 //指定した場所から後ろ向きに1文字検索
-static const char *strrchr(const char *str, int c, int start_index) {
+static inline const char *strrchr(const char *str, int c, size_t start_index) {
 	if (start_index < 0) return NULL;
 	const char *result = str + start_index;
 	str--;
@@ -95,7 +95,7 @@ static const char *strrchr(const char *str, int c, int start_index) {
 			return result;
 	return NULL;
 }
-static char *strrchr(char *str, int c, int start_index) {
+static inline char *strrchr(char *str, int c, size_t start_index) {
 	if (start_index < 0) return NULL;
 	char *result = str + start_index;
 	str--;
@@ -106,27 +106,27 @@ static char *strrchr(char *str, int c, int start_index) {
 }
 
 //strのcount byteを検索し、substrとの一致を返す
-static const char * strnstr(const char *str, const char *substr, int count) {
+static inline const char * strnstr(const char *str, const char *substr, size_t count) {
 	const char *ptr = strstr(str, substr);
-	if (ptr && ptr - str >= count)
+	if (ptr && (size_t)(ptr - str) >= count)
 		ptr = NULL;
 	return ptr;
 }
-static char * strnstr(char *str, const char *substr, int count) {
+static inline char * strnstr(char *str, const char *substr, size_t count) {
 	char *ptr = strstr(str, substr);
-	if (ptr && ptr - str >= count)
+	if (ptr && (size_t)(ptr - str) >= count)
 		ptr = NULL;
 	return ptr;
 }
 
 //strのsubstrとの最後の一致を返す
-static const char * strrstr(const char *str, const char *substr) {
+static inline const char * strrstr(const char *str, const char *substr) {
 	const char *last_ptr = NULL;
 	for (const char *ptr = str; *ptr && (ptr = strstr(ptr, substr)) != NULL; ptr++ )
 		last_ptr = ptr;
 	return last_ptr;
 }
-static char * strrstr(char *str, const char *substr) {
+static inline char * strrstr(char *str, const char *substr) {
 	char *last_ptr = NULL;
 	for (char *ptr = str; *ptr && (ptr = strstr(ptr, substr)) != NULL; ptr++ )
 		last_ptr = ptr;
@@ -134,14 +134,14 @@ static char * strrstr(char *str, const char *substr) {
 }
 
 //strのcount byteを検索し、substrとの最後の一致を返す
-static const char * strnrstr(const char *str, const char *substr, int count) {
+static inline const char * strnrstr(const char *str, const char *substr, size_t count) {
 	const char *last_ptr = NULL;
 	if (count > 0)
 		for (const char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
 			last_ptr = ptr;
 	return last_ptr;
 }
-static char * strnrstr(char *str, const char *substr, int count) {
+static inline char * strnrstr(char *str, const char *substr, size_t count) {
 	char *last_ptr = NULL;
 	if (count > 0)
 		for (char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
@@ -150,7 +150,7 @@ static char * strnrstr(char *str, const char *substr, int count) {
 }
 
 //文字列中の文字「ch」の数を数える
-static int countchr(const char *str, int ch) {
+static inline int countchr(const char *str, int ch) {
 	int i = 0;
 	for (; *str; str++)
 		if (*str == ch)
@@ -159,7 +159,7 @@ static int countchr(const char *str, int ch) {
 }
 
 //文字列の末尾についている '\r' '\n' ' ' を削除する
-static size_t deleteCRLFSpace_at_End(WCHAR *str) {
+static inline size_t deleteCRLFSpace_at_End(WCHAR *str) {
 	WCHAR *pw = str + wcslen(str) - 1;
 	WCHAR * const qw = pw;
 	while ((*pw == L'\n' || *pw == L'\r' || *pw == L' ') && pw >= str) {
@@ -169,7 +169,7 @@ static size_t deleteCRLFSpace_at_End(WCHAR *str) {
 	return qw - pw;
 }
 
-static size_t deleteCRLFSpace_at_End(char *str) {
+static inline size_t deleteCRLFSpace_at_End(char *str) {
 	char *pw = str + strlen(str) - 1;
 	char *qw = pw;
 	while ((*pw == '\n' || *pw == '\r' || *pw == ' ') && pw >= str) {
@@ -204,7 +204,7 @@ void PathGetDirectory(char *dir, size_t nSize, const char *path);
 BOOL GetFileSizeInt(const char *filepath, DWORD *filesize);
 BOOL GetFileSizeInt64(const char *filepath, __int64 *filesize);
 __int64 GetFileLastUpdate(const char *filename);
-int append_str(char **dst, size_t *nSize, const char *append);
+size_t append_str(char **dst, size_t *nSize, const char *append);
 BOOL PathAddBackSlashLong(char *dir);
 BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const char *filename);
 BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace);

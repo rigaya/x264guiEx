@@ -57,7 +57,7 @@ static AuoChapStatus write_utf8(FILE *fp, IMultiLanguage2 *pImul, WCHAR *buf, UI
 	DWORD encMode = 0;
 	std::vector<char> dst_buf;
 	dst_buf.resize(wcslen(buf) * 3, '\0');
-	UINT i_dst_buf = dst_buf.size();
+	UINT i_dst_buf = (UINT)dst_buf.size();
 
 	UINT buf_len_in_byte = (buf_len) ? *buf_len * sizeof(WCHAR) : -1;
 	DWORD last_len = buf_len_in_byte;
@@ -144,8 +144,8 @@ static AuoChapStatus write_apple_chap(FILE *fp, IMultiLanguage2 *pImul, WCHAR *w
 	}
 
 	//終端まで読めていなかったら、最後のブロックの解析は次に回す
-	const int n = (read_to_end) ? pw_line.size() : ((pw_line.size() - 1) / 2) * 2;
-	for (int i = 0; i < n && !sts; i++) {
+	const size_t n = (read_to_end) ? pw_line.size() : ((pw_line.size() - 1) / 2) * 2;
+	for (size_t i = 0; i < n && !sts; i++) {
 		deleteCRLFSpace_at_End(pw_line[i]);
 		if (wcsncmp(pw_line[i], pw_key[i&1], wcslen(pw_key[i&1])) != NULL)
 			return AUO_CHAP_ERR_INVALID_FMT;
@@ -167,10 +167,10 @@ static AuoChapStatus write_apple_chap(FILE *fp, IMultiLanguage2 *pImul, WCHAR *w
 	if (read_to_end == FALSE) {
 		//処理していない部分を移動
 		//wcstokで削除した改行コードを戻す
-		for (DWORD i = n+1; i < pw_line.size(); i++)
+		for (size_t i = n+1; i < pw_line.size(); i++)
 			*(pw_line[i] - 1) = *delim;
 		wchar_buf[*wchar_buf_len] = last_word; //null文字を入れたところを戻す
-		*wchar_buf_len = wchar_buf + *wchar_buf_len - pw_line[n];
+		*wchar_buf_len = (UINT)(wchar_buf + *wchar_buf_len - pw_line[n]);
 		memmove(wchar_buf, pw_line[n], (*wchar_buf_len + 1) * sizeof(WCHAR));
 	}
 	return sts;
@@ -235,7 +235,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 						if (value_len * sizeof(WCHAR) + 1 > buf.size())
 							buf.resize(value_len * sizeof(WCHAR) + 1);
 						ZeroMemory(&buf[0], sizeof(buf[0]) * buf.size());
-						WideCharToMultiByte(CP_ACP, NULL, pwAttributeValue, value_len, &buf[0], buf.size(), NULL, NULL);
+						WideCharToMultiByte(CP_ACP, NULL, pwAttributeValue, (int)value_len, &buf[0], (int)buf.size(), NULL, NULL);
 						key_num++;
 						fprintf(fp, "%s%02d=%s\r\n", KEY_BASE, key_num, &buf[0]);
 						flag_next_line_is_time = FALSE;
@@ -254,7 +254,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 						buf.resize(value_len * sizeof(WCHAR) + 1);
 					//変換
 					ZeroMemory(&buf[0], sizeof(buf[0]) * buf.size());
-					WideCharToMultiByte(CP_ACP, NULL, pwValue, value_len, &buf[0], buf.size(), NULL, NULL);
+					WideCharToMultiByte(CP_ACP, NULL, pwValue, (int)value_len, &buf[0], (int)buf.size(), NULL, NULL);
 					fprintf(fp, "%s%02d%s=%s\r\n", KEY_BASE, key_num, KEY_NAME, &buf[0]);
 					flag_next_line_is_time = TRUE;
 					break;
@@ -305,7 +305,7 @@ AuoChapStatus convert_chapter(const char *new_filename, const char *orig_filenam
 		sts = AUO_CHAP_ERR_FILE_OPEN;
 	} else if (S_OK != CoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, (void**)&pIMulLang) || pIMulLang == NULL) {
 		sts = AUO_CHAP_ERR_INIT_IMUL2;
-	} else if ((src_buf_len = fread(src_buf, 1, sizeof(src_buf) - sizeof(WCHAR), fp_orig)) == 0) {
+	} else if ((src_buf_len = (UINT)fread(src_buf, 1, sizeof(src_buf) - sizeof(WCHAR), fp_orig)) == 0) {
 		sts = AUO_CHAP_ERR_FILE_READ;
 	} else if (
 		//多段階でコードページ判定を行う
@@ -369,7 +369,7 @@ AuoChapStatus convert_chapter(const char *new_filename, const char *orig_filenam
 
 			//追加読み込み
 			ZeroMemory(src_buf + src_buf_len, sizeof(src_buf) - src_buf_len * sizeof(src_buf[0]));
-			DWORD read_bytes = fread(src_buf + src_buf_len, 1, sizeof(src_buf) - src_buf_len - sizeof(WCHAR), fp_orig);
+			UINT read_bytes = (UINT)fread(src_buf + src_buf_len, 1, sizeof(src_buf) - src_buf_len - sizeof(WCHAR), fp_orig);
 			if (read_bytes == 0) {
 				sts = AUO_CHAP_ERR_FILE_READ; break;
 			}
