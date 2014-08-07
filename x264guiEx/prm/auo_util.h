@@ -97,7 +97,7 @@ static inline char *stristr(char *str, const char *substr) {
 }
 
 //指定した場所から後ろ向きに1文字検索
-static inline const char *strrchr(const char *str, int c, size_t start_index) {
+static inline const char *strrchr(const char *str, int c, int start_index) {
 	if (start_index < 0) return NULL;
 	const char *result = str + start_index;
 	str--;
@@ -106,7 +106,7 @@ static inline const char *strrchr(const char *str, int c, size_t start_index) {
 			return result;
 	return NULL;
 }
-static inline char *strrchr(char *str, int c, size_t start_index) {
+static inline char *strrchr(char *str, int c, int start_index) {
 	if (start_index < 0) return NULL;
 	char *result = str + start_index;
 	str--;
@@ -117,15 +117,15 @@ static inline char *strrchr(char *str, int c, size_t start_index) {
 }
 
 //strのcount byteを検索し、substrとの一致を返す
-static inline const char * strnstr(const char *str, const char *substr, size_t count) {
+static inline const char * strnstr(const char *str, const char *substr, int count) {
 	const char *ptr = strstr(str, substr);
-	if (ptr && (size_t)(ptr - str) >= count)
+	if (ptr && ptr - str >= count)
 		ptr = NULL;
 	return ptr;
 }
-static inline char * strnstr(char *str, const char *substr, size_t count) {
+static inline char * strnstr(char *str, const char *substr, int count) {
 	char *ptr = strstr(str, substr);
-	if (ptr && (size_t)(ptr - str) >= count)
+	if (ptr && ptr - str >= count)
 		ptr = NULL;
 	return ptr;
 }
@@ -145,14 +145,14 @@ static inline char * strrstr(char *str, const char *substr) {
 }
 
 //strのcount byteを検索し、substrとの最後の一致を返す
-static inline const char * strnrstr(const char *str, const char *substr, size_t count) {
+static inline const char * strnrstr(const char *str, const char *substr, int count) {
 	const char *last_ptr = NULL;
 	if (count > 0)
 		for (const char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
 			last_ptr = ptr;
 	return last_ptr;
 }
-static inline char * strnrstr(char *str, const char *substr, size_t count) {
+static inline char * strnrstr(char *str, const char *substr, int count) {
 	char *last_ptr = NULL;
 	if (count > 0)
 		for (char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)

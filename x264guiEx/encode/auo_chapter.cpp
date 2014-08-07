@@ -144,8 +144,8 @@ static AuoChapStatus write_apple_chap(FILE *fp, IMultiLanguage2 *pImul, WCHAR *w
 	}
 
 	//終端まで読めていなかったら、最後のブロックの解析は次に回す
-	const size_t n = (read_to_end) ? pw_line.size() : ((pw_line.size() - 1) / 2) * 2;
-	for (size_t i = 0; i < n && !sts; i++) {
+	const int n = (int)((read_to_end) ? pw_line.size() : ((pw_line.size() - 1) / 2) * 2);
+	for (int i = 0; i < n && !sts; i++) {
 		deleteCRLFSpace_at_End(pw_line[i]);
 		if (wcsncmp(pw_line[i], pw_key[i&1], wcslen(pw_key[i&1])) != NULL)
 			return AUO_CHAP_ERR_INVALID_FMT;
@@ -170,7 +170,7 @@ static AuoChapStatus write_apple_chap(FILE *fp, IMultiLanguage2 *pImul, WCHAR *w
 		for (size_t i = n+1; i < pw_line.size(); i++)
 			*(pw_line[i] - 1) = *delim;
 		wchar_buf[*wchar_buf_len] = last_word; //null文字を入れたところを戻す
-		*wchar_buf_len = (UINT)(wchar_buf + *wchar_buf_len - pw_line[n]);
+		*wchar_buf_len = wchar_buf + *wchar_buf_len - pw_line[n];
 		memmove(wchar_buf, pw_line[n], (*wchar_buf_len + 1) * sizeof(WCHAR));
 	}
 	return sts;

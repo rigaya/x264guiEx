@@ -33,7 +33,7 @@ void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
 //文字列の置換に必要な領域を計算する
 size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str) {
 	size_t size = strlen(str) + 1;
-	const size_t move_len = strlen(new_str) - strlen(old_str);
+	const int move_len = strlen(new_str) - strlen(old_str);
 	if (move_len <= 0)
 		return size;
 	char *p = str;
@@ -50,7 +50,7 @@ int replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
 	int count = 0;
 	const size_t old_len = strlen(old_str);
 	const size_t new_len = strlen(new_str);
-	const size_t move_len = new_len - old_len;
+	const int move_len = (int)(new_len - old_len);
 	if (old_len) {
 		while ((p = strstr(c, old_str)) != NULL) {
 			if (move_len) {
