@@ -578,6 +578,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 
 
 
+
 	private: System::ComponentModel::IContainer^  components;
 
 
@@ -964,7 +965,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxX264Out);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgNUSlices);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgLBSlices);
-			this->fcgtabPageX264Main->Controls->Add(this->fcgLBOutputCF);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCXOutputCsp);
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxThreads);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgBTTBQualityAdd);
@@ -979,7 +979,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCXLevel);
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxColorMatrix);
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxAepectRatio);
-			this->fcgtabPageX264Main->Controls->Add(this->fcgLBSTATUS);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgBTStatusFile);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgTXStatusFile);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgpictureBoxX264);
@@ -996,6 +995,8 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgtabPageX264Main->Controls->Add(this->fcgLBX264Path);
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxPreset);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgTBQuality);
+			this->fcgtabPageX264Main->Controls->Add(this->fcgLBSTATUS);
+			this->fcgtabPageX264Main->Controls->Add(this->fcgLBOutputCF);
 			this->fcgtabPageX264Main->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageX264Main->Name = L"fcgtabPageX264Main";
 			this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3);
@@ -1438,9 +1439,9 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcgTXStatusFile
 			// 
-			this->fcgTXStatusFile->Location = System::Drawing::Point(98, 252);
+			this->fcgTXStatusFile->Location = System::Drawing::Point(101, 252);
 			this->fcgTXStatusFile->Name = L"fcgTXStatusFile";
-			this->fcgTXStatusFile->Size = System::Drawing::Size(256, 21);
+			this->fcgTXStatusFile->Size = System::Drawing::Size(253, 21);
 			this->fcgTXStatusFile->TabIndex = 12;
 			this->fcgTXStatusFile->Tag = L"reCmd";
 			// 
@@ -1691,7 +1692,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// fcgLBTimebase
 			// 
 			this->fcgLBTimebase->AutoSize = true;
-			this->fcgLBTimebase->Location = System::Drawing::Point(231, 452);
+			this->fcgLBTimebase->Location = System::Drawing::Point(235, 452);
 			this->fcgLBTimebase->Name = L"fcgLBTimebase";
 			this->fcgLBTimebase->Size = System::Drawing::Size(12, 14);
 			this->fcgLBTimebase->TabIndex = 17;
@@ -1699,7 +1700,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcgNUTimebaseDen
 			// 
-			this->fcgNUTimebaseDen->Location = System::Drawing::Point(249, 450);
+			this->fcgNUTimebaseDen->Location = System::Drawing::Point(253, 450);
 			this->fcgNUTimebaseDen->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {2000000000, 0, 0, 0});
 			this->fcgNUTimebaseDen->Name = L"fcgNUTimebaseDen";
 			this->fcgNUTimebaseDen->Size = System::Drawing::Size(120, 21);
@@ -1709,7 +1710,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcgNUTimebaseNum
 			// 
-			this->fcgNUTimebaseNum->Location = System::Drawing::Point(131, 450);
+			this->fcgNUTimebaseNum->Location = System::Drawing::Point(135, 450);
 			this->fcgNUTimebaseNum->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {2000000000, 0, 0, 0});
 			this->fcgNUTimebaseNum->Name = L"fcgNUTimebaseNum";
 			this->fcgNUTimebaseNum->Size = System::Drawing::Size(94, 21);
@@ -1719,7 +1720,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcgBTTCIN
 			// 
-			this->fcgBTTCIN->Location = System::Drawing::Point(358, 419);
+			this->fcgBTTCIN->Location = System::Drawing::Point(362, 419);
 			this->fcgBTTCIN->Name = L"fcgBTTCIN";
 			this->fcgBTTCIN->Size = System::Drawing::Size(34, 23);
 			this->fcgBTTCIN->TabIndex = 8;
@@ -1729,7 +1730,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcgTXTCIN
 			// 
-			this->fcgTXTCIN->Location = System::Drawing::Point(131, 420);
+			this->fcgTXTCIN->Location = System::Drawing::Point(135, 420);
 			this->fcgTXTCIN->Name = L"fcgTXTCIN";
 			this->fcgTXTCIN->Size = System::Drawing::Size(221, 21);
 			this->fcgTXTCIN->TabIndex = 7;
@@ -1820,7 +1821,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcggroupBoxPsyRd->Controls->Add(this->fcgLBPsyRDO);
 			this->fcggroupBoxPsyRd->Location = System::Drawing::Point(284, 258);
 			this->fcggroupBoxPsyRd->Name = L"fcggroupBoxPsyRd";
-			this->fcggroupBoxPsyRd->Size = System::Drawing::Size(222, 101);
+			this->fcggroupBoxPsyRd->Size = System::Drawing::Size(232, 101);
 			this->fcggroupBoxPsyRd->TabIndex = 5;
 			this->fcggroupBoxPsyRd->TabStop = false;
 			this->fcggroupBoxPsyRd->Text = L"Psy-Rd (視覚心理最適化)";
@@ -1876,7 +1877,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcggroupBoxVbv->Controls->Add(this->fcgLBVBVmax);
 			this->fcggroupBoxVbv->Location = System::Drawing::Point(284, 114);
 			this->fcggroupBoxVbv->Name = L"fcggroupBoxVbv";
-			this->fcggroupBoxVbv->Size = System::Drawing::Size(222, 131);
+			this->fcggroupBoxVbv->Size = System::Drawing::Size(232, 131);
 			this->fcggroupBoxVbv->TabIndex = 3;
 			this->fcggroupBoxVbv->TabStop = false;
 			this->fcggroupBoxVbv->Text = L"VBV (ビデオバッファ制御, \"-1\"で自動)";
@@ -2154,9 +2155,9 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			this->fcgCXInterlaced->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXInterlaced->FormattingEnabled = true;
-			this->fcgCXInterlaced->Location = System::Drawing::Point(474, 245);
+			this->fcgCXInterlaced->Location = System::Drawing::Point(482, 245);
 			this->fcgCXInterlaced->Name = L"fcgCXInterlaced";
-			this->fcgCXInterlaced->Size = System::Drawing::Size(121, 22);
+			this->fcgCXInterlaced->Size = System::Drawing::Size(112, 22);
 			this->fcgCXInterlaced->TabIndex = 9;
 			this->fcgCXInterlaced->Tag = L"reCmd";
 			// 
@@ -2495,9 +2496,9 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			this->fcgCXWeightP->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->fcgCXWeightP->FormattingEnabled = true;
-			this->fcgCXWeightP->Location = System::Drawing::Point(474, 275);
+			this->fcgCXWeightP->Location = System::Drawing::Point(482, 275);
 			this->fcgCXWeightP->Name = L"fcgCXWeightP";
-			this->fcgCXWeightP->Size = System::Drawing::Size(121, 22);
+			this->fcgCXWeightP->Size = System::Drawing::Size(112, 22);
 			this->fcgCXWeightP->TabIndex = 10;
 			this->fcgCXWeightP->Tag = L"reCmd";
 			// 
@@ -3190,7 +3191,6 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			// 
 			// fcggroupBoxAudio
 			// 
-			this->fcggroupBoxAudio->Controls->Add(this->fcgLBAudioTemp);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgCXAudioTempDir);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgTXCustomAudioTempDir);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgBTCustomAudioTempDir);
@@ -3211,6 +3211,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcggroupBoxAudio->Controls->Add(this->fcgLBAudioPriority);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgCXAudioEncoder);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgLBAudioEncoder);
+			this->fcggroupBoxAudio->Controls->Add(this->fcgLBAudioTemp);
 			this->fcggroupBoxAudio->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fcggroupBoxAudio->Location = System::Drawing::Point(622, 25);
@@ -3377,7 +3378,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgCBFAWCheck->AutoSize = true;
 			this->fcgCBFAWCheck->Location = System::Drawing::Point(258, 36);
 			this->fcgCBFAWCheck->Name = L"fcgCBFAWCheck";
-			this->fcgCBFAWCheck->Size = System::Drawing::Size(81, 18);
+			this->fcgCBFAWCheck->Size = System::Drawing::Size(82, 18);
 			this->fcgCBFAWCheck->TabIndex = 2;
 			this->fcgCBFAWCheck->Tag = L"chValue";
 			this->fcgCBFAWCheck->Text = L"FAWCheck";
@@ -3848,7 +3849,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgLBVersionDate->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
 			this->fcgLBVersionDate->Location = System::Drawing::Point(478, 575);
 			this->fcgLBVersionDate->Name = L"fcgLBVersionDate";
-			this->fcgLBVersionDate->Size = System::Drawing::Size(49, 15);
+			this->fcgLBVersionDate->Size = System::Drawing::Size(50, 15);
 			this->fcgLBVersionDate->TabIndex = 8;
 			this->fcgLBVersionDate->Text = L"Version";
 			// 
@@ -3861,7 +3862,7 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgLBVersion->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
 			this->fcgLBVersion->Location = System::Drawing::Point(204, 575);
 			this->fcgLBVersion->Name = L"fcgLBVersion";
-			this->fcgLBVersion->Size = System::Drawing::Size(49, 15);
+			this->fcgLBVersion->Size = System::Drawing::Size(50, 15);
 			this->fcgLBVersion->TabIndex = 9;
 			this->fcgLBVersion->Text = L"Version";
 			// 
