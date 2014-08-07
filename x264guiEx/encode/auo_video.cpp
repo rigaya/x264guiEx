@@ -231,7 +231,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		build_cmd_from_conf(cmd, nSize, &prm.x264, &prm.vid, FALSE);
 	}
 	//cmdex追加
-	if (strlen(prm.vid.cmdex)) {
+	if (char_has_length(prm.vid.cmdex)) {
 		//改行文字削除
 		replace_cmd_CRLF_to_Space(prm.vid.cmdex, sizeof(prm.vid.cmdex));
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " %s", prm.vid.cmdex);

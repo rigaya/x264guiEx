@@ -238,8 +238,8 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 	const BOOL use_pipe = (!conf->aud.use_wav && !conf->aud.use_2pass) ? TRUE : FALSE;
 	DWORD encoder_priority = GetExePriority(conf->aud.priority, pe->h_p_aviutl);
 
-	//実行ファイルチェック
-	if (!PathFileExists(aud_stg->fullpath)) {
+	//実行ファイルチェック(filenameが空文字列なら実行しない)
+	if (char_has_length(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
 		error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
 		return AUO_RESULT_ERROR;
 	}
@@ -265,8 +265,8 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 	ret |= wav_output(oip, wavfile, aud_stg->mode[conf->aud.enc_mode].use_8bit, sys_dat->exstg->s_local.audio_buffer_size,
 		&pi_aud, aud_stg->dispname, audargs, auddir, encoder_priority);
 	
-	//音声エンコード
-	if (!ret && !use_pipe) {
+	//音声エンコード(filenameが空文字列なら実行しない)
+	if (!ret && !use_pipe && char_has_length(aud_stg->filename)) {
 		show_progressbar(use_pipe, aud_stg->dispname, PROGRESSBAR_MARQUEE);
 		int rp_ret;
 		if ((rp_ret = RunProcess(audargs, auddir, &pi_aud, NULL, encoder_priority, FALSE, conf->aud.minimized)) != RP_SUCCESS) {
@@ -274,8 +274,8 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 		}
 	}
 
-	//終了待機、メッセージ取得
-	if (!ret) {
+	//終了待機、メッセージ取得(filenameが空文字列なら実行しない)
+	if (!ret && char_has_length(aud_stg->filename)) {
 		while (WaitForSingleObject(pi_aud.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
 

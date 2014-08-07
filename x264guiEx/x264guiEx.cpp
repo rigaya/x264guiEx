@@ -325,9 +325,12 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	}
 
 	//音声エンコーダ
-	if ((oip->flag & OUTPUT_INFO_FLAG_AUDIO) && !PathFileExists(sys_dat.exstg->s_aud[conf.aud.encoder].fullpath)) {
-		error_no_exe_file(sys_dat.exstg->s_aud[conf.aud.encoder].filename, sys_dat.exstg->s_aud[conf.aud.encoder].fullpath);
-		check = FALSE;
+	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+		AUDIO_SETTINGS *aud_stg = &sys_dat.exstg->s_aud[conf.aud.encoder];
+		if (char_has_length(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
+			error_no_exe_file(aud_stg->filename, aud_stg->fullpath);
+			check = FALSE;
+		}
 	}
 
 	//muxer

@@ -204,7 +204,7 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
 	char *audstr = (enable_aud_mux) ? mux_stg->aud_cmd : "";
 	char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
-	char *exstr  = (conf->mux.apple_mode && strlen(muxer_mode->cmd_apple)) ? muxer_mode->cmd_apple : muxer_mode->cmd;
+	char *exstr  = (conf->mux.apple_mode && char_has_length(muxer_mode->cmd_apple)) ? muxer_mode->cmd_apple : muxer_mode->cmd;
 	//音声用コマンド
 	replace(cmd, nSize, "%{au_cmd}",  audstr);
 	//タイムコード用
