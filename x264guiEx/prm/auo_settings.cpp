@@ -430,6 +430,9 @@ void guiEx_settings::load_log_win() {
 	GetPrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path", "", s_log.auto_save_log_path, sizeof(s_log.auto_save_log_path), conf_fileName);
 	s_log.show_status_bar    = GetPrivateProfileInt(INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
 	s_log.taskbar_progress   = GetPrivateProfileInt(INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
+	s_log.save_log_size      = GetPrivateProfileInt(INI_SECTION_MAIN, "save_log_size",        0, conf_fileName);
+	s_log.log_width          = GetPrivateProfileInt(INI_SECTION_MAIN, "log_width",            0, conf_fileName);
+	s_log.log_height         = GetPrivateProfileInt(INI_SECTION_MAIN, "log_height",           0, conf_fileName);
 }
 
 void guiEx_settings::load_append() {
@@ -502,6 +505,9 @@ void guiEx_settings::save_log_win() {
 	WritePrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
 	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,    conf_fileName);
 	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress,   conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",         s_log.save_log_size,      conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_width",             s_log.log_width,          conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_height",            s_log.log_height,         conf_fileName);
 }
 
 void guiEx_settings::save_fbc() {

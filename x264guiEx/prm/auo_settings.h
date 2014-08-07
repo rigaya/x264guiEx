@@ -167,6 +167,9 @@ typedef struct {
 	char auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
 	BOOL show_status_bar;                  //ステータスバーの表示
 	BOOL taskbar_progress;                 //タスクバーに進捗を表示
+	BOOL save_log_size;                    //ログの大きさを保存する
+	int  log_width;                        //ログ幅
+	int  log_height;                       //ログ高さ
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {

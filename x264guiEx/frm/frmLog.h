@@ -52,11 +52,12 @@ namespace x264guiEx {
 	public:
 		frmLog(void)
 		{
+			//これがfalseだとイベントで設定保存をするので、とりあえずtrue
+			prevent_log_closing = true;
+
 			//設定から情報を取得
 			guiEx_settings exstg;
 			exstg.load_log_win();
-			if (exstg.s_log.minimized)
-				this->WindowState = FormWindowState::Minimized;
 			_x264_priority = NULL;
 			_enc_pause = NULL;
 			LogTitle = String(AUO_FULL_NAME).ToString();
@@ -65,7 +66,6 @@ namespace x264guiEx {
 			//
 			//TODO: ここにコンストラクタ コードを追加します
 			//
-			prevent_log_closing = false;
 			this->log_type = gcnew array<String^>(3) { L"info", L"warning", L"error" };
 			this->richTextLog->LanguageOption = System::Windows::Forms::RichTextBoxLanguageOptions::UIFonts;
 
@@ -87,13 +87,22 @@ namespace x264guiEx {
 			this->toolStripMenuItemAutoSave->Checked = exstg.s_log.auto_save_log != 0;
 			this->toolStripMenuItemShowStatus->Checked = exstg.s_log.show_status_bar != 0;
 			this->ToolStripMenuItemStartMinimized->Checked = exstg.s_log.minimized != 0;
+			this->toolStripMenuItemSaveLogSize->Checked = exstg.s_log.save_log_size != 0;
 			bool check_win7later = check_OS_Win7orLater() != 0;
 			this->toolStripMenuItemTaskBarProgress->Enabled = check_win7later;
 			this->toolStripMenuItemTaskBarProgress->Checked = (exstg.s_log.taskbar_progress != 0 && check_win7later);
+			//ウィンドウサイズ調整等(サイズ設定->最小化の設定の順に行うこと)
+			if (exstg.s_log.save_log_size)
+				SetWindowSize(exstg.s_log.log_width, exstg.s_log.log_height);
+			if (exstg.s_log.minimized)
+				this->WindowState = FormWindowState::Minimized;
+			lastWindowState = this->WindowState;
+			//プログレスバーの初期化
 			taskbar_progress_enable(exstg.s_log.taskbar_progress);
 			hWnd = (HWND)this->Handle.ToInt32();
 			taskbar_progress_init();
-
+			//通常のステータスに戻す(false) -> 設定保存イベントで設定保存される
+			prevent_log_closing = false;
 			closed = true;
 		}
 	protected:
@@ -121,19 +130,20 @@ namespace x264guiEx {
 			}
 		}
 	private:
-		HWND hWnd;
-		DWORD *_x264_priority;
-		BOOL *_enc_pause;
-		DWORD _x264_start_time;
-		bool closed;
-		bool prevent_log_closing;
+		HWND hWnd; //このウィンドウのハンドル
+		DWORD *_x264_priority; //x264優先度へのポインタ
+		BOOL *_enc_pause;      //エンコ一時停止へのポインタ
+		DWORD _x264_start_time; //x264エンコ開始時間
+		bool closed; //このウィンドウが閉じているか、開いているか
+		bool prevent_log_closing; //ログウィンドウを閉じるを無効化するか・設定保存イベントのフラグでもある
 		bool add_progress;
 		array<String^>^ log_type;
-		int LastLogLen;
-		bool using_afs;
-		int total_frame;
-		DWORD pause_start;
-		String^ LogTitle;
+		int LastLogLen;  //ひとつ前のエンコードブロックの終わり
+		bool using_afs; //afs使用時にオン
+		int total_frame; //エンコ総フレーム数
+		DWORD pause_start; //一時停止を開始した時間
+		String^ LogTitle; //ログウィンドウのタイトル表示
+		FormWindowState lastWindowState; //最終ウィンドウステータス(normal/最大化/最小化)
 
 	private: System::Windows::Forms::RichTextBox^  richTextLog;
 	private: System::Windows::Forms::ContextMenuStrip^  contextMenuStripLog;
@@ -150,7 +160,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemShowStatus;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTaskBarProgress;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoSaveSettings;
-private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTime;
+	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTime;
+	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSaveLogSize;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -176,6 +187,7 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			this->ToolStripMenuItemEncPause = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemTransparent = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemStartMinimized = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemSaveLogSize = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAutoSave = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAutoSaveSettings = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemShowStatus = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -208,11 +220,11 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {this->ToolStripMenuItemx264Priority, 
-				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemAutoSave, 
-				this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress});
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {this->ToolStripMenuItemx264Priority, 
+				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, 
+				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(248, 180);
+			this->contextMenuStripLog->Size = System::Drawing::Size(248, 202);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
@@ -244,6 +256,14 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			this->ToolStripMenuItemStartMinimized->Size = System::Drawing::Size(247, 22);
 			this->ToolStripMenuItemStartMinimized->Text = L"このウィンドウを最小化で開始";
 			this->ToolStripMenuItemStartMinimized->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripCheckItem_CheckedChanged);
+			// 
+			// toolStripMenuItemSaveLogSize
+			// 
+			this->toolStripMenuItemSaveLogSize->CheckOnClick = true;
+			this->toolStripMenuItemSaveLogSize->Name = L"toolStripMenuItemSaveLogSize";
+			this->toolStripMenuItemSaveLogSize->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemSaveLogSize->Text = L"このウィンドウのサイズを保存";
+			this->toolStripMenuItemSaveLogSize->CheckedChanged += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemSaveLogSize_CheckedChanged);
 			// 
 			// toolStripMenuItemAutoSave
 			// 
@@ -337,6 +357,7 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			this->ShowIcon = false;
 			this->Text = L"x264guiEx Log";
 			this->Load += gcnew System::EventHandler(this, &frmLog::frmLog_Load);
+			this->ClientSizeChanged += gcnew System::EventHandler(this, &frmLog::frmLog_ClientSizeChanged);
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
 			this->contextMenuStripLog->ResumeLayout(false);
@@ -349,9 +370,19 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 #pragma endregion
 	private: 
 		System::Void frmLog_Load(System::Object^  sender, System::EventArgs^  e) {
-			 closed = false;
-			 pause_start = NULL;
-			 taskbar_progress_init();
+			closed = false;
+			pause_start = NULL;
+			taskbar_progress_init();
+		}
+	private:
+		System::Void SetWindowSize(int width, int height) {
+			//デフォルトのままにする
+			if (width <= 0 || height <= 0)
+				return;
+
+			//デスクトップ領域(タスクバー等除く)
+			System::Drawing::Rectangle screen = System::Windows::Forms::Screen::GetWorkingArea(this);
+			this->ClientSize = System::Drawing::Size(min(width, screen.Width), min(height, screen.Height));
 		}
 	public:
 		System::Void ReloadLogWindowSettings() {
@@ -361,6 +392,7 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			toolStripMenuItemAutoSave->Checked       = exstg.s_log.auto_save_log != 0;
 			toolStripMenuItemShowStatus->Checked     = exstg.s_log.show_status_bar != 0;
 			ToolStripMenuItemStartMinimized->Checked = exstg.s_log.minimized != 0;
+			toolStripMenuItemSaveLogSize->Checked    = exstg.s_log.save_log_size != 0;
 		}
 	public:
 		System::Void SetWindowTitle(const char *chr, int progress_mode) {
@@ -558,6 +590,18 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			exstg.s_log.auto_save_log    = toolStripMenuItemAutoSave->Checked;
 			exstg.s_log.show_status_bar  = toolStripMenuItemShowStatus->Checked;
 			exstg.s_log.taskbar_progress = toolStripMenuItemTaskBarProgress->Checked;
+			exstg.s_log.save_log_size    = toolStripMenuItemSaveLogSize->Checked;
+			//最大化・最小化中なら保存しない
+			if (this->WindowState == FormWindowState::Normal) {
+				if (exstg.s_log.save_log_size) {
+					exstg.s_log.log_width    = this->ClientSize.Width;
+					exstg.s_log.log_height   = this->ClientSize.Height;
+				} else {
+					//デフォルト
+					exstg.s_log.log_width    = 0;
+					exstg.s_log.log_height   = 0;
+				}
+			}
 			exstg.save_log_win();
 		}
 	private:
@@ -599,6 +643,19 @@ private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTi
 			taskbar_progress_enable(Convert::ToInt32(toolStripMenuItemTaskBarProgress->Checked));
 			ToolStripCheckItem_CheckedChanged(sender, e);
 		 }
+	private:
+		System::Void frmLog_ClientSizeChanged(System::Object^  sender, System::EventArgs^  e) {
+			//通常->通常でのサイズ変更以外、保存しないようにする
+			//最小化/最大化->通常とか通常->最小化/最大化には興味がない
+			if (this->WindowState == FormWindowState::Normal &&
+				  lastWindowState == FormWindowState::Normal)
+				SaveLogSettings();
+			lastWindowState = this->WindowState;
+		}
+	private:
+		System::Void toolStripMenuItemSaveLogSize_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			ToolStripCheckItem_CheckedChanged(sender, e);
+		}
 	private: 
 		System::Void ToolStripMenuItemx264Priority_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e) {
 			int i, j;
