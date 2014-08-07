@@ -15,6 +15,10 @@
 #include <stddef.h>
 #include <intrin.h>
 
+#if (_MSC_VER >= 1600)
+#include <immintrin.h>
+#endif
+
 //日本語環境の一般的なコードページ一覧
 static const DWORD CODE_PAGE_SJIS        = 932; //Shift-JIS
 static const DWORD CODE_PAGE_JIS         = 50220;
@@ -232,6 +236,18 @@ static BOOL check_sse4_1() {
 	__cpuid(CPUInfo, 1);
 	return (CPUInfo[2] & 0x00080000) != 0;
 }
+#if (_MSC_VER >= 1600)
+static BOOL check_avx() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
+		unsigned __int64 XGETBV = _xgetbv(0);
+		if ((XGETBV & 0x06) == 0x06)
+			return TRUE;
+	}
+	return FALSE;
+}
+#endif
 
 static DWORD get_availableSIMD() {
 	int CPUInfo[4];
@@ -247,6 +263,17 @@ static DWORD get_availableSIMD() {
 		simd |= AUO_SIMD_SSE41;
 	if  (CPUInfo[2] & 0x00100000)
 		simd |= AUO_SIMD_SSE42;
+#if (_MSC_VER >= 1600)
+	unsigned __int64 XGETBV = 0;
+	if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
+		XGETBV = _xgetbv(0);
+		if ((XGETBV & 0x06) == 0x06)
+			simd |= AUO_SIMD_AVX;
+	}
+	__cpuid(CPUInfo, 7);
+	if ((simd & AUO_SIMD_AVX) && (CPUInfo[1] & 0x00000020))
+		simd |= AUO_SIMD_AVX2;
+#endif
 	return simd;
 }
 

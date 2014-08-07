@@ -184,10 +184,28 @@ void convert_yuy2_to_nv12_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const i
 void convert_yuy2_to_nv12_i_sse2_mod16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yuy2_to_nv12_i_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+#if (_MSC_VER >= 1600) //AVX のサポートはVC++2010(VS10)から
+void convert_yuy2_to_nv12_avx_mod16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_nv12_avx(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_nv12_i_avx_mod16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_nv12_i_avx(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#endif //_MSC_VER >= 1600
+
 void convert_yc48_to_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
+#if (_MSC_VER >= 1600)
+void convert_yc48_to_nv12_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_10bit_full_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_full_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_10bit_avx_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_avx_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_10bit_full_avx_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_full_avx_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#endif //_MSC_VER >= 1600
 
 void convert_yc48_to_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -228,6 +246,10 @@ void convert_yc48_to_nv16_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 void convert_yc48_to_nv16_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#if (_MSC_VER >= 1600)
+void convert_yc48_to_nv16_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv16_10bit_full_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#endif
 
 void convert_yc48_to_yuv444(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -238,6 +260,10 @@ void convert_yc48_to_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#if (_MSC_VER >= 1600)
+void convert_yc48_to_yuv444_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_10bit_full_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+#endif
 
 void convert_yc48_to_bt709_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_bt709_nv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);

@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\encode">
+      <UniqueIdentifier>{2006641f-689e-4924-a8aa-a3559f69131a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\prm">
+      <UniqueIdentifier>{dff6ba52-a534-49a6-9362-c5342789fce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\frm">
+      <UniqueIdentifier>{af6f7918-10e7-458c-84ef-1ed1e0c39efb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\encode">
+      <UniqueIdentifier>{d4fbb013-3cb5-401f-ba72-0b602150395a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\frm">
+      <UniqueIdentifier>{16c18e19-d039-4b9e-99a0-74a136210bec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\prm">
+      <UniqueIdentifier>{2e51bfe9-60a0-4b8a-bea9-2c106b80c2d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="フォーム">
+      <UniqueIdentifier>{07413a43-ce94-4dc2-9c19-f1422eeb1c21}</UniqueIdentifier>
+      <Extensions>h;resx;cpp</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\x264guiEx\x264guiEx.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\prm\h264_level.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_audio.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_chapter.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\prm\auo_conf.cpp">
+      <Filter>ソース ファイル\prm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_convert.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\frm\auo_error.cpp">
+      <Filter>ソース ファイル\frm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\frm\auo_frm.cpp">
+      <Filter>ソース ファイル\frm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_encode.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_mux.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\prm\auo_options.cpp">
+      <Filter>ソース ファイル\prm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_pipe.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_runbat.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\prm\auo_settings.cpp">
+      <Filter>ソース ファイル\prm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\prm\auo_util.cpp">
+      <Filter>ソース ファイル\prm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\auo_video.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\frm\auo_win7_taskbar.cpp">
+      <Filter>ソース ファイル\frm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\convert.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\encode\fawcheck.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\frm\frmConfig.cpp">
+      <Filter>フォーム</Filter>
+    </ClCompile>
+    <ClCompile Include="..\x264guiEx\frm\frmLog.cpp">
+      <Filter>フォーム</Filter>
+    </ClCompile>
+    <ClInclude Include="..\x264guiEx\frm\frmAutoSaveLogSettings.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmBitrateCalculator.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmConfig.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmConfig_helper.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmLog.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmOtherSettings.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\frmSaveNewStg.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClCompile Include="..\x264guiEx\encode\convert_avx.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\x264guiEx\x264guiEx.def">
+      <Filter>ソース ファイル</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\x264guiEx\auo.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\auo_version.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\output.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\afs_client.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_audio.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\auo_clrutil.h">
+      <Filter>ヘッダー ファイル\frm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_chapter.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_convert.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_encode.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\auo_error.h">
+      <Filter>ヘッダー ファイル\frm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\auo_frm.h">
+      <Filter>ヘッダー ファイル\frm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_mux.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_pipe.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_runbat.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\auo_video.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\frm\auo_win7_taskbar.h">
+      <Filter>ヘッダー ファイル\frm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\h264_level.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\auo_util.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\auo_system.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\auo_settings.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\auo_options.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\prm\auo_conf.h">
+      <Filter>ヘッダー ファイル\prm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\convert.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\fawcheck.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264guiEx\encode\vphelp_client.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmAutoSaveLogSettings.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmBitrateCalculator.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmConfig.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmLog.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmOtherSettings.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\x264guiEx\frm\frmSaveNewStg.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

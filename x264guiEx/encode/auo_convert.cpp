@@ -77,10 +77,16 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_bt709_nv16_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_bt709_nv16_10bit_full },
 #endif //ENABLE_BT709_CONV
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv16_10bit_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_10bit_ssse3 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_nv16_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_nv16_10bit },
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv16_10bit_full_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_10bit_full_ssse3 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_nv16_10bit_full_sse2 },
@@ -102,9 +108,15 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_bt709_yuv444_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_bt709_yuv444_10bit_full },
 #endif //ENABLE_BT709_CONV
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_10bit_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yuv444_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_yuv444_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_yuv444_10bit },
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_10bit_full_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yuv444_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_yuv444_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_yuv444_10bit_full },
@@ -115,6 +127,12 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  NONE,                 sort_to_rgb },
 
 	//YUY2 -> nv12(8bit)
+#if (_MSC_VER >= 1600)
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL, 16,  AVX|SSE2,             convert_yuy2_to_nv12_avx_mod16 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  AVX|SSE2,             convert_yuy2_to_nv12_avx },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL, 16,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx_mod16 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx },
+#endif //_MSC_VER >= 1600
 	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL, 16,  SSE2,                 convert_yuy2_to_nv12_sse2_mod16 },
 	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  SSE2,                 convert_yuy2_to_nv12_sse2 },
 	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  NONE,                 convert_yuy2_to_nv12 },
@@ -145,6 +163,10 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE2,                 convert_yc48_to_bt709_nv12_i_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, FULL,  1,  NONE,                 convert_yc48_to_bt709_nv12_i_10bit_full },
 #endif //ENABLE_BT709_CONV
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_avx_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3_mod8 },
@@ -152,6 +174,10 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE2,                 convert_yc48_to_nv12_10bit_sse2_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE2,                 convert_yc48_to_nv12_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  NONE,                 convert_yc48_to_nv12_10bit },
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_full_avx_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_full_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_full_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_full_ssse3_mod8 },
@@ -159,6 +185,10 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE2,                 convert_yc48_to_nv12_10bit_full_sse2_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE2,                 convert_yc48_to_nv12_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  NONE,                 convert_yc48_to_nv12_10bit_full },
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_avx_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_ssse3_mod8 },
@@ -166,6 +196,10 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  NONE,                 convert_yc48_to_nv12_i_10bit },
+#if (_MSC_VER >= 1600)
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_full_avx_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_full_avx },
+#endif
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_full_ssse3_mod8 },
