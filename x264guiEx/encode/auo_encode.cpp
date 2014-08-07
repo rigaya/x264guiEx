@@ -21,6 +21,7 @@
 #include "auo_pipe.h"
 
 #include "auo_encode.h"
+#include "auo_error.h"
 
 void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe) {
 	PathCombineLong(audfile, nSize, pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
@@ -233,7 +234,7 @@ DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const
 //tc_filenameのタイムコードを分析して動画の長さを得て、
 //duration(秒)にセットする
 //fpsにはAviutlからの値を与える(参考として使う)
-DWORD get_duration_from_timecode(double *duration, const char *tc_filename, double fps) {
+static DWORD get_duration_from_timecode(double *duration, const char *tc_filename, double fps) {
 	DWORD ret = AUO_RESULT_SUCCESS;
 	FILE *fp = NULL;
 	*duration = 0.0;
@@ -274,4 +275,22 @@ DWORD get_duration_from_timecode(double *duration, const char *tc_filename, doub
 		}
 	}
 	return ret;
+}
+
+double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
+	char buffer[MAX_PATH_LEN];
+	//Aviutlから再生時間情報を取得
+	double duration = (((double)oip->n * (double)oip->scale * 1000.0) / (double)oip->rate);
+	//tcfile-inなら、動画の長さはタイムコードから取得する
+	if (conf->x264.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, "--tcfile-in", buffer, sizeof(buffer))) {
+		double duration_tmp = 0.0;
+		if (conf->x264.use_tcfilein)
+			strcpy_s(buffer, sizeof(buffer), conf->vid.tcfile_in);
+		cmd_replace(buffer, sizeof(buffer), pe, sys_dat, oip->savefile);
+		if (AUO_RESULT_SUCCESS == get_duration_from_timecode(&duration_tmp, buffer, oip->rate / (double)oip->scale))
+			duration = duration_tmp;
+		else
+			warning_failed_to_get_duration_from_timecode();
+	}
+	return duration;
 }

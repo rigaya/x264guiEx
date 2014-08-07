@@ -32,6 +32,6 @@ enum AuoChapStatus {
 //チャプターファイルの変換を行う
 //基本的にはorig_nero_filename(nero形式) から new_apple_filename(apple形式) へ
 //orig_fileがapple形式の場合、nero形式を出力してファイル名をスワップする
-AuoChapStatus convert_chapter(const char *new_apple_filename, const char *orig_nero_filename, DWORD orig_code_page, DWORD duration_ms);
+AuoChapStatus convert_chapter(const char *new_apple_filename, const char *orig_nero_filename, DWORD orig_code_page, double duration);
 
 #endif //_AUO_CHAPTER_H_

@@ -87,10 +87,11 @@ static AuoChapStatus write_chapter_apple_header(FILE *fp, IMultiLanguage2 *pImul
 }
 
 //終端 長さも指定する(しないとわけのわからんdurationになる)
-static AuoChapStatus write_chapter_apple_foot(FILE *fp, IMultiLanguage2 *pImul, DWORD duration_ms) {
+static AuoChapStatus write_chapter_apple_foot(FILE *fp, IMultiLanguage2 *pImul, double duration) {
 	if (fp == NULL)
 		return AUO_CHAP_ERR_NULL_PTR;
 	WCHAR chap_foot[256];
+	DWORD duration_ms = (DWORD)(duration * 1000.0 + 0.5);
 	swprintf_s(chap_foot, sizeof(chap_foot) / sizeof(WCHAR), 
 		L"<TextSample sampleTime=\"%02d:%02d:%02d.%03d\" text=\"\" />\r\n</TextStream>",
 		duration_ms / (60*60*1000),
@@ -274,7 +275,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 	return sts;
 }
 
-AuoChapStatus convert_chapter(const char *new_filename, const char *orig_filename, DWORD orig_code_page, DWORD duration_ms) {
+AuoChapStatus convert_chapter(const char *new_filename, const char *orig_filename, DWORD orig_code_page, double duration) {
 	if (new_filename == NULL || orig_filename == NULL || new_filename == orig_filename)
 		return AUO_CHAP_ERR_NULL_PTR;
 
@@ -363,7 +364,7 @@ AuoChapStatus convert_chapter(const char *new_filename, const char *orig_filenam
 
 			//直前に最後まで読み切っていたらここで終了
 			if (read_to_end) {
-				sts = write_chapter_apple_foot(fp_new, pIMulLang, duration_ms);
+				sts = write_chapter_apple_foot(fp_new, pIMulLang, duration);
 				break;
 			}
 
