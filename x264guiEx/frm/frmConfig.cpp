@@ -24,6 +24,7 @@ using namespace x264guiEx;
 /// -------------------------------------------------
 ///     設定画面の表示
 /// -------------------------------------------------
+[STAThreadAttribute]
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat) {
 	if (!sys_dat->exstg->s_local.disable_visual_styles)
 		System::Windows::Forms::Application::EnableVisualStyles();
