@@ -377,7 +377,7 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	build_simd_info(func_info->SIMD, simd_buf, sizeof(simd_buf));
 
 	if (func_info->output_csp == OUT_CSP_RGB) {
-		write_log_auo_line_fmt(LOG_INFO, "Sorintg RGB%s", simd_buf);
+		write_log_auo_line_fmt(LOG_INFO, "Sorting RGB%s", simd_buf);
 		return;
 	}
 

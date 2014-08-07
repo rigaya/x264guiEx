@@ -307,7 +307,7 @@ System::Void frmConfig::ActivateToolTip(bool Enable) {
 	fcgTTX264->Active = Enable;
 	fcgTTX264Version->Active = Enable;
 }
- 
+
 System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e) {
 	frmOtherSettings::Instance::get()->stgDir = String(sys_dat->exstg->s_local.stg_dir).ToString();
 	frmOtherSettings::Instance::get()->ShowDialog();
