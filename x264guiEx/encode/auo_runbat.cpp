@@ -34,14 +34,16 @@ static void bat_replace(char *cmd, size_t nSize, const char *savefile, const PRM
 	char log_path[MAX_PATH_LEN];
 	getLogFilePath(log_path, sizeof(log_path), pe, savefile, sys_dat);
 	replace(cmd, nSize, "%{logpath}", log_path);
-
-	char chap_file[MAX_PATH_LEN];
-	char chap_apple[MAX_PATH_LEN];
-	const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
-	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
-	set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), 
-		muxer_mode->chap_file, pe, sys_dat, savefile);
-	replace(cmd, nSize, "%{chapter}", chap_file);
+	
+	char chap_file[MAX_PATH_LEN] = { 0 };
+	char chap_apple[MAX_PATH_LEN] = { 0 };
+	if (pe->muxer_to_be_used >= 0) {
+		const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
+		const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
+		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), 
+			muxer_mode->chap_file, pe, sys_dat, savefile);
+	}
+	replace(cmd, nSize, "%{chapter}",    chap_file);
 	replace(cmd, nSize, "%{chap_apple}", chap_apple);
 }
 
