@@ -825,3 +825,37 @@ const X264_OPTION_STR * get_option_list(const char *option_name) {
 void set_ex_stg_ptr(guiEx_settings *_ex_stg) {
 	ex_stg = _ex_stg;
 }
+
+int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize) {
+	//初期化
+	buffer[0] = '\0';
+	//LONG_OPTIONかSHORT_OPTIONかの判定
+	if (target_option_name[0] != '-')
+		return -1;
+	target_option_name++;
+	BOOL target_arg_type = (target_option_name[0] == '-');
+	target_option_name += target_arg_type;
+
+	int ret = 1;
+	std::vector<CMD_ARG> cmd_arg_list;
+	//parse_argでコマンドラインは書き変えられるので、
+	//一度コピーしておく
+	size_t cmd_len = strlen(cmd_src) + 1;
+	char *cmd = (char *)malloc(cmd_len + 1);
+	memcpy(cmd, cmd_src, cmd_len + 1);
+	set_setting_list();
+	parse_arg(cmd, cmd_len, &cmd_arg_list);
+	foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {
+		if (it_arg->arg_type == target_arg_type) {
+			if (NULL == strcmp(it_arg->option_name, target_option_name)) {
+				if (it_arg->value) {
+					strcpy_s(buffer, nSize, it_arg->value);
+					ret = 0; //正常に取得
+				}
+				break;
+			}
+		}
+	}
+	free(cmd);
+	return ret;
+}

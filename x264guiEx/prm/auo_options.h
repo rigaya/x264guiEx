@@ -324,5 +324,6 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const v
 void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den);
 const X264_OPTION_STR * get_option_list(const char *option_name);
 void set_ex_stg_ptr(guiEx_settings *_ex_stg);
+int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize);
 
 #endif //_AUO_OPTIONS_H_
