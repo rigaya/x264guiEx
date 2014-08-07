@@ -3758,6 +3758,8 @@ private: System::Windows::Forms::Label^  fcgLBInputRange;
 			this->fcgTXBatPath->Size = System::Drawing::Size(202, 21);
 			this->fcgTXBatPath->TabIndex = 4;
 			this->fcgTXBatPath->Tag = L"chValue";
+			this->fcgTXBatPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXBatPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
 			// 
 			// fcgLBBatPath
 			// 
