@@ -159,7 +159,7 @@ System::Void frmConfig::InformfbcClosed() {
 System::Void frmConfig::LoadLocalStg() {
 	guiEx_settings *_ex_stg = sys_dat->exstg;
 	_ex_stg->load_encode_stg();
-	LocalStg.x264ExeName     = L"x264.exe";
+	LocalStg.x264ExeName     = String(_ex_stg->s_x264.filename).ToString();
 	LocalStg.x264Path        = String(_ex_stg->s_x264.fullpath).ToString();
 	LocalStg.x264Path10bit   = String(_ex_stg->s_x264.fullpath_10bit).ToString();
 	LocalStg.CustomTmpDir    = String(_ex_stg->s_local.custom_tmp_dir).ToString();
