@@ -99,7 +99,7 @@ namespace x264guiEx {
 			lastWindowState = this->WindowState;
 			//プログレスバーの初期化
 			taskbar_progress_enable(exstg.s_log.taskbar_progress);
-			hWnd = (HWND)this->Handle.ToInt32();
+			hWnd = (HWND)this->Handle.ToPointer();
 			taskbar_progress_init();
 			//ログフォントの設定
 			richTextLog->Font = GetFontFrom_AUO_FONT_INFO(&exstg.s_log.log_font, richTextLog->Font);
