@@ -209,12 +209,14 @@ System::Boolean frmConfig::CheckLocalStg() {
 		error = true;
 		err += L"指定された x264 (10bit用) は存在しません。\n [ " + LocalStg.x264Path10bit + L" ]\n";
 	}
-	//音声エンコーダのチェック
-	String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
-	if (!File::Exists(AudioEncoderPath)) {
-		if (!error) err += L"\n\n";
-		error = true;
-		err += L"指定された 音声エンコーダ は存在しません。\n [ " + AudioEncoderPath + L" ]\n";
+	//音声エンコーダのチェック (実行ファイル名がない場合はチェックしない)
+	if (LocalStg.audEncExeName[fcgCXAudioEncoder->SelectedIndex]->Length) {
+		String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
+		if (!File::Exists(AudioEncoderPath)) {
+			if (!error) err += L"\n\n";
+			error = true;
+			err += L"指定された 音声エンコーダ は存在しません。\n [ " + AudioEncoderPath + L" ]\n";
+		}
 	}
 	//FAWのチェック
 	if (fcgCBFAWCheck->Checked) {
@@ -593,8 +595,18 @@ System::Void frmConfig::setAudioDisplay() {
 	int index = fcgCXAudioEncoder->SelectedIndex;
 	AUDIO_SETTINGS *astg = &sys_dat->exstg->s_aud[index];
 	//～の指定
-	fcgLBAudioEncoderPath->Text = String(astg->filename).ToString() + L" の指定";
-	fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[index];
+	if (char_has_length(astg->filename)) {
+		fcgLBAudioEncoderPath->Text = String(astg->filename).ToString() + L" の指定";
+		fcgTXAudioEncoderPath->Enabled = true;
+		fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[index];
+		fcgBTAudioEncoderPath->Enabled = true;
+	} else {
+		//filename空文字列(wav出力時)
+		fcgLBAudioEncoderPath->Text = L"";
+		fcgTXAudioEncoderPath->Enabled = false;
+		fcgTXAudioEncoderPath->Text = L"";
+		fcgBTAudioEncoderPath->Enabled = false;
+	}
 	fcgTXAudioEncoderPath->SelectionStart = fcgTXAudioEncoderPath->Text->Length;
 	fcgCXAudioEncMode->BeginUpdate();
 	fcgCXAudioEncMode->Items->Clear();
@@ -1052,8 +1064,8 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 
 	if (all) {
 		//動画部
-		fcgTXStatusFile->Text = (strlen(cnf->vid.stats))     ? String(cnf->vid.stats).ToString()     : L"%{savfile}.stats";
-		fcgTXTCIN->Text       = (strlen(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : L"%{savfile}_tc.txt";
+		fcgTXStatusFile->Text = (char_has_length(cnf->vid.stats))     ? String(cnf->vid.stats).ToString()     : L"%{savfile}.stats";
+		fcgTXTCIN->Text       = (char_has_length(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : L"%{savfile}_tc.txt";
 
 		fcgCBAFS->Checked                  = cnf->vid.afs != 0;
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
@@ -1258,7 +1270,7 @@ System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(const char *notes) {
-	if (strlen(notes)) {
+	if (char_has_length(notes)) {
 		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[0]).ToString());
 		fcgTSLSettingsNotes->Text = String(notes).ToString();
 	} else {

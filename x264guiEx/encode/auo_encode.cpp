@@ -171,7 +171,8 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
 	}
 	//音声ファイル(wav)
-	move_temp_file(pe->append.wav,  pe->temp_filename, savefile, ret, TRUE, "wav", FALSE);
+	if (strcmp(pe->append.aud, pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
+		move_temp_file(pe->append.wav,  pe->temp_filename, savefile, ret, TRUE, "wav", FALSE);
 	//音声ファイル(エンコード後ファイル)
 	char aud_tempfile[MAX_PATH_LEN];
 	PathCombineLong(aud_tempfile, sizeof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
