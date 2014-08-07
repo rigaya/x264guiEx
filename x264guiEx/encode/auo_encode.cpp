@@ -214,20 +214,64 @@ DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const
 	DWORD ret = AUO_RESULT_SUCCESS;
 	switch (sys_dat->exstg->s_log.auto_save_log_mode) {
 		case AUTO_SAVE_LOG_CUSTOM:
-			{
-				char log_file_dir[MAX_PATH_LEN];
-				strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
-				cmd_replace(log_file_path, nSize, pe, sys_dat, savefile);
-				PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
-				if (DirectoryExistsOrCreate(log_file_dir))
-					break;
-			}
+			char log_file_dir[MAX_PATH_LEN];
+			strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
+			cmd_replace(log_file_path, nSize, pe, sys_dat, savefile);
+			PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
+			if (DirectoryExistsOrCreate(log_file_dir))
+				break;
 			ret = AUO_RESULT_WARNING;
 			//下へフォールスルー
 		case AUTO_SAVE_LOG_OUTPUT_DIR:
 		default:
 			apply_appendix(log_file_path, nSize, savefile, "_log.txt"); 
 			break;
+	}
+	return ret;
+}
+
+//tc_filenameのタイムコードを分析して動画の長さを得て、
+//duration(秒)にセットする
+//fpsにはAviutlからの値を与える(参考として使う)
+DWORD get_duration_from_timecode(double *duration, const char *tc_filename, double fps) {
+	DWORD ret = AUO_RESULT_SUCCESS;
+	FILE *fp = NULL;
+	*duration = 0.0;
+	if (!(NULL == fopen_s(&fp, tc_filename, "r") && fp)) {
+		//ファイルオープンエラー
+		ret |= AUO_RESULT_ERROR;
+	} else {
+		const int avg_frames = 5; //平均をとるフレーム数
+		char buf[256];
+		double timecode[avg_frames];
+		//ファイルからタイムコードを読み出し
+		int frame = 0;
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+			if (buf[0] == '#')
+				continue;
+			if (1 != sscanf_s(buf, "%lf", &timecode[frame%avg_frames])) {
+				ret |= AUO_RESULT_ERROR; break;
+			}
+			frame++;
+		}
+		fclose(fp);
+		frame--; //最後のフレームに合わせる
+		switch (frame) {
+			case -1: //1フレーム分も読めなかった
+				ret |= AUO_RESULT_ERROR; break;
+			case 0: //1フレームのみ
+				*duration = 1.0 / fps; break;
+			default: //フレーム時間を求める((avg_frames-1)フレーム分から平均をとる)
+				int div = 0, n = min(frame, avg_frames);
+				double sum = 0.0;
+				for (int i = 0; i < n; i++) {
+					sum += timecode[i];
+					div += i;
+				}
+				double frame_time = -1.0 * (sum - timecode[frame%avg_frames] * n) / (double)div;
+				*duration = (timecode[frame%avg_frames] + frame_time) / 1000.0;
+				break;
+		}
 	}
 	return ret;
 }

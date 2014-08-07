@@ -248,7 +248,16 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		if (pe->muxer_to_be_used != MUXER_MKV) {
 			//apple形式チャプターファイルへの置換が行われたら、apple形式チャプターファイルを作成する
 			if (strstr(cmd, "%{chap_apple}")) {
+				//Aviutlの情報から動画の長さを計算
 				DWORD duration_ms = (DWORD)(((__int64)oip->n * (__int64)oip->scale * 1000) / (__int64)oip->rate);
+				//tcfile-inなら、動画の長さはタイムコードから取得する
+				if (conf->x264.use_tcfilein) {
+					double duration_sec = 0.0;
+					if (AUO_RESULT_SUCCESS == get_duration_from_timecode(&duration_sec, conf->vid.tcfile_in, oip->rate / (double)oip->scale))
+						duration_ms = (DWORD)(duration_sec * 1000.0 + 0.5);
+					else
+						warning_failed_to_get_duration_from_timecode();
+				}
 				AuoChapStatus sts = convert_chapter(chap_apple, chap_file, CODE_PAGE_UNSET, duration_ms);
 				if (sts != AUO_CHAP_ERR_NONE) {
 					warning_mux_chapter(sts);

@@ -189,6 +189,14 @@ void error_out_drive_not_enough_space() {
 	write_log_auo_line(LOG_ERROR, "出力先のドライブに十分な空きがありません。muxを行えません。");
 }
 
+void warning_failed_to_get_duration_from_timecode() {
+	write_log_auo_line(LOG_WARNING, ""
+	    "auo [warning]: タイムコードからの動画長さの取得に失敗しました。\n"
+		"               Apple形式チャプターに記述する動画長さはAviutlから取得したものを使用します。\n"
+		"               そのため、チャプターストリームの長さが実際の動画と異なる恐れがあります。"
+		);
+}
+
 void error_check_muxout_exist() {
 	write_log_auo_line(LOG_ERROR, "mux後ファイルが見つかりませんでした。");
 }

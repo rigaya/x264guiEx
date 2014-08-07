@@ -260,12 +260,13 @@ void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
 }
 //エンコード時間の表示
 void write_log_auo_enc_time(const char *mes, DWORD time) {
+	time = ((time + 50) / 100) * 100; //四捨五入
 	write_log_auo_line_fmt(LOG_INFO, "%s : %d時間%2d分%2d.%1d秒", 
 		mes, 
 		time / (60*60*1000),
 		(time % (60*60*1000)) / (60*1000), 
 		(time % (60*1000)) / 1000,
-		((time % 1000) + 50) / 100);
+		((time % 1000)) / 100);
 }
 
 static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg) {

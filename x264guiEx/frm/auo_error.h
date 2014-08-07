@@ -46,6 +46,7 @@ void error_no_aud_file();
 void warning_mux_tmp_not_enough_space();
 void error_muxer_drive_not_enough_space();
 void error_out_drive_not_enough_space();
+void warning_failed_to_get_duration_from_timecode();
 void error_check_muxout_exist();
 void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB);
 void warning_failed_check_muxout_filesize();

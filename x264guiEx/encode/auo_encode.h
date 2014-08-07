@@ -36,4 +36,6 @@ DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const
 int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip);
 int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BOOL audio_output);
 
+DWORD get_duration_from_timecode(double *duration, const char *tc_filename, double fps);
+
 #endif //_AUO_ENCODE_H_
