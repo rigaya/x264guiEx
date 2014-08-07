@@ -412,6 +412,9 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 		simd_buf);
 };
 
+//C4189 : ローカル変数が初期化されましたが、参照されていません。
+#pragma warning( push )
+#pragma warning( disable: 4189 )
 //使用する関数を選択する
 func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv) {
 	BOOL convert_yc48_to_bt709 = (yc48_colmat_conv == YC48_COLMAT_CONV_BT709 ||
@@ -451,6 +454,7 @@ func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL i
 	auo_write_func_info(func_info);
 	return func_info->func;
 }
+#pragma warning( pop )
 
 BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL use10bit) {
 	BOOL ret = TRUE;
