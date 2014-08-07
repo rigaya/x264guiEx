@@ -13,6 +13,7 @@
 #include <Windows.h>
 #include <string.h>
 #include <stddef.h>
+#include <intrin.h>
 
 //日本語環境の一般的なコードページ一覧
 static const DWORD CODE_PAGE_SJIS        = 932; //Shift-JIS
@@ -29,6 +30,16 @@ static const DWORD CODE_PAGE_UNSET       = 0xffffffff;
 static const BYTE UTF8_BOM[]     = { 0xEF, 0xBB, 0xBF };
 static const BYTE UTF16_LE_BOM[] = { 0xFF, 0xFE };
 static const BYTE UTF16_BE_BOM[] = { 0xFE, 0xFF };
+
+//SIMD
+static const DWORD AUO_SIMD_NONE  = 0x00;
+static const DWORD AUO_SIMD_SSE2  = 0x01;
+static const DWORD AUO_SIMD_SSE3  = 0x02; //使用していない
+static const DWORD AUO_SIMD_SSSE3 = 0x04;
+static const DWORD AUO_SIMD_SSE41 = 0x08;
+static const DWORD AUO_SIMD_SSE42 = 0x10; //使用していない
+static const DWORD AUO_SIMD_AVX   = 0x20;
+static const DWORD AUO_SIMD_AVX2  = 0x40; //使用していない
 
 //関数マクロ
 #define clamp(x, low, high) (((x) <= (high)) ? (((x) >= (low)) ? (x) : (low)) : (high))
@@ -183,12 +194,69 @@ static inline BOOL char_has_length(const char *str) {
 	return str[0] != '\0';
 }
 
-DWORD cpu_core_count();
-BOOL check_sse2();
-BOOL check_sse3();
-BOOL check_ssse3();
-BOOL check_sse4_1();
-BOOL check_OS_Win7orLater();
+static DWORD cpu_core_count() {
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	return si.dwNumberOfProcessors;
+}
+
+//mmx    cpuid_1 CPUInfo[3] & 0x00800000
+//sse    cpuid_1 CPUInfo[3] & 0x02000000
+//sse2   cpuid_1 CPUInfo[3] & 0x04000000
+//sse3   cpuid_1 CPUInfo[2] & 0x00000001
+//ssse3  cpuid_1 CPUInfo[2] & 0x00000200
+//sse4.1 cpuid_1 CPUInfo[2] & 0x00080000
+//sse4.2 cpuid_1 CPUInfo[2] & 0x00100000
+//avx    cpuid_1 CPUInfo[2] & 0x18000000 == 0x18000000 + OSチェック
+//avx2   cpuid_7 CPUInfo[1] & 0x00000020 + OSチェック
+static BOOL check_sse2() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	return (CPUInfo[3] & 0x04000000) != 0;
+}
+
+static BOOL check_ssse3() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	return (CPUInfo[2] & 0x00000200) != 0;
+}
+
+static BOOL check_sse3() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	return (CPUInfo[2] & 0x00000001) != 0;
+}
+
+static BOOL check_sse4_1() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	return (CPUInfo[2] & 0x00080000) != 0;
+}
+
+static DWORD get_availableSIMD() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	DWORD simd = AUO_SIMD_NONE;
+	if  (CPUInfo[3] & 0x04000000)
+		simd |= AUO_SIMD_SSE2;
+	if  (CPUInfo[2] & 0x00000001)
+		simd |= AUO_SIMD_SSE3;
+	if  (CPUInfo[2] & 0x00000200)
+		simd |= AUO_SIMD_SSSE3;
+	if  (CPUInfo[2] & 0x00080000)
+		simd |= AUO_SIMD_SSE41;
+	if  (CPUInfo[2] & 0x00100000)
+		simd |= AUO_SIMD_SSE42;
+	return simd;
+}
+
+static BOOL check_OS_Win7orLater() {
+	OSVERSIONINFO osvi = { 0 };
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	return ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && ((osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 1) || osvi.dwMajorVersion > 6));
+}
+
 void get_auo_path(char *auo_path, size_t nSize);
 void get_aviutl_dir(char *aviutl_dir, size_t nSize);
 size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str);

@@ -40,13 +40,15 @@ typedef struct {
 	func_convert_frame func;      //関数へのポインタ
 } COVERT_FUNC_INFO;
 
-static const DWORD NONE  = 0x00;
-static const DWORD SSE2  = 0x01;
-static const DWORD SSE3  = 0x02; //使用していない
-static const DWORD SSSE3 = 0x04;
-static const DWORD SSE41 = 0x08;
-static const DWORD SSE42 = 0x10; //使用していない
-static const DWORD AVX   = 0x20; //使用していない
+//表でうっとおしいので省略する
+#define NONE  AUO_SIMD_NONE
+#define SSE2  AUO_SIMD_SSE2
+#define SSE3  AUO_SIMD_SSE3
+#define SSSE3 AUO_SIMD_SSSE3
+#define SSE41 AUO_SIMD_SSE41
+#define SSE42 AUO_SIMD_SSE42
+#define AVX   AUO_SIMD_AVX
+#define AVX2  AUO_SIMD_AVX2
 
 static const BOOL BIT_8 = 0;  //8bit用
 static const BOOL BIT10 = 1;  //10bit用
@@ -64,315 +66,128 @@ static const int FULL = 1;    //fullrange用
 //上からチェックするので、より厳しい条件で速い関数を上に書くこと
 static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	//YUY2 -> nv16(8bit)
-	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  SSE2,             convert_yuy2_to_nv16_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  NONE,             convert_yuy2_to_nv16 },
+	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  SSE2,                 convert_yuy2_to_nv16_sse2 },
+	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  NONE,                 convert_yuy2_to_nv16 },
 	//YC48 -> nv16(10bit)
 #ifdef ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv16_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_bt709_nv16_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_bt709_nv16_10bit },
-	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv16_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_bt709_nv16_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_bt709_nv16_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv16_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_bt709_nv16_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_bt709_nv16_10bit },
+	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv16_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_bt709_nv16_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_bt709_nv16_10bit_full },
 #endif //ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv16_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSSE3|SSE2,       convert_yc48_to_nv16_10bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_nv16_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_nv16_10bit },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv16_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSSE3|SSE2,       convert_yc48_to_nv16_10bit_full_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_nv16_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_nv16_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_10bit_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_nv16_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_nv16_10bit },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_10bit_full_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_nv16_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_nv16_10bit_full },
 
 	//YC48 -> yuv444(8bit)
 #ifdef ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  SSE2,             convert_yc48_to_bt709_yuv444_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  NONE,             convert_yc48_to_bt709_yuv444 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  SSE2,                 convert_yc48_to_bt709_yuv444_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  NONE,                 convert_yc48_to_bt709_yuv444 },
 #endif //ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  SSE2,             convert_yc48_to_yuv444_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  NONE,             convert_yc48_to_yuv444 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  SSE2,                 convert_yc48_to_yuv444_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  NONE,                 convert_yc48_to_yuv444 },
 	//YC48 -> yuv444(10bit)
 #ifdef ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_yuv444_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_bt709_yuv444_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_bt709_yuv444_10bit },
-	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_yuv444_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_bt709_yuv444_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_bt709_yuv444_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_yuv444_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_bt709_yuv444_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_bt709_yuv444_10bit },
+	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_yuv444_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_bt709_yuv444_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_bt709_yuv444_10bit_full },
 #endif //ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_yuv444_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_yuv444_10bit },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_yuv444_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_yuv444_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yuv444_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE2,                 convert_yc48_to_yuv444_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  NONE,                 convert_yc48_to_yuv444_10bit },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yuv444_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_yuv444_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_yuv444_10bit_full },
 
 	//RGB Sorting
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSSE3,            sort_to_rgb_ssse3 },
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSE2,             sort_to_rgb_sse2 },
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  NONE,             sort_to_rgb },
+	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSSE3,                sort_to_rgb_ssse3 },
+	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSE2,                 sort_to_rgb_sse2 },
+	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  NONE,                 sort_to_rgb },
 
 	//YUY2 -> nv12(8bit)
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL, 16,  SSE2,             convert_yuy2_to_nv12_sse2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  SSE2,             convert_yuy2_to_nv12_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  NONE,             convert_yuy2_to_nv12 },
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL, 16,  SSE2,             convert_yuy2_to_nv12_i_sse2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  SSE2,             convert_yuy2_to_nv12_i_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  NONE,             convert_yuy2_to_nv12_i },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL, 16,  SSE2,                 convert_yuy2_to_nv12_sse2_mod16 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  SSE2,                 convert_yuy2_to_nv12_sse2 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, P, _ALL,  1,  NONE,                 convert_yuy2_to_nv12 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL, 16,  SSE2,                 convert_yuy2_to_nv12_i_sse2_mod16 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  SSE2,                 convert_yuy2_to_nv12_i_sse2 },
+	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  NONE,                 convert_yuy2_to_nv12_i },
 
 	//YC48 -> nv12(10bit)
 #ifdef ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE2,             convert_yc48_to_bt709_nv12_10bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  1,  SSE2,             convert_yc48_to_bt709_nv12_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, P, LIMI,  1,  NONE,             convert_yc48_to_bt709_nv12_10bit },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  8,  SSE2,             convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  1,  SSE2,             convert_yc48_to_bt709_nv12_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, P, FULL,  1,  NONE,             convert_yc48_to_bt709_nv12_10bit_full },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_i_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  8,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  1,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, LIMI,  1,  NONE,             convert_yc48_to_bt709_nv12_i_10bit },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  8,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, FULL,  1,  NONE,             convert_yc48_to_bt709_nv12_i_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE2,                 convert_yc48_to_bt709_nv12_10bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  1,  SSE2,                 convert_yc48_to_bt709_nv12_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, P, LIMI,  1,  NONE,                 convert_yc48_to_bt709_nv12_10bit },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  8,  SSE2,                 convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, FULL,  1,  SSE2,                 convert_yc48_to_bt709_nv12_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, P, FULL,  1,  NONE,                 convert_yc48_to_bt709_nv12_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_i_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  8,  SSE2,                 convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, LIMI,  1,  SSE2,                 convert_yc48_to_bt709_nv12_i_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, LIMI,  1,  NONE,                 convert_yc48_to_bt709_nv12_i_10bit },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  8,  SSE2,                 convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE2,                 convert_yc48_to_bt709_nv12_i_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, FULL,  1,  NONE,                 convert_yc48_to_bt709_nv12_i_10bit_full },
 #endif //ENABLE_BT709_CONV
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSSE3|SSE2,       convert_yc48_to_nv12_10bit_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSSE3|SSE2,       convert_yc48_to_nv12_10bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE2,             convert_yc48_to_nv12_10bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE2,             convert_yc48_to_nv12_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  NONE,             convert_yc48_to_nv12_10bit },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_full_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSSE3|SSE2,       convert_yc48_to_nv12_10bit_full_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSSE3|SSE2,       convert_yc48_to_nv12_10bit_full_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE2,             convert_yc48_to_nv12_10bit_full_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE2,             convert_yc48_to_nv12_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  NONE,             convert_yc48_to_nv12_10bit_full },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSSE3|SSE2,       convert_yc48_to_nv12_i_10bit_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSSE3|SSE2,       convert_yc48_to_nv12_i_10bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE2,             convert_yc48_to_nv12_i_10bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE2,             convert_yc48_to_nv12_i_10bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  NONE,             convert_yc48_to_nv12_i_10bit },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_full_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSSE3|SSE2,       convert_yc48_to_nv12_i_10bit_full_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSSE3|SSE2,       convert_yc48_to_nv12_i_10bit_full_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSE2,             convert_yc48_to_nv12_i_10bit_full_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSE2,             convert_yc48_to_nv12_i_10bit_full_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  NONE,             convert_yc48_to_nv12_i_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE2,                 convert_yc48_to_nv12_10bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE2,                 convert_yc48_to_nv12_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  NONE,                 convert_yc48_to_nv12_10bit },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_full_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_full_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_full_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  8,  SSE2,                 convert_yc48_to_nv12_10bit_full_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  SSE2,                 convert_yc48_to_nv12_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, FULL,  1,  NONE,                 convert_yc48_to_nv12_10bit_full },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  8,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, LIMI,  1,  NONE,                 convert_yc48_to_nv12_i_10bit },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_full_sse4_1 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_full_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_full_ssse3 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  8,  SSE2,                 convert_yc48_to_nv12_i_10bit_full_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  SSE2,                 convert_yc48_to_nv12_i_10bit_full_sse2 },
+	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, I, FULL,  1,  NONE,                 convert_yc48_to_nv12_i_10bit_full },
 
 	{ 0, 0, 0, 0, A, 0, 0, 0, NULL }
 };
 
-//使用する関数を選択する
-//static func_convert_frame get_convert_func_yuv422(BOOL use10bit, BOOL fullrange, BOOL convert_yc48_to_bt709) {
-//	if (!use10bit) {
-//		return     (check_sse2())     ? convert_yuy2_to_nv16_sse2              : convert_yuy2_to_nv16;
-//	} else {
-//		if (convert_yc48_to_bt709) {
-//			if (!fullrange) {
-//				if      (check_sse4_1())
-//					return              convert_yc48_to_bt709_nv16_10bit_sse4_1;
-//				else if (check_ssse3())
-//					return              convert_yc48_to_bt709_nv16_10bit_ssse3;
-//				else if (check_sse2())
-//					return              convert_yc48_to_bt709_nv16_10bit_sse2;
-//				else
-//					return              convert_yc48_to_bt709_nv16_10bit;
-//			} else {
-//				if      (check_sse4_1())
-//					return              convert_yc48_to_bt709_nv16_10bit_full_sse4_1;
-//				else if (check_ssse3())
-//					return              convert_yc48_to_bt709_nv16_10bit_full_ssse3;
-//				else if (check_sse2())
-//					return              convert_yc48_to_bt709_nv16_10bit_full_sse2;
-//				else
-//					return              convert_yc48_to_bt709_nv16_10bit_full;
-//			}
-//		} else {
-//			if (!fullrange) {
-//				if      (check_sse4_1())
-//					return              convert_yc48_to_nv16_10bit_sse4_1;
-//				else if (check_ssse3())
-//					return              convert_yc48_to_nv16_10bit_ssse3;
-//				else if (check_sse2())
-//					return              convert_yc48_to_nv16_10bit_sse2;
-//				else
-//					return              convert_yc48_to_nv16_10bit;
-//			} else {
-//				if      (check_sse4_1())
-//					return              convert_yc48_to_nv16_10bit_full_sse4_1;
-//				else if (check_ssse3())
-//					return              convert_yc48_to_nv16_10bit_full_ssse3;
-//				else if (check_sse2())
-//					return              convert_yc48_to_nv16_10bit_full_sse2;
-//				else
-//					return              convert_yc48_to_nv16_10bit_full;
-//			}
-//		}
-//	}
-//}
-//
-//static func_convert_frame get_convert_func_yuv444(BOOL use10bit, BOOL fullrange, BOOL convert_yc48_to_bt709) {
-//	if (!use10bit) {
-//		return         (check_sse2()) ? convert_yc48_to_yuv444_sse2            : convert_yc48_to_yuv444;
-//	} else {
-//		if (convert_yc48_to_bt709) {		
-//			if (!fullrange) {
-//				if         (check_sse4_1())
-//					return                  convert_yc48_to_bt709_yuv444_10bit_sse4_1;
-//				else if    (check_sse2())
-//					return                  convert_yc48_to_bt709_yuv444_10bit_sse2;
-//				else
-//					return                  convert_yc48_to_bt709_yuv444_10bit;
-//			} else
-//				return     (check_sse2()) ? convert_yc48_to_bt709_yuv444_10bit_full_sse2 : convert_yc48_to_bt709_yuv444_10bit_full;
-//		} else {
-//			if (!fullrange) {
-//				if         (check_sse4_1())
-//					return                  convert_yc48_to_yuv444_10bit_sse4_1;
-//				else if    (check_sse2())
-//					return                  convert_yc48_to_yuv444_10bit_sse2;
-//				else
-//					return                  convert_yc48_to_yuv444_10bit;
-//			} else
-//				return     (check_sse2()) ? convert_yc48_to_yuv444_10bit_full_sse2 : convert_yc48_to_yuv444_10bit_full;
-//		}
-//	}
-//}
-//
-//static func_convert_frame get_convert_func_rgb() {
-//	if      (check_ssse3())
-//		return sort_to_rgb_ssse3;
-//	else if (check_sse2())
-//		return sort_to_rgb_sse2;
-//	else
-//		return sort_to_rgb;
-//}
-//
-//static func_convert_frame get_convert_func_yuv420(int width, BOOL use10bit, BOOL interlaced, BOOL fullrange, BOOL convert_yc48_to_bt709) {
-//	if (!use10bit) {
-//		if (!interlaced)
-//			return     (check_sse2()) ? ((width%16==0) ? convert_yuy2_to_nv12_sse2_mod16              : convert_yuy2_to_nv12_sse2)              : convert_yuy2_to_nv12;
-//		else
-//			return     (check_sse2()) ? ((width%16==0) ? convert_yuy2_to_nv12_i_sse2_mod16            : convert_yuy2_to_nv12_i_sse2)            : convert_yuy2_to_nv12_i;
-//	} else {
-//		if (convert_yc48_to_bt709) {
-//			if (!interlaced) {
-//				if (!fullrange) {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8       : convert_yc48_to_bt709_nv12_10bit_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_ssse3_mod8        : convert_yc48_to_bt709_nv12_10bit_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_sse2_mod8         : convert_yc48_to_bt709_nv12_10bit_sse2;
-//					else
-//						return                               convert_yc48_to_bt709_nv12_10bit;
-//				} else {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8  : convert_yc48_to_bt709_nv12_10bit_full_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_full_ssse3_mod8   : convert_yc48_to_bt709_nv12_10bit_full_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8    : convert_yc48_to_bt709_nv12_10bit_full_sse2;
-//					else
-//						return                               convert_yc48_to_bt709_nv12_10bit_full;
-//				}
-//			} else {
-//				if (!fullrange) {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8      : convert_yc48_to_bt709_nv12_i_10bit_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_ssse3_mod8       : convert_yc48_to_bt709_nv12_i_10bit_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8        : convert_yc48_to_bt709_nv12_i_10bit_sse2;
-//					else
-//						return                               convert_yc48_to_bt709_nv12_i_10bit;
-//				} else {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8 : convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_full_ssse3_mod8  : convert_yc48_to_bt709_nv12_i_10bit_full_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8   : convert_yc48_to_bt709_nv12_i_10bit_full_sse2;
-//					else
-//						return                               convert_yc48_to_bt709_nv12_i_10bit_full;
-//				}
-//			}
-//		} else {
-//			if (!interlaced) {
-//				if (!fullrange) {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_sse4_1_mod8       : convert_yc48_to_nv12_10bit_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_ssse3_mod8        : convert_yc48_to_nv12_10bit_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_sse2_mod8         : convert_yc48_to_nv12_10bit_sse2;
-//					else
-//						return                               convert_yc48_to_nv12_10bit;
-//				} else {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_sse4_1_mod8  : convert_yc48_to_nv12_10bit_full_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_ssse3_mod8   : convert_yc48_to_nv12_10bit_full_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_10bit_full_sse2_mod8    : convert_yc48_to_nv12_10bit_full_sse2;
-//					else
-//						return                               convert_yc48_to_nv12_10bit_full;
-//				}
-//			} else {
-//				if (!fullrange) {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_sse4_1_mod8      : convert_yc48_to_nv12_i_10bit_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_ssse3_mod8       : convert_yc48_to_nv12_i_10bit_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_sse2_mod8        : convert_yc48_to_nv12_i_10bit_sse2;
-//					else
-//						return                               convert_yc48_to_nv12_i_10bit;
-//				} else {
-//					if      (check_sse4_1())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8 : convert_yc48_to_nv12_i_10bit_full_sse4_1;
-//					else if (check_ssse3())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_ssse3_mod8  : convert_yc48_to_nv12_i_10bit_full_ssse3;
-//					else if (check_sse2())
-//						return               (width%8==0)  ? convert_yc48_to_nv12_i_10bit_full_sse2_mod8   : convert_yc48_to_nv12_i_10bit_full_sse2;
-//					else
-//						return                               convert_yc48_to_nv12_i_10bit_full;
-//				}
-//			}
-//		}
-//	}
-//}
-
-static DWORD get_availableSIMD() {
-	DWORD simd = NONE;
-	     if (check_sse4_1()) simd = (SSE2|SSE3|SSSE3|SSE41);
-	else if (check_ssse3())  simd = (SSE2|SSE3|SSSE3);
-	else if (check_sse3())   simd = (SSE2|SSE3);
-	else if (check_sse2())   simd = (SSE2);
-	return simd;
-}
-
 static void build_simd_info(DWORD simd, char *buf, DWORD nSize) {
 	ZeroMemory(buf, nSize);
-	if (simd) {
+	if (simd != NONE) {
 		strcpy_s(buf, nSize, ", using");
 		if (simd & SSE2)  strcat_s(buf, nSize, " SSE2");
 		if (simd & SSE3)  strcat_s(buf, nSize, " SSE3");
 		if (simd & SSSE3) strcat_s(buf, nSize, " SSSE3");
 		if (simd & SSE41) strcat_s(buf, nSize, " SSE4.1");
+		if (simd & SSE42) strcat_s(buf, nSize, " SSE4.2");
+		if (simd & AVX)   strcat_s(buf, nSize, " AVX");
+		if (simd & AVX2)  strcat_s(buf, nSize, " AVX2");
 	}
 }
 

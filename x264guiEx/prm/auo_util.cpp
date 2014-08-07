@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
-#include <intrin.h>
 #include <algorithm>
 
 #include "auo.h"
@@ -22,51 +21,6 @@
 
 const int CREATEFILE_MAX_RETRY      = 5;
 const int CREATEFILE_RETRY_INTERVAL = 250;
-
-DWORD cpu_core_count() {
-	SYSTEM_INFO si;
-    GetSystemInfo(&si);
-	return si.dwNumberOfProcessors;
-}
-
-//mmx    CPUInfo[3] & 0x00800000
-//sse    CPUInfo[3] & 0x02000000
-//sse2   CPUInfo[3] & 0x04000000
-//sse3   CPUInfo[2] & 0x00000001
-//ssse3  CPUInfo[2] & 0x00000200
-//sse4.1 CPUInfo[2] & 0x00080000
-//sse4.2 CPUInfo[2] & 0x00100000
-//avx    CPUInfo[2] & 0x18000000 == 0x18000000 + OSチェック
-BOOL check_sse2() {
-	int CPUInfo[4];
-	__cpuid(CPUInfo, 1);
-	return (CPUInfo[3] & 0x04000000) != 0;
-}
-
-BOOL check_ssse3() {
-	int CPUInfo[4];
-	__cpuid(CPUInfo, 1);
-	return (CPUInfo[2] & 0x00000200) != 0;
-}
-
-BOOL check_sse3() {
-	int CPUInfo[4];
-	__cpuid(CPUInfo, 1);
-	return (CPUInfo[2] & 0x00000001) != 0;
-}
-
-BOOL check_sse4_1() {
-	int CPUInfo[4];
-	__cpuid(CPUInfo, 1);
-	return (CPUInfo[2] & 0x00080000) != 0;
-}
-
-BOOL check_OS_Win7orLater() {
-	OSVERSIONINFO osvi = { 0 };
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&osvi);
-	return ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && ((osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 1) || osvi.dwMajorVersion > 6));
-}
 
 void get_auo_path(char *auo_path, size_t nSize) {
 	GetModuleFileName(GetModuleHandle(AUO_NAME), auo_path, (DWORD)nSize);
