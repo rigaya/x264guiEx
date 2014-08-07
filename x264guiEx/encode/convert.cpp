@@ -36,20 +36,20 @@
 ///   YC48(y,cb,cr) -> YUV(8bit)
 ///
 ///           Y   = clamp((y * 219 + 383)>>12) + 16, 0, 255)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 + 0)>>15) + 16, 0, 255)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 0)>>16) + 16, 0, 255)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 7 + 66)>>7) + 16, 0, 255)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 7 + 66*2)>>8) + 16, 0, 255)
 ///
 ///   YC48 -> YUV(10bit) YC圧縮
 ///
-///           Y   = clamp(((y * 219 + 383)>>10) + 64, 0, 1023)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 1793 +  0)>>13) + 64, 0, 1023)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 1793 + 66*2)>>14) + 64, 0, 1023)
+///           Y   = clamp(((y * 219 + (383>>2))>>10) + 64, 0, 1023)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 7 + (66>>2))>>5) + 64, 0, 1023)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 7 + (66>>2)*2)>>6) + 64, 0, 1023)
 ///
 ///   YC48 -> YUV(10bit) fullrange
 ///
 ///           Y   = clamp(((y * 3517 + 3867)>>14) + 64, 0, 1023)
-///   (YUV444)U,V = clamp(((cb,cr + 2048) * 899 +  1991)>>12) + 64, 0, 1023)
-///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 899 + 1991*2)>>13) + 64, 0, 1023)
+///   (YUV444)U,V = clamp(((cb,cr + 2048) * 899 +  0)>>12) + 64, 0, 1023)
+///   (YUV420)U,V = clamp(((cb0,cr0 + cb1,cr1 + 4096) * 899 + 0*2)>>13) + 64, 0, 1023)
 ///
 
 static const int UV_OFFSET     = (1<<12);
@@ -75,47 +75,53 @@ static const int COLMAT_MUL_RSHT =    14;
 
 //YC圧縮レンジ用定数
 static const int Y_L_MUL    = 219;
-static const int Y_L_ADD    = 383;
+static const int Y_L_ADD_8  = 383;
+static const int Y_L_ADD_10 = Y_L_ADD_8>>2;
 static const int Y_L_RSH_8  = 12;
 static const int Y_L_RSH_10 = 10;
 static const int Y_L_YCC_8  = 16;
 static const int Y_L_YCC_10 = 64;
 
-static const int UV_L_MUL        = 1793;
-static const int UV_L_ADD_444    = 0;
-static const int UV_L_ADD        = (UV_L_ADD_444<<1);
-static const int UV_L_RSH_8      = 16;
-static const int UV_L_RSH_10     = 14;
-static const int UV_L_RSH_8_444  = 15;
-static const int UV_L_RSH_10_444 = 13;
+static const int UV_L_MUL        = 7;
+static const int UV_L_ADD_8_444  = 66;
+static const int UV_L_ADD_8      = UV_L_ADD_8_444<<1;
+static const int UV_L_ADD_10_444 = UV_L_ADD_8_444>>2;
+static const int UV_L_ADD_10     = UV_L_ADD_8_444>>1;
+static const int UV_L_RSH_8      = 8;
+static const int UV_L_RSH_10     = 6;
+static const int UV_L_RSH_8_444  = 7;
+static const int UV_L_RSH_10_444 = 5;
 static const int UV_L_YCC_8      = 16;
 static const int UV_L_YCC_10     = 64;
 
 //フルレンジ用定数(10bitのみ)
 static const int Y_F_MUL         = 3517;
-static const int Y_F_ADD         = 3867;
+static const int Y_F_ADD_10      = 3867;
 static const int Y_F_RSH_10      = 14;
 static const int Y_F_YCC_10      = 64;
 static const int UV_F_MUL        = 899;
-static const int UV_F_ADD_444    = 2048;
-static const int UV_F_ADD        = (UV_F_ADD_444<<1);
+static const int UV_F_ADD_10_444 = 0;
+static const int UV_F_ADD_10     = (UV_F_ADD_10_444<<1);
 static const int UV_F_RSH_10     = 13;
 static const int UV_F_RSH_10_444 = 12;
 static const int UV_F_YCC_10     = 64;
 
-static const __m128i xC_ZERO          = _mm_setzero_si128();
-static const __m128i xC_ONE           = _mm_set1_epi16(1);
-static const __m128i xC_YCC_8         = _mm_set1_epi16(Y_L_YCC_8);
-static const __m128i xC_YCC_10        = _mm_set1_epi16(Y_L_YCC_10); 
-static const __m128i xC_UV_OFFSET     = _mm_set1_epi16(UV_OFFSET);
-static const __m128i xC_UV_OFFSET_444 = _mm_set1_epi16(UV_OFFSET_444);
-static const __m128i xC_Y_L_MA        = _mm_set_epi16( Y_L_ADD,      Y_L_MUL,  Y_L_ADD,      Y_L_MUL,  Y_L_ADD,      Y_L_MUL,  Y_L_ADD,      Y_L_MUL);
-static const __m128i xC_Y_F_MA        = _mm_set_epi16( Y_F_ADD,      Y_F_MUL,  Y_F_ADD,      Y_F_MUL,  Y_F_ADD,      Y_F_MUL,  Y_F_ADD,      Y_F_MUL);
-static const __m128i xC_UV_L_MA       = _mm_set_epi16(UV_L_ADD,     UV_L_MUL, UV_L_ADD,     UV_L_MUL, UV_L_ADD,     UV_L_MUL, UV_L_ADD,     UV_L_MUL);
-static const __m128i xC_UV_F_MA       = _mm_set_epi16(UV_F_ADD,     UV_F_MUL, UV_F_ADD,     UV_F_MUL, UV_F_ADD,     UV_F_MUL, UV_F_ADD,     UV_F_MUL);
-static const __m128i xC_UV_L_MA_444   = _mm_set_epi16(UV_L_ADD_444, UV_L_MUL, UV_L_ADD_444, UV_L_MUL, UV_L_ADD_444, UV_L_MUL, UV_L_ADD_444, UV_L_MUL);
-static const __m128i xC_UV_F_MA_444   = _mm_set_epi16(UV_F_ADD_444, UV_F_MUL, UV_F_ADD_444, UV_F_MUL, UV_F_ADD_444, UV_F_MUL, UV_F_ADD_444, UV_F_MUL);
-static const __m128i xC_LIMITMAX      = _mm_set1_epi16(LIMIT_10);
+static const __m128i xC_ZERO           = _mm_setzero_si128();
+static const __m128i xC_ONE            = _mm_set1_epi16(1);
+static const __m128i xC_YCC_8          = _mm_set1_epi16(Y_L_YCC_8);
+static const __m128i xC_YCC_10         = _mm_set1_epi16(Y_L_YCC_10); 
+static const __m128i xC_UV_OFFSET      = _mm_set1_epi16(UV_OFFSET);
+static const __m128i xC_UV_OFFSET_444  = _mm_set1_epi16(UV_OFFSET_444);
+static const __m128i xC_Y_L_MA_8       = _mm_set_epi16( Y_L_ADD_8,       Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL);
+static const __m128i xC_UV_L_MA_8      = _mm_set_epi16(UV_L_ADD_8,      UV_L_MUL, UV_L_ADD_8,      UV_L_MUL, UV_L_ADD_8,      UV_L_MUL, UV_L_ADD_8,      UV_L_MUL);
+static const __m128i xC_UV_L_MA_8_444  = _mm_set_epi16(UV_L_ADD_8_444,  UV_L_MUL, UV_L_ADD_8_444,  UV_L_MUL, UV_L_ADD_8_444,  UV_L_MUL, UV_L_ADD_8_444,  UV_L_MUL);
+static const __m128i xC_Y_L_MA_10      = _mm_set_epi16( Y_L_ADD_10,      Y_L_MUL,  Y_L_ADD_10,      Y_L_MUL,  Y_L_ADD_10,      Y_L_MUL,  Y_L_ADD_10,      Y_L_MUL);
+static const __m128i xC_UV_L_MA_10     = _mm_set_epi16(UV_L_ADD_10,     UV_L_MUL, UV_L_ADD_10,     UV_L_MUL, UV_L_ADD_10,     UV_L_MUL, UV_L_ADD_10,     UV_L_MUL);
+static const __m128i xC_UV_L_MA_10_444 = _mm_set_epi16(UV_L_ADD_10_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_MUL);
+static const __m128i xC_Y_F_MA_10      = _mm_set_epi16( Y_F_ADD_10,      Y_F_MUL,  Y_F_ADD_10,      Y_F_MUL,  Y_F_ADD_10,      Y_F_MUL,  Y_F_ADD_10,      Y_F_MUL);
+static const __m128i xC_UV_F_MA_10     = _mm_set_epi16(UV_F_ADD_10,     UV_F_MUL, UV_F_ADD_10,     UV_F_MUL, UV_F_ADD_10,     UV_F_MUL, UV_F_ADD_10,     UV_F_MUL);
+static const __m128i xC_UV_F_MA_10_444 = _mm_set_epi16(UV_F_ADD_10_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_MUL);
+static const __m128i xC_LIMITMAX       = _mm_set1_epi16(LIMIT_10);
 
 static const __m128i xC_COLMAT_Y      = _mm_set_epi16(COLMAT_MUL_Yr, COLMAT_MUL_Yb, COLMAT_MUL_Yr, COLMAT_MUL_Yb, COLMAT_MUL_Yr, COLMAT_MUL_Yb, COLMAT_MUL_Yr, COLMAT_MUL_Yb);
 static const __m128i xC_COLMAT_UV     = _mm_set_epi16(COLMAT_MUL_rr, COLMAT_MUL_rb, COLMAT_MUL_br, COLMAT_MUL_bb, COLMAT_MUL_rr, COLMAT_MUL_rb, COLMAT_MUL_br, COLMAT_MUL_bb);
@@ -587,13 +593,13 @@ void convert_yc48_to_nv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const 
 		ycp = (PIXEL_YC *)pixel + i;
 		Y = (short *)dst_Y + i;
 		for (x = 0; x < width; x += 2) {
-			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
 			C++;
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
 			C++;
 		}
 	}
@@ -610,19 +616,19 @@ void convert_yc48_to_nv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, cons
 		Y = (short *)dst_Y + i;
 		C = (short *)dst_C + (i>>1);
 		for (x = 0; x < width; x += 2) {
-			Y[x          ] = (BYTE)pixel_YC48_to_YUV(ycp[x          ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1        ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1        ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x  +width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width  ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1+width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width  ].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x  +width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*2].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1+width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*2].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x  +width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*3].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			Y[x+1+width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*3].y, Y_L_MUL, Y_L_ADD, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
-			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cb + (int)ycp[x+width*2].cb) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
-			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cb + (int)ycp[x+width*3].cb) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
+			Y[x          ] = (BYTE)pixel_YC48_to_YUV(ycp[x          ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1        ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1        ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x  +width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width  ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1+width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width  ].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x  +width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*2].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1+width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*2].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x  +width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*3].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			Y[x+1+width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*3].y, Y_L_MUL, Y_L_ADD_10, Y_L_RSH_10, Y_L_YCC_10, 0, LIMIT_10);
+			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cb + (int)ycp[x+width*2].cb) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
+			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cb + (int)ycp[x+width*3].cb) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
 			C++;
-			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cr + (int)ycp[x+width*2].cr) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
-			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cr + (int)ycp[x+width*3].cr) + UV_OFFSET, UV_L_MUL, UV_L_ADD, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
+			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cr + (int)ycp[x+width*2].cr) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
+			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cr + (int)ycp[x+width*3].cr) + UV_OFFSET, UV_L_MUL, Y_L_ADD_10, UV_L_RSH_10, UV_L_YCC_10, 0, LIMIT_10);
 			C++;
 		}
 	}
@@ -638,13 +644,13 @@ void convert_yc48_to_nv12_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, c
 		ycp = (PIXEL_YC *)pixel + i;
 		Y = (short *)dst_Y + i;
 		for (x = 0; x < width; x += 2) {
-			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x        ] = (short)pixel_YC48_to_YUV(ycp[x        ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1      ] = (short)pixel_YC48_to_YUV(ycp[x+1      ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x  +width] = (short)pixel_YC48_to_YUV(ycp[x  +width].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1+width] = (short)pixel_YC48_to_YUV(ycp[x+1+width].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cb + (int)ycp[x+width].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
 			C++;
-			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			*C = (short)pixel_YC48_to_YUV(((int)ycp[x].cr + (int)ycp[x+width].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
 			C++;
 		}
 	}
@@ -662,19 +668,19 @@ void convert_yc48_to_nv12_i_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data,
 		Y = (short *)dst_Y + i;
 		C = (short *)dst_C + (i>>1);
 		for (x = 0; x < width; x += 2) {
-			Y[x          ] = (BYTE)pixel_YC48_to_YUV(ycp[x          ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1        ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1        ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x  +width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width  ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1+width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width  ].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x  +width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*2].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1+width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*2].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x  +width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*3].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			Y[x+1+width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*3].y, Y_F_MUL, Y_F_ADD, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
-			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cb + (int)ycp[x+width*2].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
-			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cb + (int)ycp[x+width*3].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
+			Y[x          ] = (BYTE)pixel_YC48_to_YUV(ycp[x          ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1        ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1        ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x  +width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width  ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1+width  ] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width  ].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x  +width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*2].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1+width*2] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*2].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x  +width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x  +width*3].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			Y[x+1+width*3] = (BYTE)pixel_YC48_to_YUV(ycp[x+1+width*3].y, Y_F_MUL, Y_F_ADD_10, Y_F_RSH_10, Y_F_YCC_10, 0, LIMIT_10);
+			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cb + (int)ycp[x+width*2].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
+			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cb + (int)ycp[x+width*3].cb) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
 			C++;
-			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cr + (int)ycp[x+width*2].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
-			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cr + (int)ycp[x+width*3].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
+			*C              = (BYTE)pixel_YC48_to_YUV(((int)ycp[x      ].cr + (int)ycp[x+width*2].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
+			*(C+(width>>1)) = (BYTE)pixel_YC48_to_YUV(((int)ycp[x+width].cr + (int)ycp[x+width*3].cr) + UV_OFFSET, UV_F_MUL, UV_F_ADD_10, UV_F_RSH_10, UV_F_YCC_10, 0, LIMIT_10);
 			C++;
 		}
 	}
@@ -718,10 +724,10 @@ void convert_yc48_to_nv12_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -759,10 +765,10 @@ void convert_yc48_to_nv12_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -783,10 +789,10 @@ void convert_yc48_to_nv12_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -842,10 +848,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -883,10 +889,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -907,10 +913,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -966,10 +972,10 @@ void convert_yc48_to_nv12_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1007,10 +1013,10 @@ void convert_yc48_to_nv12_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1031,10 +1037,10 @@ void convert_yc48_to_nv12_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_d
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -1090,10 +1096,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1131,10 +1137,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1155,10 +1161,10 @@ void convert_yc48_to_nv12_i_10bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1212,10 +1218,10 @@ void convert_yc48_to_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1251,10 +1257,10 @@ void convert_yc48_to_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1275,10 +1281,10 @@ void convert_yc48_to_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -1332,10 +1338,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1371,10 +1377,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1395,10 +1401,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1452,10 +1458,10 @@ void convert_yc48_to_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1491,10 +1497,10 @@ void convert_yc48_to_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1515,10 +1521,10 @@ void convert_yc48_to_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -1572,10 +1578,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixe
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1611,10 +1617,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixe
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1635,10 +1641,10 @@ void convert_yc48_to_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixe
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1694,10 +1700,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1735,10 +1741,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1759,10 +1765,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_d
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -1818,10 +1824,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1859,10 +1865,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -1883,10 +1889,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1942,10 +1948,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -1983,10 +1989,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2007,10 +2013,10 @@ void convert_yc48_to_nv12_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pi
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -2066,10 +2072,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2107,10 +2113,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2131,10 +2137,10 @@ void convert_yc48_to_nv12_i_10bit_full_ssse3_mod8(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2188,10 +2194,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2227,10 +2233,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2251,10 +2257,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -2308,10 +2314,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2347,10 +2353,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2371,10 +2377,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2428,10 +2434,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *p
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2467,10 +2473,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *p
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2491,10 +2497,10 @@ void convert_yc48_to_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *p
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -2548,10 +2554,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA 
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2587,10 +2593,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA 
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -2611,10 +2617,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_DATA 
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -2650,10 +2656,10 @@ void convert_yc48_to_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+				x1 = _mm_madd_epi16(x1, xC_Y_L_MA_10);
 				x1 = _mm_srai_epi32(x1, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -2682,10 +2688,10 @@ void convert_yc48_to_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_L_MA);
+			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_10);
 			x1 = _mm_srai_epi32(x1, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -2719,10 +2725,10 @@ void convert_yc48_to_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 					x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 					x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+					x1 = _mm_madd_epi16(x1, xC_Y_L_MA_10);
 					x1 = _mm_srai_epi32(x1, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x1);
@@ -2751,10 +2757,10 @@ void convert_yc48_to_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_UV_L_MA);
+				x1 = _mm_madd_epi16(x1, xC_UV_L_MA_10);
 				x1 = _mm_srai_epi32(x1, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -2787,10 +2793,10 @@ void convert_yc48_to_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_da
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_Y_F_MA);
+				x1 = _mm_madd_epi16(x1, xC_Y_F_MA_10);
 				x1 = _mm_srai_epi32(x1, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -2819,10 +2825,10 @@ void convert_yc48_to_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_da
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_F_MA);
+			x1 = _mm_madd_epi16(x1, xC_UV_F_MA_10);
 			x1 = _mm_srai_epi32(x1, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -2855,10 +2861,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_
 					x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 					x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x1 = _mm_madd_epi16(x1, xC_Y_F_MA);
+					x1 = _mm_madd_epi16(x1, xC_Y_F_MA_10);
 					x1 = _mm_srai_epi32(x1, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x1);
@@ -2887,10 +2893,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_UV_F_MA);
+				x1 = _mm_madd_epi16(x1, xC_UV_F_MA_10);
 				x1 = _mm_srai_epi32(x1, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -2923,10 +2929,10 @@ void convert_yc48_to_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_da
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+				x1 = _mm_madd_epi16(x1, xC_Y_L_MA_10);
 				x1 = _mm_srai_epi32(x1, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -2955,10 +2961,10 @@ void convert_yc48_to_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_da
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_L_MA);
+			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_10);
 			x1 = _mm_srai_epi32(x1, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -2991,10 +2997,10 @@ void convert_yc48_to_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 					x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 					x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+					x1 = _mm_madd_epi16(x1, xC_Y_L_MA_10);
 					x1 = _mm_srai_epi32(x1, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x1);
@@ -3023,10 +3029,10 @@ void convert_yc48_to_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_UV_L_MA);
+				x1 = _mm_madd_epi16(x1, xC_UV_L_MA_10);
 				x1 = _mm_srai_epi32(x1, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -3059,10 +3065,10 @@ void convert_yc48_to_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *pix
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_Y_F_MA);
+				x1 = _mm_madd_epi16(x1, xC_Y_F_MA_10);
 				x1 = _mm_srai_epi32(x1, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -3091,10 +3097,10 @@ void convert_yc48_to_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *pix
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_F_MA);
+			x1 = _mm_madd_epi16(x1, xC_UV_F_MA_10);
 			x1 = _mm_srai_epi32(x1, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -3127,10 +3133,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *p
 					x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 					x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x1 = _mm_madd_epi16(x1, xC_Y_F_MA);
+					x1 = _mm_madd_epi16(x1, xC_Y_F_MA_10);
 					x1 = _mm_srai_epi32(x1, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x1);
@@ -3159,10 +3165,10 @@ void convert_yc48_to_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DATA *p
 				x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 				x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x1 = _mm_madd_epi16(x1, xC_UV_F_MA);
+				x1 = _mm_madd_epi16(x1, xC_UV_F_MA_10);
 				x1 = _mm_srai_epi32(x1, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x1);
@@ -3183,9 +3189,9 @@ void convert_yc48_to_yuv444(void *pixel, CONVERT_CF_DATA *pixel_data, const int 
 	BYTE *U = pixel_data->data[1];
 	BYTE *V = pixel_data->data[2];
 	for (PIXEL_YC *ycp = (PIXEL_YC *)pixel; ycp < ycp_fin; ycp++, Y++, U++, V++) {
-		*Y = (BYTE)pixel_YC48_to_YUV(ycp->y,                   Y_L_MUL,  Y_L_ADD,      Y_L_RSH_8,      Y_L_YCC_8, 0, LIMIT_8);
-		*U = (BYTE)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_8_444, UV_L_YCC_8, 0, LIMIT_8);
-		*V = (BYTE)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_8_444, UV_L_YCC_8, 0, LIMIT_8);
+		*Y = (BYTE)pixel_YC48_to_YUV(ycp->y,                   Y_L_MUL,  Y_L_ADD_8,      Y_L_RSH_8,      Y_L_YCC_8, 0, LIMIT_8);
+		*U = (BYTE)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_8_444, UV_L_RSH_8_444, UV_L_YCC_8, 0, LIMIT_8);
+		*V = (BYTE)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_8_444, UV_L_RSH_8_444, UV_L_YCC_8, 0, LIMIT_8);
 	}
 }
 
@@ -3195,9 +3201,9 @@ void convert_yc48_to_yuv444_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, cons
 	short *U = (short *)pixel_data->data[1];
 	short *V = (short *)pixel_data->data[2];
 	for (PIXEL_YC *ycp = (PIXEL_YC *)pixel; ycp < ycp_fin; ycp++, Y++, U++, V++) {
-		*Y = (short)pixel_YC48_to_YUV(ycp->y,                   Y_L_MUL,  Y_L_ADD,      Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
-		*U = (short)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
-		*V = (short)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
+		*Y = (short)pixel_YC48_to_YUV(ycp->y,                   Y_L_MUL,  Y_L_ADD_10,      Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
+		*U = (short)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
+		*V = (short)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
 	}
 }
 
@@ -3207,9 +3213,9 @@ void convert_yc48_to_yuv444_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data,
 	short *U = (short *)pixel_data->data[1];
 	short *V = (short *)pixel_data->data[2];
 	for (PIXEL_YC *ycp = (PIXEL_YC *)pixel; ycp < ycp_fin; ycp++, Y++, U++, V++) {
-		*Y = (short)pixel_YC48_to_YUV(ycp->y,                   Y_F_MUL,  Y_F_ADD,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
-		*U = (short)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
-		*V = (short)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
+		*Y = (short)pixel_YC48_to_YUV(ycp->y,                   Y_F_MUL,  Y_F_ADD_10,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
+		*U = (short)pixel_YC48_to_YUV(ycp->cb + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
+		*V = (short)pixel_YC48_to_YUV(ycp->cr + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
 	}
 }
 
@@ -3227,10 +3233,10 @@ void convert_yc48_to_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const
 		x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+		x0 = _mm_madd_epi16(x0, xC_Y_L_MA_8);
 		x0 = _mm_srai_epi32(x0, Y_L_RSH_8);
 
-		x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+		x1 = _mm_madd_epi16(x1, xC_Y_L_MA_8);
 		x1 = _mm_srai_epi32(x1, Y_L_RSH_8);
 
 		x0 = _mm_packs_epi32(x0, x1);
@@ -3242,10 +3248,10 @@ void convert_yc48_to_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const
 		x1 = _mm_unpackhi_epi16(x2, xC_ONE);
 		x2 = _mm_unpacklo_epi16(x2, xC_ONE);
 
-		x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+		x2 = _mm_madd_epi16(x2, xC_Y_L_MA_8);
 		x2 = _mm_srai_epi32(x2, Y_L_RSH_8);
 
-		x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+		x1 = _mm_madd_epi16(x1, xC_Y_L_MA_8);
 		x1 = _mm_srai_epi32(x1, Y_L_RSH_8);
 
 		x2 = _mm_packs_epi32(x2, x1);
@@ -3264,10 +3270,10 @@ void convert_yc48_to_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_8_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_8_444);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_444);
+			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_8_444);
 			x1 = _mm_srai_epi32(x1, UV_L_RSH_8_444);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -3280,10 +3286,10 @@ void convert_yc48_to_yuv444_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const
 			x1 = _mm_unpackhi_epi16(x2, xC_ONE);
 			x2 = _mm_unpacklo_epi16(x2, xC_ONE);
 
-			x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+			x2 = _mm_madd_epi16(x2, xC_UV_L_MA_8_444);
 			x2 = _mm_srai_epi32(x2, UV_L_RSH_8_444);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_444);
+			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_8_444);
 			x1 = _mm_srai_epi32(x1, UV_L_RSH_8_444);
 
 			x2 = _mm_packs_epi32(x2, x1);
@@ -3311,10 +3317,10 @@ void convert_yc48_to_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 		x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+		x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 		x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-		x1 = _mm_madd_epi16(x1, xC_Y_L_MA);
+		x1 = _mm_madd_epi16(x1, xC_Y_L_MA_10);
 		x1 = _mm_srai_epi32(x1, Y_L_RSH_10);
 
 		x0 = _mm_packs_epi32(x0, x1);
@@ -3333,10 +3339,10 @@ void convert_yc48_to_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data,
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_444);
+			x1 = _mm_madd_epi16(x1, xC_UV_L_MA_10_444);
 			x1 = _mm_srai_epi32(x1, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -3384,10 +3390,10 @@ void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 			x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -3409,10 +3415,10 @@ void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -3434,10 +3440,10 @@ void convert_yc48_to_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -3467,10 +3473,10 @@ void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_
 		x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+		x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 		x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-		x1 = _mm_madd_epi16(x1, xC_Y_F_MA);
+		x1 = _mm_madd_epi16(x1, xC_Y_F_MA_10);
 		x1 = _mm_srai_epi32(x1, Y_F_RSH_10);
 
 		x0 = _mm_packs_epi32(x0, x1);
@@ -3489,10 +3495,10 @@ void convert_yc48_to_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_
 			x1 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-			x1 = _mm_madd_epi16(x1, xC_UV_F_MA_444);
+			x1 = _mm_madd_epi16(x1, xC_UV_F_MA_10_444);
 			x1 = _mm_srai_epi32(x1, UV_F_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x1);
@@ -3540,10 +3546,10 @@ void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -3565,10 +3571,10 @@ void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -3590,10 +3596,10 @@ void convert_yc48_to_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixe
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -3655,10 +3661,10 @@ void convert_yc48_to_nv16_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const 
 	PIXEL_YC *ycp = (PIXEL_YC *)pixel;
 	const int n = width * height;
 	for (int i = 0; i < n; i += 2) {
-		dst_Y[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].y,                   Y_L_MUL,  Y_L_ADD,      Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
-		dst_C[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
-		dst_C[i+1] = (short)pixel_YC48_to_YUV(ycp[i+0].cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
-		dst_Y[i+1] = (short)pixel_YC48_to_YUV(ycp[i+1].y,                   Y_L_MUL,  Y_L_ADD,      Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
+		dst_Y[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].y,                   Y_L_MUL,  Y_L_ADD_10,     Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
+		dst_C[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].cb + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
+		dst_C[i+1] = (short)pixel_YC48_to_YUV(ycp[i+0].cr + UV_OFFSET_444, UV_L_MUL, UV_L_ADD_10_444, UV_L_RSH_10_444, UV_L_YCC_10, 0, LIMIT_10);
+		dst_Y[i+1] = (short)pixel_YC48_to_YUV(ycp[i+1].y,                   Y_L_MUL,  Y_L_ADD_10,     Y_L_RSH_10,      Y_L_YCC_10, 0, LIMIT_10);
 	}
 }
 
@@ -3668,10 +3674,10 @@ void convert_yc48_to_nv16_10bit_full(void *pixel, CONVERT_CF_DATA *pixel_data, c
 	PIXEL_YC *ycp = (PIXEL_YC *)pixel;
 	const int n = width * height;
 	for (int i = 0; i < n; i += 2) {
-		dst_Y[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].y,                   Y_F_MUL,  Y_F_ADD,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
-		dst_C[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].cb + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
-		dst_C[i+1] = (short)pixel_YC48_to_YUV(ycp[i+0].cr + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
-		dst_Y[i+1] = (short)pixel_YC48_to_YUV(ycp[i+1].y,                   Y_F_MUL,  Y_F_ADD,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
+		dst_Y[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].y,                   Y_F_MUL,  Y_F_ADD_10,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
+		dst_C[i+0] = (short)pixel_YC48_to_YUV(ycp[i+0].cb + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
+		dst_C[i+1] = (short)pixel_YC48_to_YUV(ycp[i+0].cr + UV_OFFSET_444, UV_F_MUL, UV_F_ADD_10_444, UV_F_RSH_10_444, UV_F_YCC_10, 0, LIMIT_10);
+		dst_Y[i+1] = (short)pixel_YC48_to_YUV(ycp[i+1].y,                   Y_F_MUL,  Y_F_ADD_10,      Y_F_RSH_10,      Y_F_YCC_10, 0, LIMIT_10);
 	}
 }
 
@@ -3688,10 +3694,10 @@ void convert_yc48_to_nv16_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 			x2 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_L_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -3709,10 +3715,10 @@ void convert_yc48_to_nv16_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 		x2 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_L_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -3755,10 +3761,10 @@ void convert_yc48_to_nv16_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_L_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -3779,10 +3785,10 @@ void convert_yc48_to_nv16_10bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_L_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -3826,10 +3832,10 @@ void convert_yc48_to_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_L_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -3850,10 +3856,10 @@ void convert_yc48_to_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_L_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -3882,10 +3888,10 @@ void convert_yc48_to_nv16_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_da
 			x2 = _mm_unpackhi_epi16(x0, xC_ONE);
 			x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_F_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_F_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -3903,10 +3909,10 @@ void convert_yc48_to_nv16_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pixel_da
 		x2 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_F_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -3949,10 +3955,10 @@ void convert_yc48_to_nv16_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_d
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_F_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_F_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -3971,10 +3977,10 @@ void convert_yc48_to_nv16_10bit_full_ssse3(void *pixel, CONVERT_CF_DATA *pixel_d
 		x2 = _mm_unpackhi_epi16(x0, xC_ONE);
 		x0 = _mm_unpacklo_epi16(x0, xC_ONE);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_F_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -4018,10 +4024,10 @@ void convert_yc48_to_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_F_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_F_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -4042,10 +4048,10 @@ void convert_yc48_to_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_F_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -4144,10 +4150,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4211,10 +4217,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4235,10 +4241,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -4321,10 +4327,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -4388,10 +4394,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -4412,10 +4418,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4498,10 +4504,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4565,10 +4571,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4589,10 +4595,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -4675,10 +4681,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -4742,10 +4748,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -4766,10 +4772,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4852,10 +4858,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4919,10 +4925,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -4943,10 +4949,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -5029,10 +5035,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5096,10 +5102,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5120,10 +5126,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5206,10 +5212,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_D
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5273,10 +5279,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_D
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5297,10 +5303,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF_D
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -5383,10 +5389,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5450,10 +5456,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5474,10 +5480,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse4_1_mod8(void *pixel, CONVERT_CF
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5543,10 +5549,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5597,10 +5603,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_d
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5621,10 +5627,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_d
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -5690,10 +5696,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5744,10 +5750,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -5768,10 +5774,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5837,10 +5843,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5891,10 +5897,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -5915,10 +5921,10 @@ void convert_yc48_to_bt709_nv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pi
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -5984,10 +5990,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6038,10 +6044,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6062,10 +6068,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_L_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_L_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_L_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_L_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6131,10 +6137,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6185,10 +6191,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pi
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6209,10 +6215,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pi
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6278,10 +6284,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6332,10 +6338,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6356,10 +6362,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6425,10 +6431,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DAT
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6479,10 +6485,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DAT
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 				x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 				x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6503,10 +6509,10 @@ void convert_yc48_to_bt709_nv12_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_DAT
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6572,10 +6578,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_D
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6626,10 +6632,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_D
 					x7 = _mm_unpackhi_epi16(x0, x1);
 					x0 = _mm_unpacklo_epi16(x0, x1);
 
-					x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+					x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 					x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-					x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+					x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 					x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 					x0 = _mm_packs_epi32(x0, x7);
@@ -6650,10 +6656,10 @@ void convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8(void *pixel, CONVERT_CF_D
 				x7 = _mm_unpackhi_epi16(x0, x1);
 				x0 = _mm_unpacklo_epi16(x0, x1);
 
-				x0 = _mm_madd_epi16(x0, xC_UV_F_MA);
+				x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10);
 				x0 = _mm_srai_epi32(x0, UV_F_RSH_10);
 
-				x7 = _mm_madd_epi16(x7, xC_UV_F_MA);
+				x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10);
 				x7 = _mm_srai_epi32(x7, UV_F_RSH_10);
 
 				x0 = _mm_packs_epi32(x0, x7);
@@ -6740,10 +6746,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 			x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6765,10 +6771,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6790,10 +6796,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6874,10 +6880,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_Y_L_MA);
+			x7 = _mm_madd_epi16(x7, xC_Y_L_MA_10);
 			x7 = _mm_srai_epi32(x7, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6899,10 +6905,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6924,10 +6930,10 @@ void convert_yc48_to_bt709_yuv444_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pix
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_L_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_L_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -6992,10 +6998,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 			x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7017,10 +7023,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7042,10 +7048,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7126,10 +7132,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x7 = _mm_madd_epi16(x7, xC_Y_F_MA);
+			x7 = _mm_madd_epi16(x7, xC_Y_F_MA_10);
 			x7 = _mm_srai_epi32(x7, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7151,10 +7157,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7176,10 +7182,10 @@ void convert_yc48_to_bt709_yuv444_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA
 			x7 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+			x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 			x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_444);
+			x7 = _mm_madd_epi16(x7, xC_UV_F_MA_10_444);
 			x7 = _mm_srai_epi32(x7, UV_F_RSH_10_444);
 
 			x0 = _mm_packs_epi32(x0, x7);
@@ -7247,10 +7253,10 @@ void convert_yc48_to_bt709_nv16_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_d
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_L_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -7271,10 +7277,10 @@ void convert_yc48_to_bt709_nv16_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_d
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_L_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -7347,10 +7353,10 @@ void convert_yc48_to_bt709_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_L_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_L_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_L_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_L_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_L_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_L_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -7371,10 +7377,10 @@ void convert_yc48_to_bt709_nv16_10bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_L_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_L_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_L_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_L_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -7432,10 +7438,10 @@ void convert_yc48_to_bt709_nv16_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pi
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_F_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_F_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -7456,10 +7462,10 @@ void convert_yc48_to_bt709_nv16_10bit_full_sse2(void *pixel, CONVERT_CF_DATA *pi
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_F_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
@@ -7532,10 +7538,10 @@ void convert_yc48_to_bt709_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *
 			x2 = _mm_unpackhi_epi16(x0, x1);
 			x0 = _mm_unpacklo_epi16(x0, x1);
 
-			x0 = _mm_madd_epi16(x0, xC_Y_F_MA);
+			x0 = _mm_madd_epi16(x0, xC_Y_F_MA_10);
 			x0 = _mm_srai_epi32(x0, Y_F_RSH_10);
 
-			x2 = _mm_madd_epi16(x2, xC_Y_F_MA);
+			x2 = _mm_madd_epi16(x2, xC_Y_F_MA_10);
 			x2 = _mm_srai_epi32(x2, Y_F_RSH_10);
 
 			x0 = _mm_packs_epi32(x0, x2);
@@ -7556,10 +7562,10 @@ void convert_yc48_to_bt709_nv16_10bit_full_sse4_1(void *pixel, CONVERT_CF_DATA *
 		x2 = _mm_unpackhi_epi16(x0, x1);
 		x0 = _mm_unpacklo_epi16(x0, x1);
 
-		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_444);
+		x0 = _mm_madd_epi16(x0, xC_UV_F_MA_10_444);
 		x0 = _mm_srai_epi32(x0, UV_F_RSH_10_444);
 
-		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_444);
+		x2 = _mm_madd_epi16(x2, xC_UV_F_MA_10_444);
 		x2 = _mm_srai_epi32(x2, UV_F_RSH_10_444);
 
 		x0 = _mm_packs_epi32(x0, x2);
