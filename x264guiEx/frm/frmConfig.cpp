@@ -328,6 +328,8 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 	log_reload_settings();
 	SetStgEscKey(stg.s_local.enable_stg_esc_key != 0);
 	ActivateToolTip(stg.s_local.disable_tooltip_help == FALSE);
+	if (char_has_length(stg.s_local.conf_font.name))
+		SetFontFamilyToForm(this, gcnew FontFamily(String(stg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
 }
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -941,6 +943,9 @@ System::Void frmConfig::InitForm() {
 	AdjustLocation();
 	//キー設定
 	SetStgEscKey(sys_dat->exstg->s_local.enable_stg_esc_key != 0);
+	//フォントの設定
+	if (char_has_length(sys_dat->exstg->s_local.conf_font.name))
+		SetFontFamilyToForm(this, gcnew FontFamily(String(sys_dat->exstg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
 }
 
 /////////////         データ <-> GUI     /////////////

@@ -10,9 +10,13 @@
 #ifndef _X264GUIEX_CLRUTIL_H_
 #define _X264GUIEX_CLRUTIL_H_
 
-#include <string>
+#include <Windows.h>
+#include "auo.h"
+#include "auo_util.h"
 
 using namespace System;
+using namespace System::Drawing;
+using namespace System::Windows::Forms;
 
 static void GetCHARfromString(char *chr, DWORD nSize, System::String^ str) {
 	System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(str);
@@ -21,7 +25,7 @@ static void GetCHARfromString(char *chr, DWORD nSize, System::String^ str) {
 }
 
 static int CountStringBytes(System::String^ str) {
-	return System::Text::Encoding::GetEncoding("Shift_JIS")->GetByteCount(str);
+	return System::Text::Encoding::GetEncoding(L"Shift_JIS")->GetByteCount(str);
 }
 
 static String^ MakeExeFilter(System::String^ fileExeName) {
@@ -30,6 +34,7 @@ static String^ MakeExeFilter(System::String^ fileExeName) {
 	return fileName + L" (" + filter + L")|" + filter;
 }
 
+//使用できないファイル名かどうか確認する
 static bool ValidiateFileName(System::String^ fileName) {
 	array<wchar_t>^ InvalidChars = {L'\\', L'/', L':', L'*', L'?', L'\"', L'<', L'>', L'|'};
 	array<String^>^ InvalidString = { L"CON", L"PRN", L"AUX", L"CLOCK$", L"NUL",
@@ -41,6 +46,63 @@ static bool ValidiateFileName(System::String^ fileName) {
 		if (String::Compare(fileName, InvalidString[i], true) == NULL)
 			return false;
 	return true;
+}
+
+//AUO_FONT_INFOからフォントを作成する
+//情報がない場合、baseFontのものを使用する
+static System::Drawing::Font^ GetFontFrom_AUO_FONT_INFO(const AUO_FONT_INFO *info, System::Drawing::Font^ baseFont) {
+	if (info && (char_has_length(info->name) || info->size > 0.0)) {
+		return gcnew System::Drawing::Font(
+			(char_has_length(info->name)) ? String(info->name).ToString() : baseFont->FontFamily->ToString(),
+			(info->size > 0.0) ? (float)info->size : baseFont->Size, 
+			(System::Drawing::FontStyle)info->style);
+	}
+	return baseFont;
+}
+
+//DefaultFontと比較して、異なっていたらAUO_FONT_INFOに保存する
+static void Set_AUO_FONT_INFO(AUO_FONT_INFO *info, System::Drawing::Font^ Font, System::Drawing::Font^ DefaultFont) {				
+	if (String::Compare(DefaultFont->FontFamily->Name, Font->FontFamily->Name))
+		GetCHARfromString(info->name, sizeof(info->name), Font->FontFamily->Name);
+	if (DefaultFont->Size != Font->Size)
+		info->size = Font->Size;
+	info->style = (int)Font->Style;
+}
+
+//ToolStripへのフォントの適用
+static void SetFontFamilyToToolStrip(ToolStrip^ TS, FontFamily^ NewFontFamily, FontFamily^ BaseFontFamily) {
+	for (int i = 0; i < TS->Items->Count; i++) {
+		TS->Items[i]->Font = gcnew Font(NewFontFamily, TS->Items[i]->Font->Size, TS->Items[i]->Font->Style);
+	}
+}
+
+//再帰を用いて全コントロールにフォントを適用する
+static void SetFontFamilyToControl(Control^ top, FontFamily^ NewFontFamily, FontFamily^ BaseFontFamily) {
+	for (int i = 0; i < top->Controls->Count; i++) {
+		System::Type^ type = top->Controls[i]->GetType();
+		if (type == ToolStrip::typeid)
+			SetFontFamilyToToolStrip((ToolStrip^)top->Controls[i], NewFontFamily, BaseFontFamily);
+		else
+			SetFontFamilyToControl(top->Controls[i], NewFontFamily, BaseFontFamily);
+	}
+	top->Font = gcnew Font(NewFontFamily, top->Font->Size, top->Font->Style);
+}
+
+//フォントが存在するかチェックする
+static bool CheckFontFamilyExists(FontFamily^ targetFontFamily) {
+	//新しくフォントを作ってみて、設定しようとしたフォントと違ったら諦める
+	Font^ NewFont = gcnew Font(targetFontFamily, 12); //12は適当
+	return (String::Compare(NewFont->FontFamily->Name, targetFontFamily->Name)) ? false : true;
+}
+
+//フォーム全体にフォントを適用する
+static void SetFontFamilyToForm(Form^ form, FontFamily^ NewFontFamily, FontFamily^ BaseFontFamily) {
+	if (!CheckFontFamilyExists(NewFontFamily))
+		return;
+	::SendMessage((HWND)form->Handle.ToPointer(), WM_SETREDRAW, false, 0); //描画を停止
+	SetFontFamilyToControl(form, NewFontFamily, BaseFontFamily);
+	::SendMessage((HWND)form->Handle.ToPointer(), WM_SETREDRAW, true, 0); //描画再開
+	form->Refresh(); //強制再描画
 }
 
 #endif //_X264GUIEX_CLRUTIL_H_

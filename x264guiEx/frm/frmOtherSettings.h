@@ -77,6 +77,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::CheckBox^  fosCBLogDisableTransparency;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoDelChap;
 	private: System::Windows::Forms::CheckBox^  fosCBStgEscKey;
+	private: System::Windows::Forms::Button^  fosBTSetFont;
+	private: System::Windows::Forms::FontDialog^  fosfontDialog;
 
 
 
@@ -119,6 +121,8 @@ namespace x264guiEx {
 			this->fosCBLogDisableTransparency = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBAutoDelChap = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBStgEscKey = (gcnew System::Windows::Forms::CheckBox());
+			this->fosBTSetFont = (gcnew System::Windows::Forms::Button());
+			this->fosfontDialog = (gcnew System::Windows::Forms::FontDialog());
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
@@ -261,12 +265,33 @@ namespace x264guiEx {
 			this->fosCBStgEscKey->Text = L"設定画面でEscキーを有効化";
 			this->fosCBStgEscKey->UseVisualStyleBackColor = true;
 			// 
+			// fosBTSetFont
+			// 
+			this->fosBTSetFont->Location = System::Drawing::Point(253, 322);
+			this->fosBTSetFont->Name = L"fosBTSetFont";
+			this->fosBTSetFont->Size = System::Drawing::Size(124, 27);
+			this->fosBTSetFont->TabIndex = 15;
+			this->fosBTSetFont->Text = L"フォントの変更...";
+			this->fosBTSetFont->UseVisualStyleBackColor = true;
+			this->fosBTSetFont->Click += gcnew System::EventHandler(this, &frmOtherSettings::fosBTSetFont_Click);
+			// 
+			// fosfontDialog
+			// 
+			this->fosfontDialog->AllowVerticalFonts = false;
+			this->fosfontDialog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->fosfontDialog->FontMustExist = true;
+			this->fosfontDialog->MaxSize = 9;
+			this->fosfontDialog->MinSize = 9;
+			this->fosfontDialog->ShowEffects = false;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
 			this->ClientSize = System::Drawing::Size(392, 417);
+			this->Controls->Add(this->fosBTSetFont);
 			this->Controls->Add(this->fosCBStgEscKey);
 			this->Controls->Add(this->fosCBAutoDelChap);
 			this->Controls->Add(this->fosCBLogDisableTransparency);
@@ -329,6 +354,8 @@ namespace x264guiEx {
 			fosCBStgEscKey->Checked              = fos_ex_stg->s_local.enable_stg_esc_key != 0;
 			fosCBLogStartMinimized->Checked      = fos_ex_stg->s_log.minimized != 0;
 			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
+			if (char_has_length(fos_ex_stg->s_local.conf_font.name))
+				SetFontFamilyToForm(this, gcnew FontFamily(String(fos_ex_stg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -348,6 +375,20 @@ namespace x264guiEx {
 		System::Void frmOtherSettings_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
+			}
+	private:
+		System::Void fosBTSetFont_Click(System::Object^  sender, System::EventArgs^  e) {
+			fosfontDialog->Font = fosBTSetFont->Font;
+			if (fosfontDialog->ShowDialog() != System::Windows::Forms::DialogResult::Cancel
+				&& String::Compare(fosfontDialog->Font->FontFamily->Name, this->Font->FontFamily->Name)) {
+				guiEx_settings exstg(true);
+				exstg.load_encode_stg();
+				Set_AUO_FONT_INFO(&exstg.s_local.conf_font, fosfontDialog->Font, this->Font);
+				exstg.s_local.conf_font.size = 0.0;
+				exstg.s_local.conf_font.style = 0;
+				exstg.save_local();
+				SetFontFamilyToForm(this, fosfontDialog->Font->FontFamily, this->Font->FontFamily);
+			}
 		}
 };
 }

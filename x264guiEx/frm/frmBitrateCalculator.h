@@ -11,6 +11,7 @@
 
 #include "auo_frm.h"
 #include "auo_util.h"
+#include "auo_settings.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -441,6 +442,11 @@ namespace x264guiEx {
 			LastStr = L"";
 			SetNUValue(fbcNUBitrateSum, fbcNUBitrateAudio->Value + fbcNUBitrateVideo->Value);
 			fbcNULength_TextChanged(nullptr, nullptr);
+			//フォントの設定
+			guiEx_settings exstg;
+			exstg.load_encode_stg();
+			if (char_has_length(exstg.s_local.conf_font.name))
+				SetFontFamilyToForm(this, gcnew FontFamily(String(exstg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
 		}
 	private: 
 		System::Void fbcRBCalcSize_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -607,6 +613,5 @@ namespace x264guiEx {
 		}
 };
 }
-
 
 #pragma warning( pop )

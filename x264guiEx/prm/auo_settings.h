@@ -138,6 +138,7 @@ typedef struct {
 } X264_CMD;
 
 typedef struct {
+	char *filename;                    //x264のファイル名
 	char fullpath[MAX_PATH_LEN];       //x264の場所(フルパス)
 	char fullpath_10bit[MAX_PATH_LEN]; //x264の場所(フルパス) 10bit用
 	char *default_cmd;                 //デフォルト設定用コマンドライン
@@ -160,16 +161,17 @@ typedef struct {
 } FILENAME_REPLACE;
 
 typedef struct {
-	BOOL minimized;                        //最小化で起動
-	BOOL transparent;                      //半透明で表示
-	BOOL auto_save_log;                    //ログ自動保存を行うかどうか
-	int  auto_save_log_mode;               //ログ自動保存のモード
-	char auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
-	BOOL show_status_bar;                  //ステータスバーの表示
-	BOOL taskbar_progress;                 //タスクバーに進捗を表示
-	BOOL save_log_size;                    //ログの大きさを保存する
-	int  log_width;                        //ログ幅
-	int  log_height;                       //ログ高さ
+	BOOL   minimized;                        //最小化で起動
+	BOOL   transparent;                      //半透明で表示
+	BOOL   auto_save_log;                    //ログ自動保存を行うかどうか
+	int    auto_save_log_mode;               //ログ自動保存のモード
+	char   auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
+	BOOL   show_status_bar;                  //ステータスバーの表示
+	BOOL   taskbar_progress;                 //タスクバーに進捗を表示
+	BOOL   save_log_size;                    //ログの大きさを保存する
+	int    log_width;                        //ログ幅
+	int    log_height;                       //ログ高さ
+	AUO_FONT_INFO log_font;                  //ログフォント
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {
@@ -186,6 +188,7 @@ typedef struct {
 	BOOL  disable_tooltip_help;                //ポップアップヘルプを抑制する
 	BOOL  disable_visual_styles;               //視覚効果をオフにする
 	BOOL  enable_stg_esc_key;                  //設定画面でEscキーを有効化する
+	AUO_FONT_INFO conf_font;                   //設定画面のフォント
 	char  custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char  custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ

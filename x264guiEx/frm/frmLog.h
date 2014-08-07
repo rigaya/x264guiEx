@@ -101,6 +101,8 @@ namespace x264guiEx {
 			taskbar_progress_enable(exstg.s_log.taskbar_progress);
 			hWnd = (HWND)this->Handle.ToInt32();
 			taskbar_progress_init();
+			//ログフォントの設定
+			richTextLog->Font = GetFontFrom_AUO_FONT_INFO(&exstg.s_log.log_font, richTextLog->Font);
 			//通常のステータスに戻す(false) -> 設定保存イベントで設定保存される
 			prevent_log_closing = false;
 			closed = true;
@@ -162,6 +164,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemAutoSaveSettings;
 	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusElapsedTime;
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSaveLogSize;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemWindowFont;
+private: System::Windows::Forms::FontDialog^  fontDialogLog;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -192,11 +196,13 @@ namespace x264guiEx {
 			this->toolStripMenuItemAutoSaveSettings = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemShowStatus = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemTaskBarProgress = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemWindowFont = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->statusStripLog = (gcnew System::Windows::Forms::StatusStrip());
 			this->toolStripStatusCurrentTask = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->toolStripStatusElapsedTime = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->toolStripCurrentProgress = (gcnew System::Windows::Forms::ToolStripProgressBar());
 			this->toolStripStatusCurrentProgress = (gcnew System::Windows::Forms::ToolStripStatusLabel());
+			this->fontDialogLog = (gcnew System::Windows::Forms::FontDialog());
 			this->contextMenuStripLog->SuspendLayout();
 			this->statusStripLog->SuspendLayout();
 			this->SuspendLayout();
@@ -220,11 +226,12 @@ namespace x264guiEx {
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(9) {this->ToolStripMenuItemx264Priority, 
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->ToolStripMenuItemx264Priority, 
 				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, 
-				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress});
+				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, 
+				this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(248, 202);
+			this->contextMenuStripLog->Size = System::Drawing::Size(248, 224);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
@@ -298,6 +305,13 @@ namespace x264guiEx {
 			this->toolStripMenuItemTaskBarProgress->Text = L"タスクバーに進捗を表示(Win7)";
 			this->toolStripMenuItemTaskBarProgress->CheckedChanged += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemTaskBarProgress_CheckedChanged);
 			// 
+			// toolStripMenuItemWindowFont
+			// 
+			this->toolStripMenuItemWindowFont->Name = L"toolStripMenuItemWindowFont";
+			this->toolStripMenuItemWindowFont->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemWindowFont->Text = L"表示フォント...";
+			this->toolStripMenuItemWindowFont->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemWindowFont_Click);
+			// 
 			// statusStripLog
 			// 
 			this->statusStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->toolStripStatusCurrentTask, 
@@ -311,7 +325,7 @@ namespace x264guiEx {
 			// toolStripStatusCurrentTask
 			// 
 			this->toolStripStatusCurrentTask->Name = L"toolStripStatusCurrentTask";
-			this->toolStripStatusCurrentTask->Size = System::Drawing::Size(35, 18);
+			this->toolStripStatusCurrentTask->Size = System::Drawing::Size(36, 18);
 			this->toolStripStatusCurrentTask->Text = L"Task";
 			this->toolStripStatusCurrentTask->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
 			// 
@@ -321,7 +335,7 @@ namespace x264guiEx {
 				static_cast<System::Byte>(128)));
 			this->toolStripStatusElapsedTime->Margin = System::Windows::Forms::Padding(6, 3, 0, 1);
 			this->toolStripStatusElapsedTime->Name = L"toolStripStatusElapsedTime";
-			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(628, 19);
+			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(627, 19);
 			this->toolStripStatusElapsedTime->Spring = true;
 			this->toolStripStatusElapsedTime->Text = L"ElapsedTime";
 			this->toolStripStatusElapsedTime->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
@@ -342,6 +356,16 @@ namespace x264guiEx {
 			this->toolStripStatusCurrentProgress->Text = L"Progress";
 			this->toolStripStatusCurrentProgress->TextAlign = System::Drawing::ContentAlignment::MiddleRight;
 			this->toolStripStatusCurrentProgress->Visible = false;
+			// 
+			// fontDialogLog
+			// 
+			this->fontDialogLog->AllowVerticalFonts = false;
+			this->fontDialogLog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->fontDialogLog->FontMustExist = true;
+			this->fontDialogLog->MaxSize = 9;
+			this->fontDialogLog->MinSize = 9;
+			this->fontDialogLog->ShowEffects = false;
 			// 
 			// frmLog
 			// 
@@ -690,6 +714,49 @@ namespace x264guiEx {
 		System::Void frmLog_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
+		}
+	private: 
+		System::Void toolStripMenuItemWindowFont_Click(System::Object^  sender, System::EventArgs^  e) {
+			System::Drawing::Font^ LastFont = richTextLog->Font;
+			fontDialogLog->Font = richTextLog->Font;
+			if (fontDialogLog->ShowDialog() != System::Windows::Forms::DialogResult::Cancel && LastFont != fontDialogLog->Font) {
+				//フォントを変更するだけでは何故かうまく行かないので、
+				//一度文字列を保存→テキストボックスクリア→フォント変更→文字列を一行ずつ追加
+				//という力技を行う
+				::SendMessage(hWnd, WM_SETREDRAW, false, 0); //描画を停止
+				array<Color>^ LogLineColor = gcnew array<Color>(richTextLog->Lines->Length); //各行の色
+				for (int i = 0, position = 0; i < richTextLog->Lines->Length; i++) {
+					if (richTextLog->Lines[i]->Length) {
+						richTextLog->Select(position, 1);
+						LogLineColor[i] = richTextLog->SelectionColor;
+					} else {
+						LogLineColor[i] = Color::FromArgb(LOG_COLOR[0][0], LOG_COLOR[0][1], LOG_COLOR[0][2]);
+					}
+					position += richTextLog->Lines[i]->Length;
+				}
+				array<String^>^ LogLines = richTextLog->Lines; //各行の文字列
+				//テキストボックスをクリア
+				richTextLog->Clear();
+				richTextLog->Text = String::Empty;
+				//ここでフォントを変更
+				richTextLog->Font = fontDialogLog->Font;
+				//文字を再登録
+				for (int i = 0; i < LogLines->Length; i++) {
+					richTextLog->SelectionStart = richTextLog->Text->Length;
+					richTextLog->SelectionLength = richTextLog->Text->Length;
+					richTextLog->SelectionColor = LogLineColor[i];
+					richTextLog->AppendText(LogLines[i] + L"\n");
+				}
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->ScrollToCaret();
+				::SendMessage(hWnd, WM_SETREDRAW, true, 0); //描画再開
+				this->Refresh(); //強制再描画
+				//設定を保存
+				guiEx_settings exstg(true);
+				exstg.load_log_win();
+				Set_AUO_FONT_INFO(&exstg.s_log.log_font, fontDialogLog->Font, LastFont);
+				exstg.save_log_win();
+			}
 		}
 };
 }

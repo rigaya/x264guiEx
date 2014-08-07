@@ -57,6 +57,12 @@ const PRIORITY_CLASS priority_table[] = {
 	{NULL,                0                           }
 };
 
+typedef struct {
+	char   name[256]; //フォント名(family name)
+	double size;      //フォントサイズ
+	int    style;     //フォントスタイル
+} AUO_FONT_INFO;
+
 void open_log_window(const char *savefile, int current_pass, int total_pass);
 
 void write_log_auo_line_fmt(int log_type_index, const char *format, ... );

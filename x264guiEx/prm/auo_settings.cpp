@@ -55,6 +55,18 @@ static double GetPrivateProfileDouble(const char *section, const char *keyname, 
 	d = 0.0; return d;
 }
 
+static inline void GetFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
+	const size_t keyname_base_len = strlen(keyname_base);
+	char key[256];
+	memcpy(key, keyname_base, sizeof(char) * keyname_base_len);
+	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_name");
+	GetPrivateProfileString(section, key, "", font_info->name, sizeof(font_info->name), ini_file);
+	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_size");
+	font_info->size = GetPrivateProfileDouble(section, key, "0.0", ini_file);
+	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_style");
+	font_info->style = GetPrivateProfileInt(section, key, 0, ini_file);
+}
+
 static inline void WritePrivateProfileInt(const char *section, const char *keyname, int value, const char *ini_file) {
 	char tmp[22];
 	sprintf_s(tmp, sizeof(tmp), "%d", value);
@@ -65,6 +77,24 @@ static inline void WritePrivateProfileDouble(const char *section, const char *ke
 	char tmp[64];
 	sprintf_s(tmp, sizeof(tmp), "%lf", value);
 	WritePrivateProfileString(section, keyname, tmp, ini_file);
+}
+
+static inline void WriteFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
+	const size_t keyname_base_len = strlen(keyname_base);
+	char key[256];
+	memcpy(key, keyname_base, sizeof(char) * keyname_base_len);
+	if (char_has_length(font_info->name)) {
+		strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_name");
+		WritePrivateProfileString(section, key, font_info->name, ini_file);
+	}
+	if (font_info->size > 0.0) {
+		strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_size");
+		WritePrivateProfileDouble(section, key, font_info->size, ini_file);
+	}
+	if (font_info->style != 0) {
+		strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_style");
+		WritePrivateProfileInt(section, key, font_info->style, ini_file);
+	}
 }
 
 
@@ -368,7 +398,8 @@ void guiEx_settings::load_x264() {
 	clear_x264();
 
 	s_x264_mc.init(ini_filesize);
-
+	  
+	s_x264.filename          = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName);
 	s_x264.default_cmd       = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName);
 	s_x264.default_cmd_10bit = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName);
 
@@ -404,6 +435,9 @@ void guiEx_settings::load_local() {
 	s_local.disable_tooltip_help  = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_tooltip_help",  0,                    conf_fileName);
 	s_local.disable_visual_styles = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_visual_styles", 0,                    conf_fileName);
 	s_local.enable_stg_esc_key    = GetPrivateProfileInt(INI_SECTION_MAIN,  "enable_stg_esc_key",    0,                    conf_fileName);
+	
+	GetFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
+
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        sizeof(s_local.custom_tmp_dir),        conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  sizeof(s_local.custom_audio_tmp_dir),  conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, sizeof(s_local.custom_mp4box_tmp_dir), conf_fileName);
@@ -423,16 +457,17 @@ void guiEx_settings::load_local() {
 
 void guiEx_settings::load_log_win() {
 	clear_log_win();
-	s_log.minimized          = GetPrivateProfileInt(INI_SECTION_MAIN, "log_start_minimized",  0, conf_fileName);
-	s_log.transparent        = GetPrivateProfileInt(INI_SECTION_MAIN, "log_transparent",      1, conf_fileName);
-	s_log.auto_save_log      = GetPrivateProfileInt(INI_SECTION_MAIN, "log_auto_save",        0, conf_fileName);
-	s_log.auto_save_log_mode = GetPrivateProfileInt(INI_SECTION_MAIN, "log_auto_save_mode",   0, conf_fileName);
+	s_log.minimized          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",  0, conf_fileName);
+	s_log.transparent        = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",      1, conf_fileName);
+	s_log.auto_save_log      = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",        0, conf_fileName);
+	s_log.auto_save_log_mode = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",   0, conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path", "", s_log.auto_save_log_path, sizeof(s_log.auto_save_log_path), conf_fileName);
-	s_log.show_status_bar    = GetPrivateProfileInt(INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
-	s_log.taskbar_progress   = GetPrivateProfileInt(INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
-	s_log.save_log_size      = GetPrivateProfileInt(INI_SECTION_MAIN, "save_log_size",        0, conf_fileName);
-	s_log.log_width          = GetPrivateProfileInt(INI_SECTION_MAIN, "log_width",            0, conf_fileName);
-	s_log.log_height         = GetPrivateProfileInt(INI_SECTION_MAIN, "log_height",           0, conf_fileName);
+	s_log.show_status_bar    = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
+	s_log.taskbar_progress   = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
+	s_log.save_log_size      = GetPrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",        0, conf_fileName);
+	s_log.log_width          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_width",            0, conf_fileName);
+	s_log.log_height         = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_height",           0, conf_fileName);
+	GetFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::load_append() {
@@ -458,6 +493,8 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_tooltip_help",  s_local.disable_tooltip_help,  conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_visual_styles", s_local.disable_visual_styles, conf_fileName);
 	WritePrivateProfileInt(INI_SECTION_MAIN,    "enable_stg_esc_key",    s_local.enable_stg_esc_key,    conf_fileName);
+
+	WriteFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_tmp_dir);
 	PathRemoveBackslash(s_local.custom_tmp_dir);
@@ -508,6 +545,7 @@ void guiEx_settings::save_log_win() {
 	WritePrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",         s_log.save_log_size,      conf_fileName);
 	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_width",             s_log.log_width,          conf_fileName);
 	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_height",            s_log.log_height,         conf_fileName);
+	WriteFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::save_fbc() {
