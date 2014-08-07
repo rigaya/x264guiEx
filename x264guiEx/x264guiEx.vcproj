@@ -157,6 +157,7 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
+				CLRThreadAttribute="2"
 			/>
 			<Tool
 				Name="VCALinkTool"
