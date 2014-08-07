@@ -243,9 +243,10 @@ const WCHAR * const interlaced_desc[] = {
 	NULL
 };
 
-const WCHAR * const StgNotesColorName[] = {
-	L"InactiveCaptionText",
-	L"ControlDark"
+//メモ表示用 RGB
+const int StgNotesColor[][3] = {
+	{  80,  72,  92 },
+	{ 120, 120, 120 }
 };
 
 const WCHAR * const yc48_colmat_conv_desc[] = {

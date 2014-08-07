@@ -1265,26 +1265,26 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 
 System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {
 	ZeroMemory(notes, nSize);
-	if (fcgTSLSettingsNotes->ForeColor == Color::FromName(String(StgNotesColorName[0]).ToString()))
+	if (fcgTSLSettingsNotes->ForeColor == Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]))
 		GetCHARfromString(notes, nSize, fcgTSLSettingsNotes->Text);
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(const char *notes) {
 	if (char_has_length(notes)) {
-		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[0]).ToString());
+		fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
 		fcgTSLSettingsNotes->Text = String(notes).ToString();
 	} else {
-		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[1]).ToString());
+		fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[1][0], StgNotesColor[1][1], StgNotesColor[1][2]);
 		fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
 	}
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(String^ notes) {
 	if (notes->Length && String::Compare(notes, String(DefaultStgNotes).ToString()) != 0) {
-		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[0]).ToString());
+		fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
 		fcgTSLSettingsNotes->Text = notes;
 	} else {
-		fcgTSLSettingsNotes->ForeColor = Color::FromName(String(StgNotesColorName[1]).ToString());
+		fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[1][0], StgNotesColor[1][1], StgNotesColor[1][2]);
 		fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
 	}
 }
