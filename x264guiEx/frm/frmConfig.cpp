@@ -913,6 +913,11 @@ System::Void frmConfig::InitForm() {
 	//イベントセット
 	SetTXMaxLenAll(); //テキストボックスの最大文字数
 	SetAllCheckChangedEvents(this); //変更の確認,ついでにNUのEnterEvent
+	//YC48 BT.601->BT.709の可否
+#ifndef ENABLE_BT709_CONV
+	fcgCXYC48ColMatConv->Visible = false;
+	fcgLBYC48ColMatConv->Visible = false;
+#endif
 	//フォームの変更可不可を更新
 	fcgChangeEnabled(nullptr, nullptr);
 	fcgCBAFS_CheckedChanged(nullptr, nullptr);

@@ -67,12 +67,14 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  SSE2,             convert_yuy2_to_nv16_sse2 },
 	{ CF_YUY2, OUT_CSP_YUV422, _ALL__, BIT_8, A, _ALL,  1,  NONE,             convert_yuy2_to_nv16 },
 	//YC48 -> nv16(10bit)
+#ifdef ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv16_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_bt709_nv16_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_bt709_nv16_10bit },
 	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv16_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV422, BT709F, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_bt709_nv16_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV422, BT709S, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_bt709_nv16_10bit_full },
+#endif //ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv16_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSSE3|SSE2,       convert_yc48_to_nv16_10bit_ssse3 },
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_nv16_10bit_sse2 },
@@ -83,17 +85,21 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV422, BT601_, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_nv16_10bit_full },
 
 	//YC48 -> yuv444(8bit)
+#ifdef ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  SSE2,             convert_yc48_to_bt709_yuv444_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT_8, A, _ALL,  1,  NONE,             convert_yc48_to_bt709_yuv444 },
+#endif //ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  SSE2,             convert_yc48_to_yuv444_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT_8, A, _ALL,  1,  NONE,             convert_yc48_to_yuv444 },
 	//YC48 -> yuv444(10bit)
+#ifdef ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_yuv444_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_bt709_yuv444_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_bt709_yuv444_10bit },
 	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_yuv444_10bit_full_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709F, BIT10, A, FULL,  1,  SSE2,             convert_yc48_to_bt709_yuv444_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT709S, BIT10, A, FULL,  1,  NONE,             convert_yc48_to_bt709_yuv444_10bit_full },
+#endif //ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  SSE2,             convert_yc48_to_yuv444_10bit_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, LIMI,  1,  NONE,             convert_yc48_to_yuv444_10bit },
@@ -115,6 +121,7 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YUY2, OUT_CSP_YUV420, _ALL__, BIT_8, I, _ALL,  1,  NONE,             convert_yuy2_to_nv12_i },
 
 	//YC48 -> nv12(10bit)
+#ifdef ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_bt709_nv12_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, P, LIMI,  8,  SSE2,             convert_yc48_to_bt709_nv12_10bit_sse2_mod8 },
@@ -135,7 +142,7 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  8,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_full_sse2_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT709F, BIT10, I, FULL,  1,  SSE2,             convert_yc48_to_bt709_nv12_i_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV420, BT709S, BIT10, I, FULL,  1,  NONE,             convert_yc48_to_bt709_nv12_i_10bit_full },
-	
+#endif //ENABLE_BT709_CONV
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_sse4_1_mod8 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  1,  SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_sse4_1 },
 	{ CF_YC48, OUT_CSP_YUV420, BT601_, BIT10, P, LIMI,  8,  SSSE3|SSE2,       convert_yc48_to_nv12_10bit_ssse3_mod8 },
@@ -372,7 +379,6 @@ static void build_simd_info(DWORD simd, char *buf, DWORD nSize) {
 static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	if (func_info->bt709conv == BT709S)
 		write_log_auo_line_fmt(LOG_INFO, "converting YC48 BT.601 -> BT.709");
-
 	char simd_buf[128];
 	build_simd_info(func_info->SIMD, simd_buf, sizeof(simd_buf));
 
@@ -422,9 +428,11 @@ func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL i
 		if (FUNC_TABLE[i].for_interlaced != A &&
 			FUNC_TABLE[i].for_interlaced != (eInterlace)interlaced)
 			continue;
+#ifdef ENABLE_BT709_CONV
 		if (FUNC_TABLE[i].bt709conv != _ALL__ &&
 			(FUNC_TABLE[i].bt709conv > 0) != convert_yc48_to_bt709)
 			continue;
+#endif //ENABLE_BT709_CONV
 		if (FUNC_TABLE[i].fullrange != _ALL &&
 			FUNC_TABLE[i].fullrange != fullrange)
 			continue;
