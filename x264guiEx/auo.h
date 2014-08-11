@@ -23,20 +23,26 @@ const int   MAX_CMD_LEN           = 8192; //コマンドラインの最大長は
 const DWORD AUDIO_BUFFER_DEFAULT  = 48000;
 const DWORD AUDIO_BUFFER_MAX      = AUDIO_BUFFER_DEFAULT * 30;
 
-const int   VIDEO_OUTPUT_DISABLED = -2;
-const int   VIDEO_OUTPUT_RAW      = -1;
-const int   VIDEO_OUTPUT_MP4      = 0;
-const int   VIDEO_OUTPUT_MKV      = 1;
+enum {
+	VIDEO_OUTPUT_DISABLED = -2,
+	VIDEO_OUTPUT_RAW      = -1,
+	VIDEO_OUTPUT_MP4      = 0,
+	VIDEO_OUTPUT_MKV      = 1,
+};
 
-const int   MUXER_DISABLED = VIDEO_OUTPUT_DISABLED;
-const int   MUXER_MP4      = VIDEO_OUTPUT_MP4;
-const int   MUXER_MKV      = VIDEO_OUTPUT_MKV;
-const int   MUXER_TC2MP4   = VIDEO_OUTPUT_MP4 + 2;
+enum {
+	MUXER_DISABLED = VIDEO_OUTPUT_DISABLED,
+	MUXER_MP4      = VIDEO_OUTPUT_MP4,
+	MUXER_MKV      = VIDEO_OUTPUT_MKV,
+	MUXER_TC2MP4   = VIDEO_OUTPUT_MP4 + 2,
+};
 
-const DWORD AUO_RESULT_SUCCESS    = 0x0000;
-const DWORD AUO_RESULT_ERROR      = 0x0001;
-const DWORD AUO_RESULT_ABORT      = 0x0002;
-const DWORD AUO_RESULT_WARNING    = 0x0004;
+enum {
+	AUO_RESULT_SUCCESS    = 0x0000,
+	AUO_RESULT_ERROR      = 0x0001,
+	AUO_RESULT_ABORT      = 0x0002,
+	AUO_RESULT_WARNING    = 0x0004,
+};
 
 typedef struct {
 	WCHAR *text;
