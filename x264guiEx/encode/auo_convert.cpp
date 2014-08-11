@@ -307,20 +307,9 @@ func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL i
 BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL use10bit) {
 	BOOL ret = TRUE;
 	int pixel_size = (use10bit) ? sizeof(short) : sizeof(BYTE);
-	switch (output_csp) {
-		case OUT_CSP_RGB:
-			if (check_ssse3())
-				width = ceil_div_int(width, 5) * 5;
-			break;
-		case OUT_CSP_YUV420:
-		case OUT_CSP_YUV422:
-		case OUT_CSP_YUV444:
-		default:
-			if (check_sse2())
-				width = (width + 15) & ~15;
-			break;
-	}
 	int frame_size = width * height * pixel_size;
+	if (check_sse2())
+		frame_size = (frame_size + 63) & ~63;
 	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
 	switch (output_csp) {
 		case OUT_CSP_YUV422:
