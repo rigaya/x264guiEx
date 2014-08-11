@@ -530,6 +530,10 @@ void guiEx_settings::load_append() {
 void guiEx_settings::load_fbc() {
 	clear_fbc();
 	s_fbc.calc_bitrate         = GetPrivateProfileInt(   INI_SECTION_FBC, "calc_bitrate",         DEFAULT_FBC_CALC_BITRATE,         conf_fileName);
+	s_fbc.calc_time_from_frame = GetPrivateProfileInt(   INI_SECTION_FBC, "calc_time_from_frame", DEFAULT_FBC_CALC_TIME_FROM_FRAME, conf_fileName);
+	s_fbc.last_frame_num       = GetPrivateProfileInt(   INI_SECTION_FBC, "last_frame_num",       DEFAULT_FBC_LAST_FRAME_NUM,       conf_fileName);
+	s_fbc.last_fps             = GetPrivateProfileDouble(INI_SECTION_FBC, "last_fps",             DEFAULT_FBC_LAST_FPS,             conf_fileName);
+	s_fbc.last_time_in_sec     = GetPrivateProfileInt(   INI_SECTION_FBC, "last_time_in_sec",     DEFAULT_FBC_LAST_TIME_IN_SEC,     conf_fileName);
 	s_fbc.initial_size         = GetPrivateProfileDouble(INI_SECTION_FBC, "initial_size",         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
 }
 
@@ -602,6 +606,10 @@ void guiEx_settings::save_log_win() {
 
 void guiEx_settings::save_fbc() {
 	WritePrivateProfileIntWithDefault(   INI_SECTION_FBC, "calc_bitrate",         s_fbc.calc_bitrate,         DEFAULT_FBC_CALC_BITRATE,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_FBC, "calc_time_from_frame", s_fbc.calc_time_from_frame, DEFAULT_FBC_CALC_TIME_FROM_FRAME, conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_FBC, "last_frame_num",       s_fbc.last_frame_num,       DEFAULT_FBC_LAST_FRAME_NUM,       conf_fileName);
+	WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_fps",             s_fbc.last_fps,             DEFAULT_FBC_LAST_FPS,             conf_fileName);
+	WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_time_in_sec",     s_fbc.last_time_in_sec,     DEFAULT_FBC_LAST_TIME_IN_SEC,     conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "initial_size",         s_fbc.initial_size,         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
 }
 

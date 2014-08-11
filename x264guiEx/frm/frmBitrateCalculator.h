@@ -77,17 +77,24 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Label^  label2;
 	private: System::Windows::Forms::Label^  label3;
 	private: System::Windows::Forms::Label^  label4;
-	private: System::Windows::Forms::Label^  label5;
-	private: System::Windows::Forms::Label^  label6;
-	private: System::Windows::Forms::Label^  label7;
+	private: System::Windows::Forms::Label^  fbcLBVideoBitrate;
+
+	private: System::Windows::Forms::Label^  fbcLBAudioBitrate;
+	private: System::Windows::Forms::Label^  fbcLBMovieSize;
+
+
+
+
 	private: System::Windows::Forms::NumericUpDown^  fbcNUBitrateAudio;
 
 
 	private: System::Windows::Forms::NumericUpDown^  fbcNUBitrateVideo;
+	private: System::Windows::Forms::Label^  fbcLBVideoBitrateKbps;
+	private: System::Windows::Forms::Label^  fbcLBAudioBitrateKbps;
 
 
-	private: System::Windows::Forms::Label^  label8;
-	private: System::Windows::Forms::Label^  label9;
+
+
 	private: System::Windows::Forms::Label^  label10;
 
 
@@ -97,15 +104,29 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Button^  fbcBTVBApply;
 	private: System::Windows::Forms::Button^  fbcBTABApply;
 	private: System::Windows::Forms::TextBox^  fbcTXSize;
+	private: System::Windows::Forms::Label^  fbcLBMovieBitrateKbps;
 
 
 
-	private: System::Windows::Forms::Label^  label11;
+
 	private: System::Windows::Forms::NumericUpDown^  fbcNUBitrateSum;
+	private: System::Windows::Forms::Label^  fbcLBMovieBitrate;
 
-	private: System::Windows::Forms::Label^  label12;
+
 	private: System::Windows::Forms::RadioButton^  fbcRBCalcRate;
 	private: System::Windows::Forms::RadioButton^  fbcRBCalcSize;
+	private: System::Windows::Forms::Panel^  fbcPNMovieTime;
+	private: System::Windows::Forms::Panel^  fbcPNMovieFrames;
+	private: System::Windows::Forms::NumericUpDown^  fbcNUMovieFrames;
+
+
+	private: System::Windows::Forms::Label^  fbcLBFrames;
+	private: System::Windows::Forms::Label^  fbcLBMovieFrameRate;
+	private: System::Windows::Forms::Button^  fbcBTChangeLengthMode;
+	private: System::Windows::Forms::TextBox^  fbcTXMovieFrameRate;
+	private: System::Windows::Forms::GroupBox^  fbcGroupBoxVideoLength;
+
+
 
 
 
@@ -130,33 +151,45 @@ namespace x264guiEx {
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
-			this->label5 = (gcnew System::Windows::Forms::Label());
-			this->label6 = (gcnew System::Windows::Forms::Label());
-			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->fbcLBVideoBitrate = (gcnew System::Windows::Forms::Label());
+			this->fbcLBAudioBitrate = (gcnew System::Windows::Forms::Label());
+			this->fbcLBMovieSize = (gcnew System::Windows::Forms::Label());
 			this->fbcNUBitrateVideo = (gcnew System::Windows::Forms::NumericUpDown());
 			this->fbcNUBitrateAudio = (gcnew System::Windows::Forms::NumericUpDown());
-			this->label8 = (gcnew System::Windows::Forms::Label());
-			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->fbcLBVideoBitrateKbps = (gcnew System::Windows::Forms::Label());
+			this->fbcLBAudioBitrateKbps = (gcnew System::Windows::Forms::Label());
 			this->label10 = (gcnew System::Windows::Forms::Label());
 			this->fbcBTVBApply = (gcnew System::Windows::Forms::Button());
 			this->fbcBTABApply = (gcnew System::Windows::Forms::Button());
 			this->fbcTXSize = (gcnew System::Windows::Forms::TextBox());
-			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->fbcLBMovieBitrateKbps = (gcnew System::Windows::Forms::Label());
 			this->fbcNUBitrateSum = (gcnew System::Windows::Forms::NumericUpDown());
-			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->fbcLBMovieBitrate = (gcnew System::Windows::Forms::Label());
 			this->fbcRBCalcRate = (gcnew System::Windows::Forms::RadioButton());
 			this->fbcRBCalcSize = (gcnew System::Windows::Forms::RadioButton());
+			this->fbcPNMovieTime = (gcnew System::Windows::Forms::Panel());
+			this->fbcPNMovieFrames = (gcnew System::Windows::Forms::Panel());
+			this->fbcTXMovieFrameRate = (gcnew System::Windows::Forms::TextBox());
+			this->fbcNUMovieFrames = (gcnew System::Windows::Forms::NumericUpDown());
+			this->fbcLBFrames = (gcnew System::Windows::Forms::Label());
+			this->fbcLBMovieFrameRate = (gcnew System::Windows::Forms::Label());
+			this->fbcBTChangeLengthMode = (gcnew System::Windows::Forms::Button());
+			this->fbcGroupBoxVideoLength = (gcnew System::Windows::Forms::GroupBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthHour))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthMin))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNULengthSec))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateVideo))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateAudio))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateSum))->BeginInit();
+			this->fbcPNMovieTime->SuspendLayout();
+			this->fbcPNMovieFrames->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUMovieFrames))->BeginInit();
+			this->fbcGroupBoxVideoLength->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// fbcNULengthHour
 			// 
-			this->fbcNULengthHour->Location = System::Drawing::Point(88, 49);
+			this->fbcNULengthHour->Location = System::Drawing::Point(75, 9);
 			this->fbcNULengthHour->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {120, 0, 0, 0});
 			this->fbcNULengthHour->Name = L"fbcNULengthHour";
 			this->fbcNULengthHour->Size = System::Drawing::Size(55, 21);
@@ -166,7 +199,7 @@ namespace x264guiEx {
 			// 
 			// fbcNULengthMin
 			// 
-			this->fbcNULengthMin->Location = System::Drawing::Point(179, 49);
+			this->fbcNULengthMin->Location = System::Drawing::Point(166, 9);
 			this->fbcNULengthMin->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {59, 0, 0, 0});
 			this->fbcNULengthMin->Name = L"fbcNULengthMin";
 			this->fbcNULengthMin->Size = System::Drawing::Size(55, 21);
@@ -176,7 +209,7 @@ namespace x264guiEx {
 			// 
 			// fbcNULengthSec
 			// 
-			this->fbcNULengthSec->Location = System::Drawing::Point(261, 49);
+			this->fbcNULengthSec->Location = System::Drawing::Point(248, 9);
 			this->fbcNULengthSec->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {59, 0, 0, 0});
 			this->fbcNULengthSec->Name = L"fbcNULengthSec";
 			this->fbcNULengthSec->Size = System::Drawing::Size(55, 21);
@@ -187,7 +220,7 @@ namespace x264guiEx {
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(32, 51);
+			this->label1->Location = System::Drawing::Point(19, 11);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(48, 14);
 			this->label1->TabIndex = 3;
@@ -196,7 +229,7 @@ namespace x264guiEx {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(146, 51);
+			this->label2->Location = System::Drawing::Point(133, 11);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(29, 14);
 			this->label2->TabIndex = 4;
@@ -205,7 +238,7 @@ namespace x264guiEx {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(236, 51);
+			this->label3->Location = System::Drawing::Point(223, 11);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(18, 14);
 			this->label3->TabIndex = 5;
@@ -214,42 +247,42 @@ namespace x264guiEx {
 			// label4
 			// 
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(318, 51);
+			this->label4->Location = System::Drawing::Point(305, 11);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(18, 14);
 			this->label4->TabIndex = 6;
 			this->label4->Text = L"秒";
 			// 
-			// label5
+			// fbcLBVideoBitrate
 			// 
-			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(31, 94);
-			this->label5->Name = L"label5";
-			this->label5->Size = System::Drawing::Size(76, 14);
-			this->label5->TabIndex = 7;
-			this->label5->Text = L"映像ビットレート";
+			this->fbcLBVideoBitrate->AutoSize = true;
+			this->fbcLBVideoBitrate->Location = System::Drawing::Point(31, 125);
+			this->fbcLBVideoBitrate->Name = L"fbcLBVideoBitrate";
+			this->fbcLBVideoBitrate->Size = System::Drawing::Size(76, 14);
+			this->fbcLBVideoBitrate->TabIndex = 7;
+			this->fbcLBVideoBitrate->Text = L"映像ビットレート";
 			// 
-			// label6
+			// fbcLBAudioBitrate
 			// 
-			this->label6->AutoSize = true;
-			this->label6->Location = System::Drawing::Point(31, 127);
-			this->label6->Name = L"label6";
-			this->label6->Size = System::Drawing::Size(76, 14);
-			this->label6->TabIndex = 8;
-			this->label6->Text = L"音声ビットレート";
+			this->fbcLBAudioBitrate->AutoSize = true;
+			this->fbcLBAudioBitrate->Location = System::Drawing::Point(31, 158);
+			this->fbcLBAudioBitrate->Name = L"fbcLBAudioBitrate";
+			this->fbcLBAudioBitrate->Size = System::Drawing::Size(76, 14);
+			this->fbcLBAudioBitrate->TabIndex = 8;
+			this->fbcLBAudioBitrate->Text = L"音声ビットレート";
 			// 
-			// label7
+			// fbcLBMovieSize
 			// 
-			this->label7->AutoSize = true;
-			this->label7->Location = System::Drawing::Point(31, 188);
-			this->label7->Name = L"label7";
-			this->label7->Size = System::Drawing::Size(55, 14);
-			this->label7->TabIndex = 9;
-			this->label7->Text = L"動画サイズ";
+			this->fbcLBMovieSize->AutoSize = true;
+			this->fbcLBMovieSize->Location = System::Drawing::Point(31, 219);
+			this->fbcLBMovieSize->Name = L"fbcLBMovieSize";
+			this->fbcLBMovieSize->Size = System::Drawing::Size(55, 14);
+			this->fbcLBMovieSize->TabIndex = 9;
+			this->fbcLBMovieSize->Text = L"動画サイズ";
 			// 
 			// fbcNUBitrateVideo
 			// 
-			this->fbcNUBitrateVideo->Location = System::Drawing::Point(132, 92);
+			this->fbcNUBitrateVideo->Location = System::Drawing::Point(132, 123);
 			this->fbcNUBitrateVideo->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {128000, 0, 0, 0});
 			this->fbcNUBitrateVideo->Name = L"fbcNUBitrateVideo";
 			this->fbcNUBitrateVideo->Size = System::Drawing::Size(65, 21);
@@ -259,7 +292,7 @@ namespace x264guiEx {
 			// 
 			// fbcNUBitrateAudio
 			// 
-			this->fbcNUBitrateAudio->Location = System::Drawing::Point(132, 125);
+			this->fbcNUBitrateAudio->Location = System::Drawing::Point(132, 156);
 			this->fbcNUBitrateAudio->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1536, 0, 0, 0});
 			this->fbcNUBitrateAudio->Name = L"fbcNUBitrateAudio";
 			this->fbcNUBitrateAudio->Size = System::Drawing::Size(65, 21);
@@ -267,28 +300,28 @@ namespace x264guiEx {
 			this->fbcNUBitrateAudio->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
 			this->fbcNUBitrateAudio->TextChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcNUAudioBitrate_TextChanged);
 			// 
-			// label8
+			// fbcLBVideoBitrateKbps
 			// 
-			this->label8->AutoSize = true;
-			this->label8->Location = System::Drawing::Point(203, 94);
-			this->label8->Name = L"label8";
-			this->label8->Size = System::Drawing::Size(32, 14);
-			this->label8->TabIndex = 13;
-			this->label8->Text = L"kbps";
+			this->fbcLBVideoBitrateKbps->AutoSize = true;
+			this->fbcLBVideoBitrateKbps->Location = System::Drawing::Point(203, 125);
+			this->fbcLBVideoBitrateKbps->Name = L"fbcLBVideoBitrateKbps";
+			this->fbcLBVideoBitrateKbps->Size = System::Drawing::Size(32, 14);
+			this->fbcLBVideoBitrateKbps->TabIndex = 13;
+			this->fbcLBVideoBitrateKbps->Text = L"kbps";
 			// 
-			// label9
+			// fbcLBAudioBitrateKbps
 			// 
-			this->label9->AutoSize = true;
-			this->label9->Location = System::Drawing::Point(203, 127);
-			this->label9->Name = L"label9";
-			this->label9->Size = System::Drawing::Size(32, 14);
-			this->label9->TabIndex = 14;
-			this->label9->Text = L"kbps";
+			this->fbcLBAudioBitrateKbps->AutoSize = true;
+			this->fbcLBAudioBitrateKbps->Location = System::Drawing::Point(203, 158);
+			this->fbcLBAudioBitrateKbps->Name = L"fbcLBAudioBitrateKbps";
+			this->fbcLBAudioBitrateKbps->Size = System::Drawing::Size(32, 14);
+			this->fbcLBAudioBitrateKbps->TabIndex = 14;
+			this->fbcLBAudioBitrateKbps->Text = L"kbps";
 			// 
 			// label10
 			// 
 			this->label10->AutoSize = true;
-			this->label10->Location = System::Drawing::Point(203, 188);
+			this->label10->Location = System::Drawing::Point(203, 219);
 			this->label10->Name = L"label10";
 			this->label10->Size = System::Drawing::Size(23, 14);
 			this->label10->TabIndex = 15;
@@ -296,7 +329,7 @@ namespace x264guiEx {
 			// 
 			// fbcBTVBApply
 			// 
-			this->fbcBTVBApply->Location = System::Drawing::Point(245, 90);
+			this->fbcBTVBApply->Location = System::Drawing::Point(245, 121);
 			this->fbcBTVBApply->Name = L"fbcBTVBApply";
 			this->fbcBTVBApply->Size = System::Drawing::Size(129, 25);
 			this->fbcBTVBApply->TabIndex = 8;
@@ -306,7 +339,7 @@ namespace x264guiEx {
 			// 
 			// fbcBTABApply
 			// 
-			this->fbcBTABApply->Location = System::Drawing::Point(245, 123);
+			this->fbcBTABApply->Location = System::Drawing::Point(245, 154);
 			this->fbcBTABApply->Name = L"fbcBTABApply";
 			this->fbcBTABApply->Size = System::Drawing::Size(129, 25);
 			this->fbcBTABApply->TabIndex = 9;
@@ -316,25 +349,25 @@ namespace x264guiEx {
 			// 
 			// fbcTXSize
 			// 
-			this->fbcTXSize->Location = System::Drawing::Point(132, 185);
+			this->fbcTXSize->Location = System::Drawing::Point(132, 216);
 			this->fbcTXSize->Name = L"fbcTXSize";
 			this->fbcTXSize->Size = System::Drawing::Size(65, 21);
 			this->fbcTXSize->TabIndex = 7;
 			this->fbcTXSize->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
 			this->fbcTXSize->TextChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcTXSize_TextChanged);
 			// 
-			// label11
+			// fbcLBMovieBitrateKbps
 			// 
-			this->label11->AutoSize = true;
-			this->label11->Location = System::Drawing::Point(203, 158);
-			this->label11->Name = L"label11";
-			this->label11->Size = System::Drawing::Size(32, 14);
-			this->label11->TabIndex = 24;
-			this->label11->Text = L"kbps";
+			this->fbcLBMovieBitrateKbps->AutoSize = true;
+			this->fbcLBMovieBitrateKbps->Location = System::Drawing::Point(203, 189);
+			this->fbcLBMovieBitrateKbps->Name = L"fbcLBMovieBitrateKbps";
+			this->fbcLBMovieBitrateKbps->Size = System::Drawing::Size(32, 14);
+			this->fbcLBMovieBitrateKbps->TabIndex = 24;
+			this->fbcLBMovieBitrateKbps->Text = L"kbps";
 			// 
 			// fbcNUBitrateSum
 			// 
-			this->fbcNUBitrateSum->Location = System::Drawing::Point(132, 156);
+			this->fbcNUBitrateSum->Location = System::Drawing::Point(132, 187);
 			this->fbcNUBitrateSum->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {128000, 0, 0, 0});
 			this->fbcNUBitrateSum->Name = L"fbcNUBitrateSum";
 			this->fbcNUBitrateSum->Size = System::Drawing::Size(65, 21);
@@ -342,14 +375,14 @@ namespace x264guiEx {
 			this->fbcNUBitrateSum->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
 			this->fbcNUBitrateSum->TextChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcNUBitrateSum_TextChanged);
 			// 
-			// label12
+			// fbcLBMovieBitrate
 			// 
-			this->label12->AutoSize = true;
-			this->label12->Location = System::Drawing::Point(31, 158);
-			this->label12->Name = L"label12";
-			this->label12->Size = System::Drawing::Size(76, 14);
-			this->label12->TabIndex = 22;
-			this->label12->Text = L"合計ビットレート";
+			this->fbcLBMovieBitrate->AutoSize = true;
+			this->fbcLBMovieBitrate->Location = System::Drawing::Point(31, 189);
+			this->fbcLBMovieBitrate->Name = L"fbcLBMovieBitrate";
+			this->fbcLBMovieBitrate->Size = System::Drawing::Size(76, 14);
+			this->fbcLBMovieBitrate->TabIndex = 22;
+			this->fbcLBMovieBitrate->Text = L"合計ビットレート";
 			// 
 			// fbcRBCalcRate
 			// 
@@ -375,34 +408,112 @@ namespace x264guiEx {
 			this->fbcRBCalcSize->UseVisualStyleBackColor = true;
 			this->fbcRBCalcSize->CheckedChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcRBCalcSize_CheckedChanged);
 			// 
+			// fbcPNMovieTime
+			// 
+			this->fbcPNMovieTime->Controls->Add(this->label1);
+			this->fbcPNMovieTime->Controls->Add(this->fbcNULengthHour);
+			this->fbcPNMovieTime->Controls->Add(this->fbcNULengthMin);
+			this->fbcPNMovieTime->Controls->Add(this->fbcNULengthSec);
+			this->fbcPNMovieTime->Controls->Add(this->label2);
+			this->fbcPNMovieTime->Controls->Add(this->label3);
+			this->fbcPNMovieTime->Controls->Add(this->label4);
+			this->fbcPNMovieTime->Location = System::Drawing::Point(6, 11);
+			this->fbcPNMovieTime->Name = L"fbcPNMovieTime";
+			this->fbcPNMovieTime->Size = System::Drawing::Size(346, 37);
+			this->fbcPNMovieTime->TabIndex = 27;
+			// 
+			// fbcPNMovieFrames
+			// 
+			this->fbcPNMovieFrames->Controls->Add(this->fbcTXMovieFrameRate);
+			this->fbcPNMovieFrames->Controls->Add(this->fbcNUMovieFrames);
+			this->fbcPNMovieFrames->Controls->Add(this->fbcLBFrames);
+			this->fbcPNMovieFrames->Controls->Add(this->fbcLBMovieFrameRate);
+			this->fbcPNMovieFrames->Location = System::Drawing::Point(17, 11);
+			this->fbcPNMovieFrames->Name = L"fbcPNMovieFrames";
+			this->fbcPNMovieFrames->Size = System::Drawing::Size(351, 37);
+			this->fbcPNMovieFrames->TabIndex = 28;
+			// 
+			// fbcTXMovieFrameRate
+			// 
+			this->fbcTXMovieFrameRate->Location = System::Drawing::Point(249, 8);
+			this->fbcTXMovieFrameRate->Name = L"fbcTXMovieFrameRate";
+			this->fbcTXMovieFrameRate->Size = System::Drawing::Size(81, 21);
+			this->fbcTXMovieFrameRate->TabIndex = 10;
+			this->fbcTXMovieFrameRate->Text = L"0";
+			this->fbcTXMovieFrameRate->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+			this->fbcTXMovieFrameRate->TextChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcTXMovieFrameRate_TextChanged);
+			// 
+			// fbcNUMovieFrames
+			// 
+			this->fbcNUMovieFrames->Location = System::Drawing::Point(87, 9);
+			this->fbcNUMovieFrames->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1280000, 0, 0, 0});
+			this->fbcNUMovieFrames->Name = L"fbcNUMovieFrames";
+			this->fbcNUMovieFrames->Size = System::Drawing::Size(72, 21);
+			this->fbcNUMovieFrames->TabIndex = 7;
+			this->fbcNUMovieFrames->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+			this->fbcNUMovieFrames->TextChanged += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcNULength_TextChanged);
+			// 
+			// fbcLBFrames
+			// 
+			this->fbcLBFrames->AutoSize = true;
+			this->fbcLBFrames->Location = System::Drawing::Point(8, 11);
+			this->fbcLBFrames->Name = L"fbcLBFrames";
+			this->fbcLBFrames->Size = System::Drawing::Size(73, 14);
+			this->fbcLBFrames->TabIndex = 0;
+			this->fbcLBFrames->Text = L"動画フレーム数";
+			// 
+			// fbcLBMovieFrameRate
+			// 
+			this->fbcLBMovieFrameRate->AutoSize = true;
+			this->fbcLBMovieFrameRate->Location = System::Drawing::Point(178, 11);
+			this->fbcLBMovieFrameRate->Name = L"fbcLBMovieFrameRate";
+			this->fbcLBMovieFrameRate->Size = System::Drawing::Size(65, 14);
+			this->fbcLBMovieFrameRate->TabIndex = 9;
+			this->fbcLBMovieFrameRate->Text = L"フレームレート";
+			// 
+			// fbcBTChangeLengthMode
+			// 
+			this->fbcBTChangeLengthMode->Location = System::Drawing::Point(240, 48);
+			this->fbcBTChangeLengthMode->Name = L"fbcBTChangeLengthMode";
+			this->fbcBTChangeLengthMode->Size = System::Drawing::Size(129, 25);
+			this->fbcBTChangeLengthMode->TabIndex = 29;
+			this->fbcBTChangeLengthMode->Text = L"動画長さ指定方法の変更";
+			this->fbcBTChangeLengthMode->UseVisualStyleBackColor = true;
+			this->fbcBTChangeLengthMode->Click += gcnew System::EventHandler(this, &frmBitrateCalculator::fbcBTChangeLengthMode_Click);
+			// 
+			// fbcGroupBoxVideoLength
+			// 
+			this->fbcGroupBoxVideoLength->Controls->Add(this->fbcBTChangeLengthMode);
+			this->fbcGroupBoxVideoLength->Controls->Add(this->fbcPNMovieFrames);
+			this->fbcGroupBoxVideoLength->Controls->Add(this->fbcPNMovieTime);
+			this->fbcGroupBoxVideoLength->Location = System::Drawing::Point(6, 32);
+			this->fbcGroupBoxVideoLength->Name = L"fbcGroupBoxVideoLength";
+			this->fbcGroupBoxVideoLength->Size = System::Drawing::Size(374, 81);
+			this->fbcGroupBoxVideoLength->TabIndex = 30;
+			this->fbcGroupBoxVideoLength->TabStop = false;
+			// 
 			// frmBitrateCalculator
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
-			this->ClientSize = System::Drawing::Size(386, 220);
+			this->ClientSize = System::Drawing::Size(386, 245);
+			this->Controls->Add(this->fbcGroupBoxVideoLength);
 			this->Controls->Add(this->fbcRBCalcSize);
 			this->Controls->Add(this->fbcRBCalcRate);
-			this->Controls->Add(this->label11);
+			this->Controls->Add(this->fbcLBMovieBitrateKbps);
 			this->Controls->Add(this->fbcNUBitrateSum);
-			this->Controls->Add(this->label12);
+			this->Controls->Add(this->fbcLBMovieBitrate);
 			this->Controls->Add(this->fbcTXSize);
 			this->Controls->Add(this->fbcBTABApply);
 			this->Controls->Add(this->fbcBTVBApply);
 			this->Controls->Add(this->label10);
-			this->Controls->Add(this->label9);
-			this->Controls->Add(this->label8);
+			this->Controls->Add(this->fbcLBAudioBitrateKbps);
+			this->Controls->Add(this->fbcLBVideoBitrateKbps);
 			this->Controls->Add(this->fbcNUBitrateAudio);
 			this->Controls->Add(this->fbcNUBitrateVideo);
-			this->Controls->Add(this->label7);
-			this->Controls->Add(this->label6);
-			this->Controls->Add(this->label5);
-			this->Controls->Add(this->label4);
-			this->Controls->Add(this->label3);
-			this->Controls->Add(this->label2);
-			this->Controls->Add(this->label1);
-			this->Controls->Add(this->fbcNULengthSec);
-			this->Controls->Add(this->fbcNULengthMin);
-			this->Controls->Add(this->fbcNULengthHour);
+			this->Controls->Add(this->fbcLBMovieSize);
+			this->Controls->Add(this->fbcLBAudioBitrate);
+			this->Controls->Add(this->fbcLBVideoBitrate);
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
@@ -421,6 +532,12 @@ namespace x264guiEx {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateVideo))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateAudio))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUBitrateSum))->EndInit();
+			this->fbcPNMovieTime->ResumeLayout(false);
+			this->fbcPNMovieTime->PerformLayout();
+			this->fbcPNMovieFrames->ResumeLayout(false);
+			this->fbcPNMovieFrames->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fbcNUMovieFrames))->EndInit();
+			this->fbcGroupBoxVideoLength->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -435,6 +552,11 @@ namespace x264guiEx {
 		System::Void fbcRBCalcRate_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 	public:
 		System::Void Init(int VideoBitrate, int AudioBitrate, bool BTVBEnable, bool BTABEnable, int ab_max);
+	private:
+		System::Void fbcChangeTimeSetMode(bool use_frames) {
+			fbcPNMovieFrames->Visible = use_frames;
+			fbcBTChangeLengthMode->Text = (use_frames) ? L"時間指定に変更" : L"フレーム数指定に変更";
+		}
 	private: 
 		System::Void frmBitrateCalculator_Load(System::Object^  sender, System::EventArgs^  e) {
 			SetAllCheckChangedEvents(this);
@@ -484,8 +606,16 @@ namespace x264guiEx {
 			NU->Value = clamp(Convert::ToDecimal(d), NU->Minimum, NU->Maximum);
 		}
 	private:
-		System::Int32 GetDurationSec() {
-			return  (int)fbcNULengthHour->Value * 3600 + (int)fbcNULengthMin->Value * 60 + (int)fbcNULengthSec->Value;
+		double GetDurationSec() {
+			double second = 0.0;
+			if (fbcPNMovieFrames->Visible) {
+				Decimal fps;
+				if (Decimal::TryParse(fbcTXMovieFrameRate->Text, fps) && fps > 0)
+					second = (double)(fbcNUMovieFrames->Value / fps);
+			} else {
+				second = (double)(fbcNULengthHour->Value * 3600 + fbcNULengthMin->Value * 60 + fbcNULengthSec->Value);
+			}
+			return second;
 		}
 	public:
 		System::Void SetBTVBEnabled(bool enable) {
@@ -561,7 +691,7 @@ namespace x264guiEx {
 				enable_events = false;
 				if (fbcRBCalcRate->Checked) {
 					if (GetSize() > 2*1024*1024) fbcTXSize->Text = (2*1024*1024).ToString();
-					if (GetDurationSec()) {
+					if (GetDurationSec() > 0.0) {
 						int va = CalcBitate(GetSize(), GetDurationSec());
 						SetNUValue(fbcNUBitrateSum, va);
 						SetNUValue(fbcNUBitrateVideo, fbcNUBitrateSum->Value - fbcNUBitrateAudio->Value);
@@ -578,11 +708,11 @@ namespace x264guiEx {
 			LastStr = fbcTXSize->Text;
 		}
 	private:
-		System::Int32 CalcBitate(double size_MB, int dur_sec) {
-			return (dur_sec) ? (int)(size_MB * (1024.0 * 1024.0 / 1000.0) * 8.0 / dur_sec) : 0;
+		System::Int32 CalcBitate(double size_MB, double dur_sec) {
+			return (dur_sec > 0) ? (int)(size_MB * (1024.0 * 1024.0 / 1000.0) * 8.0 / dur_sec) : 0;
 		}
 	private:
-		double CalcSize(int bitrate_kbps, int dur_sec) {
+		double CalcSize(int bitrate_kbps, double dur_sec) {
 			return bitrate_kbps * (1000.0 / (1024.0 * 1024.0 * 8.0)) * dur_sec;
 		}
 	private:
@@ -594,7 +724,7 @@ namespace x264guiEx {
 			if (enable_events) {
 				enable_events = false;
 				if (fbcRBCalcRate->Checked) {
-					if (GetDurationSec()) {
+					if (GetDurationSec() > 0.0) {
 						int va = CalcBitate(GetSize(), GetDurationSec());
 						SetNUValue(fbcNUBitrateSum, va);
 						SetNUValue(fbcNUBitrateVideo, fbcNUBitrateSum->Value - fbcNUBitrateAudio->Value);
@@ -610,6 +740,35 @@ namespace x264guiEx {
 		System::Void frmBitrateCalculator_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
+		}
+	private:
+		System::Void fbcBTChangeLengthMode_Click(System::Object^  sender, System::EventArgs^  e) {
+			fbcChangeTimeSetMode(!fbcPNMovieFrames->Visible);
+		}
+	private:
+		String^ lastMovieFrameRateText;
+		System::Void fbcTXMovieFrameRate_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			if (enable_events) {
+				if (fbcTXMovieFrameRate->Text->Length > 0) {
+					//enable_events = false;
+					int c = fbcTXMovieFrameRate->SelectionStart;
+					bool restore = false;
+					double d;
+					if (0 == String::Compare(fbcTXMovieFrameRate->Text, L"-") ||
+						!Double::TryParse(fbcTXMovieFrameRate->Text, d) || 
+						d < 0) {
+							fbcTXMovieFrameRate->Text = lastMovieFrameRateText;
+							restore = true;
+					} else {
+						fbcNULength_TextChanged(sender, e);
+					}
+					//カーソルの位置を動かさないように   復元したのなら、直前の入力は無効のハズ
+					fbcTXMovieFrameRate->SelectionStart = clamp(c - Convert::ToInt32(restore), 0, fbcTXMovieFrameRate->Text->Length);
+					fbcTXMovieFrameRate->SelectionLength = 0;
+					enable_events = true;
+				}
+			}
+			lastMovieFrameRateText = fbcTXMovieFrameRate->Text;
 		}
 };
 }

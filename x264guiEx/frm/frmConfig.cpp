@@ -68,11 +68,14 @@ System::Void frmBitrateCalculator::Init(int VideoBitrate, int AudioBitrate, bool
 	exStg.load_fbc();
 	enable_events = false;
 	fbcTXSize->Text = exStg.s_fbc.initial_size.ToString("F2");
+	fbcChangeTimeSetMode(exStg.s_fbc.calc_time_from_frame != 0);
 	fbcRBCalcRate->Checked = exStg.s_fbc.calc_bitrate != 0;
 	fbcRBCalcSize->Checked = !fbcRBCalcRate->Checked;
-	fbcNULengthHour->Value = 0;
-	fbcNULengthMin->Value = 0;
-	fbcNULengthSec->Value = 0;
+	fbcTXMovieFrameRate->Text = Convert::ToString(exStg.s_fbc.last_fps);
+	fbcNUMovieFrames->Value = exStg.s_fbc.last_frame_num;
+	fbcNULengthHour->Value = Convert::ToDecimal((int)exStg.s_fbc.last_time_in_sec / 3600);
+	fbcNULengthMin->Value = Convert::ToDecimal((int)(exStg.s_fbc.last_time_in_sec % 3600) / 60);
+	fbcNULengthSec->Value =  Convert::ToDecimal((int)exStg.s_fbc.last_time_in_sec % 60);
 	SetBTVBEnabled(BTVBEnable);
 	SetBTABEnabled(BTABEnable, ab_max);
 	SetNUVideoBitrate(VideoBitrate);
@@ -83,6 +86,12 @@ System::Void frmBitrateCalculator::frmBitrateCalculator_FormClosing(System::Obje
 	guiEx_settings exStg(true);
 	exStg.load_fbc();
 	exStg.s_fbc.calc_bitrate = fbcRBCalcRate->Checked;
+	exStg.s_fbc.calc_time_from_frame = fbcPNMovieFrames->Visible;
+	exStg.s_fbc.last_fps = Convert::ToDouble(fbcTXMovieFrameRate->Text);
+	exStg.s_fbc.last_frame_num = Convert::ToInt32(fbcNUMovieFrames->Value);
+	exStg.s_fbc.last_time_in_sec = Convert::ToInt32(fbcNULengthHour->Value) * 3600
+		                         + Convert::ToInt32(fbcNULengthMin->Value) * 60
+								 + Convert::ToInt32(fbcNULengthSec->Value);
 	if (fbcRBCalcRate->Checked)
 		exStg.s_fbc.initial_size = Convert::ToDouble(fbcTXSize->Text);
 	exStg.save_fbc();

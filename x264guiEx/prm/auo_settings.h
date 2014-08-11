@@ -175,8 +175,12 @@ typedef struct {
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {
-	BOOL   calc_bitrate;  //ビットレート計算モード
-	double initial_size;  //初期サイズ
+	BOOL   calc_bitrate;          //ビットレート計算モード
+	BOOL   calc_time_from_frame;  //フレーム数とフレームレートから動画時間を計算
+	int    last_frame_num;        //最後に指定したフレーム数
+	double last_fps;              //最後に指定したフレームレート
+	DWORD  last_time_in_sec;      //最後に指定した時間
+	double initial_size;          //初期サイズ
 } BITRATE_CALC_SETTINGS;
 
 typedef struct {
