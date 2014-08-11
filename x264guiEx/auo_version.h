@@ -10,8 +10,8 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION      1.34
-#define AUO_VERSION_STR  "1.34"
+#define AUO_VERSION      1.35
+#define AUO_VERSION_STR  "1.35"
 #define AUO_NAME         "x264guiEx.auo"
 #define AUO_FULL_NAME    "拡張 x264 出力(GUI) Ex"
 #define AUO_VERSION_NAME "拡張 x264 出力(GUI) Ex "AUO_VERSION_STR

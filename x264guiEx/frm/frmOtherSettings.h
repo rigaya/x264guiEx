@@ -57,6 +57,9 @@ namespace x264guiEx {
 	private:
 		guiEx_settings *fos_ex_stg;
 		static frmOtherSettings^ _instance;
+	public:
+		static String^ stgDir;
+		static int useLastExt;
 
 	protected: 
 	private: System::Windows::Forms::Button^  fosCBCancel;
@@ -64,12 +67,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::TextBox^  fosTXStgDir;
 	private: System::Windows::Forms::Label^  fosLBStgDir;
 	private: System::Windows::Forms::Button^  fosBTStgDir;
-	public:
-		static String^ stgDir;
-		static int useLastExt;
-		//static bool DisableToolTipHelp;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoAFSDisable;
-	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
+
 	private: System::Windows::Forms::CheckBox^  fosCBDisableToolTip;
 	private: System::Windows::Forms::CheckBox^  fosCBDisableVisualStyles;
 	private: System::Windows::Forms::Label^  fosLBDisableVisualStyles;
@@ -79,7 +78,43 @@ namespace x264guiEx {
 	private: System::Windows::Forms::CheckBox^  fosCBStgEscKey;
 	private: System::Windows::Forms::Button^  fosBTSetFont;
 	private: System::Windows::Forms::FontDialog^  fosfontDialog;
+
+	private: System::Windows::Forms::TabControl^  fosTabControl;
+	private: System::Windows::Forms::TabPage^  fostabPageGeneral;
+	private: System::Windows::Forms::TabPage^  fostabPageAMP;
+	private: System::Windows::Forms::GroupBox^  fosGroupBoxAMPLimit;
 	private: System::Windows::Forms::CheckBox^  fosCBAmpKeepOldFile;
+	private: System::Windows::Forms::TrackBar^  fosTBAMPLimitMarginMulti;
+
+	private: System::Windows::Forms::NumericUpDown^  fosNUAMPLimitMargin;
+	private: System::Windows::Forms::Label^  fosLBAMPLimitMarginMax;
+
+	private: System::Windows::Forms::Label^  fosLBAMPLimitMarginMin;
+	private: System::Windows::Forms::GroupBox^  fosGroupBoxAMPLimitMarginExample;
+	private: System::Windows::Forms::Label^  fosLBAMPLimitMarginInfo;
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleA11;
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB32;
+
+
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB22;
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB31;
+
+
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB21;
+
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB12;
+
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleB11;
+
+	private: System::Windows::Forms::Label^  fosLBAMPLMMExampleA12;
+
+	private: System::Windows::Forms::Button^  fosBTAMPMarginMulti;
+	private: System::Windows::Forms::Label^  fosLBAMPLimitMarginWarning;
+	private: System::Windows::Forms::CheckBox^  fosCBAutoDelStats;
+
+
+
+
 
 
 
@@ -114,7 +149,6 @@ namespace x264guiEx {
 			this->fosLBStgDir = (gcnew System::Windows::Forms::Label());
 			this->fosBTStgDir = (gcnew System::Windows::Forms::Button());
 			this->fosCBAutoAFSDisable = (gcnew System::Windows::Forms::CheckBox());
-			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBDisableToolTip = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBDisableVisualStyles = (gcnew System::Windows::Forms::CheckBox());
 			this->fosLBDisableVisualStyles = (gcnew System::Windows::Forms::Label());
@@ -124,14 +158,42 @@ namespace x264guiEx {
 			this->fosCBStgEscKey = (gcnew System::Windows::Forms::CheckBox());
 			this->fosBTSetFont = (gcnew System::Windows::Forms::Button());
 			this->fosfontDialog = (gcnew System::Windows::Forms::FontDialog());
+			this->fosTabControl = (gcnew System::Windows::Forms::TabControl());
+			this->fostabPageGeneral = (gcnew System::Windows::Forms::TabPage());
+			this->fostabPageAMP = (gcnew System::Windows::Forms::TabPage());
+			this->fosGroupBoxAMPLimit = (gcnew System::Windows::Forms::GroupBox());
+			this->fosLBAMPLimitMarginWarning = (gcnew System::Windows::Forms::Label());
+			this->fosBTAMPMarginMulti = (gcnew System::Windows::Forms::Button());
+			this->fosGroupBoxAMPLimitMarginExample = (gcnew System::Windows::Forms::GroupBox());
+			this->fosLBAMPLMMExampleB32 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleB22 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleB31 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleB21 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleB12 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleB11 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleA12 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLMMExampleA11 = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLimitMarginInfo = (gcnew System::Windows::Forms::Label());
+			this->fosNUAMPLimitMargin = (gcnew System::Windows::Forms::NumericUpDown());
+			this->fosLBAMPLimitMarginMax = (gcnew System::Windows::Forms::Label());
+			this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
+			this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
 			this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
+			this->fosTabControl->SuspendLayout();
+			this->fostabPageGeneral->SuspendLayout();
+			this->fostabPageAMP->SuspendLayout();
+			this->fosGroupBoxAMPLimit->SuspendLayout();
+			this->fosGroupBoxAMPLimitMarginExample->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fosNUAMPLimitMargin))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fosTBAMPLimitMarginMulti))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// fosCBCancel
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 419);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 411);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -142,7 +204,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 419);
+			this->fosCBOK->Location = System::Drawing::Point(283, 411);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -152,7 +214,7 @@ namespace x264guiEx {
 			// 
 			// fosTXStgDir
 			// 
-			this->fosTXStgDir->Location = System::Drawing::Point(48, 42);
+			this->fosTXStgDir->Location = System::Drawing::Point(41, 35);
 			this->fosTXStgDir->Name = L"fosTXStgDir";
 			this->fosTXStgDir->Size = System::Drawing::Size(294, 23);
 			this->fosTXStgDir->TabIndex = 3;
@@ -160,7 +222,7 @@ namespace x264guiEx {
 			// fosLBStgDir
 			// 
 			this->fosLBStgDir->AutoSize = true;
-			this->fosLBStgDir->Location = System::Drawing::Point(21, 22);
+			this->fosLBStgDir->Location = System::Drawing::Point(14, 15);
 			this->fosLBStgDir->Name = L"fosLBStgDir";
 			this->fosLBStgDir->Size = System::Drawing::Size(123, 15);
 			this->fosLBStgDir->TabIndex = 4;
@@ -168,7 +230,7 @@ namespace x264guiEx {
 			// 
 			// fosBTStgDir
 			// 
-			this->fosBTStgDir->Location = System::Drawing::Point(348, 42);
+			this->fosBTStgDir->Location = System::Drawing::Point(341, 35);
 			this->fosBTStgDir->Name = L"fosBTStgDir";
 			this->fosBTStgDir->Size = System::Drawing::Size(35, 23);
 			this->fosBTStgDir->TabIndex = 5;
@@ -178,27 +240,17 @@ namespace x264guiEx {
 			// 
 			// fosCBAutoAFSDisable
 			// 
-			this->fosCBAutoAFSDisable->Location = System::Drawing::Point(24, 84);
+			this->fosCBAutoAFSDisable->Location = System::Drawing::Point(17, 77);
 			this->fosCBAutoAFSDisable->Name = L"fosCBAutoAFSDisable";
 			this->fosCBAutoAFSDisable->Size = System::Drawing::Size(308, 53);
 			this->fosCBAutoAFSDisable->TabIndex = 6;
 			this->fosCBAutoAFSDisable->Text = L"自動フィールドシフト(afs)オンで初期化に失敗した場合、afsをオフにしてエンコード続行を試みる";
 			this->fosCBAutoAFSDisable->UseVisualStyleBackColor = true;
 			// 
-			// fosCBAutoDelStats
-			// 
-			this->fosCBAutoDelStats->AutoSize = true;
-			this->fosCBAutoDelStats->Location = System::Drawing::Point(24, 192);
-			this->fosCBAutoDelStats->Name = L"fosCBAutoDelStats";
-			this->fosCBAutoDelStats->Size = System::Drawing::Size(293, 19);
-			this->fosCBAutoDelStats->TabIndex = 7;
-			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
-			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
-			// 
 			// fosCBDisableToolTip
 			// 
 			this->fosCBDisableToolTip->AutoSize = true;
-			this->fosCBDisableToolTip->Location = System::Drawing::Point(24, 254);
+			this->fosCBDisableToolTip->Location = System::Drawing::Point(17, 198);
 			this->fosCBDisableToolTip->Name = L"fosCBDisableToolTip";
 			this->fosCBDisableToolTip->Size = System::Drawing::Size(158, 19);
 			this->fosCBDisableToolTip->TabIndex = 8;
@@ -208,7 +260,7 @@ namespace x264guiEx {
 			// fosCBDisableVisualStyles
 			// 
 			this->fosCBDisableVisualStyles->AutoSize = true;
-			this->fosCBDisableVisualStyles->Location = System::Drawing::Point(24, 284);
+			this->fosCBDisableVisualStyles->Location = System::Drawing::Point(17, 228);
 			this->fosCBDisableVisualStyles->Name = L"fosCBDisableVisualStyles";
 			this->fosCBDisableVisualStyles->Size = System::Drawing::Size(128, 19);
 			this->fosCBDisableVisualStyles->TabIndex = 9;
@@ -221,7 +273,7 @@ namespace x264guiEx {
 			this->fosLBDisableVisualStyles->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fosLBDisableVisualStyles->ForeColor = System::Drawing::Color::OrangeRed;
-			this->fosLBDisableVisualStyles->Location = System::Drawing::Point(45, 303);
+			this->fosLBDisableVisualStyles->Location = System::Drawing::Point(38, 247);
 			this->fosLBDisableVisualStyles->Name = L"fosLBDisableVisualStyles";
 			this->fosLBDisableVisualStyles->Size = System::Drawing::Size(161, 14);
 			this->fosLBDisableVisualStyles->TabIndex = 10;
@@ -230,7 +282,7 @@ namespace x264guiEx {
 			// fosCBLogStartMinimized
 			// 
 			this->fosCBLogStartMinimized->AutoSize = true;
-			this->fosCBLogStartMinimized->Location = System::Drawing::Point(24, 330);
+			this->fosCBLogStartMinimized->Location = System::Drawing::Point(17, 274);
 			this->fosCBLogStartMinimized->Name = L"fosCBLogStartMinimized";
 			this->fosCBLogStartMinimized->Size = System::Drawing::Size(184, 19);
 			this->fosCBLogStartMinimized->TabIndex = 11;
@@ -240,7 +292,7 @@ namespace x264guiEx {
 			// fosCBLogDisableTransparency
 			// 
 			this->fosCBLogDisableTransparency->AutoSize = true;
-			this->fosCBLogDisableTransparency->Location = System::Drawing::Point(24, 360);
+			this->fosCBLogDisableTransparency->Location = System::Drawing::Point(17, 304);
 			this->fosCBLogDisableTransparency->Name = L"fosCBLogDisableTransparency";
 			this->fosCBLogDisableTransparency->Size = System::Drawing::Size(174, 19);
 			this->fosCBLogDisableTransparency->TabIndex = 12;
@@ -250,7 +302,7 @@ namespace x264guiEx {
 			// fosCBAutoDelChap
 			// 
 			this->fosCBAutoDelChap->AutoSize = true;
-			this->fosCBAutoDelChap->Location = System::Drawing::Point(24, 221);
+			this->fosCBAutoDelChap->Location = System::Drawing::Point(17, 165);
 			this->fosCBAutoDelChap->Name = L"fosCBAutoDelChap";
 			this->fosCBAutoDelChap->Size = System::Drawing::Size(295, 19);
 			this->fosCBAutoDelChap->TabIndex = 13;
@@ -260,7 +312,7 @@ namespace x264guiEx {
 			// fosCBStgEscKey
 			// 
 			this->fosCBStgEscKey->AutoSize = true;
-			this->fosCBStgEscKey->Location = System::Drawing::Point(24, 389);
+			this->fosCBStgEscKey->Location = System::Drawing::Point(17, 334);
 			this->fosCBStgEscKey->Name = L"fosCBStgEscKey";
 			this->fosCBStgEscKey->Size = System::Drawing::Size(168, 19);
 			this->fosCBStgEscKey->TabIndex = 14;
@@ -269,7 +321,7 @@ namespace x264guiEx {
 			// 
 			// fosBTSetFont
 			// 
-			this->fosBTSetFont->Location = System::Drawing::Point(253, 370);
+			this->fosBTSetFont->Location = System::Drawing::Point(235, 274);
 			this->fosBTSetFont->Name = L"fosBTSetFont";
 			this->fosBTSetFont->Size = System::Drawing::Size(124, 27);
 			this->fosBTSetFont->TabIndex = 15;
@@ -287,35 +339,259 @@ namespace x264guiEx {
 			this->fosfontDialog->MinSize = 9;
 			this->fosfontDialog->ShowEffects = false;
 			// 
+			// fosTabControl
+			// 
+			this->fosTabControl->Controls->Add(this->fostabPageGeneral);
+			this->fosTabControl->Controls->Add(this->fostabPageAMP);
+			this->fosTabControl->Location = System::Drawing::Point(1, 1);
+			this->fosTabControl->Name = L"fosTabControl";
+			this->fosTabControl->SelectedIndex = 0;
+			this->fosTabControl->Size = System::Drawing::Size(392, 398);
+			this->fosTabControl->TabIndex = 17;
+			// 
+			// fostabPageGeneral
+			// 
+			this->fostabPageGeneral->Controls->Add(this->fosLBStgDir);
+			this->fostabPageGeneral->Controls->Add(this->fosBTStgDir);
+			this->fostabPageGeneral->Controls->Add(this->fosTXStgDir);
+			this->fostabPageGeneral->Controls->Add(this->fosCBAutoAFSDisable);
+			this->fostabPageGeneral->Controls->Add(this->fosBTSetFont);
+			this->fostabPageGeneral->Controls->Add(this->fosCBStgEscKey);
+			this->fostabPageGeneral->Controls->Add(this->fosCBDisableToolTip);
+			this->fostabPageGeneral->Controls->Add(this->fosCBAutoDelChap);
+			this->fostabPageGeneral->Controls->Add(this->fosCBDisableVisualStyles);
+			this->fostabPageGeneral->Controls->Add(this->fosCBLogDisableTransparency);
+			this->fostabPageGeneral->Controls->Add(this->fosLBDisableVisualStyles);
+			this->fostabPageGeneral->Controls->Add(this->fosCBLogStartMinimized);
+			this->fostabPageGeneral->Location = System::Drawing::Point(4, 24);
+			this->fostabPageGeneral->Name = L"fostabPageGeneral";
+			this->fostabPageGeneral->Padding = System::Windows::Forms::Padding(3);
+			this->fostabPageGeneral->Size = System::Drawing::Size(384, 370);
+			this->fostabPageGeneral->TabIndex = 0;
+			this->fostabPageGeneral->Text = L"一般設定";
+			this->fostabPageGeneral->UseVisualStyleBackColor = true;
+			// 
+			// fostabPageAMP
+			// 
+			this->fostabPageAMP->Controls->Add(this->fosCBAutoDelStats);
+			this->fostabPageAMP->Controls->Add(this->fosGroupBoxAMPLimit);
+			this->fostabPageAMP->Controls->Add(this->fosCBAmpKeepOldFile);
+			this->fostabPageAMP->Location = System::Drawing::Point(4, 24);
+			this->fostabPageAMP->Name = L"fostabPageAMP";
+			this->fostabPageAMP->Padding = System::Windows::Forms::Padding(3);
+			this->fostabPageAMP->Size = System::Drawing::Size(384, 370);
+			this->fostabPageAMP->TabIndex = 1;
+			this->fostabPageAMP->Text = L"自動マルチパス";
+			this->fostabPageAMP->UseVisualStyleBackColor = true;
+			// 
+			// fosGroupBoxAMPLimit
+			// 
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosLBAMPLimitMarginWarning);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosBTAMPMarginMulti);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosGroupBoxAMPLimitMarginExample);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosLBAMPLimitMarginInfo);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosNUAMPLimitMargin);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosLBAMPLimitMarginMax);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosLBAMPLimitMarginMin);
+			this->fosGroupBoxAMPLimit->Controls->Add(this->fosTBAMPLimitMarginMulti);
+			this->fosGroupBoxAMPLimit->Location = System::Drawing::Point(7, 92);
+			this->fosGroupBoxAMPLimit->Name = L"fosGroupBoxAMPLimit";
+			this->fosGroupBoxAMPLimit->Size = System::Drawing::Size(368, 272);
+			this->fosGroupBoxAMPLimit->TabIndex = 18;
+			this->fosGroupBoxAMPLimit->TabStop = false;
+			this->fosGroupBoxAMPLimit->Text = L"上限映像レートに対する余裕";
+			// 
+			// fosLBAMPLimitMarginWarning
+			// 
+			this->fosLBAMPLimitMarginWarning->AutoSize = true;
+			this->fosLBAMPLimitMarginWarning->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fosLBAMPLimitMarginWarning->ForeColor = System::Drawing::Color::Red;
+			this->fosLBAMPLimitMarginWarning->Location = System::Drawing::Point(150, 93);
+			this->fosLBAMPLimitMarginWarning->Name = L"fosLBAMPLimitMarginWarning";
+			this->fosLBAMPLimitMarginWarning->Size = System::Drawing::Size(188, 14);
+			this->fosLBAMPLimitMarginWarning->TabIndex = 8;
+			this->fosLBAMPLimitMarginWarning->Text = L"※再エンコードが多発する恐れがあります。";
+			// 
+			// fosBTAMPMarginMulti
+			// 
+			this->fosBTAMPMarginMulti->Location = System::Drawing::Point(21, 69);
+			this->fosBTAMPMarginMulti->Name = L"fosBTAMPMarginMulti";
+			this->fosBTAMPMarginMulti->Size = System::Drawing::Size(92, 29);
+			this->fosBTAMPMarginMulti->TabIndex = 7;
+			this->fosBTAMPMarginMulti->Text = L"デフォルトに戻す";
+			this->fosBTAMPMarginMulti->UseVisualStyleBackColor = true;
+			this->fosBTAMPMarginMulti->Click += gcnew System::EventHandler(this, &frmOtherSettings::fosBTAMPMarginMulti_Click);
+			// 
+			// fosGroupBoxAMPLimitMarginExample
+			// 
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB32);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB22);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB31);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB21);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB12);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleB11);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleA12);
+			this->fosGroupBoxAMPLimitMarginExample->Controls->Add(this->fosLBAMPLMMExampleA11);
+			this->fosGroupBoxAMPLimitMarginExample->Location = System::Drawing::Point(21, 126);
+			this->fosGroupBoxAMPLimitMarginExample->Name = L"fosGroupBoxAMPLimitMarginExample";
+			this->fosGroupBoxAMPLimitMarginExample->Size = System::Drawing::Size(329, 140);
+			this->fosGroupBoxAMPLimitMarginExample->TabIndex = 6;
+			this->fosGroupBoxAMPLimitMarginExample->TabStop = false;
+			this->fosGroupBoxAMPLimitMarginExample->Text = L"現在の設定で計算される余裕";
+			// 
+			// fosLBAMPLMMExampleB32
+			// 
+			this->fosLBAMPLMMExampleB32->AutoSize = true;
+			this->fosLBAMPLMMExampleB32->ForeColor = System::Drawing::Color::DarkBlue;
+			this->fosLBAMPLMMExampleB32->Location = System::Drawing::Point(185, 110);
+			this->fosLBAMPLMMExampleB32->Name = L"fosLBAMPLMMExampleB32";
+			this->fosLBAMPLMMExampleB32->Size = System::Drawing::Size(41, 15);
+			this->fosLBAMPLMMExampleB32->TabIndex = 7;
+			this->fosLBAMPLMMExampleB32->Text = L"label1";
+			// 
+			// fosLBAMPLMMExampleB22
+			// 
+			this->fosLBAMPLMMExampleB22->AutoSize = true;
+			this->fosLBAMPLMMExampleB22->ForeColor = System::Drawing::Color::DarkBlue;
+			this->fosLBAMPLMMExampleB22->Location = System::Drawing::Point(185, 80);
+			this->fosLBAMPLMMExampleB22->Name = L"fosLBAMPLMMExampleB22";
+			this->fosLBAMPLMMExampleB22->Size = System::Drawing::Size(41, 15);
+			this->fosLBAMPLMMExampleB22->TabIndex = 6;
+			this->fosLBAMPLMMExampleB22->Text = L"label1";
+			// 
+			// fosLBAMPLMMExampleB31
+			// 
+			this->fosLBAMPLMMExampleB31->AutoSize = true;
+			this->fosLBAMPLMMExampleB31->Location = System::Drawing::Point(71, 110);
+			this->fosLBAMPLMMExampleB31->Name = L"fosLBAMPLMMExampleB31";
+			this->fosLBAMPLMMExampleB31->Size = System::Drawing::Size(66, 15);
+			this->fosLBAMPLMMExampleB31->TabIndex = 5;
+			this->fosLBAMPLMMExampleB31->Text = L"1600 kbps";
+			// 
+			// fosLBAMPLMMExampleB21
+			// 
+			this->fosLBAMPLMMExampleB21->AutoSize = true;
+			this->fosLBAMPLMMExampleB21->Location = System::Drawing::Point(71, 80);
+			this->fosLBAMPLMMExampleB21->Name = L"fosLBAMPLMMExampleB21";
+			this->fosLBAMPLMMExampleB21->Size = System::Drawing::Size(59, 15);
+			this->fosLBAMPLMMExampleB21->TabIndex = 4;
+			this->fosLBAMPLMMExampleB21->Text = L"400 kbps";
+			// 
+			// fosLBAMPLMMExampleB12
+			// 
+			this->fosLBAMPLMMExampleB12->AutoSize = true;
+			this->fosLBAMPLMMExampleB12->ForeColor = System::Drawing::Color::DarkBlue;
+			this->fosLBAMPLMMExampleB12->Location = System::Drawing::Point(185, 50);
+			this->fosLBAMPLMMExampleB12->Name = L"fosLBAMPLMMExampleB12";
+			this->fosLBAMPLMMExampleB12->Size = System::Drawing::Size(41, 15);
+			this->fosLBAMPLMMExampleB12->TabIndex = 3;
+			this->fosLBAMPLMMExampleB12->Text = L"label1";
+			// 
+			// fosLBAMPLMMExampleB11
+			// 
+			this->fosLBAMPLMMExampleB11->AutoSize = true;
+			this->fosLBAMPLMMExampleB11->Location = System::Drawing::Point(71, 50);
+			this->fosLBAMPLMMExampleB11->Name = L"fosLBAMPLMMExampleB11";
+			this->fosLBAMPLMMExampleB11->Size = System::Drawing::Size(59, 15);
+			this->fosLBAMPLMMExampleB11->TabIndex = 2;
+			this->fosLBAMPLMMExampleB11->Text = L"100 kbps";
+			// 
+			// fosLBAMPLMMExampleA12
+			// 
+			this->fosLBAMPLMMExampleA12->AutoSize = true;
+			this->fosLBAMPLMMExampleA12->Location = System::Drawing::Point(177, 23);
+			this->fosLBAMPLMMExampleA12->Name = L"fosLBAMPLMMExampleA12";
+			this->fosLBAMPLMMExampleA12->Size = System::Drawing::Size(70, 15);
+			this->fosLBAMPLMMExampleA12->TabIndex = 1;
+			this->fosLBAMPLMMExampleA12->Text = L"余裕の大きさ";
+			// 
+			// fosLBAMPLMMExampleA11
+			// 
+			this->fosLBAMPLMMExampleA11->AutoSize = true;
+			this->fosLBAMPLMMExampleA11->Location = System::Drawing::Point(43, 23);
+			this->fosLBAMPLMMExampleA11->Name = L"fosLBAMPLMMExampleA11";
+			this->fosLBAMPLMMExampleA11->Size = System::Drawing::Size(119, 15);
+			this->fosLBAMPLMMExampleA11->TabIndex = 0;
+			this->fosLBAMPLMMExampleA11->Text = L"映像上限レート(kbps)";
+			// 
+			// fosLBAMPLimitMarginInfo
+			// 
+			this->fosLBAMPLimitMarginInfo->AutoSize = true;
+			this->fosLBAMPLimitMarginInfo->Location = System::Drawing::Point(268, 65);
+			this->fosLBAMPLimitMarginInfo->Name = L"fosLBAMPLimitMarginInfo";
+			this->fosLBAMPLimitMarginInfo->Size = System::Drawing::Size(31, 15);
+			this->fosLBAMPLimitMarginInfo->TabIndex = 5;
+			this->fosLBAMPLimitMarginInfo->Text = L"普通";
+			// 
+			// fosNUAMPLimitMargin
+			// 
+			this->fosNUAMPLimitMargin->Location = System::Drawing::Point(177, 63);
+			this->fosNUAMPLimitMargin->Name = L"fosNUAMPLimitMargin";
+			this->fosNUAMPLimitMargin->Size = System::Drawing::Size(73, 23);
+			this->fosNUAMPLimitMargin->TabIndex = 3;
+			this->fosNUAMPLimitMargin->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+			this->fosNUAMPLimitMargin->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+			this->fosNUAMPLimitMargin->ValueChanged += gcnew System::EventHandler(this, &frmOtherSettings::fosNUAMPLimitMargin_ValueChanged);
+			// 
+			// fosLBAMPLimitMarginMax
+			// 
+			this->fosLBAMPLimitMarginMax->AutoSize = true;
+			this->fosLBAMPLimitMarginMax->Location = System::Drawing::Point(312, 32);
+			this->fosLBAMPLimitMarginMax->Name = L"fosLBAMPLimitMarginMax";
+			this->fosLBAMPLimitMarginMax->Size = System::Drawing::Size(19, 15);
+			this->fosLBAMPLimitMarginMax->TabIndex = 2;
+			this->fosLBAMPLimitMarginMax->Text = L"大";
+			// 
+			// fosLBAMPLimitMarginMin
+			// 
+			this->fosLBAMPLimitMarginMin->AutoSize = true;
+			this->fosLBAMPLimitMarginMin->Location = System::Drawing::Point(31, 32);
+			this->fosLBAMPLimitMarginMin->Name = L"fosLBAMPLimitMarginMin";
+			this->fosLBAMPLimitMarginMin->Size = System::Drawing::Size(19, 15);
+			this->fosLBAMPLimitMarginMin->TabIndex = 1;
+			this->fosLBAMPLimitMarginMin->Text = L"小";
+			// 
+			// fosTBAMPLimitMarginMulti
+			// 
+			this->fosTBAMPLimitMarginMulti->AutoSize = false;
+			this->fosTBAMPLimitMarginMulti->BackColor = System::Drawing::SystemColors::Window;
+			this->fosTBAMPLimitMarginMulti->Location = System::Drawing::Point(66, 32);
+			this->fosTBAMPLimitMarginMulti->Maximum = 20;
+			this->fosTBAMPLimitMarginMulti->Minimum = 2;
+			this->fosTBAMPLimitMarginMulti->Name = L"fosTBAMPLimitMarginMulti";
+			this->fosTBAMPLimitMarginMulti->Size = System::Drawing::Size(240, 31);
+			this->fosTBAMPLimitMarginMulti->TabIndex = 0;
+			this->fosTBAMPLimitMarginMulti->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->fosTBAMPLimitMarginMulti->Value = 10;
+			this->fosTBAMPLimitMarginMulti->Scroll += gcnew System::EventHandler(this, &frmOtherSettings::fosTBAMPLimitMarginMulti_Scroll);
+			// 
 			// fosCBAmpKeepOldFile
 			// 
-			this->fosCBAmpKeepOldFile->Location = System::Drawing::Point(24, 143);
+			this->fosCBAmpKeepOldFile->Location = System::Drawing::Point(19, 15);
 			this->fosCBAmpKeepOldFile->Name = L"fosCBAmpKeepOldFile";
 			this->fosCBAmpKeepOldFile->Size = System::Drawing::Size(343, 38);
-			this->fosCBAmpKeepOldFile->TabIndex = 16;
+			this->fosCBAmpKeepOldFile->TabIndex = 17;
 			this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
 			this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
+			// 
+			// fosCBAutoDelStats
+			// 
+			this->fosCBAutoDelStats->AutoSize = true;
+			this->fosCBAutoDelStats->Location = System::Drawing::Point(19, 59);
+			this->fosCBAutoDelStats->Name = L"fosCBAutoDelStats";
+			this->fosCBAutoDelStats->Size = System::Drawing::Size(293, 19);
+			this->fosCBAutoDelStats->TabIndex = 19;
+			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
+			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
 			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 458);
-			this->Controls->Add(this->fosCBAmpKeepOldFile);
-			this->Controls->Add(this->fosTXStgDir);
-			this->Controls->Add(this->fosBTSetFont);
-			this->Controls->Add(this->fosCBStgEscKey);
-			this->Controls->Add(this->fosCBAutoDelChap);
-			this->Controls->Add(this->fosCBLogDisableTransparency);
-			this->Controls->Add(this->fosCBLogStartMinimized);
-			this->Controls->Add(this->fosLBDisableVisualStyles);
-			this->Controls->Add(this->fosCBDisableVisualStyles);
-			this->Controls->Add(this->fosCBDisableToolTip);
-			this->Controls->Add(this->fosCBAutoDelStats);
-			this->Controls->Add(this->fosCBAutoAFSDisable);
-			this->Controls->Add(this->fosBTStgDir);
-			this->Controls->Add(this->fosLBStgDir);
+			this->ClientSize = System::Drawing::Size(392, 450);
+			this->Controls->Add(this->fosTabControl);
 			this->Controls->Add(this->fosCBOK);
 			this->Controls->Add(this->fosCBCancel);
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
@@ -328,8 +604,18 @@ namespace x264guiEx {
 			this->Text = L"frmOtherSettings";
 			this->Load += gcnew System::EventHandler(this, &frmOtherSettings::frmOtherSettings_Load);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmOtherSettings::frmOtherSettings_KeyDown);
+			this->fosTabControl->ResumeLayout(false);
+			this->fostabPageGeneral->ResumeLayout(false);
+			this->fostabPageGeneral->PerformLayout();
+			this->fostabPageAMP->ResumeLayout(false);
+			this->fostabPageAMP->PerformLayout();
+			this->fosGroupBoxAMPLimit->ResumeLayout(false);
+			this->fosGroupBoxAMPLimit->PerformLayout();
+			this->fosGroupBoxAMPLimitMarginExample->ResumeLayout(false);
+			this->fosGroupBoxAMPLimitMarginExample->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fosNUAMPLimitMargin))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fosTBAMPLimitMarginMulti))->EndInit();
 			this->ResumeLayout(false);
-			this->PerformLayout();
 
 		}
 #pragma endregion
@@ -340,15 +626,16 @@ namespace x264guiEx {
 			stgDir = fosTXStgDir->Text;
 			fos_ex_stg->load_encode_stg();
 			fos_ex_stg->load_log_win();
-			fos_ex_stg->s_local.auto_afs_disable      = fosCBAutoAFSDisable->Checked;
-			fos_ex_stg->s_local.amp_keep_old_file     = fosCBAmpKeepOldFile->Checked;
-			fos_ex_stg->s_local.auto_del_stats        = fosCBAutoDelStats->Checked;
-			fos_ex_stg->s_local.auto_del_chap         = fosCBAutoDelChap->Checked;
-			fos_ex_stg->s_local.disable_tooltip_help  = fosCBDisableToolTip->Checked;
-			fos_ex_stg->s_local.disable_visual_styles = fosCBDisableVisualStyles->Checked;
-			fos_ex_stg->s_local.enable_stg_esc_key    = fosCBStgEscKey->Checked;
-			fos_ex_stg->s_log.minimized               = fosCBLogStartMinimized->Checked;
-			fos_ex_stg->s_log.transparent             = !fosCBLogDisableTransparency->Checked;
+			fos_ex_stg->s_local.auto_afs_disable         = fosCBAutoAFSDisable->Checked;
+			fos_ex_stg->s_local.amp_keep_old_file        = fosCBAmpKeepOldFile->Checked;
+			fos_ex_stg->s_local.amp_bitrate_margin_multi = (double)(fosNUAMPLimitMargin->Value) / 100.0;
+			fos_ex_stg->s_local.auto_del_stats           = fosCBAutoDelStats->Checked;
+			fos_ex_stg->s_local.auto_del_chap            = fosCBAutoDelChap->Checked;
+			fos_ex_stg->s_local.disable_tooltip_help     = fosCBDisableToolTip->Checked;
+			fos_ex_stg->s_local.disable_visual_styles    = fosCBDisableVisualStyles->Checked;
+			fos_ex_stg->s_local.enable_stg_esc_key       = fosCBStgEscKey->Checked;
+			fos_ex_stg->s_log.minimized                  = fosCBLogStartMinimized->Checked;
+			fos_ex_stg->s_log.transparent                = !fosCBLogDisableTransparency->Checked;
 			fos_ex_stg->save_local();
 			fos_ex_stg->save_log_win();
 			this->Close();
@@ -360,6 +647,7 @@ namespace x264guiEx {
 			fos_ex_stg->load_encode_stg();
 			fos_ex_stg->load_log_win();
 			fosCBAutoAFSDisable->Checked         = fos_ex_stg->s_local.auto_afs_disable != 0;
+			fosNUAMPLimitMargin->Value           = clamp(Convert::ToDecimal(fos_ex_stg->s_local.amp_bitrate_margin_multi * 100.0), fosNUAMPLimitMargin->Minimum, fosNUAMPLimitMargin->Maximum);
 			fosCBAmpKeepOldFile->Checked         = fos_ex_stg->s_local.amp_keep_old_file != 0;
 			fosCBAutoDelStats->Checked           = fos_ex_stg->s_local.auto_del_stats != 0;
 			fosCBAutoDelChap->Checked            = fos_ex_stg->s_local.auto_del_chap != 0;
@@ -370,6 +658,7 @@ namespace x264guiEx {
 			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
 			if (str_has_char(fos_ex_stg->s_local.conf_font.name))
 				SetFontFamilyToForm(this, gcnew FontFamily(String(fos_ex_stg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
+			fosNUAMPLimitMargin_ValueChanged(nullptr, nullptr);
 		}
 	private: 
 		System::Void fosBTStgDir_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -403,6 +692,46 @@ namespace x264guiEx {
 				exstg.save_local();
 				SetFontFamilyToForm(this, fosfontDialog->Font->FontFamily, this->Font->FontFamily);
 			}
+		}
+	private:
+		System::Int32 fosAMPCalcMargin(int MaxVideoBitrate) {
+			return (int)(-1 * MaxVideoBitrate * ((double)fosNUAMPLimitMargin->Value / 100.0) / Math::Sqrt(MaxVideoBitrate / 100.0));
+		}
+	private:
+		System::Void fosAMPLimitMarginRecalcExample() {
+			fosLBAMPLMMExampleB12->Text = fosAMPCalcMargin(100).ToString() + L" kbps";
+			fosLBAMPLMMExampleB22->Text = fosAMPCalcMargin(400).ToString() + L" kbps";
+			fosLBAMPLMMExampleB32->Text = fosAMPCalcMargin(1600).ToString() + L" kbps";
+		}
+	private:
+		System::Void fosTBAMPLimitMarginMulti_Scroll(System::Object^  sender, System::EventArgs^  e) {
+			fosNUAMPLimitMargin->Value = fosTBAMPLimitMarginMulti->Value;
+		}
+	private:
+		System::Void fosNUAMPLimitMargin_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+			fosTBAMPLimitMarginMulti->Value = Convert::ToInt32(fosNUAMPLimitMargin->Value);
+			fosAMPLimitMarginRecalcExample();
+			if (fosNUAMPLimitMargin->Value > 12) {
+				fosLBAMPLimitMarginInfo->ForeColor = Color::Green; 
+				fosLBAMPLimitMarginInfo->Text = L"余裕";
+				fosLBAMPLimitMarginWarning->Visible = false;
+			} else if (fosNUAMPLimitMargin->Value > 8) {
+				fosLBAMPLimitMarginInfo->ForeColor = Color::Green; 
+				fosLBAMPLimitMarginInfo->Text = L"普通";
+				fosLBAMPLimitMarginWarning->Visible = false;
+			} else if (fosNUAMPLimitMargin->Value > 5) {
+				fosLBAMPLimitMarginInfo->ForeColor = Color::OrangeRed; 
+				fosLBAMPLimitMarginInfo->Text = L"ややぎりぎり";
+				fosLBAMPLimitMarginWarning->Visible = true;
+			} else {
+				fosLBAMPLimitMarginInfo->ForeColor = Color::Red; 
+				fosLBAMPLimitMarginInfo->Text = L"ぎりぎり";
+				fosLBAMPLimitMarginWarning->Visible = true;
+			}
+		}
+	private:
+		System::Void fosBTAMPMarginMulti_Click(System::Object^  sender, System::EventArgs^  e) {
+			fosNUAMPLimitMargin->Value = (int)(DEFAULT_AMP_MARGIN * 100.0 + 0.5);
 		}
 };
 }
