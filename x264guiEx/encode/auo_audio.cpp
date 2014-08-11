@@ -279,9 +279,9 @@ DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, co
 		while (WaitForSingleObject(pi_aud.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
 
-		__int64 audfilesize = 0; 
+		UINT64 audfilesize = 0; 
 		if (!PathFileExists(audfile) || 
-			(GetFileSizeInt64(audfile, &audfilesize) && audfilesize == 0)) {
+			(GetFileSizeUInt64(audfile, &audfilesize) && audfilesize == 0)) {
 			//エラーが発生した場合
 			ret |= AUO_RESULT_ERROR; error_audenc_failed(aud_stg->dispname, audargs);
 		} else {

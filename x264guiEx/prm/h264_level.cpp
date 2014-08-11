@@ -46,7 +46,7 @@ int calc_auto_level(int width, int height, int ref, BOOL interlaced, int fps_num
 	int MB_frame = ceil_div_int(width, 16) * (j * ceil_div_int(height, 16*j));
 	int data[LEVEL_COLUMNS] = {
 		j,
-		(int)ceil_div_int64((__int64)MB_frame * fps_num, fps_den),
+		(int)ceil_div_int64((UINT64)MB_frame * fps_num, fps_den),
 		MB_frame,
 		MB_frame * ref,
 		vbv_max, 

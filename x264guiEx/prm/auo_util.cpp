@@ -214,7 +214,7 @@ BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const char *file
 	return TRUE;
 }
 
-BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace) {
+BOOL GetPathRootFreeSpace(const char *path, UINT64 *freespace) {
 	//指定されたドライブが存在するかどうか
 	char temp_root[MAX_PATH_LEN];
 	strcpy_s(temp_root, sizeof(temp_root), path);

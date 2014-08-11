@@ -62,7 +62,13 @@ static inline int pow2(int a) {
 static inline int ceil_div_int(int i, int div) {
 	return (i + (div-1)) / div;
 }
+static inline DWORD ceil_div_int(DWORD i, int div) {
+	return (i + (div-1)) / div;
+}
 static inline __int64 ceil_div_int64(__int64 i, int div) {
+	return (i + (div-1)) / div;
+}
+static inline UINT64 ceil_div_int64(UINT64 i, int div) {
 	return (i + (div-1)) / div;
 }
 
@@ -241,7 +247,7 @@ static BOOL check_avx() {
 	int CPUInfo[4];
 	__cpuid(CPUInfo, 1);
 	if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
-		unsigned __int64 XGETBV = _xgetbv(0);
+		UINT64 XGETBV = _xgetbv(0);
 		if ((XGETBV & 0x06) == 0x06)
 			return TRUE;
 	}
@@ -264,7 +270,7 @@ static DWORD get_availableSIMD() {
 	if  (CPUInfo[2] & 0x00100000)
 		simd |= AUO_SIMD_SSE42;
 #if (_MSC_VER >= 1600)
-	unsigned __int64 XGETBV = 0;
+	UINT64 XGETBV = 0;
 	if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
 		XGETBV = _xgetbv(0);
 		if ((XGETBV & 0x06) == 0x06)
@@ -296,13 +302,13 @@ BOOL PathRemoveFileSpecFixed(char *path);
 BOOL DirectoryExistsOrCreate(const char *dir);
 BOOL FileExistsAndHasSize(const char *path);
 void PathGetDirectory(char *dir, size_t nSize, const char *path);
-BOOL GetFileSizeInt(const char *filepath, DWORD *filesize);
-BOOL GetFileSizeInt64(const char *filepath, __int64 *filesize);
-__int64 GetFileLastUpdate(const char *filename);
+BOOL GetFileSizeDWORD(const char *filepath, DWORD *filesize);
+BOOL GetFileSizeUInt64(const char *filepath, UINT64 *filesize);
+UINT64 GetFileLastUpdate(const char *filename);
 size_t append_str(char **dst, size_t *nSize, const char *append);
 BOOL PathAddBackSlashLong(char *dir);
 BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const char *filename);
-BOOL GetPathRootFreeSpace(const char *path, __int64 *freespace);
+BOOL GetPathRootFreeSpace(const char *path, UINT64 *freespace);
 BOOL PathForceRemoveBackSlash(char *path);
 BOOL check_process_exitcode(PROCESS_INFORMATION *pi);
 int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize);
