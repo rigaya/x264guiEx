@@ -43,17 +43,17 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 		write_log_line(check_log_type(mes), mes);
 		mes += strlen(mes);
 	}
-	memmove(msg, mes, (*log_len = fin - mes) + 1);
+	memmove(msg, mes, ((*log_len = fin - mes) + 1) * sizeof(msg[0]));
 }
 
 void write_args(const char *args) {
 	const int NEW_LINE_THRESHOLD = 110;
 	size_t len = strlen(args);
-	char *const c = (char *)malloc(len+1);
+	char *const c = (char *)malloc((len+1)*sizeof(c[0]));
 	char *const fin = c + len;
 	char *p = c;
 	char *q;
-	memcpy(c, args, len+1);
+	memcpy(c, args, (len+1)*sizeof(c[0]));
 	while (p + NEW_LINE_THRESHOLD < fin && (q = strrchr(p, ' ', NEW_LINE_THRESHOLD)) != NULL) {
 		*q = '\0';
 		write_log_line(LOG_INFO, p);

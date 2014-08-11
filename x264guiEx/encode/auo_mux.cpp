@@ -30,14 +30,14 @@ static void show_mux_info(const char *mux_stg_name, BOOL audmux, BOOL tcmux, con
 	char mes[1024];
 	static const char * const ON_OFF_INFO[] = { "off", "on" };
 
-	sprintf_s(mes, sizeof(mes), "%s でmuxを行います。音声mux:%s, tcmux:%s, 拡張モード:%s", 
+	sprintf_s(mes, _countof(mes), "%s でmuxを行います。音声mux:%s, tcmux:%s, 拡張モード:%s", 
 		mux_stg_name,
 		ON_OFF_INFO[audmux != 0],
 		ON_OFF_INFO[tcmux != 0],
 		muxer_mode_name);
 	write_log_auo_line_fmt(LOG_INFO, mes);
 
-	sprintf_s(mes, sizeof(mes), "%s で mux中...", mux_stg_name);
+	sprintf_s(mes, _countof(mes), "%s で mux中...", mux_stg_name);
 	set_window_title(mes, PROGRESSBAR_MARQUEE);
 }
 
@@ -51,7 +51,7 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 	UINT64 required_space = (UINT64)(expected_filesize * 1.01); //ちょい多め
 	//出力先ドライブ
 	char vid_root[MAX_PATH_LEN];
-	strcpy_s(vid_root, sizeof(vid_root), pe->temp_filename);
+	strcpy_s(vid_root, _countof(vid_root), pe->temp_filename);
 	PathStripToRoot(vid_root);
 	//一時フォルダの指定について検証
 	if (conf->mux.mp4_temp_dir) {
@@ -59,7 +59,7 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 		BOOL tmp_same_drive_as_out = FALSE;
 		//指定されたドライブが存在するかどうか
 		char temp_root[MAX_PATH_LEN];
-		if (!PathGetRoot(mux_tmpdir, temp_root, sizeof(temp_root)) ||
+		if (!PathGetRoot(mux_tmpdir, temp_root, _countof(temp_root)) ||
 			!PathIsDirectory(temp_root) ||
 			!DirectoryExistsOrCreate(mux_tmpdir)) {
 			ret = AUO_RESULT_WARNING; warning_no_mux_tmp_root(temp_root);
@@ -89,7 +89,7 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 		char muxer_root[MAX_PATH_LEN];
 		//ドライブの空き容量取得
 		ULARGE_INTEGER muxer_drive_avail_space = { 0 };
-		if (!PathGetRoot(muxer_fullpath, muxer_root, sizeof(muxer_root)) ||
+		if (!PathGetRoot(mux_stg->fullpath, muxer_root, _countof(muxer_root)) ||
 			!GetDiskFreeSpaceEx(muxer_root, &muxer_drive_avail_space, NULL, NULL)) {
 			error_failed_muxer_drive_space(); return AUO_RESULT_ERROR;
 		}
@@ -129,7 +129,7 @@ static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, 
 	if (enable_aud_mux) {
 		UINT64 aud_size = 0;
 		char audfile[MAX_PATH_LEN] = { 0 };
-		get_aud_filename(audfile, sizeof(audfile), pe);
+		get_aud_filename(audfile, _countof(audfile), pe);
 		if (!PathFileExists(audfile)) {
 			error_no_vid_file(); return AUO_RESULT_ERROR;
 		}
@@ -177,9 +177,9 @@ static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, con
 		conf_tmp.sar.y = 1;
 	}
 
-	sprintf_s(buf, sizeof(buf), "%d", conf_tmp.sar.x);
+	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.x);
 	replace(cmd, nSize, "%{par_x}", buf);
-	sprintf_s(buf, sizeof(buf), "%d", conf_tmp.sar.y);
+	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.y);
 	replace(cmd, nSize, "%{par_y}", buf);
 }
 
@@ -217,7 +217,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 				//一時フォルダ指定を行う
 				replace(cmd, nSize, "%{tmp_cmd}", mux_stg->tmp_cmd);
 				char m_tmp_dir[MAX_PATH_LEN];
-				strcpy_s(m_tmp_dir, sizeof(m_tmp_dir), sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
+				strcpy_s(m_tmp_dir, _countof(m_tmp_dir), sys_dat->exstg->s_local.custom_mp4box_tmp_dir);
 				PathForceRemoveBackSlash(m_tmp_dir);
 				replace(cmd, nSize, "%{m_tmpdir}", m_tmp_dir);
 				break;
@@ -280,10 +280,10 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 
 static void change_mux_vid_filename(const char *muxout, const PRM_ENC *pe) {
 	char vidfile_append[MAX_APPENDIX_LEN];
-	strcpy_s(vidfile_append, sizeof(vidfile_append), "_video");
-	strcat_s(vidfile_append, sizeof(vidfile_append), PathFindExtension(pe->temp_filename));
+	strcpy_s(vidfile_append, _countof(vidfile_append), "_video");
+	strcat_s(vidfile_append, _countof(vidfile_append), PathFindExtension(pe->temp_filename));
 	char vidfile_newname[MAX_PATH_LEN];
-	apply_appendix(vidfile_newname, sizeof(vidfile_newname), pe->temp_filename, vidfile_append);
+	apply_appendix(vidfile_newname, _countof(vidfile_newname), pe->temp_filename, vidfile_append);
 	rename(pe->temp_filename, vidfile_newname);
 	rename(muxout, pe->temp_filename);
 }
@@ -310,12 +310,12 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 	char muxdir[MAX_PATH_LEN] = { 0 };
 	char muxout[MAX_PATH_LEN] = { 0 };
 	DWORD mux_priority = GetExePriority(conf->mux.priority, pe->h_p_aviutl);
-	get_muxout_filename(muxout, sizeof(muxout), pe->temp_filename);
+	get_muxout_filename(muxout, _countof(muxout), pe->temp_filename);
 
 	PROCESS_INFORMATION pi_mux;
 	int rp_ret;
 
-	PathGetDirectory(muxdir, sizeof(muxdir), mux_stg->fullpath);
+	PathGetDirectory(muxdir, _countof(muxdir), mux_stg->fullpath);
 
 	//mux終了後の予想サイズを取得
 	ret |= get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
@@ -323,10 +323,10 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 		return AUO_RESULT_ERROR;
 
 	//コマンドライン生成・情報表示
-	ret |= build_mux_cmd(muxcmd, sizeof(muxcmd), conf, oip, pe, sys_dat, mux_stg, expected_filesize);
+	ret |= build_mux_cmd(muxcmd, _countof(muxcmd), conf, oip, pe, sys_dat, mux_stg, expected_filesize);
 	if (ret & AUO_RESULT_ERROR)
 		return AUO_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
-	sprintf_s(muxargs, sizeof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
+	sprintf_s(muxargs, _countof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
 
 	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, NULL, mux_priority, FALSE, conf->mux.minimized)) != RP_SUCCESS) {
 		//エラー

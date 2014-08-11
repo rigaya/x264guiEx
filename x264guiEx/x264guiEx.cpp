@@ -228,8 +228,8 @@ int func_config_set( void *data,int size )
 void init_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
 	if (_sys_dat->init)
 		return;
-	get_auo_path(_sys_dat->auo_path, sizeof(_sys_dat->auo_path));
-	get_aviutl_dir(_sys_dat->aviutl_dir, sizeof(_sys_dat->aviutl_dir));
+	get_auo_path(_sys_dat->auo_path, _countof(_sys_dat->auo_path));
+	get_aviutl_dir(_sys_dat->aviutl_dir, _countof(_sys_dat->aviutl_dir));
 	_sys_dat->exstg = new guiEx_settings();
 	set_ex_stg_ptr(_sys_dat->exstg);
 	_sys_dat->init = TRUE;
@@ -255,7 +255,7 @@ void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
 	va_start(args, format);
 	len = _vscprintf(format, args) // _vscprintf doesn't count
 		                      + 1; // terminating '\0'
-	buffer = (char *)malloc(len * sizeof(char));
+	buffer = (char *)malloc(len * sizeof(buffer[0]));
 	vsprintf_s(buffer, len, format, args);
 	write_log_auo_line(log_type_index, buffer);
 	free(buffer);
@@ -391,7 +391,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 
 	if (tmp_dir_index == TMP_DIR_SYSTEM) {
 		//システムの一時フォルダを取得
-		if (GetTempPath(sizeof(pe->temp_filename), pe->temp_filename) != NULL) {
+		if (GetTempPath(_countof(pe->temp_filename), pe->temp_filename) != NULL) {
 			PathRemoveBackslash(pe->temp_filename);
 			write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
 		} else {
@@ -402,7 +402,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 	if (tmp_dir_index == TMP_DIR_CUSTOM) {
 		//指定されたフォルダ
 		if (DirectoryExistsOrCreate(sys_dat.exstg->s_local.custom_tmp_dir)) {
-			strcpy_s(pe->temp_filename, sizeof(pe->temp_filename), sys_dat.exstg->s_local.custom_tmp_dir);
+			strcpy_s(pe->temp_filename, _countof(pe->temp_filename), sys_dat.exstg->s_local.custom_tmp_dir);
 			PathRemoveBackslash(pe->temp_filename);
 			write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
 		} else {
@@ -412,7 +412,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 	}
 	if (tmp_dir_index == TMP_DIR_OUTPUT) {
 		//出力フォルダと同じ("\"なし)
-		strcpy_s(pe->temp_filename, sizeof(pe->temp_filename), savefile);
+		strcpy_s(pe->temp_filename, _countof(pe->temp_filename), savefile);
 		PathRemoveFileSpecFixed(pe->temp_filename);
 	}
 }
@@ -447,12 +447,12 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 			write_log_auo_line_fmt(LOG_INFO, "音声一時フォルダ : %s", cus_aud_tdir);
 		} else
 			warning_no_aud_temp_root(sys_dat.exstg->s_local.custom_audio_tmp_dir);
-	strcpy_s(pe->aud_temp_dir, sizeof(pe->aud_temp_dir), cus_aud_tdir);
+	strcpy_s(pe->aud_temp_dir, _countof(pe->aud_temp_dir), cus_aud_tdir);
 
 	//ファイル名置換を行い、一時ファイル名を作成
-	strcpy_s(filename_replace, sizeof(filename_replace), PathFindFileName(oip->savefile));
-	sys_dat.exstg->apply_fn_replace(filename_replace, sizeof(filename_replace));
-	PathCombineLong(pe->temp_filename, sizeof(pe->temp_filename), pe->temp_filename, filename_replace);
+	strcpy_s(filename_replace, _countof(filename_replace), PathFindFileName(oip->savefile));
+	sys_dat.exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
+	PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 }
 
 static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
@@ -461,7 +461,7 @@ static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	if (!ex_stg.s_log.auto_save_log)
 		return;
 	char log_file_path[MAX_PATH_LEN];
-	if (AUO_RESULT_SUCCESS != getLogFilePath(log_file_path, sizeof(log_file_path), pe, oip->savefile, &sys_dat))
+	if (AUO_RESULT_SUCCESS != getLogFilePath(log_file_path, _countof(log_file_path), pe, oip->savefile, &sys_dat, &conf))
 		warning_no_auto_save_log_dir();
 	auto_save_log_file(log_file_path);
 	return;

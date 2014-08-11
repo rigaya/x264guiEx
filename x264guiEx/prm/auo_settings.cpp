@@ -126,7 +126,7 @@ static inline void WriteFontInfo(const char *section, const char *keyname_base, 
 	const size_t keyname_base_len = strlen(keyname_base);
 	char key[256];
 	memcpy(key, keyname_base, sizeof(char) * keyname_base_len);
-	if (char_has_length(font_info->name)) {
+	if (str_has_char(font_info->name)) {
 		strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_name");
 		WritePrivateProfileString(section, key, font_info->name, ini_file);
 	}
