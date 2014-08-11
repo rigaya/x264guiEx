@@ -191,6 +191,7 @@ typedef struct {
 	AUO_FONT_INFO conf_font;                    //設定画面のフォント
 	int    amp_retry_limit;                     //自動マルチパス試行回数制限
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
+	BOOL   amp_keep_old_file;                   //自動マルチパスで、上限を超えてしまったファイルを削除しない
 	char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ

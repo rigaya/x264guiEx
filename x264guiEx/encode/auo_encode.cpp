@@ -302,6 +302,18 @@ double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
 	return base_bitrate * clamp(1.0 - margin_multi / sqrt(base_bitrate / 100.0), 0.8, 1.0);
 }
 
+static DWORD amp_move_old_file(const char *muxout, const char *savefile) {
+	if (!PathFileExists(muxout))
+		return AUO_RESULT_ERROR;
+	char filename[MAX_PATH_LEN];
+	char appendix[MAX_APPENDIX_LEN];
+	for (int i = 0; i && PathFileExists(filename); i++) {
+		sprintf_s(appendix, _countof(appendix), "_try%d%s", PathFindExtension(savefile));
+		apply_appendix(filename, _countof(filename), savefile, appendix);
+	}
+	return (rename(muxout, filename) == 0) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
+}
+
 //戻り値
 //AUO_RESULT_SUCCESS  … チェック完了
 //AUO_RESULT_ERROR    … チェックできない
@@ -312,10 +324,10 @@ DWORD amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *
 	//チェックするファイル名を取得
 	char muxout[MAX_PATH_LEN];
 	if (PathFileExists(pe->temp_filename)) {
-		strcpy_s(muxout, sizeof(muxout), pe->temp_filename);
+		strcpy_s(muxout, _countof(muxout), pe->temp_filename);
 	} else {
 		//tempfileがない場合、mux後ファイルをチェックする
-		get_muxout_filename(muxout, sizeof(muxout), pe->temp_filename);
+		get_muxout_filename(muxout, _countof(muxout), pe->temp_filename);
 		if (pe->muxer_to_be_used < 0 || !PathFileExists(muxout)) {
 			error_check_muxout_exist(); warning_amp_failed();
 			return AUO_RESULT_ERROR;
@@ -343,9 +355,12 @@ DWORD amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *
 		//再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
 		//3通りの方法で計算してみる
 		double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * 0.5);
-		double bitrate_limit  = (conf->vid.amp_check & AMPLIMIT_BITRATE)   ? conf->x264.bitrate - (file_bitrate - conf->vid.amp_limit_bitrate) : conf->x264.bitrate;
-		double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;
-		conf->x264.bitrate = (int)(0.5 + max(margin_bitrate, min(bitrate_limit, filesize_limit)));
+		double bitrate_limit  = (conf->vid.amp_check & AMPLIMIT_BITRATE)   ? conf->x264.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate) : conf->x264.bitrate;
+		double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - 0.5 * ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;
+		conf->x264.bitrate = (int)(0.5 + min(margin_bitrate, min(bitrate_limit, filesize_limit)));
+		//必要なら、今回作成した動画を待避
+		if (sys_dat->exstg->s_local.amp_keep_old_file)
+			amp_move_old_file(muxout, oip->savefile);
 	}
 	info_amp_result(status, retry, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate, pe->current_x264_pass - conf->x264.auto_npass, conf->x264.bitrate);
 

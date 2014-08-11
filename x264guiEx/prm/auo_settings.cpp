@@ -58,6 +58,7 @@ static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
 static const double DEFAULT_AMP_MARGIN            = 0.100;
+static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
 
 static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
 static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
@@ -480,6 +481,7 @@ void guiEx_settings::load_local() {
 
 	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
+	s_local.amp_keep_old_file         = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_keep_old_file",        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);   
 	
 	GetFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
@@ -542,6 +544,7 @@ void guiEx_settings::save_local() {
 
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_keep_old_file",         s_local.amp_keep_old_file,        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 
 	WriteFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 
