@@ -280,7 +280,7 @@ static DWORD get_duration_from_timecode(double *duration, const char *tc_filenam
 double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	char buffer[MAX_PATH_LEN];
 	//Aviutlから再生時間情報を取得
-	double duration = (((double)oip->n * (double)oip->scale * 1000.0) / (double)oip->rate);
+	double duration = (((double)oip->n * (double)oip->scale) / (double)oip->rate);
 	//tcfile-inなら、動画の長さはタイムコードから取得する
 	if (conf->x264.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, "--tcfile-in", buffer, sizeof(buffer))) {
 		double duration_tmp = 0.0;
