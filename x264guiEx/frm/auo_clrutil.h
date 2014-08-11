@@ -18,10 +18,15 @@ using namespace System;
 using namespace System::Drawing;
 using namespace System::Windows::Forms;
 
-static void GetCHARfromString(char *chr, DWORD nSize, System::String^ str) {
+static size_t GetCHARfromString(char *chr, DWORD nSize, System::String^ str) {
+	DWORD str_len;
 	System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(str);
-	strcpy_s(chr, nSize, (char *)ptr.ToPointer());
+	char *ch_ptr = (char *)ptr.ToPointer();
+	if ((str_len = (DWORD)strlen(ch_ptr)) >= nSize)
+		return 0; //バッファサイズを超えていたら何もしない
+	memcpy(chr, ch_ptr, str_len+1);
 	System::Runtime::InteropServices::Marshal::FreeHGlobal(ptr);
+	return str_len;
 }
 
 static int CountStringBytes(System::String^ str) {
