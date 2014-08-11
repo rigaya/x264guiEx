@@ -27,9 +27,9 @@ typedef AUO_RESULT (*encode_task) (CONF_X264GUIEX *conf, const OUTPUT_INFO *oip,
 void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe); //音声一時ファイル名を作成
 void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename); //mux出力ファイル名を作成
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
-					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savfile); //チャプターファイルのパスを生成
-void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile); //コマンドラインの共通置換を実行
-DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret); //一時ファイルの最終的な移動・削除を実行
+					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savfile); //チャプターファイルのパスを生成
+void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savefile); //コマンドラインの共通置換を実行
+AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret); //一時ファイルの最終的な移動・削除を実行
 DWORD GetExePriority(DWORD set, HANDLE h_aviutl); //実行ファイルに指定すべき優先度を取得
 
 AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf);

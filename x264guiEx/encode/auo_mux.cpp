@@ -234,8 +234,8 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 	//とりあえず必要なくてもチャプターファイル名を作る
 	char chap_file[MAX_PATH_LEN];
 	char chap_apple[MAX_PATH_LEN];
-	set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), 
-		muxer_mode->chap_file, pe, sys_dat, oip->savefile);
+	set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), 
+		muxer_mode->chap_file, pe, sys_dat, conf, oip->savefile);
 	replace(cmd, nSize, "%{ex_cmd}", exstr);
 	//もし、チャプターファイル名への置換があるなら、チャプターファイルの存在をチェックする
 	if ((strstr(cmd, "%{chapter}") || strstr(cmd, "%{chap_apple}")) && !PathFileExists(chap_file)) {
@@ -272,7 +272,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 	//アスペクト比
 	replace_par(cmd, nSize, conf, oip);
 	//その他の置換を実行
-	cmd_replace(cmd, nSize, pe, sys_dat, oip->savefile);
+	cmd_replace(cmd, nSize, pe, sys_dat, conf, oip->savefile);
 	//情報表示
 	show_mux_info(mux_stg->dispname, enable_aud_mux, enable_tc_mux, muxer_mode->name);
 	return AUO_RESULT_SUCCESS;

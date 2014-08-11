@@ -115,20 +115,20 @@ static void make_wavfilename(char *wavfile, size_t nSize, BOOL use_pipe, const c
 		apply_appendix(wavfile, nSize, tempfilename, append_wav);
 }
 
-static void build_audcmd(char *cmd, size_t nSize, CONF_AUDIO *conf, AUDIO_SETTINGS *aud_stg, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *wavfile, const char *savefile) {
+static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const AUDIO_SETTINGS *aud_stg, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *wavfile, const char *savefile) {
 	strcpy_s(cmd, nSize, aud_stg->cmd_base);
 	//%{2pass_cmd}
-	replace(cmd, nSize, "%{2pass_cmd}",  (conf->use_2pass) ? aud_stg->cmd_2pass : "");
+	replace(cmd, nSize, "%{2pass_cmd}",  (conf->aud.use_2pass) ? aud_stg->cmd_2pass : "");
 	//%{mode}
-	replace(cmd, nSize, "%{mode}",  aud_stg->mode[conf->enc_mode].cmd);
+	replace(cmd, nSize, "%{mode}",  aud_stg->mode[conf->aud.enc_mode].cmd);
 	//%{wavpath}
 	replace(cmd, nSize, "%{wavpath}",  wavfile);
 	//%{rate}
 	char tmp[22];
-	sprintf_s(tmp, sizeof(tmp), "%d", conf->bitrate);
+	sprintf_s(tmp, sizeof(tmp), "%d", conf->aud.bitrate);
 	replace(cmd, nSize, "%{rate}", tmp);
 
-	cmd_replace(cmd, nSize, pe, sys_dat, savefile);
+	cmd_replace(cmd, nSize, pe, sys_dat, conf, savefile);
 }
 
 static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_mode) {
@@ -258,7 +258,7 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	PathGetDirectory(auddir, sizeof(auddir), aud_stg->fullpath);
 
 	//コマンドライン作成
-	build_audcmd(audcmd, sizeof(audcmd), &conf->aud, aud_stg, pe, sys_dat, wavfile, oip->savefile);
+	build_audcmd(audcmd, sizeof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip->savefile);
 	sprintf_s(audargs, sizeof(audargs), "\"%s\" %s", aud_stg->fullpath, audcmd);
 
 	//wav出力

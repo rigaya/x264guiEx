@@ -43,13 +43,13 @@ void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename)
 
 //チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
-					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savfile) {
+					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savfile) {
 	strcpy_s(chap_file, cf_nSize, chap_base);
-	cmd_replace(chap_file, cf_nSize, pe, sys_dat, savfile);
+	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, savfile);
 	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
 }
 
-void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile) {
+void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savefile) {
 	char tmp[MAX_PATH_LEN] = { 0 };
 	//置換操作の実行
 	//%{vidpath}
@@ -100,6 +100,13 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	//%{muxout}
 	get_muxout_filename(tmp, sizeof(tmp), pe->temp_filename);
 	replace(cmd, nSize, "%{muxout}", tmp);
+
+	char fullpath[MAX_PATH_LEN];
+	replace(cmd, nSize, "%{x264path}",     GetFullPath(sys_dat->exstg->s_x264.fullpath,                   fullpath, _countof(fullpath)));
+	replace(cmd, nSize, "%{x264_10path}",  GetFullPath(sys_dat->exstg->s_x264.fullpath_10bit,             fullpath, _countof(fullpath)));
+	replace(cmd, nSize, "%{audencpath}",   GetFullPath(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, fullpath, _countof(fullpath)));
+	replace(cmd, nSize, "%{mp4muxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         fullpath, _countof(fullpath)));
+	replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         fullpath, _countof(fullpath)));
 }
 
 //一時ファイルの移動・削除を行う 
@@ -161,7 +168,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 		char chap_file[MAX_PATH_LEN];
 		char chap_apple[MAX_PATH_LEN];
 		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
-		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), muxer_mode->chap_file, pe, sys_dat, savefile);
+		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, savefile);
 		move_temp_file(NULL, chap_file,  NULL, ret, TRUE, "チャプター",        FALSE);
 		move_temp_file(NULL, chap_apple, NULL, ret, TRUE, "チャプター(Apple)", FALSE);
 	}
@@ -169,7 +176,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 	if (conf->x264.use_auto_npass && sys_dat->exstg->s_local.auto_del_stats) {
 		char stats[MAX_PATH_LEN];
 		strcpy_s(stats, sizeof(stats), conf->vid.stats);
-		cmd_replace(stats, sizeof(stats), pe, sys_dat, savefile);
+		cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, savefile);
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "ステータス", FALSE);
 		strcat_s(stats, sizeof(stats), ".mbtree");
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
@@ -220,7 +227,7 @@ AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, 
 		case AUTO_SAVE_LOG_CUSTOM:
 			char log_file_dir[MAX_PATH_LEN];
 			strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
-			cmd_replace(log_file_path, nSize, pe, sys_dat, savefile);
+			cmd_replace(log_file_path, nSize, pe, sys_dat, conf, savefile);
 			PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
 			if (DirectoryExistsOrCreate(log_file_dir))
 				break;
@@ -289,7 +296,7 @@ double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, cons
 		double duration_tmp = 0.0;
 		if (conf->x264.use_tcfilein)
 			strcpy_s(buffer, sizeof(buffer), conf->vid.tcfile_in);
-		cmd_replace(buffer, sizeof(buffer), pe, sys_dat, oip->savefile);
+		cmd_replace(buffer, sizeof(buffer), pe, sys_dat, conf, oip->savefile);
 		if (AUO_RESULT_SUCCESS == get_duration_from_timecode(&duration_tmp, buffer, oip->rate / (double)oip->scale))
 			duration = duration_tmp;
 		else
