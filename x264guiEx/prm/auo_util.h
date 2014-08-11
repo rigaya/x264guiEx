@@ -36,14 +36,14 @@ static const BYTE UTF16_LE_BOM[] = { 0xFF, 0xFE };
 static const BYTE UTF16_BE_BOM[] = { 0xFE, 0xFF };
 
 //SIMD
-static const DWORD AUO_SIMD_NONE  = 0x00;
-static const DWORD AUO_SIMD_SSE2  = 0x01;
-static const DWORD AUO_SIMD_SSE3  = 0x02; //使用していない
-static const DWORD AUO_SIMD_SSSE3 = 0x04;
-static const DWORD AUO_SIMD_SSE41 = 0x08;
-static const DWORD AUO_SIMD_SSE42 = 0x10; //使用していない
-static const DWORD AUO_SIMD_AVX   = 0x20;
-static const DWORD AUO_SIMD_AVX2  = 0x40; //使用していない
+static const DWORD AUO_SIMD_NONE  = 0x0000;
+static const DWORD AUO_SIMD_SSE2  = 0x0001;
+static const DWORD AUO_SIMD_SSE3  = 0x0002; //使用していない
+static const DWORD AUO_SIMD_SSSE3 = 0x0004;
+static const DWORD AUO_SIMD_SSE41 = 0x0008;
+static const DWORD AUO_SIMD_SSE42 = 0x0010; //使用していない
+static const DWORD AUO_SIMD_AVX   = 0x0020;
+static const DWORD AUO_SIMD_AVX2  = 0x0040; //使用していない
 
 //関数マクロ
 #define clamp(x, low, high) (((x) <= (high)) ? (((x) >= (low)) ? (x) : (low)) : (high))

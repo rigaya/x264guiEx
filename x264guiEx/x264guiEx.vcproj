@@ -132,6 +132,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="2"
+				AssemblerOutput="0"
 				WarningLevel="4"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4505"

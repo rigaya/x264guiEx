@@ -291,6 +291,7 @@ namespace x264guiEx {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->CancelButton = this->fosCBCancel;
 			this->ClientSize = System::Drawing::Size(392, 417);
+			this->Controls->Add(this->fosTXStgDir);
 			this->Controls->Add(this->fosBTSetFont);
 			this->Controls->Add(this->fosCBStgEscKey);
 			this->Controls->Add(this->fosCBAutoDelChap);
@@ -303,7 +304,6 @@ namespace x264guiEx {
 			this->Controls->Add(this->fosCBAutoAFSDisable);
 			this->Controls->Add(this->fosBTStgDir);
 			this->Controls->Add(this->fosLBStgDir);
-			this->Controls->Add(this->fosTXStgDir);
 			this->Controls->Add(this->fosCBOK);
 			this->Controls->Add(this->fosCBCancel);
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 

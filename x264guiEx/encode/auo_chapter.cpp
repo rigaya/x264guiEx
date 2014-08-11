@@ -171,7 +171,7 @@ static AuoChapStatus write_apple_chap(FILE *fp, IMultiLanguage2 *pImul, WCHAR *w
 		for (size_t i = n+1; i < pw_line.size(); i++)
 			*(pw_line[i] - 1) = *delim;
 		wchar_buf[*wchar_buf_len] = last_word; //null文字を入れたところを戻す
-		*wchar_buf_len = wchar_buf + *wchar_buf_len - pw_line[n];
+		*wchar_buf_len = (UINT)(wchar_buf + *wchar_buf_len - pw_line[n]);
 		memmove(wchar_buf, pw_line[n], (*wchar_buf_len + 1) * sizeof(WCHAR));
 	}
 	return sts;
