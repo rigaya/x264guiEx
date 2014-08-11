@@ -387,13 +387,32 @@ System::Void frmConfig::fcgCBAFS_CheckedChanged(System::Object^  sender, System:
 	fcgCXMP4CmdEx->SelectedIndex = muxer_cmdex;
 }
 
+System::Void frmConfig::fcgArrangeForAutoMultiPass(bool enable) {
+	const int PNX264ModeOffset = +7;
+	const int PNBitrateOffset  = -39;
+	const int PNStatusFileOffset = -17;
+	if (fcgLastX264ModeAsAMP == enable)
+		return;
+	Point NewPoint = fcgPNX264Mode->Location;
+	NewPoint.Y += PNX264ModeOffset * ((enable) ? -1 : 1);
+	fcgPNX264Mode->Location = NewPoint;
+	fcgPNX264Mode->Height += (PNBitrateOffset - PNX264ModeOffset*2) * ((enable) ? -1 : 1);
+	NewPoint = fcgPNBitrate->Location;
+	NewPoint.Y += PNBitrateOffset * ((enable) ? -1 : 1);
+	fcgPNBitrate->Location = NewPoint;
+	NewPoint = fcgPNStatusFile->Location;
+	NewPoint.Y += PNStatusFileOffset * ((enable) ? -1 : 1);
+	fcgPNStatusFile->Location = NewPoint;
+	fcgLastX264ModeAsAMP = enable;
+}
+
 System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 	int index = fcgCXX264Mode->SelectedIndex;
 	cnf_fcgTemp->rc_mode = x264_encmode_to_RCint[index];
 	cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5);
 	switch (cnf_fcgTemp->rc_mode) {
 		case X264_RC_BITRATE:
-			fcgLBQuality->Text = L"ビットレート(kbps)";
+			fcgLBQuality->Text = (fcgCXX264Mode->SelectedIndex == 5) ? L"目標映像ビットレート(kbps)" : L"ビットレート(kbps)";
 			fcgLBQualityLeft->Text = L"低品質";
 			fcgLBQualityRight->Text = L"高品質";
 			fcgTBQuality->Minimum = 0;
@@ -447,6 +466,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			break;
 	}
 	fcgNUAutoNPass->Enabled = (fcgCXX264Mode->SelectedIndex == 5);
+	fcgArrangeForAutoMultiPass(fcgNUAutoNPass->Enabled);
 }
 
 System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -981,6 +1001,10 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	SetCXIndex(fcgCXPreset,           cx264->preset);
 	SetCXIndex(fcgCXTune,             cx264->tune);
 	SetCXIndex(fcgCXProfile,          cx264->profile);
+	fcgCBAMPLimitBitrate->Checked  = (cnf->vid.amp_check & AMPLIMIT_BITRATE) != 0;
+	fcgCBAMPLimitFileSize->Checked = (cnf->vid.amp_check & AMPLIMIT_FILE_SIZE) != 0;
+	SetNUValue(fcgNUAMPLimitFileSize, cnf->vid.amp_limit_file_size);
+	SetNUValue(fcgNUAMPLimitBitrate,  cnf->vid.amp_limit_bitrate);
 	SetCXIndex(fcgCXLevel,            cx264->h264_level);
 	SetCXIndex(fcgCXVideoFormat,      cx264->videoformat);
 	fcgCBAud->Checked               = cx264->aud != 0;
@@ -1136,6 +1160,11 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->x264.slow_first_pass      = cnf_fcgTemp->slow_first_pass;
 	cnf->x264.use_auto_npass       = cnf_fcgTemp->use_auto_npass;
 	cnf->x264.auto_npass           = (int)fcgNUAutoNPass->Value;
+	cnf->vid.amp_check             = NULL;
+	cnf->vid.amp_check            |= fcgCBAMPLimitBitrate->Checked ? AMPLIMIT_BITRATE : NULL;
+	cnf->vid.amp_check            |= fcgCBAMPLimitFileSize->Checked ? AMPLIMIT_FILE_SIZE : NULL;
+	cnf->vid.amp_limit_bitrate     = (double)fcgNUAMPLimitBitrate->Value;
+	cnf->vid.amp_limit_file_size   = (double)fcgNUAMPLimitFileSize->Value;
 	cnf->x264.preset               = fcgCXPreset->SelectedIndex;
 	cnf->x264.tune                 = fcgCXTune->SelectedIndex;
 	cnf->x264.profile              = fcgCXProfile->SelectedIndex;
@@ -1401,6 +1430,30 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"\n"
 		+ L"最終的にこの設定による制約が課されます。"
 		);
+
+	//自動マルチパス 上限設定
+	String^ AMP_LimitBitrate = L""
+		+ L"出力する動画ファイル(映像＋音声)のビットレートが、\n"
+		+ L"ここで設定した上限ビットレートを超えないようエンコードを行います。\n"
+		+ L"\n"
+		+ L"エンコード終了後にも確認を行い、ファイルビットレートが上限設定を\n"
+		+ L"上回ってしまった場合には、再エンコードを行います。\n"
+		+ L"\n"
+		+ L"上限設定はチェックボックスによりオン/オフできます。";
+	fcgTTEx->SetToolTip(fcgCBAMPLimitBitrate,     AMP_LimitBitrate);
+	fcgTTEx->SetToolTip(fcgNUAMPLimitBitrate,     AMP_LimitBitrate);
+	String^ AMP_LimitFileSize = L""
+		+ L"出力する動画ファイル(映像＋音声)のサイズが、\n"
+		+ L"ここで設定した上限ファイルサイズを超えないようエンコードを行います。\n"
+		+ L"\n"
+		+ L"エンコード終了後にも確認を行い、ファイルサイズが上限設定を\n"
+		+ L"上回ってしまった場合には、再エンコードを行います。\n"
+		+ L"\n"
+		+ L"上限設定はチェックボックスによりオン/オフできます。";
+	fcgTTEx->SetToolTip(fcgCBAMPLimitFileSize,     AMP_LimitFileSize);
+	fcgTTEx->SetToolTip(fcgNUAMPLimitFileSize,     AMP_LimitFileSize);
+
+	//プロファイルとか
 	fcgTTX264->SetToolTip(fcgCXTune,              L"--tune");
 	fcgTTX264->SetToolTip(fcgCXPreset,            L"--preset");
 	fcgTTEx->SetToolTip(fcgBTApplyPreset,         L""

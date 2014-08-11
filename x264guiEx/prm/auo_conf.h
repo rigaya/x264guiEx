@@ -31,17 +31,23 @@ const int CONF_ERROR_INVALID_FILENAME = 3;
 
 const int CMDEX_MAX_LEN = 2048;    //追加コマンドラインの最大長
 
+const DWORD AMPLIMIT_FILE_SIZE = 0x01; //自動マルチパス時、ファイルサイズのチェックを行う
+const DWORD AMPLIMIT_BITRATE   = 0x02; //自動マルチパス時、ビットレートのチェックを行う
+
 typedef struct {
-	BOOL afs;                      //自動フィールドシフトの使用
-	BOOL afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
-	BOOL auo_tcfile_out;           //auo側でタイムコードを出力する
-	BOOL check_keyframe;           //キーフレームチェックを行う
-	int  priority;                 //x264のCPU優先度(インデックス)
-	char stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
-	char tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
-	char cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
-	char cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
-	int  yc48_colormatrix_conv;    //YC48の色変換
+	BOOL   afs;                      //自動フィールドシフトの使用
+	BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
+	BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
+	BOOL   check_keyframe;           //キーフレームチェックを行う
+	int    priority;                 //x264のCPU優先度(インデックス)
+	char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
+	char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
+	char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
+	char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
+	int    yc48_colormatrix_conv;    //YC48の色変換
+	DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
+	double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
+	double amp_limit_bitrate;        //自動マルチパス時のビットレート制限(kbps)
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {

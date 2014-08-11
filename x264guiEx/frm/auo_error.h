@@ -17,6 +17,11 @@ void warning_no_temp_root(const char *dir);
 void warning_no_aud_temp_root(const char *dir);
 void error_filename_too_long();
 void error_nothing_to_output();
+void error_amp_bitrate_confliction();
+void info_amp_do_aud_enc_first(DWORD target_limit);
+void error_amp_aud_too_big(DWORD target_limit);
+void error_amp_target_bitrate_too_small(DWORD target_limit);
+void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit);
 void error_invalid_resolution(BOOL width, int mul, int w, int h);
 void error_no_exe_file(const char *name, const char *path);
 void warning_auto_afs_disable();
@@ -50,6 +55,8 @@ void warning_failed_to_get_duration_from_timecode();
 void error_check_muxout_exist();
 void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB);
 void warning_failed_check_muxout_filesize();
+void warning_amp_failed();
+void info_amp_result(DWORD status, BOOL retry, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate);
 
 void warning_no_auto_save_log_dir();
 

@@ -42,7 +42,10 @@ static const char * const INI_SECTION_FN           = "FILENAME_REPLACE";
 static const char * const INI_SECTION_PREFIX       = "SETTING_";
 static const char * const INI_SECTION_MODE         = "MODE_";
 static const char * const INI_SECTION_FBC          = "BITRATE_CALC";
+static const char * const INI_SECTION_AMP          = "AUTO_MULTI_PASS";
 
+static const int          DEFAULT_AMP_RETRY_LIMIT = 3;
+static const char * const DEFAULT_AMP_MARGIN      = "0.100";
 
 static double GetPrivateProfileDouble(const char *section, const char *keyname, const char *defaultString, const char *ini_file) {
 	char buf[256], *eptr;
@@ -428,13 +431,17 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox          = GetPrivateProfileInt(INI_SECTION_MAIN,  "large_cmdbox",          0,                    conf_fileName);
-	s_local.auto_afs_disable      = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_afs_disable",      0,                    conf_fileName);
-	s_local.auto_del_stats        = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_del_stats",        0,                    conf_fileName);
-	s_local.auto_del_chap         = GetPrivateProfileInt(INI_SECTION_MAIN,  "auto_del_chap",         1,                    conf_fileName);
-	s_local.disable_tooltip_help  = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_tooltip_help",  0,                    conf_fileName);
-	s_local.disable_visual_styles = GetPrivateProfileInt(INI_SECTION_MAIN,  "disable_visual_styles", 0,                    conf_fileName);
-	s_local.enable_stg_esc_key    = GetPrivateProfileInt(INI_SECTION_MAIN,  "enable_stg_esc_key",    0,                    conf_fileName);
+	s_local.large_cmdbox              = GetPrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",                  0,  conf_fileName);
+	s_local.auto_afs_disable          = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",              0,  conf_fileName);
+	s_local.auto_del_stats            = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",                0,  conf_fileName);
+	s_local.auto_del_chap             = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",                 1,  conf_fileName);
+	s_local.disable_tooltip_help      = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",          0,  conf_fileName);
+	s_local.disable_visual_styles     = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",         0,  conf_fileName);
+	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",            0,  conf_fileName);
+
+	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,  conf_fileName);
+	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN, conf_fileName);
+	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);
 	
 	GetFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 
@@ -486,13 +493,18 @@ void guiEx_settings::load_fbc() {
 }
 
 void guiEx_settings::save_local() {
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "large_cmdbox",          s_local.large_cmdbox,          conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_afs_disable",      s_local.auto_afs_disable,      conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_del_stats",        s_local.auto_del_stats,        conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "auto_del_chap",         s_local.auto_del_chap,         conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_tooltip_help",  s_local.disable_tooltip_help,  conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "disable_visual_styles", s_local.disable_visual_styles, conf_fileName);
-	WritePrivateProfileInt(INI_SECTION_MAIN,    "enable_stg_esc_key",    s_local.enable_stg_esc_key,    conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",              s_local.large_cmdbox,              conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",          s_local.auto_afs_disable,          conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",            s_local.auto_del_stats,            conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",             s_local.auto_del_chap,             conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",      s_local.disable_tooltip_help,      conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",     s_local.disable_visual_styles,     conf_fileName);
+	WritePrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",        s_local.enable_stg_esc_key,        conf_fileName);
+
+	if (s_local.amp_retry_limit != DEFAULT_AMP_RETRY_LIMIT)
+		WritePrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,           conf_fileName);
+	if (s_local.amp_bitrate_margin_multi != strtod(DEFAULT_AMP_MARGIN, NULL))
+		WritePrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi,  conf_fileName);
 
 	WriteFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 

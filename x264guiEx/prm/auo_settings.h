@@ -161,17 +161,17 @@ typedef struct {
 } FILENAME_REPLACE;
 
 typedef struct {
-	BOOL   minimized;                        //最小化で起動
-	BOOL   transparent;                      //半透明で表示
-	BOOL   auto_save_log;                    //ログ自動保存を行うかどうか
-	int    auto_save_log_mode;               //ログ自動保存のモード
-	char   auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
-	BOOL   show_status_bar;                  //ステータスバーの表示
-	BOOL   taskbar_progress;                 //タスクバーに進捗を表示
-	BOOL   save_log_size;                    //ログの大きさを保存する
-	int    log_width;                        //ログ幅
-	int    log_height;                       //ログ高さ
-	AUO_FONT_INFO log_font;                  //ログフォント
+	BOOL minimized;                        //最小化で起動
+	BOOL transparent;                      //半透明で表示
+	BOOL auto_save_log;                    //ログ自動保存を行うかどうか
+	int  auto_save_log_mode;               //ログ自動保存のモード
+	char auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名
+	BOOL show_status_bar;                  //ステータスバーの表示
+	BOOL taskbar_progress;                 //タスクバーに進捗を表示
+	BOOL save_log_size;                    //ログの大きさを保存する
+	int  log_width;                        //ログ幅
+	int  log_height;                       //ログ高さ
+	AUO_FONT_INFO log_font;                //ログフォント
 } LOG_WINDOW_SETTINGS;
 
 typedef struct {
@@ -180,21 +180,23 @@ typedef struct {
 } BITRATE_CALC_SETTINGS;
 
 typedef struct {
-	BOOL  large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
-	DWORD audio_buffer_size;                   //音声用バッファサイズ
-	BOOL  auto_afs_disable;                    //自動的にafsを無効化
-	BOOL  auto_del_stats;                      //自動マルチパス時、ステータスファイルを自動的に削除
-	BOOL  auto_del_chap;                       //チャプターファイルの自動削除
-	BOOL  disable_tooltip_help;                //ポップアップヘルプを抑制する
-	BOOL  disable_visual_styles;               //視覚効果をオフにする
-	BOOL  enable_stg_esc_key;                  //設定画面でEscキーを有効化する
-	AUO_FONT_INFO conf_font;                   //設定画面のフォント
-	char  custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
-	char  custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
-	char  custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
-	char  stg_dir[MAX_PATH_LEN];               //プロファイル設定ファイル保存フォルダ
-	char  app_dir[MAX_PATH_LEN];               //実行ファイルのフォルダ
-	char  bat_dir[MAX_PATH_LEN];               //バッチファイルのフォルダ
+	BOOL   large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
+	DWORD  audio_buffer_size;                   //音声用バッファサイズ
+	BOOL   auto_afs_disable;                    //自動的にafsを無効化
+	BOOL   auto_del_stats;                      //自動マルチパス時、ステータスファイルを自動的に削除
+	BOOL   auto_del_chap;                       //チャプターファイルの自動削除
+	BOOL   disable_tooltip_help;                //ポップアップヘルプを抑制する
+	BOOL   disable_visual_styles;               //視覚効果をオフにする
+	BOOL   enable_stg_esc_key;                  //設定画面でEscキーを有効化する
+	AUO_FONT_INFO conf_font;                    //設定画面のフォント
+	int    amp_retry_limit;                     //自動マルチパス試行回数制限
+	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
+	char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
+	char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
+	char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
+	char   stg_dir[MAX_PATH_LEN];               //プロファイル設定ファイル保存フォルダ
+	char   app_dir[MAX_PATH_LEN];               //実行ファイルのフォルダ
+	char   bat_dir[MAX_PATH_LEN];               //バッチファイルのフォルダ
 } LOCAL_SETTINGS;
 
 typedef struct {

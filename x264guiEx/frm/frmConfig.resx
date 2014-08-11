@@ -118,6 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="fcgBTTBQualitySubtract.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAADvSURBVDhPY2AYOWDu9hthKw/eiyfZxwfOPVbtXXNpbdvy
+        i/+rZ+xeSbQB9f//M03ecC27bsHZb9XzTv+vAuK8nvW7iTJg1var2kWzTu5O6Tv8PxmGew//z+pcR9iA
+        CeuvNCf1HfkT1Lz3PzrO6CDCgGnrzvT5Va3/H9q6DwMTZcD///+ZC9sXRkXXLn2R0Ln3f+ako2CcMfHI
+        /2xivAALpBlrt0tmNC2cE9+84VftgjP/6xed/Z/fs5FwGKCHcsf0la6J9Ysvlc088r+ofxPpBoAMfPTo
+        EWdJ19Lmsu6lG4mKRlyKjh17xEmRATTRDADs85GzIf4pLgAAAABJRU5ErkJggg==
+</value>
+  </data>
   <data name="fcgBTTBQualityAdd.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
@@ -127,16 +137,6 @@
         wggakDXp6P9MKE7tO/TfI3/+f/fExvfplROSz/z/z0rQgNoFZ/43LDr7P71n13+b2KY/0fmdS5ev369A
         0P8gBSAv1C0889+vYNZ/9/ia232z1/gSpRGm6Nj5N9LZTfMvFjRN633z5g0fSZrhhhw7Rl4qJMs2SjUB
         AF8ophs3OL+rAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="fcgBTTBQualitySubtract.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAADvSURBVDhPY2AYOWDu9hthKw/eiyfZxwfOPVbtXXNpbdvy
-        i/+rZ+xeSbQB9f//M03ecC27bsHZb9XzTv+vAuK8nvW7iTJg1var2kWzTu5O6Tv8PxmGew//z+pcR9iA
-        CeuvNCf1HfkT1Lz3PzrO6CDCgGnrzvT5Va3/H9q6DwMTZcD///+ZC9sXRkXXLn2R0Ln3f+ako2CcMfHI
-        /2xivAALpBlrt0tmNC2cE9+84VftgjP/6xed/Z/fs5FwGKCHcsf0la6J9Ysvlc088r+ofxPpBoAMfPTo
-        EWdJ19Lmsu6lG4mKRlyKjh17xEmRATTRDADs85GzIf4pLgAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="fcgpictureBoxX264.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -3094,6 +3094,9 @@
   </metadata>
   <metadata name="fcgTTX264Version.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>25, 50</value>
+  </metadata>
+  <metadata name="fcgCSReplaceStrings.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>552, 42</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>103</value>

@@ -38,4 +38,8 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 
 double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip);
 
+double get_amp_margin_bitrate(double base_bitrate, double margin_multi);
+
+DWORD amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip);
+
 #endif //_AUO_ENCODE_H_

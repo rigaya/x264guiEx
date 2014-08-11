@@ -162,8 +162,10 @@ BOOL func_output( OUTPUT_INFO *oip )
 		for (int i = 0; !ret && i < 2; i++)
 			ret |= task[conf.aud.audio_encode_first != FALSE][i](&conf, oip, &pe, &sys_dat);
 
-		if (!ret)
-			ret |= mux(&conf, oip, &pe, &sys_dat);
+		do {
+			if (!ret) ret |= video_output(&conf, oip, &pe, &sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
+			if (!ret) ret |= mux(&conf, oip, &pe, &sys_dat);
+		} while (!ret && AUO_RESULT_WARNING == amp_check_file(&conf, &sys_dat, &pe, oip)); //再エンコードの必要があるかをチェック
 
 		ret |= move_temporary_files(&conf, &pe, &sys_dat, oip->savefile, ret);
 
@@ -276,6 +278,23 @@ static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg) {
 	return FALSE;
 }
 
+static BOOL check_amp() {
+	BOOL check = TRUE;
+	if (!conf.x264.use_auto_npass)
+		return check;
+	if (conf.vid.amp_check & AMPLIMIT_BITRATE) {
+		if (conf.x264.bitrate > conf.vid.amp_limit_bitrate) {
+			check = FALSE; error_amp_bitrate_confliction();
+		} else if (conf.vid.amp_limit_bitrate <= 0.0)
+			conf.vid.amp_check &= ~AMPLIMIT_BITRATE; //フラグを折る
+	}
+	if (conf.vid.amp_check & AMPLIMIT_FILE_SIZE) {
+		if (conf.vid.amp_limit_file_size <= 0.0)
+			conf.vid.amp_check &= ~AMPLIMIT_FILE_SIZE; //フラグを折る
+	}
+	return check;
+}
+
 static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	BOOL check = TRUE;
 	//ファイル名長さ
@@ -347,6 +366,9 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 			break;
 	}
 
+	//自動マルチパス設定
+	if (check_amp() == FALSE) check = FALSE;
+
 	return check;
 }
 
@@ -406,9 +428,11 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	pe->video_out_type = check_video_ouput(&conf, oip);
 	pe->muxer_to_be_used = check_muxer_to_be_used(&conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 	pe->total_x264_pass = (conf.x264.use_auto_npass && !conf.oth.disable_guicmd) ? conf.x264.auto_npass : 1;
+	pe->amp_x264_pass_limit = pe->total_x264_pass + sys_dat.exstg->s_local.amp_retry_limit;
 	pe->current_x264_pass = 1;
 	pe->drop_count = 0;
 	memcpy(&pe->append, &sys_dat.exstg->s_append, sizeof(FILE_APPENDIX));
+	ZeroMemory(&pe->append.aud, sizeof(pe->append.aud));
 
 	char filename_replace[MAX_PATH_LEN];
 

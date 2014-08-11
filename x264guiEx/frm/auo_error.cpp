@@ -36,6 +36,44 @@ void error_nothing_to_output() {
 	write_log_auo_line(LOG_ERROR, "出力すべきものがありません。");
 }
 
+void error_amp_bitrate_confliction() {
+	write_log_auo_line(LOG_ERROR, "上限ビットレートが、目標ビットレートより小さく設定されています。エンコードできません。");
+	write_log_auo_line(LOG_ERROR, "ビットレート設定を見なおしてください。");
+}
+
+static const char *get_target_limit_name(DWORD target_limit) {
+	const char *str_limit = "";
+	switch (target_limit) {
+		case AMPLIMIT_BITRATE:
+			str_limit = "ビットレート";   break;
+		case AMPLIMIT_FILE_SIZE:
+			str_limit = "ファイルサイズ"; break;
+		case (AMPLIMIT_BITRATE & AMPLIMIT_FILE_SIZE):
+			str_limit = "ファイルサイズ/ビットレート";   break;
+		default: break;
+	}
+	return str_limit;
+}
+
+void info_amp_do_aud_enc_first(DWORD target_limit) {
+	write_log_auo_line_fmt(LOG_INFO, "自動マルチパスでの上限%sのチェックを行う場合は、音声エンコードを先に行います。", get_target_limit_name(target_limit));
+}
+
+void error_amp_aud_too_big(DWORD target_limit) {
+	write_log_auo_line_fmt(LOG_ERROR, "音声ファイルのみで、上限%sの設定をを超えてしまいました。", get_target_limit_name(target_limit));
+	write_log_auo_line(    LOG_ERROR, "ビットレートの設定を見なおしてください。");
+}
+
+void error_amp_target_bitrate_too_small(DWORD target_limit) {
+	write_log_auo_line_fmt(LOG_ERROR, "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。", get_target_limit_name(target_limit));
+	write_log_auo_line(    LOG_ERROR, "ビットレートの設定を見なおしてください。");
+}
+
+void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit) {
+	write_log_auo_line_fmt(LOG_WARNING, "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。", get_target_limit_name(target_limit));
+	write_log_auo_line_fmt(LOG_WARNING, "目標ビットレートを %d kbps -> %d kbpsに変更します。", bitrate_old, bitrate_new);
+}
+
 void error_invalid_resolution(BOOL width, int mul, int w, int h) {
 	write_log_auo_line_fmt(LOG_ERROR, "%s入力解像度が %d で割りきれません。エンコードできません。入力解像度:%dx%d",
 		(width) ? "横" : "縦", mul, w, h);
@@ -190,11 +228,9 @@ void error_out_drive_not_enough_space() {
 }
 
 void warning_failed_to_get_duration_from_timecode() {
-	write_log_auo_line(LOG_WARNING, ""
-	    "auo [warning]: タイムコードからの動画長さの取得に失敗しました。\n"
-		"               Apple形式チャプターに記述する動画長さはAviutlから取得したものを使用します。\n"
-		"               そのため、チャプターストリームの長さが実際の動画と異なる恐れがあります。"
-		);
+	write_log_auo_line(LOG_WARNING, "タイムコードからの動画長さの取得に失敗しました。");
+	write_log_auo_line(LOG_WARNING, "Apple形式チャプターに記述する動画長さはAviutlから取得したものを使用します。");
+	write_log_auo_line(LOG_WARNING, "そのため、チャプターストリームの長さが実際の動画と異なる恐れがあります。");
 }
 
 void error_check_muxout_exist() {
@@ -210,6 +246,10 @@ void warning_failed_check_muxout_filesize() {
 	write_log_auo_line(LOG_WARNING, "mux後ファイルのファイルサイズ確認に失敗しました。正常にmuxされていない可能性があります。");
 }
 
+void warning_amp_failed() {
+	write_log_auo_line(LOG_WARNING, "自動マルチパスがチェックに失敗しました。指定した上限が守られていない可能性があります。");
+}
+
 void warning_no_auto_save_log_dir() {
 	write_log_auo_line(LOG_WARNING, "指定した自動ログ保存先が存在しません。動画出力先に保存します。");
 }
@@ -220,6 +260,22 @@ void info_encoding_aborted() {
 
 void warning_mux_no_chapter_file() {
 	write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。チャプターはmuxされません。");
+}
+
+void info_amp_result(DWORD status, BOOL retry, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate) {
+	int log_index = (status) ? ((retry) ? LOG_WARNING : LOG_ERROR) : LOG_INFO;
+	write_log_auo_line_fmt(    log_index, "出力ファイルサイズ %.2f MB, ファイルビットレート %.2f kbps", filesize / (double)(1024*1024), file_bitrate);
+	if (status & AMPLIMIT_FILE_SIZE)
+		write_log_auo_line_fmt(log_index, "上限ファイルサイズ %.2f MB を上回ってしまいました。%s", limit_filesize);
+	if (status & AMPLIMIT_BITRATE)
+		write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。%s", limit_filebitrate);
+	if (status && retry)
+		write_log_auo_line_fmt(log_index, "目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
+
+	if (!status)
+		write_log_auo_line_fmt(log_index, "指定された上限を下回っていることを確認しました。");
+	else if (!retry)
+		write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限を上回ってしまいました。目標ビットレートを見なおしてください。", retry_count);
 }
 
 void warning_mux_chapter(int sts) {
@@ -269,4 +325,3 @@ void warning_failed_open_bat_orig() {
 void warning_failed_open_bat_new() {
 	write_log_auo_line(LOG_WARNING, "一時バッチファイルを作成できませんでした。");
 }
-

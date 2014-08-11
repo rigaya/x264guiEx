@@ -8,6 +8,7 @@
 //  -----------------------------------------------------------------------------------------
 
 #include <Windows.h>
+#include <Math.h>
 #include <stdio.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
@@ -145,9 +146,11 @@ DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const 
 		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
 			ret |= AUO_RESULT_ERROR;
 	//mux後ファイル
-	char muxout_appendix[MAX_APPENDIX_LEN];
-	get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), pe->temp_filename);
-	move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
+	if (pe->muxer_to_be_used >= 0) {
+		char muxout_appendix[MAX_APPENDIX_LEN];
+		get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), pe->temp_filename);
+		move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
+	}
 	//qpファイル
 	move_temp_file(pe->append.qp,   pe->temp_filename, savefile, ret, TRUE, "qp", FALSE);
 	//tcファイル
@@ -293,4 +296,58 @@ double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, cons
 			warning_failed_to_get_duration_from_timecode();
 	}
 	return duration;
+}
+
+double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
+	return base_bitrate * clamp(1.0 - margin_multi / sqrt(base_bitrate / 100.0), 0.8, 1.0);
+}
+
+//戻り値
+//AUO_RESULT_SUCCESS  … チェック完了
+//AUO_RESULT_ERROR    … チェックできない
+//AUO_REESULT_WARNING … 再エンコの必要あり
+DWORD amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
+	if (!conf->x264.use_auto_npass || !conf->vid.amp_check)
+		return AUO_RESULT_SUCCESS;
+	//チェックするファイル名を取得
+	char muxout[MAX_PATH_LEN];
+	if (PathFileExists(pe->temp_filename)) {
+		strcpy_s(muxout, sizeof(muxout), pe->temp_filename);
+	} else {
+		//tempfileがない場合、mux後ファイルをチェックする
+		get_muxout_filename(muxout, sizeof(muxout), pe->temp_filename);
+		if (pe->muxer_to_be_used < 0 || !PathFileExists(muxout)) {
+			error_check_muxout_exist(); warning_amp_failed();
+			return AUO_RESULT_ERROR;
+		}
+	}
+	//ファイルサイズを取得し、ビットレートを計算する
+	UINT64 filesize = 0;
+	if (!GetFileSizeUInt64(muxout, &filesize)) {
+		warning_failed_check_muxout_filesize(); warning_amp_failed();
+		return AUO_RESULT_ERROR;
+	}
+	double file_bitrate = (filesize * 8.0) / 1000.0 / get_duration(conf, sys_dat, pe, oip);
+	DWORD status = NULL;
+	//ファイルサイズのチェックを行う
+	if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) && filesize > conf->vid.amp_limit_file_size * 1024*1024)
+		status |= AMPLIMIT_FILE_SIZE;
+	//ビットレートのチェックを行う
+	if ((conf->vid.amp_check & AMPLIMIT_BITRATE) && file_bitrate > conf->vid.amp_limit_bitrate)
+		status |= AMPLIMIT_BITRATE;
+
+	BOOL retry = (status && pe->current_x264_pass < pe->amp_x264_pass_limit);
+	//再エンコードを行う
+	if (retry) {
+		pe->total_x264_pass++;
+		//再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
+		//3通りの方法で計算してみる
+		double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * 0.5);
+		double bitrate_limit  = (conf->vid.amp_check & AMPLIMIT_BITRATE)   ? conf->x264.bitrate - (file_bitrate - conf->vid.amp_limit_bitrate) : conf->x264.bitrate;
+		double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;
+		conf->x264.bitrate = (int)(0.5 + max(margin_bitrate, min(bitrate_limit, filesize_limit)));
+	}
+	info_amp_result(status, retry, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate, pe->current_x264_pass - conf->x264.auto_npass, conf->x264.bitrate);
+
+	return (retry) ? AUO_RESULT_WARNING : AUO_RESULT_SUCCESS;
 }

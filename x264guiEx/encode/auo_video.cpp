@@ -11,6 +11,7 @@
 #pragma comment(lib, "user32.lib") //WaitforInputIdle
 #include <stdlib.h>
 #include <stdio.h>
+#include <float.h>
 #include <Process.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib") 
@@ -480,18 +481,86 @@ static void set_window_title_x264(PRM_ENC *pe) {
 	set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
+static DWORD check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	if (!conf->x264.use_auto_npass || !conf->vid.amp_check)
+		return AUO_RESULT_SUCCESS;
+	//音声ファイルサイズ取得
+	double aud_bitrate = 0.0;
+	double duration = get_duration(conf, sys_dat, pe, oip);
+	UINT64 aud_filesize = 0;
+	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+		if (!char_has_length(pe->append.aud)) { //音声エンコがまだ終了していない
+			info_amp_do_aud_enc_first(conf->vid.amp_check);
+			return AUO_RESULT_ABORT; //音声エンコを先にやるべく、動画エンコを終了する
+		}
+		char aud_file[MAX_PATH_LEN];
+		apply_appendix(aud_file, sizeof(aud_file), pe->temp_filename, pe->append.aud);
+		if (!PathFileExists(aud_file)) {
+			error_no_aud_file();
+			return AUO_RESULT_ERROR;
+		}
+		if (!GetFileSizeUInt64(aud_file, &aud_filesize)) {
+			warning_failed_get_aud_size(); warning_amp_failed();
+			return AUO_RESULT_ERROR;
+		}
+		if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) && 
+			aud_filesize >= conf->vid.amp_limit_file_size * 1024 * 1024) {
+			error_amp_aud_too_big(AMPLIMIT_FILE_SIZE);
+			return AUO_RESULT_ERROR;
+		}
+		aud_bitrate = aud_filesize * 8.0 / 1000.0 / duration;
+		if ((conf->vid.amp_check & AMPLIMIT_BITRATE) &&
+			aud_bitrate >= conf->vid.amp_limit_bitrate) {
+			error_amp_aud_too_big(AMPLIMIT_BITRATE);
+			return AUO_RESULT_ERROR;
+		}
+	}
+	//目標ビットレートの計算
+	DWORD target_limit = NULL; //上限ファイルサイズと上限ビットレートどちらによる制限か
+	double required_file_bitrate = DBL_MAX;
+	//上限ファイルサイズのチェック
+	if (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) {
+		required_file_bitrate = conf->vid.amp_limit_file_size*1024*1024 * 8.0/1000.0 / duration; //動画に割り振ることのできる最大ビットレート
+		target_limit = AMPLIMIT_FILE_SIZE;
+	}
+	//上限ビットレートのチェック
+	if ((conf->vid.amp_check & AMPLIMIT_BITRATE) &&
+		required_file_bitrate > conf->vid.amp_limit_bitrate) {
+		required_file_bitrate = conf->vid.amp_limit_bitrate;
+		target_limit = AMPLIMIT_BITRATE;
+	}
+	double required_vid_bitrate = get_amp_margin_bitrate(required_file_bitrate - aud_bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi);
+	//あまりにも計算したビットレートが小さすぎたらエラーを出す
+	if (required_vid_bitrate <= 1.0) {
+		error_amp_target_bitrate_too_small(target_limit);
+		return AUO_RESULT_ERROR;
+	}
+	//計算されたビットレートが目標ビットレートを上回っていたら、目標ビットレートを変更する
+	if (required_vid_bitrate < conf->x264.bitrate) {
+		warning_amp_change_bitrate(conf->x264.bitrate, (int)(required_vid_bitrate + 0.5), target_limit);
+		conf->x264.bitrate = (int)(required_vid_bitrate + 0.5);
+	}
+	return AUO_RESULT_SUCCESS;
+}
+
 DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
 	//動画エンコードの必要がなければ終了
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return ret;
 
-	//追加コマンドをパラメータに適用する
-	ret |= check_cmdex(conf, oip, pe, sys_dat);
+	//最初のみ実行する部分
+	if (pe->current_x264_pass <= 1) {
+		//自動マルチパス用チェック
+		if ((ret |= check_amp(conf, oip, pe, sys_dat)) != AUO_RESULT_SUCCESS)
+			return ret & ~AUO_RESULT_ABORT; //AUO_RESULT_ABORTなら、音声を先にエンコードするため、動画エンコードを一時的にスキップ
+		//追加コマンドをパラメータに適用する
+		ret |= check_cmdex(conf, oip, pe, sys_dat);
 
-	//キーフレーム検出
-	if (!ret && conf->vid.check_keyframe && !conf->vid.afs && strstr(conf->vid.cmdex, "--qpfile") == NULL)
-		check_keyframe_flag(oip, pe);
+		//キーフレーム検出
+		if (!ret && conf->vid.check_keyframe && !conf->vid.afs && strstr(conf->vid.cmdex, "--qpfile") == NULL)
+			check_keyframe_flag(oip, pe);
+	}
 
 	for (; !ret && pe->current_x264_pass <= pe->total_x264_pass; pe->current_x264_pass++) {
 		if (conf->x264.use_auto_npass) {

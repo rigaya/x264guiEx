@@ -20,6 +20,7 @@ typedef struct {
 	int muxer_to_be_used;               //使用するmuxerのインデックス
 	int current_x264_pass;              //現在のx264パス数
 	int total_x264_pass;                //最大x264パス数
+	int amp_x264_pass_limit;            //自動マルチパス時に再エンコードをトライするときのパス数上限
 	int drop_count;                     //ドロップ数
 	BOOL afs_init;                      //動画入力の準備ができているか
 	HANDLE h_p_aviutl;                  //優先度取得用のAviutlのハンドル
