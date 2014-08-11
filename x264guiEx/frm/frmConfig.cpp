@@ -1580,7 +1580,7 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTX264->SetToolTip(fcgCXBAdpapt,          L"--b-adapt");
 	fcgTTX264->SetToolTip(fcgNUBBias,            L"--b-bias");
 	fcgTTX264->SetToolTip(fcgCXBpyramid,         L"--b-pyramid");
-	fcgTTX264->SetToolTip(fcgCBWeightB,          L"--wieghtb");
+	fcgTTX264->SetToolTip(fcgCBWeightB,          L"--weightb");
 
 	//マクロブロックタイプ
 	fcgTTX264->SetToolTip(fcgCB8x8dct,           L"--8x8dct");
