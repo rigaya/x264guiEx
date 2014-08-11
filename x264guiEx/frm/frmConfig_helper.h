@@ -257,3 +257,25 @@ const WCHAR * const yc48_colmat_conv_desc[] = {
 };
 
 const WCHAR * const DefaultStgNotes = L"メモ...";
+
+typedef struct {
+	WCHAR *string;
+	WCHAR *desc;
+} REPLACE_STRINGS;
+
+const REPLACE_STRINGS REPLACE_STRINGS_LIST[] = {
+	{ L"%{vidpath}",   L"一時動画ファイル名(フルパス)" },
+	{ L"%{audpath}",   L"一時音声ファイル名(フルパス)" },
+	{ L"%{tmpdir}",    L"一時フォルダ名(最後の\\無し)" },
+	{ L"%{tmpfile}",   L"一時ファイル名(フルパス・拡張子除く)" },
+	{ L"%{tmpname}",   L"一時ファイル名(ファイル名のみ・拡張子除く)" },
+	{ L"%{savpath}",   L"出力ファイル名(フルパス)" },
+	{ L"%{savfile}",   L"出力ファイル名(フルパス・拡張子除く)" },
+	{ L"%{savname}",   L"出力ファイル名(ファイル名のみ・拡張子除く)" },
+	{ L"%{savdir}",    L"出力フォルダ名(最後の\\無し)" },
+	{ L"%{aviutldir}", L"Aviutl.exeのフォルダ名(最後の\\無し)" },
+	{ L"%{chpath}",    L"チャプターファイル名(フルパス)   (%{savfile}[chapter_appendix])" },
+	{ L"%{tcpath}",    L"タイムコードファイル名(フルパス) (%{tmpfile}[tc_appendix])" },
+	{ L"%{muxout}",    L"muxで作成する一時ファイル名(フルパス)" },
+	{ NULL, NULL }
+};
