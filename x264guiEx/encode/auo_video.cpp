@@ -232,7 +232,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		build_cmd_from_conf(cmd, nSize, &prm.x264, &prm.vid, FALSE);
 	}
 	//cmdex追加
-	if (char_has_length(prm.vid.cmdex)) {
+	if (str_has_char(prm.vid.cmdex)) {
 		//改行文字削除
 		replace_cmd_CRLF_to_Space(prm.vid.cmdex, sizeof(prm.vid.cmdex));
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " %s", prm.vid.cmdex);
@@ -489,7 +489,7 @@ static DWORD check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	double duration = get_duration(conf, sys_dat, pe, oip);
 	UINT64 aud_filesize = 0;
 	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
-		if (!char_has_length(pe->append.aud)) { //音声エンコがまだ終了していない
+		if (!str_has_char(pe->append.aud)) { //音声エンコがまだ終了していない
 			info_amp_do_aud_enc_first(conf->vid.amp_check);
 			return AUO_RESULT_ABORT; //音声エンコを先にやるべく、動画エンコを終了する
 		}

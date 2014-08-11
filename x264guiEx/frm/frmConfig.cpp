@@ -338,7 +338,7 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 	log_reload_settings();
 	SetStgEscKey(stg.s_local.enable_stg_esc_key != 0);
 	ActivateToolTip(stg.s_local.disable_tooltip_help == FALSE);
-	if (char_has_length(stg.s_local.conf_font.name))
+	if (str_has_char(stg.s_local.conf_font.name))
 		SetFontFamilyToForm(this, gcnew FontFamily(String(stg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
 }
 
@@ -628,7 +628,7 @@ System::Void frmConfig::setAudioDisplay() {
 	int index = fcgCXAudioEncoder->SelectedIndex;
 	AUDIO_SETTINGS *astg = &sys_dat->exstg->s_aud[index];
 	//～の指定
-	if (char_has_length(astg->filename)) {
+	if (str_has_char(astg->filename)) {
 		fcgLBAudioEncoderPath->Text = String(astg->filename).ToString() + L" の指定";
 		fcgTXAudioEncoderPath->Enabled = true;
 		fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[index];
@@ -1016,7 +1016,7 @@ System::Void frmConfig::InitForm() {
 	//キー設定
 	SetStgEscKey(sys_dat->exstg->s_local.enable_stg_esc_key != 0);
 	//フォントの設定
-	if (char_has_length(sys_dat->exstg->s_local.conf_font.name))
+	if (str_has_char(sys_dat->exstg->s_local.conf_font.name))
 		SetFontFamilyToForm(this, gcnew FontFamily(String(sys_dat->exstg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
 }
 
@@ -1146,8 +1146,8 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 
 	if (all) {
 		//動画部
-		fcgTXStatusFile->Text = (char_has_length(cnf->vid.stats))     ? String(cnf->vid.stats).ToString()     : L"%{savfile}.stats";
-		fcgTXTCIN->Text       = (char_has_length(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : L"%{savfile}_tc.txt";
+		fcgTXStatusFile->Text = (str_has_char(cnf->vid.stats))     ? String(cnf->vid.stats).ToString()     : L"%{savfile}.stats";
+		fcgTXTCIN->Text       = (str_has_char(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : L"%{savfile}_tc.txt";
 
 		fcgCBAFS->Checked                  = cnf->vid.afs != 0;
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
@@ -1357,7 +1357,7 @@ System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(const char *notes) {
-	if (char_has_length(notes)) {
+	if (str_has_char(notes)) {
 		fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
 		fcgTSLSettingsNotes->Text = String(notes).ToString();
 	} else {

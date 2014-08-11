@@ -55,7 +55,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	//%{vidpath}
 	replace(cmd, nSize, "%{vidpath}", pe->temp_filename);
 	//%{audpath}
-	if (pe->append.aud && char_has_length(pe->append.aud)) {
+	if (pe->append.aud && str_has_char(pe->append.aud)) {
 		get_aud_filename(tmp, sizeof(tmp), pe);
 		replace(cmd, nSize, "%{audpath}", tmp);
 	}

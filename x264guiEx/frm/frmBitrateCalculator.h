@@ -567,7 +567,7 @@ namespace x264guiEx {
 			//フォントの設定
 			guiEx_settings exstg;
 			exstg.load_encode_stg();
-			if (char_has_length(exstg.s_local.conf_font.name))
+			if (str_has_char(exstg.s_local.conf_font.name))
 				SetFontFamilyToForm(this, gcnew FontFamily(String(exstg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
 		}
 	private: 

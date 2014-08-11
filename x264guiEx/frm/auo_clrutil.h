@@ -56,9 +56,9 @@ static bool ValidiateFileName(System::String^ fileName) {
 //AUO_FONT_INFOからフォントを作成する
 //情報がない場合、baseFontのものを使用する
 static System::Drawing::Font^ GetFontFrom_AUO_FONT_INFO(const AUO_FONT_INFO *info, System::Drawing::Font^ baseFont) {
-	if (info && (char_has_length(info->name) || info->size > 0.0)) {
+	if (info && (str_has_char(info->name) || info->size > 0.0)) {
 		return gcnew System::Drawing::Font(
-			(char_has_length(info->name)) ? String(info->name).ToString() : baseFont->FontFamily->ToString(),
+			(str_has_char(info->name)) ? String(info->name).ToString() : baseFont->FontFamily->ToString(),
 			(info->size > 0.0) ? (float)info->size : baseFont->Size, 
 			(System::Drawing::FontStyle)info->style);
 	}

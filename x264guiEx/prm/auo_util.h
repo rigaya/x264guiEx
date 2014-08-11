@@ -200,8 +200,11 @@ static inline size_t deleteCRLFSpace_at_End(char *str) {
 	return qw - pw;
 }
 
-static inline BOOL char_has_length(const char *str) {
-	return str[0] != '\0';
+static inline BOOL str_has_char(const char *str) {
+	BOOL ret = FALSE;
+	for (; !ret && *str != '\0'; str++)
+		ret = (*str != ' ');
+	return ret;
 }
 
 static DWORD cpu_core_count() {

@@ -247,7 +247,7 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	if (func_info->for_10bit == BIT10)  strcpy_s(out_append, sizeof(out_append), " 10bit,");
 	if (func_info->bt709conv == BT709F) strcat_s(out_append, sizeof(out_append), " BT.709,");
 	if (func_info->fullrange == FULL)   strcat_s(out_append, sizeof(out_append), " fullrange,");
-	if (char_has_length(out_append)) {
+	if (str_has_char(out_append)) {
 		out_append[0] = '('; out_append[strlen(out_append)-1] = ')';
 	}
 
