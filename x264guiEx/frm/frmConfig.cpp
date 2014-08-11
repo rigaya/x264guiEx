@@ -939,6 +939,14 @@ System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventA
 	fcgCBNulOutCLI->Visible = fcgTSBCMDOnly->Checked;
 }
 
+System::Void frmConfig::fcgMP4TempDirEnabled() {
+	bool enabled = str_has_char(sys_dat->exstg->s_mux[MUXER_MP4].tmp_cmd) != FALSE;
+	fcgCXMP4BoxTempDir->Visible = enabled;
+	fcgLBMP4BoxTempDir->Visible = enabled;
+	fcgTXMP4BoxTempDir->Visible = enabled;
+	fcgBTMP4BoxTempDir->Visible = enabled;
+}
+
 System::Void frmConfig::SetStgEscKey(bool Enable) {
 	if (this->KeyPreview == Enable)
 		return;
@@ -1006,6 +1014,7 @@ System::Void frmConfig::InitForm() {
 	fcgLBYC48ColMatConv->Visible = false;
 #endif
 	//フォームの変更可不可を更新
+	fcgMP4TempDirEnabled();
 	fcgChangeEnabled(nullptr, nullptr);
 	fcgCBAFS_CheckedChanged(nullptr, nullptr);
 	EnableSettingsNoteChange(false);

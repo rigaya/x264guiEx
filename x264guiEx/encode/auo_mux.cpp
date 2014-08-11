@@ -42,19 +42,15 @@ static void show_mux_info(const char *mux_stg_name, BOOL audmux, BOOL tcmux, con
 }
 
 //muxの空き容量などを計算し、行えるかを確認する
-static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, UINT64 expected_filesize) {
-	//mp4系かどうか
-	if (!(pe->muxer_to_be_used == MUXER_MP4 || pe->muxer_to_be_used == MUXER_TC2MP4))
-		return AUO_RESULT_SUCCESS;
-
-	DWORD ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, UINT64 expected_filesize) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	UINT64 required_space = (UINT64)(expected_filesize * 1.01); //ちょい多め
 	//出力先ドライブ
 	char vid_root[MAX_PATH_LEN];
 	strcpy_s(vid_root, _countof(vid_root), pe->temp_filename);
 	PathStripToRoot(vid_root);
-	//一時フォルダの指定について検証
-	if (conf->mux.mp4_temp_dir) {
+	//一時フォルダ指定用のコマンドがあれば、一時フォルダの指定について検証
+	if (str_has_char(mux_stg->tmp_cmd) && conf->mux.mp4_temp_dir) {
 		ULARGE_INTEGER temp_drive_avail_space = { 0 };
 		BOOL tmp_same_drive_as_out = FALSE;
 		//指定されたドライブが存在するかどうか
@@ -199,7 +195,7 @@ static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, UINT64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
-	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0;
+	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0 && str_has_char(mux_stg->aud_cmd);
 	BOOL enable_tc_mux = (conf->vid.afs) != 0;
 	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
 	char *audstr = (enable_aud_mux) ? mux_stg->aud_cmd : "";
@@ -258,17 +254,6 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 			}
 		}
 	}
-	//tc2mp4ならmp4boxの場所を指定
-	if (pe->muxer_to_be_used == MUXER_TC2MP4) {
-		//ここで使用するmp4boxのパスはtc2mp4modからの相対パスになってしまうので、
-		//絶対パスに変換しておく
-		char mp4box_fullpath[MAX_PATH_LEN];
-		if (PathIsRelative(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) == FALSE)
-			strcpy_s(mp4box_fullpath, sizeof(mp4box_fullpath), sys_dat->exstg->s_mux[MUXER_MP4].fullpath);
-		else
-			_fullpath(mp4box_fullpath, sys_dat->exstg->s_mux[MUXER_MP4].fullpath, sizeof(mp4box_fullpath));
-		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -L \"%s\"", mp4box_fullpath);
-	}
 	//アスペクト比
 	replace_par(cmd, nSize, conf, oip);
 	//その他の置換を実行
@@ -296,6 +281,14 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 
 	MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
 
+	//事前muxの必要があれば、それを行う(L-SMASH系 timelineeditor の前の remuxer を想定)
+	if (mux_stg->pre_mux >= MUXER_MP4) {
+		PRM_ENC pe_tmp = *pe;
+		pe_tmp.muxer_to_be_used = mux_stg->pre_mux; //ここだけすり替えてmuxerをもう一度呼ぶ
+		if (AUO_RESULT_SUCCESS != (ret |= mux(conf, oip, &pe_tmp, sys_dat)))
+			return ret;
+	}
+
 	if (!PathFileExists(mux_stg->fullpath)) {
 		ret |= AUO_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
 		return ret;
@@ -318,7 +311,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 	PathGetDirectory(muxdir, _countof(muxdir), mux_stg->fullpath);
 
 	//mux終了後の予想サイズを取得
-	ret |= get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0, &expected_filesize);
+	ret |= get_expected_filesize(pe, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0 && str_has_char(mux_stg->aud_cmd), &expected_filesize);
 	if (ret & AUO_RESULT_ERROR)
 		return AUO_RESULT_ERROR;
 

@@ -4253,6 +4253,7 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		System::Void SetStgEscKey(bool Enable);
 		System::Void fcgArrangeForAutoMultiPass(bool enable);
 		System::Boolean fcgLastX264ModeAsAMP;
+		System::Void fcgMP4TempDirEnabled();
 	public:
 		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);

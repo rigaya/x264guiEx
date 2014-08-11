@@ -14,6 +14,36 @@
 #include <vector>
 #include "auo.h"
 
+//----    デフォルト値    ---------------------------------------------------
+
+static const BOOL   DEFAULT_LARGE_CMD_BOX         = 0;
+static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
+static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
+static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
+static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
+static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
+static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
+static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
+static const double DEFAULT_AMP_MARGIN            = 0.100;
+static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
+
+static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
+static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
+static const BOOL   DEFAULT_LOG_AUTO_SAVE        = 0;
+static const int    DEFAULT_LOG_AUTO_SAVE_MODE   = 0;
+static const BOOL   DEFAULT_LOG_SHOW_STATUS_BAR  = 1;
+static const BOOL   DEFAULT_LOG_TASKBAR_PROGRESS = 1;
+static const BOOL   DEFAULT_LOG_SAVE_SIZE        = 0;
+static const int    DEFAULT_LOG_WIDTH            = 0;
+static const int    DEFAULT_LOG_HEIGHT           = 0;
+
+static const BOOL   DEFAULT_FBC_CALC_BITRATE         = 1;
+static const BOOL   DEFAULT_FBC_CALC_TIME_FROM_FRAME = 0;
+static const int    DEFAULT_FBC_LAST_FRAME_NUM       = 0;
+static const double DEFAULT_FBC_LAST_FPS             = 29.970;
+static const int    DEFAULT_FBC_LAST_TIME_IN_SEC     = 0;
+static const double DEFAULT_FBC_INITIAL_SIZE         = 39.8;
+
 typedef struct {
 	char *name; //x264でのオプション名
 	WCHAR *desc; //GUIでの表示用
@@ -130,6 +160,7 @@ typedef struct {
 	char *tmp_cmd;                //一時フォルダ指定用コマンドライン
 	int ex_count;                 //拡張オプションの数
 	MUXER_CMD_EX *ex_cmd;         //拡張オプション
+	int pre_mux;                  //muxerを実行する前に別のmuxerを実行する
 } MUXER_SETTINGS;
 
 typedef struct {

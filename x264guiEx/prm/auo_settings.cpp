@@ -47,36 +47,6 @@ static const char * const INI_SECTION_MODE         = "MODE_";
 static const char * const INI_SECTION_FBC          = "BITRATE_CALC";
 static const char * const INI_SECTION_AMP          = "AUTO_MULTI_PASS";
 
-//----    デフォルト値    ---------------------------------------------------
-
-static const BOOL   DEFAULT_LARGE_CMD_BOX         = 0;
-static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
-static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
-static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
-static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
-static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
-static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
-static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
-static const double DEFAULT_AMP_MARGIN            = 0.100;
-static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
-
-static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
-static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
-static const BOOL   DEFAULT_LOG_AUTO_SAVE        = 0;
-static const int    DEFAULT_LOG_AUTO_SAVE_MODE   = 0;
-static const BOOL   DEFAULT_LOG_SHOW_STATUS_BAR  = 1;
-static const BOOL   DEFAULT_LOG_TASKBAR_PROGRESS = 1;
-static const BOOL   DEFAULT_LOG_SAVE_SIZE        = 0;
-static const int    DEFAULT_LOG_WIDTH            = 0;
-static const int    DEFAULT_LOG_HEIGHT           = 0;
-
-static const BOOL   DEFAULT_FBC_CALC_BITRATE         = 1;
-static const BOOL   DEFAULT_FBC_CALC_TIME_FROM_FRAME = 0;
-static const int    DEFAULT_FBC_LAST_FRAME_NUM       = 0;
-static const double DEFAULT_FBC_LAST_FPS             = 29.970;
-static const int    DEFAULT_FBC_LAST_TIME_IN_SEC     = 0;
-static const double DEFAULT_FBC_INITIAL_SIZE         = 39.8;
-
 static inline double GetPrivateProfileDouble(const char *section, const char *keyname, double defaultValue, const char *ini_file) {
 	char buf[256], *eptr;
 	double d;
@@ -363,6 +333,7 @@ void guiEx_settings::load_mux() {
 		s_mux[i].aud_cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, "au_cmd",   "", ini_fileName);
 		s_mux[i].tc_cmd   = s_mux_mc.SetPrivateProfileString(muxer_section, "tc_cmd",   "", ini_fileName);
 		s_mux[i].tmp_cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, "tmp_cmd",  "", ini_fileName);
+		s_mux[i].pre_mux  = GetPrivateProfileInt(muxer_section, "pre_mux", MUXER_DISABLED,  ini_fileName);
 
 		sprintf_s(muxer_section, sizeof(muxer_section), "%s%s", INI_SECTION_MODE, s_mux[i].keyName);
 		s_mux[i].ex_count = GetPrivateProfileInt(muxer_section, "count", 0, ini_fileName);
