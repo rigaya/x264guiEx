@@ -86,8 +86,8 @@ BOOL guiEx_config::adjust_conf_size(CONF_X264GUIEX *conf_buf, void *old_data, in
 		//ブロック部分のコピー
 		for (int i = 0; i < ((CONF_X264GUIEX *)data_table)->block_count; ++i) {
 			block = (BYTE *)old_data + ((CONF_X264GUIEX *)data_table)->block_head_p[i];
+			dst = (BYTE *)conf_buf + conf_block_pointer[i];
 			memcpy(dst, block, min(((CONF_X264GUIEX *)data_table)->block_size[i], conf_block_data[i]));
-			dst += conf_block_data[i];
 		}
 		ret = TRUE;
 	}
@@ -131,8 +131,8 @@ int guiEx_config::load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file
 	//ブロック部分のコピー
 	for (int i = 0; i < ((CONF_X264GUIEX *)dat)->block_count; ++i) {
 		filedat = dat + ((CONF_X264GUIEX *)dat)->block_head_p[i];
+		dst = (BYTE *)conf + conf_block_pointer[i];
 		memcpy(dst, filedat, min(((CONF_X264GUIEX *)dat)->block_size[i], conf_block_data[i]));
-		dst += conf_block_data[i];
 	}
 
 	//初期化するかどうかで使うので。
