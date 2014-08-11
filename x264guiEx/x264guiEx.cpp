@@ -367,7 +367,7 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	}
 
 	//自動マルチパス設定
-	if (check_amp() == FALSE) check = FALSE;
+	check &= check_amp();
 
 	return check;
 }
