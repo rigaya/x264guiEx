@@ -47,7 +47,7 @@ System::Boolean frmSaveNewStg::checkStgFileName(String^ stgName) {
 	}
 	if (String::Compare(Path::GetExtension(stgName), L".stg", true))
 		stgName += L".stg";
-	if (File::Exists(fileName = Path::Combine(StgDir, stgName)))
+	if (File::Exists(fileName = Path::Combine(fsnCXFolderBrowser->GetSelectedFolder(), stgName)))
 		if (MessageBox::Show(stgName + L" はすでに存在します。上書きしますか?", L"上書き確認", MessageBoxButtons::YesNo, MessageBoxIcon::Question)
 			!= System::Windows::Forms::DialogResult::Yes)
 			return false;
@@ -57,6 +57,7 @@ System::Boolean frmSaveNewStg::checkStgFileName(String^ stgName) {
 
 System::Void frmSaveNewStg::setStgDir(String^ _stgDir) {
 	StgDir = _stgDir;
+	fsnCXFolderBrowser->SetRootDirAndReload(StgDir);
 }
 
 
@@ -678,26 +679,54 @@ System::Void frmConfig::AudioEncodeModeChanged() {
 
 ///////////////   設定ファイル関連   //////////////////////
 System::Void frmConfig::CheckTSItemsEnabled(CONF_X264GUIEX *current_conf) {
-	bool selected = (stgCheckedIndex >= 0);
+	bool selected = (CheckedStgMenuItem != nullptr);
 	fcgTSBSave->Enabled = (selected && memcmp(cnf_stgSelected, current_conf, sizeof(CONF_X264GUIEX)));
 	fcgTSBDelete->Enabled = selected;
 }
 
-System::Boolean frmConfig::CheckstgIndexValid(int index) {
-	return (index >= 0 && index < fcgTSSettings->DropDownItems->Count);
+System::Void frmConfig::UncheckAllDropDownItem(ToolStripItem^ mItem) {
+	ToolStripDropDownItem^ DropDownItem = dynamic_cast<ToolStripDropDownItem^>(mItem);
+	if (DropDownItem == nullptr)
+		return;
+	for (int i = 0; i < DropDownItem->DropDownItems->Count; i++) {
+		UncheckAllDropDownItem(DropDownItem->DropDownItems[i]);
+		ToolStripMenuItem^ item = dynamic_cast<ToolStripMenuItem^>(DropDownItem->DropDownItems[i]);
+		if (item != nullptr)
+			item->Checked = false;
+	}
 }
 
-System::Void frmConfig::CheckTSDropDownItem(int index) {
-	bool no_check = !CheckstgIndexValid(index);
-	for (int i = 0; i < fcgTSSettings->DropDownItems->Count; i++) {
-		ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgTSSettings->DropDownItems[i]);
-		if (TSItem != nullptr)
-			TSItem->Checked = (i == index);
-	}
-	stgCheckedIndex = index;
-	fcgTSSettings->Text = (no_check) ? L"プロファイル" : dynamic_cast<ToolStripMenuItem^>(fcgTSSettings->DropDownItems[index])->Text;
+System::Void frmConfig::CheckTSSettingsDropDownItem(ToolStripMenuItem^ mItem) {
+	UncheckAllDropDownItem(fcgTSSettings);
+	CheckedStgMenuItem = mItem;
+	fcgTSSettings->Text = (mItem == nullptr) ? L"プロファイル" : mItem->Text;
+	if (mItem != nullptr)
+		mItem->Checked = true;
 	fcgTSBSave->Enabled = false;
-	fcgTSBDelete->Enabled = !no_check;
+	fcgTSBDelete->Enabled = (mItem != nullptr);
+}
+
+ToolStripMenuItem^ frmConfig::fcgTSSettingsSearchItem(String^ stgPath, ToolStripItem^ mItem) {
+	if (stgPath == nullptr)
+		return nullptr;
+	ToolStripDropDownItem^ DropDownItem = dynamic_cast<ToolStripDropDownItem^>(mItem);
+	if (DropDownItem == nullptr)
+		return nullptr;
+	for (int i = 0; i < DropDownItem->DropDownItems->Count; i++) {
+		ToolStripMenuItem^ item = fcgTSSettingsSearchItem(stgPath, DropDownItem->DropDownItems[i]);
+		if (item != nullptr)
+			return item;
+		item = dynamic_cast<ToolStripMenuItem^>(DropDownItem->DropDownItems[i]);
+		if (item      != nullptr && 
+			item->Tag != nullptr && 
+			0 == String::Compare(item->Tag->ToString(), stgPath, true))
+			return item;
+	}
+	return nullptr;
+}
+
+ToolStripMenuItem^ frmConfig::fcgTSSettingsSearchItem(String^ stgPath) {
+	return fcgTSSettingsSearchItem((stgPath != nullptr && stgPath->Length > 0) ? Path::GetFullPath(stgPath) : nullptr, fcgTSSettings);
 }
 
 System::Void frmConfig::SaveToStgFile(String^ stgName) {
@@ -706,6 +735,9 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 	GetCHARfromString(stg_name, nameLen, stgName);
 	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUse10bit->Checked);
 	FrmToConf(cnf_stgSelected);
+	String^ stgDir = Path::GetDirectoryName(stgName);
+	if (!Directory::Exists(stgDir))
+		Directory::CreateDirectory(stgDir);
 	guiEx_config exCnf;
 	int result = exCnf.save_x264guiEx_conf(cnf_stgSelected, stg_name);
 	free(stg_name);
@@ -719,77 +751,92 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 		default:
 			break;
 	}
-	stgCheckedIndex = stgControl->AddStgToList(Path::GetFileNameWithoutExtension(stgName));
-	RebuildStgFileDropDown();
-	CheckTSDropDownItem(stgCheckedIndex);
 	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUse10bit->Checked);
 	FrmToConf(cnf_stgSelected);
 }
 
 System::Void frmConfig::fcgTSBSave_Click(System::Object^  sender, System::EventArgs^  e) {
-	ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgTSSettings->DropDownItems[stgCheckedIndex]);
-	if (TSItem != nullptr) {
-		String^ stgName = TSItem->Text;
-		if (String::Compare(Path::GetExtension(stgName), L".stg", true))
-			stgName += L".stg";
-		SaveToStgFile(Path::Combine(String(sys_dat->exstg->s_local.stg_dir).ToString(), stgName));
-	}
+	if (CheckedStgMenuItem != nullptr)
+		SaveToStgFile(CheckedStgMenuItem->Tag->ToString());
+	CheckTSSettingsDropDownItem(CheckedStgMenuItem);
 }
 
 System::Void frmConfig::fcgTSBSaveNew_Click(System::Object^  sender, System::EventArgs^  e) {
 	frmSaveNewStg::Instance::get()->setStgDir(String(sys_dat->exstg->s_local.stg_dir).ToString());
-	if (stgCheckedIndex >= 0)
-		frmSaveNewStg::Instance::get()->setFilename(stgControl->getStgNameList()[stgCheckedIndex]);
+	if (CheckedStgMenuItem != nullptr)
+		frmSaveNewStg::Instance::get()->setFilename(CheckedStgMenuItem->Text);
 	frmSaveNewStg::Instance::get()->ShowDialog();
 	String^ stgName = frmSaveNewStg::Instance::get()->StgFileName;
 	if (stgName != nullptr && stgName->Length)
 		SaveToStgFile(stgName);
+	RebuildStgFileDropDown(nullptr);
+	CheckTSSettingsDropDownItem(fcgTSSettingsSearchItem(stgName));
 }
 
-System::Void frmConfig::DeleteStgFile(int index) {
+System::Void frmConfig::DeleteStgFile(ToolStripMenuItem^ mItem) {
 	if (System::Windows::Forms::DialogResult::OK ==
-		MessageBox::Show(L"設定ファイル " + stgControl->getStgNameList()[index] + L" を削除してよろしいですか?",
+		MessageBox::Show(L"設定ファイル " + mItem->Text + L" を削除してよろしいですか?",
 		L"エラー", MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation)) 
 	{
-		File::Delete(stgControl->getStgFullPath(index));
-		stgControl->DeleteFromList(index);
-		RebuildStgFileDropDown();
-		CheckTSDropDownItem(-1);
+		File::Delete(mItem->Tag->ToString());
+		RebuildStgFileDropDown(nullptr);
+		CheckTSSettingsDropDownItem(nullptr);
 		SetfcgTSLSettingsNotes(L"");
 	}
 }
 
 System::Void frmConfig::fcgTSBDelete_Click(System::Object^  sender, System::EventArgs^  e) {
-	DeleteStgFile(stgCheckedIndex);
+	DeleteStgFile(CheckedStgMenuItem);
 }
 
 System::Void frmConfig::fcgTSSettings_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e) {
-	int index = Convert::ToInt32(e->ClickedItem->Tag);
+	ToolStripMenuItem^ ClickedMenuItem = dynamic_cast<ToolStripMenuItem^>(e->ClickedItem);
+	if (ClickedMenuItem == nullptr)
+		return;
+	if (ClickedMenuItem->Tag == nullptr || ClickedMenuItem->Tag->ToString()->Length == 0)
+		return;
 	CONF_X264GUIEX load_stg;
 	guiEx_config exCnf;
 	char stg_path[MAX_PATH_LEN];
-	GetCHARfromString(stg_path, sizeof(stg_path), stgControl->getStgFullPath(index));
+	GetCHARfromString(stg_path, sizeof(stg_path), ClickedMenuItem->Tag->ToString());
 	if (exCnf.load_x264guiEx_conf(&load_stg, stg_path) == CONF_ERROR_FILE_OPEN) {
 		if (MessageBox::Show(L"設定ファイルオープンに失敗しました。\n"
 			               + L"このファイルを削除しますか?",
 						   L"エラー", MessageBoxButtons::YesNo, MessageBoxIcon::Error)
 						   == System::Windows::Forms::DialogResult::Yes)
-			DeleteStgFile(index);
+			DeleteStgFile(ClickedMenuItem);
 		return;
 	}
 	ConfToFrm(&load_stg, true);
-	CheckTSDropDownItem(index);
+	CheckTSSettingsDropDownItem(ClickedMenuItem);
 	memcpy(cnf_stgSelected, &load_stg, sizeof(CONF_X264GUIEX));
 }
 
-System::Void frmConfig::RebuildStgFileDropDown() {
-	List<String^>^ stgList = stgControl->getStgNameList();
-	fcgTSSettings->DropDownItems->Clear();
-	for (int i = 0; i < stgList->Count; i++) {
-		ToolStripMenuItem^ mItem = gcnew ToolStripMenuItem(stgList[i]);
-		fcgTSSettings->DropDownItems->Add(mItem);
-		fcgTSSettings->DropDownItems[i]->Tag = i;
+System::Void frmConfig::RebuildStgFileDropDown(ToolStripDropDownItem^ TS, String^ dir) {
+	array<String^>^ subDirs = Directory::GetDirectories(dir);
+	for (int i = 0; i < subDirs->Length; i++) {
+		ToolStripMenuItem^ DDItem = gcnew ToolStripMenuItem(L"[ " + subDirs[i]->Substring(dir->Length+1) + L" ]");
+		DDItem->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSSettings_DropDownItemClicked);
+		DDItem->ForeColor = Color::Blue;
+		DDItem->Tag = nullptr;
+		RebuildStgFileDropDown(DDItem, subDirs[i]);
+		TS->DropDownItems->Add(DDItem);
 	}
+	array<String^>^ stgList = Directory::GetFiles(dir, L"*.stg");
+	for (int i = 0; i < stgList->Length; i++) {
+		ToolStripMenuItem^ mItem = gcnew ToolStripMenuItem(Path::GetFileNameWithoutExtension(stgList[i]));
+		mItem->Tag = stgList[i];
+		TS->DropDownItems->Add(mItem);
+	}
+}
+
+System::Void frmConfig::RebuildStgFileDropDown(String^ stgDir) {
+	fcgTSSettings->DropDownItems->Clear();
+	if (stgDir != nullptr)
+		CurrentStgDir = stgDir;
+	if (!Directory::Exists(CurrentStgDir))
+		Directory::CreateDirectory(CurrentStgDir);
+	RebuildStgFileDropDown(fcgTSSettings, Path::GetFullPath(CurrentStgDir));
 }
 
 
@@ -870,13 +917,9 @@ System::Void frmConfig::SetTXMaxLenAll() {
 }
 
 System::Void frmConfig::InitStgFileList() {
-	if (stgControl == nullptr)
-		stgControl = gcnew stgFileController(String(sys_dat->exstg->s_local.stg_dir).ToString());
-	stgControl->ReLoad(String(sys_dat->exstg->s_local.stg_dir).ToString());
-	RebuildStgFileDropDown();
-	stgCheckedIndex = -1;
+	RebuildStgFileDropDown(String(sys_dat->exstg->s_local.stg_dir).ToString());
 	stgChanged = false;
-	CheckTSDropDownItem(-1);
+	CheckTSSettingsDropDownItem(nullptr);
 }
 
 System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e) {

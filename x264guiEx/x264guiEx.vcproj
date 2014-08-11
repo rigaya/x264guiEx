@@ -66,6 +66,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib&quot;"
 				ModuleDefinitionFile="x264guiEx.def"
+				EmbedManagedResourceFile=".\image\folder_open.ico"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
 				SubSystem="2"
@@ -153,6 +154,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib&quot;"
 				ModuleDefinitionFile="x264guiEx.def"
+				EmbedManagedResourceFile=".\image\folder_open.ico"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -741,17 +743,26 @@
 				RelativePath=".\auo_version.rc"
 				>
 			</File>
+			<File
+				RelativePath=".\image\folder_open.ico"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="フォーム"
 			Filter="h;resx;cpp"
 			>
 			<File
+				RelativePath=".\frm\ComboBoxFolderBrowser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\frm\frmAutoSaveLogSettings.h"
 				FileType="3"
 				>
 				<File
 					RelativePath=".\frm\frmAutoSaveLogSettings.resx"
+					SubType="Designer"
 					>
 				</File>
 			</File>
@@ -792,6 +803,15 @@
 				>
 				<File
 					RelativePath=".\frm\frmLog.resx"
+					>
+				</File>
+			</File>
+			<File
+				RelativePath=".\frm\frmNewFolderName.h"
+				FileType="3"
+				>
+				<File
+					RelativePath=".\frm\frmNewFolderName.resx"
 					>
 				</File>
 			</File>

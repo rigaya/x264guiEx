@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "ComboBoxFolderBrowser.h"
+#include "frmNewFolderName.h"
 #include "auo_settings.h"
 
 using namespace System;
@@ -61,6 +63,13 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Button^  fsnBTOK;
 	private: System::Windows::Forms::Button^  fsnBTCancel;
 
+	private: ComboBoxFolderBrowser^  fsnCXFolderBrowser;
+	//private: System::Windows::Forms::ComboBox^  fsnCXFolderBrowser;
+	private: System::Windows::Forms::Button^  fsnBTNewFolder;
+
+
+
+
 
 	//Instanceを介し、ひとつだけ生成
 	public:
@@ -92,18 +101,21 @@ namespace x264guiEx {
 			this->fsnTXFileName = (gcnew System::Windows::Forms::TextBox());
 			this->fsnBTOK = (gcnew System::Windows::Forms::Button());
 			this->fsnBTCancel = (gcnew System::Windows::Forms::Button());
+			//this->fsnCXFolderBrowser = (gcnew System::Windows::Forms::ComboBox());
+			this->fsnCXFolderBrowser = (gcnew ComboBoxFolderBrowser());
+			this->fsnBTNewFolder = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// fsnTXFileName
 			// 
-			this->fsnTXFileName->Location = System::Drawing::Point(12, 12);
+			this->fsnTXFileName->Location = System::Drawing::Point(12, 43);
 			this->fsnTXFileName->Name = L"fsnTXFileName";
 			this->fsnTXFileName->Size = System::Drawing::Size(346, 23);
 			this->fsnTXFileName->TabIndex = 0;
 			// 
 			// fsnBTOK
 			// 
-			this->fsnBTOK->Location = System::Drawing::Point(283, 41);
+			this->fsnBTOK->Location = System::Drawing::Point(283, 74);
 			this->fsnBTOK->Name = L"fsnBTOK";
 			this->fsnBTOK->Size = System::Drawing::Size(75, 30);
 			this->fsnBTOK->TabIndex = 1;
@@ -114,7 +126,7 @@ namespace x264guiEx {
 			// fsnBTCancel
 			// 
 			this->fsnBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fsnBTCancel->Location = System::Drawing::Point(190, 41);
+			this->fsnBTCancel->Location = System::Drawing::Point(190, 74);
 			this->fsnBTCancel->Name = L"fsnBTCancel";
 			this->fsnBTCancel->Size = System::Drawing::Size(75, 30);
 			this->fsnBTCancel->TabIndex = 2;
@@ -122,11 +134,33 @@ namespace x264guiEx {
 			this->fsnBTCancel->UseVisualStyleBackColor = true;
 			this->fsnBTCancel->Click += gcnew System::EventHandler(this, &frmSaveNewStg::fsnBTCancel_Click);
 			// 
+			// fsnCXFolderBrowser
+			// 
+			this->fsnCXFolderBrowser->FormattingEnabled = true;
+			this->fsnCXFolderBrowser->Location = System::Drawing::Point(12, 12);
+			this->fsnCXFolderBrowser->Name = L"fsnCXFolderBrowser";
+			this->fsnCXFolderBrowser->Size = System::Drawing::Size(241, 23);
+			this->fsnCXFolderBrowser->TabIndex = 3;
+			// 
+			// fsnBTNewFolder
+			// 
+			this->fsnBTNewFolder->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fsnBTNewFolder->Location = System::Drawing::Point(259, 12);
+			this->fsnBTNewFolder->Name = L"fsnBTNewFolder";
+			this->fsnBTNewFolder->Size = System::Drawing::Size(99, 23);
+			this->fsnBTNewFolder->TabIndex = 4;
+			this->fsnBTNewFolder->Text = L"新しいフォルダ...";
+			this->fsnBTNewFolder->UseVisualStyleBackColor = true;
+			this->fsnBTNewFolder->Click += gcnew System::EventHandler(this, &frmSaveNewStg::fsnBTNewFolder_Click);
+			// 
 			// frmSaveNewStg
 			// 
 			this->AcceptButton = this->fsnBTOK;
 			this->CancelButton = this->fsnBTCancel;
-			this->ClientSize = System::Drawing::Size(369, 78);
+			this->ClientSize = System::Drawing::Size(369, 112);
+			this->Controls->Add(this->fsnBTNewFolder);
+			this->Controls->Add(this->fsnCXFolderBrowser);
 			this->Controls->Add(this->fsnBTCancel);
 			this->Controls->Add(this->fsnBTOK);
 			this->Controls->Add(this->fsnTXFileName);
@@ -167,6 +201,17 @@ namespace x264guiEx {
 			exstg.load_encode_stg();
 			if (char_has_length(exstg.s_local.conf_font.name))
 				SetFontFamilyToForm(this, gcnew FontFamily(String(exstg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
+		}
+	private:
+		System::Void fsnBTNewFolder_Click(System::Object^  sender, System::EventArgs^  e) {
+			frmNewFolderName^ fnf = gcnew frmNewFolderName();
+			fnf->ShowDialog();
+			String^ NewDir = Path::Combine(fsnCXFolderBrowser->GetSelectedFolder(), fnf->NewFolder);
+			if (NewDir == nullptr || NewDir->Length == 0 || Directory::Exists(NewDir))
+				return;
+			Directory::CreateDirectory(NewDir);
+			fsnCXFolderBrowser->ReLoad();
+			fsnCXFolderBrowser->SelectDirectory(NewDir);
 		}
 };
 }

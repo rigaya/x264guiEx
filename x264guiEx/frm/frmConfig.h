@@ -71,8 +71,6 @@ namespace x264guiEx {
 			CloseBitrateCalc();
 			if (cnf_fcgTemp) free(cnf_fcgTemp); cnf_fcgTemp = NULL;
 			if (cnf_stgSelected) free(cnf_stgSelected); cnf_stgSelected = NULL;
-			if (stgControl != nullptr)
-				delete stgControl;
 			if (qualityTimer != nullptr)
 				delete qualityTimer;
 		}
@@ -4179,13 +4177,13 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		const SYSTEM_DATA *sys_dat;
 		CONF_X264GUIEX *conf;
 		LocalSettings LocalStg;
-		stgFileController^ stgControl;
 		TBValueBitrateConvert TBBConvert;
 		System::Threading::Timer^ qualityTimer;
 		int timerChangeValue;
 		bool CurrentPipeEnabled;
-		int stgCheckedIndex;
 		bool stgChanged;
+		String^ CurrentStgDir;
+		ToolStripMenuItem^ CheckedStgMenuItem;
 		CONF_X264GUIEX *cnf_stgSelected;
 		String^ lastQualityStr;
 	private:
@@ -4198,7 +4196,8 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		System::Void setAudioDisplay();
 		System::Void AudioEncodeModeChanged();
 		System::Void InitStgFileList();
-		System::Void RebuildStgFileDropDown();
+		System::Void RebuildStgFileDropDown(String^ stgDir);
+		System::Void RebuildStgFileDropDown(ToolStripDropDownItem^ TS, String^ dir);
 		System::Void SetLocalStg();
 		System::Void LoadLocalStg();
 		System::Void SaveLocalStg();
@@ -4212,7 +4211,7 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		System::Void SetToolStripEvents(ToolStrip^ TS, System::Windows::Forms::MouseEventHandler^ _event);
 		System::Void SetAllCheckChangedEvents(Control ^top);
 		System::Void SaveToStgFile(String^ stgName);
-		System::Void DeleteStgFile(int index);
+		System::Void DeleteStgFile(ToolStripMenuItem^ mItem);
 		System::Boolean EnableSettingsNoteChange(bool Enable);
 		System::Void fcgTSLSettingsNotes_DoubleClick(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSTSettingsNotes_Leave(System::Object^  sender, System::EventArgs^  e);
@@ -4225,7 +4224,10 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		System::Void fcgTSBSaveNew_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBDelete_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSSettings_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e);
-		System::Void CheckTSDropDownItem(int index);
+		System::Void UncheckAllDropDownItem(ToolStripItem^ mItem);
+		ToolStripMenuItem^ fcgTSSettingsSearchItem(String^ stgPath, ToolStripItem^ mItem);
+		ToolStripMenuItem^ fcgTSSettingsSearchItem(String^ stgPath);
+		System::Void CheckTSSettingsDropDownItem(ToolStripMenuItem^ mItem);
 		System::Void CheckTSItemsEnabled(CONF_X264GUIEX *current_conf);
 		System::Void SetHelpToolTips();
 		System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
@@ -4242,7 +4244,6 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		System::Void fcgCBAFS_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCXAudioEncoder_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCXAudioEncMode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
-		System::Boolean CheckstgIndexValid(int index);
 		System::Void fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTXQuality_TextChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTXQuality_Validating(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e);
@@ -4618,9 +4619,8 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 		}
 	private:
 		System::Void ChangePresetNameDisplay(bool changed) {
-			ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgTSSettings->DropDownItems[stgCheckedIndex]);
-			if (TSItem != nullptr) {
-				fcgTSSettings->Text = (changed) ? L"[" + TSItem->Text + L"]*" : TSItem->Text;
+			if (CheckedStgMenuItem != nullptr) {
+				fcgTSSettings->Text = (changed) ? L"[" + CheckedStgMenuItem->Text + L"]*" : CheckedStgMenuItem->Text;
 				fcgTSBSave->Enabled = changed;
 			}
 		}
@@ -4633,12 +4633,12 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 			if (!rebuild.oth.disable_guicmd)
 				build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.x264, &rebuild.vid, FALSE);
 			fcgTXCmd->Text = String(re_cmd).ToString();
-			if (CheckstgIndexValid(stgCheckedIndex))
+			if (CheckedStgMenuItem != nullptr)
 				ChangePresetNameDisplay(memcmp(&rebuild, cnf_stgSelected, sizeof(CONF_X264GUIEX)) != 0);
 		}
 	private:
 		System::Void CheckOtherChanges(System::Object^  sender, System::EventArgs^  e) {
-			if (!CheckstgIndexValid(stgCheckedIndex))
+			if (CheckedStgMenuItem == nullptr)
 				return;
 			CONF_X264GUIEX check_change;
 			init_CONF_X264GUIEX(&check_change, fcgCBUse10bit->Checked);

@@ -95,90 +95,90 @@ namespace x264guiEx {
 			return 0;
 		};
 	};
-
-	ref class stgFileController
-	{
-		List<String^>^ stgPath; //stgファイルのフルパスリスト
-		List<String^>^ stgName; //stgファイル名(拡張子なし)のリスト
-		String^ stgDir; //stgファイルのディレクトリ
-
-		System::Boolean CheckStgDir() //stgファイルのディレクトリが存在するか、なければ作成
-		{
-			if (stgDir == nullptr)
-				return false;
-			if (!Directory::Exists(stgDir)) {
-				try {
-					Directory::CreateDirectory(stgDir);
-				} catch (...) {
-					return false;
-				}
-			}
-			return true;
-		}
-		System::Void Clear() //リストをクリア
-		{
-			stgPath->Clear();
-			stgName->Clear();
-		}
-
-	public:
-		stgFileController(String^ _stgDir) 
-		{
-			stgDir = _stgDir;
-			stgPath = gcnew List<String^>();
-			stgName = gcnew List<String^>();
-		}
-		~stgFileController() 
-		{
-			delete stgPath;
-			delete stgName;
-		}
-		System::Void ReLoad() 
-		{
-			Clear();
-			if (CheckStgDir()) {
-				stgPath->AddRange(Directory::GetFiles(stgDir, L"*.stg", SearchOption::AllDirectories));
-				for (int i = 0; i < stgPath->Count; i++)
-					stgName->Add(Path::GetFileNameWithoutExtension(stgPath[i]));
-			}
-		}
-		System::Void ReLoad(String^ _stgDir) 
-		{
-			stgDir = _stgDir;
-			ReLoad();
-		}
-		List<String^>^ getStgNameList() //stgファイル名(拡張子なし)のリストを取得
-		{
-			return stgName;
-		}
-		String^ getStgFullPath(int index) //stgフルパスを返す
-		{
-			return (index >= 0 && index < stgPath->Count) ? stgPath[index] : L"";
-		}
-		int AddStgToList(String^ _stgName) //ファイル名を追加、すでに存在するファイル名ならそのインデックスを返す
-		{
-			//_stgNameには拡張子なしのものを渡す
-			//すでに存在するか確認
-			for (int i = 0; i < stgName->Count; i++)
-				if (String::Compare(stgName[i], _stgName, true) == 0)
-					return i;
-			stgPath->Add(Path::Combine(stgDir, _stgName + L".stg"));
-			stgName->Add(_stgName);
-			return stgName->Count - 1;
-		}
-		void DeleteFromList(int index) //インデックスのファイルを削除
-		{
-			stgPath->RemoveAt(index);
-			stgName->RemoveAt(index);
-		}
-	};
+//
+//	ref class stgFileController
+//	{
+//		List<String^>^ stgPath; //stgファイルのフルパスリスト
+//		List<String^>^ stgName; //stgファイル名(拡張子なし)のリスト
+//		String^ stgDir; //stgファイルのディレクトリ
+//
+//		System::Boolean CheckStgDir() //stgファイルのディレクトリが存在するか、なければ作成
+//		{
+//			if (stgDir == nullptr)
+//				return false;
+//			if (!Directory::Exists(stgDir)) {
+//				try {
+//					Directory::CreateDirectory(stgDir);
+//				} catch (...) {
+//					return false;
+//				}
+//			}
+//			return true;
+//		}
+//		System::Void Clear() //リストをクリア
+//		{
+//			stgPath->Clear();
+//			stgName->Clear();
+//		}
+//
+//	public:
+//		stgFileController(String^ _stgDir) 
+//		{
+//			stgDir = _stgDir;
+//			stgPath = gcnew List<String^>();
+//			stgName = gcnew List<String^>();
+//		}
+//		~stgFileController() 
+//		{
+//			delete stgPath;
+//			delete stgName;
+//		}
+//		System::Void ReLoad() 
+//		{
+//			Clear();
+//			if (CheckStgDir()) {
+//				stgPath->AddRange(Directory::GetFiles(stgDir, L"*.stg", SearchOption::AllDirectories));
+//				for (int i = 0; i < stgPath->Count; i++)
+//					stgName->Add(Path::GetFileNameWithoutExtension(stgPath[i]));
+//			}
+//		}
+//		System::Void ReLoad(String^ _stgDir) 
+//		{
+//			stgDir = _stgDir;
+//			ReLoad();
+//		}
+//		List<String^>^ getStgNameList() //stgファイル名(拡張子なし)のリストを取得
+//		{
+//			return stgName;
+//		}
+//		String^ getStgFullPath(int index) //stgフルパスを返す
+//		{
+//			return (index >= 0 && index < stgPath->Count) ? stgPath[index] : L"";
+//		}
+//		int AddStgToList(String^ _stgName) //ファイル名を追加、すでに存在するファイル名ならそのインデックスを返す
+//		{
+//			//_stgNameには拡張子なしのものを渡す
+//			//すでに存在するか確認
+//			for (int i = 0; i < stgName->Count; i++)
+//				if (String::Compare(stgName[i], _stgName, true) == 0)
+//					return i;
+//			stgPath->Add(Path::Combine(stgDir, _stgName + L".stg"));
+//			stgName->Add(_stgName);
+//			return stgName->Count - 1;
+//		}
+//		void DeleteFromList(int index) //インデックスのファイルを削除
+//		{
+//			stgPath->RemoveAt(index);
+//			stgName->RemoveAt(index);
+//		}
+//	};
+	const int fcgTBQualityTimerLatency = 600;
+	const int fcgTBQualityTimerPeriod = 40;
+	const int fcgTXCmdfulloffset = 57;
+	const int fcgCXAudioEncModeSmallWidth = 189;
+	const int fcgCXAudioEncModeLargeWidth = 237;
 };
 
-const int fcgTBQualityTimerLatency = 600;
-const int fcgTBQualityTimerPeriod = 40;
-const int fcgTXCmdfulloffset = 57;
-const int fcgCXAudioEncModeSmallWidth = 189;
-const int fcgCXAudioEncModeLargeWidth = 237;
 
 //コンボボックスの表示名
 const WCHAR * const x264_encodemode_desc[] = {
