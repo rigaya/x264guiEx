@@ -197,7 +197,7 @@ void guiEx_settings::load_aud() {
 
 	s_aud_count = GetPrivateProfileInt(INI_SECTION_AUD, "count", 0, ini_fileName);
 
-	s_aud_mc.init(ini_filesize + s_aud_count * sizeof(AUDIO_SETTINGS));
+	s_aud_mc.init(ini_filesize + s_aud_count * (sizeof(AUDIO_SETTINGS) + 1024));
 	s_aud = (AUDIO_SETTINGS *)s_aud_mc.CutMem(s_aud_count * sizeof(AUDIO_SETTINGS));
 	for (i = 0; i < s_aud_count; i++) {
 		sprintf_s(key, sizeof(key), "audio_encoder_%d", i+1);
