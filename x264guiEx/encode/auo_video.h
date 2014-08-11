@@ -34,6 +34,6 @@ static const COLORFORMAT_DATA COLORFORMATS[] = {
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable);
 void close_afsvideo(PRM_ENC *pe);
 
-DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
+AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
 
 #endif //_AUO_VIDEO_H_

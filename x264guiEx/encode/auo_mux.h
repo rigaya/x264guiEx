@@ -15,6 +15,6 @@
 #include "auo_conf.h"
 #include "auo_system.h"
 
-DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat); //muxを実行
+AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat); //muxを実行
 
 #endif //_AUO_MUX_H_

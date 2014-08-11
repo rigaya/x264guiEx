@@ -139,7 +139,7 @@ BOOL func_exit()
 
 BOOL func_output( OUTPUT_INFO *oip ) 
 {
-	DWORD ret = AUO_RESULT_SUCCESS;
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	static const encode_task task[2][2] = { { video_output, audio_output }, { audio_output, video_output } };
 	PRM_ENC pe = { 0 };
 	const DWORD tm_start_enc = timeGetTime();

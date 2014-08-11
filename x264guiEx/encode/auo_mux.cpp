@@ -115,7 +115,7 @@ static DWORD check_mux_disk_space(const char *muxer_fullpath, const char *mux_tm
 }
 
 //muxする動画ファイルと音声ファイルからmux後ファイルの推定サイズを取得する
-static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, UINT64 *_expected_filesize) {
+static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, UINT64 *_expected_filesize) {
 	*_expected_filesize = 0;
 	//動画ファイルのサイズ
 	UINT64 vid_size = 0;
@@ -144,7 +144,7 @@ static DWORD get_expected_filesize(const PRM_ENC *pe, BOOL enable_aud_mux, UINT6
 
 //mux後ファイルが存在する他とファイルサイズをチェック
 //大丈夫そうならTRUEを返す
-static DWORD check_muxout_filesize(const char *muxout, UINT64 expected_filesize) {
+static AUO_RESULT check_muxout_filesize(const char *muxout, UINT64 expected_filesize) {
 	const double FILE_SIZE_THRESHOLD_MULTI = 0.95;
 	UINT64 muxout_filesize = 0;
 	if (!PathFileExists(muxout)) {
@@ -196,7 +196,7 @@ static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 	del_arg(ptr, "-add", TRUE);
 }
 
-static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
+static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, UINT64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
 	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0;
@@ -210,7 +210,7 @@ static DWORD build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	//タイムコード用
 	replace(cmd, nSize, "%{tc_cmd}",  tcstr);
 	//一時ファイル(空き容量等)のチェックを行う
-	DWORD mux_check = check_mux_disk_space(mux_stg->fullpath, sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe, expected_filesize);
+	AUO_RESULT mux_check = check_mux_disk_space(mux_stg, sys_dat->exstg->s_local.custom_mp4box_tmp_dir, conf, pe, expected_filesize);
 	switch (mux_check) {
 		case AUO_RESULT_SUCCESS:
 			if (conf->mux.mp4_temp_dir) {
@@ -288,8 +288,8 @@ static void change_mux_vid_filename(const char *muxout, const PRM_ENC *pe) {
 	rename(muxout, pe->temp_filename);
 }
 
-DWORD mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//muxの必要がなければ終了
 	if (pe->muxer_to_be_used == MUXER_DISABLED)
 		return ret;

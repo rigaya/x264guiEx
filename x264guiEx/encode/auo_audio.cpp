@@ -140,11 +140,11 @@ static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_m
 	set_window_title(mes, progress_mode);
 }
 
-static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8bit, int bufsize, 
+static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8bit, int bufsize, 
 						PROCESS_INFORMATION *pi_aud, const char *auddispname, char *audargs, 
 						const char *auddir, DWORD encoder_priority) 
 {
-	DWORD ret = AUO_RESULT_SUCCESS;
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
 	BYTE *buf8bit = NULL;
 	FILE *f_out = NULL;
@@ -217,8 +217,8 @@ static DWORD wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8
 	return ret;
 }
 
-DWORD audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//音声エンコードの必要がなければ終了
 	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
 		return ret;

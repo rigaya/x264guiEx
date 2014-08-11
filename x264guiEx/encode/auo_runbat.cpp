@@ -47,14 +47,14 @@ static void bat_replace(char *cmd, size_t nSize, const char *savefile, const PRM
 	replace(cmd, nSize, "%{chap_apple}", chap_apple);
 }
 
-DWORD run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	if (!conf->oth.run_bat)
 		return AUO_RESULT_SUCCESS;
 
 	if (!PathFileExists(conf->oth.batfile)) {
 		warning_no_batfile(conf->oth.batfile); return AUO_RESULT_ERROR;
 	}
-	DWORD ret = AUO_RESULT_SUCCESS;
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char bat_tmp[MAX_PATH_LEN];
 	apply_appendix(bat_tmp, sizeof(bat_tmp), conf->oth.batfile, "_tmp.bat");
 

@@ -103,7 +103,7 @@ void close_afsvideo(PRM_ENC *pe) {
 	pe->afs_init = FALSE;
 }
 
-static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
 	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
@@ -121,8 +121,8 @@ static DWORD check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 	return ret;
 }
 
-static DWORD tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PRM_ENC *pe) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PRM_ENC *pe) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char auotcfile[MAX_PATH_LEN];
 	FILE *tcfile = NULL;
 
@@ -151,8 +151,8 @@ static DWORD tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PR
 }
 
 //Aviutlのキーフレーム検出からqpfile作成
-static DWORD check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char auoqpfile[MAX_PATH_LEN] = { 0 };
 	DWORD tm = 0, tm_prev = 0;
 	const char *mes_head = "Aviutl キーフレーム検出中…";
@@ -300,8 +300,8 @@ static void check_x264_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) 
 	SetPriorityClass(h_x264, priority);
 }
 
-static DWORD x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
 	PROCESS_INFORMATION pi_x264 = { 0 };
 
@@ -481,7 +481,7 @@ static void set_window_title_x264(PRM_ENC *pe) {
 	set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
-static DWORD check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	if (!conf->x264.use_auto_npass || !conf->vid.amp_check)
 		return AUO_RESULT_SUCCESS;
 	//音声ファイルサイズ取得
@@ -543,8 +543,8 @@ static DWORD check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	return AUO_RESULT_SUCCESS;
 }
 
-DWORD video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//動画エンコードの必要がなければ終了
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return ret;

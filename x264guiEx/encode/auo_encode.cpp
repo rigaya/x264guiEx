@@ -140,7 +140,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	return TRUE;
 }
 
-DWORD move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret) {
+AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret) {
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
 		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
@@ -214,8 +214,8 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 		return MUXER_DISABLED;
 }
 
-DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	switch (sys_dat->exstg->s_log.auto_save_log_mode) {
 		case AUTO_SAVE_LOG_CUSTOM:
 			char log_file_dir[MAX_PATH_LEN];
@@ -237,8 +237,8 @@ DWORD getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const
 //tc_filenameのタイムコードを分析して動画の長さを得て、
 //duration(秒)にセットする
 //fpsにはAviutlからの値を与える(参考として使う)
-static DWORD get_duration_from_timecode(double *duration, const char *tc_filename, double fps) {
-	DWORD ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT get_duration_from_timecode(double *duration, const char *tc_filename, double fps) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	FILE *fp = NULL;
 	*duration = 0.0;
 	if (!(NULL == fopen_s(&fp, tc_filename, "r") && fp)) {
@@ -302,7 +302,7 @@ double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
 	return base_bitrate * clamp(1.0 - margin_multi / sqrt(base_bitrate / 100.0), 0.8, 1.0);
 }
 
-static DWORD amp_move_old_file(const char *muxout, const char *savefile) {
+static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
 	if (!PathFileExists(muxout))
 		return AUO_RESULT_ERROR;
 	char filename[MAX_PATH_LEN];
@@ -318,7 +318,7 @@ static DWORD amp_move_old_file(const char *muxout, const char *savefile) {
 //AUO_RESULT_SUCCESS  … チェック完了
 //AUO_RESULT_ERROR    … チェックできない
 //AUO_REESULT_WARNING … 再エンコの必要あり
-DWORD amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
+AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	if (!conf->x264.use_auto_npass || !conf->vid.amp_check)
 		return AUO_RESULT_SUCCESS;
 	//チェックするファイル名を取得

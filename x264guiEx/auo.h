@@ -43,6 +43,7 @@ enum {
 	AUO_RESULT_ABORT      = 0x0002,
 	AUO_RESULT_WARNING    = 0x0004,
 };
+typedef DWORD AUO_RESULT;
 
 typedef struct {
 	WCHAR *text;
