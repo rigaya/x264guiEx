@@ -149,7 +149,7 @@ guiEx_settings::~guiEx_settings() {
 
 BOOL guiEx_settings::check_inifile() {
 	BOOL ret = (INI_VER == GetPrivateProfileInt(INI_SECTION_MAIN, "ini_ver", 0, ini_fileName));
-	if (ret && !GetFileSizeInt(ini_fileName, &ini_filesize))
+	if (ret && !GetFileSizeDWORD(ini_fileName, &ini_filesize))
 		ret = FALSE;
 	return ret;
 }
