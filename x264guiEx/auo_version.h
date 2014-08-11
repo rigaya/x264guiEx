@@ -10,10 +10,32 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
+#define AUO_VERSION      1.34
+#define AUO_VERSION_STR  "1.34"
 #define AUO_NAME         "x264guiEx.auo"
 #define AUO_FULL_NAME    "拡張 x264 出力(GUI) Ex"
-#define AUO_VERSION_NAME "拡張 x264 出力(GUI) Ex 1.33"
-#define AUO_VERSION_INFO "拡張 x264 出力(GUI) Ex (x264guiEx) 1.33 by rigaya"
+#define AUO_VERSION_NAME "拡張 x264 出力(GUI) Ex "AUO_VERSION_STR
+#define AUO_VERSION_INFO "拡張 x264 出力(GUI) Ex (x264guiEx) "AUO_VERSION_STR" by rigaya"
 #define AUO_EXT_FILTER   "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
+
+#ifdef DEBUG
+#define VER_DEBUG   VS_FF_DEBUG
+#define VER_PRIVATE VS_FF_PRIVATEBUILD
+#else
+#define VER_DEBUG   0
+#define VER_PRIVATE 0
+#endif
+
+#define VER_STR_COMMENTS         AUO_FULL_NAME
+#define VER_STR_COMPANYNAME      ""
+#define VER_STR_FILEDESCRIPTION  AUO_FULL_NAME
+#define VER_FILEVERSION          AUO_VERSION
+#define VER_STR_FILEVERSION      AUO_VERSION_STR
+#define VER_STR_INTERNALNAME     AUO_FULL_NAME
+#define VER_STR_ORIGINALFILENAME AUO_NAME
+#define VER_STR_LEGALCOPYRIGHT   "拡張 x264 出力(GUI) Ex by rigaya"
+#define VER_STR_PRODUCTNAME      "x264guiEx"
+#define VER_PRODUCTVERSION       VER_FILEVERSION
+#define VER_STR_PRODUCTVERSION   VER_STR_FILEVERSION
 
 #endif //_AUO_VERSION_H_
