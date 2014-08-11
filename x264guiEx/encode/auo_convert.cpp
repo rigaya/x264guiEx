@@ -121,10 +121,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  SSE2,                 convert_yc48_to_yuv444_10bit_full_sse2 },
 	{ CF_YC48, OUT_CSP_YUV444, BT601_, BIT10, A, FULL,  1,  NONE,                 convert_yc48_to_yuv444_10bit_full },
 
-	//RGB Sorting
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSSE3,                sort_to_rgb_ssse3 },
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSE2,                 sort_to_rgb_sse2 },
-	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  NONE,                 sort_to_rgb },
+	//Copy RGB
+	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  SSE2,                 copy_rgb_sse2 },
+	{ CF_RGB,  OUT_CSP_RGB,    _ALL__, BIT_8, A, _ALL,  1,  NONE,                 copy_rgb },
 
 	//YUY2 -> nv12(8bit)
 #if (_MSC_VER >= 1600)
@@ -232,7 +231,7 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	build_simd_info(func_info->SIMD, simd_buf, sizeof(simd_buf));
 
 	if (func_info->output_csp == OUT_CSP_RGB) {
-		write_log_auo_line_fmt(LOG_INFO, "Sorting RGB%s", simd_buf);
+		write_log_auo_line_fmt(LOG_INFO, "Copying RGB%s", simd_buf);
 		return;
 	}
 

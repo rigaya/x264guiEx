@@ -79,8 +79,8 @@ void convert_audio_16to8_sse2(BYTE *dst, short *src, int n) {
 		sh++;
 	}
 }
-//AviutlのRGBをx264用に並び替える
-void sort_to_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+
+void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	BYTE *ptr = pixel_data->data[0];
 	BYTE *dst, *src;
 	int y0 = 0, y1 = height - 1;
@@ -88,51 +88,29 @@ void sort_to_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, cons
 	for (; y0 < height; y0++, y1--) {
 		dst = ptr          + y1*width*3;
 		src = (BYTE*)frame + y0*step;
-		for (int x = 0; x < width; x++) {
-			dst[x*3 + 0] = src[x*3 + 0];
-			dst[x*3 + 2] = src[x*3 + 1];
-			dst[x*3 + 1] = src[x*3 + 2];
-		}
+		for (int x = 0; x < width * 3; x++)
+			dst[x] = src[x];
 	}
 }
-void sort_to_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	BYTE *ptr = pixel_data->data[0];
 	BYTE *dst, *src, *src_fin;
-	__m128i x0, x1;
-	__m128i xMask = _mm_set_epi8( 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0);
+	__m128i x0, x1, x2, x3;
 	int y0 = 0, y1 = height - 1;
 	const int step = (width*3 + 3) & ~3;
 	for (; y0 < height; y0++, y1--) {
 		dst = ptr          + y0*width*3;
 		src = (BYTE*)frame + y1*step;
 		src_fin = src + width*3;
-		for (; src < src_fin; src += 15, dst += 15) {
-			x0    = _mm_loadu_si128((const __m128i *)src);
-			x1    = _mm_srli_si128(x0, 1);
-			x0    = select_by_mask(x0, x1, xMask);
-			x1    = _mm_slli_si128(x1, 2);
-			xMask = _mm_slli_si128(xMask, 1);
-			x0    = select_by_mask(x0, x1, xMask);
-			xMask = _mm_srli_si128(xMask, 1);
-			_mm_storeu_si128((__m128i *)dst, x0);
-		}
-	}
-}
-void sort_to_rgb_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
-	static const __m128i xC_SHUF = _mm_set_epi8(16, 13, 14, 12, 10, 11,  9,  7,  8,  6,  4,  5,  3,  1,  2,  0);
-	BYTE *ptr = pixel_data->data[0];
-	BYTE *dst, *src, *src_fin;
-	__m128i x0;
-	int y0 = 0, y1 = height - 1;
-	const int step = (width*3 + 3) & ~3;
-	for (; y0 < height; y0++, y1--) {
-		dst = ptr          + y0*width*3;
-		src = (BYTE*)frame + y1*step;
-		src_fin = src + width*3;
-		for (; src < src_fin; src += 15, dst += 15) {
-			x0 = _mm_loadu_si128((const __m128i *)src);
-			x0 = _mm_shuffle_epi8(x0, xC_SHUF);
-			_mm_storeu_si128((__m128i *)dst, x0);
+		for (; src < src_fin; src += 64, dst += 64) {
+			x0    = _mm_loadu_si128((const __m128i *)(src +  0));
+			x1    = _mm_loadu_si128((const __m128i *)(src + 16));
+			x2    = _mm_loadu_si128((const __m128i *)(src + 32));
+			x3    = _mm_loadu_si128((const __m128i *)(src + 48));
+			_mm_storeu_si128((__m128i *)(dst +  0), x0);
+			_mm_storeu_si128((__m128i *)(dst + 16), x1);
+			_mm_storeu_si128((__m128i *)(dst + 32), x2);
+			_mm_storeu_si128((__m128i *)(dst + 48), x3);
 		}
 	}
 }
