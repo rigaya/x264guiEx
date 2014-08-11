@@ -8,6 +8,7 @@
 //  -----------------------------------------------------------------------------------------
 
 #include <Windows.h>
+#include <Math.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,6 +30,8 @@ static const char * const CONF_APPENDIX = ".conf";
 
 static const char * const STG_DEFAULT_DIRECTORY_NAME = "x264guiEx_stg";
 
+//----    セクション名    ---------------------------------------------------
+
 static const char * const INI_SECTION_MAIN         = "X264GUIEX";
 static const char * const INI_SECTION_APPENDIX     = "APPENDIX";
 static const char * const INI_SECTION_AUD          = "AUDIO";
@@ -44,18 +47,44 @@ static const char * const INI_SECTION_MODE         = "MODE_";
 static const char * const INI_SECTION_FBC          = "BITRATE_CALC";
 static const char * const INI_SECTION_AMP          = "AUTO_MULTI_PASS";
 
-static const int          DEFAULT_AMP_RETRY_LIMIT = 3;
-static const char * const DEFAULT_AMP_MARGIN      = "0.100";
+//----    デフォルト値    ---------------------------------------------------
 
-static double GetPrivateProfileDouble(const char *section, const char *keyname, const char *defaultString, const char *ini_file) {
+static const BOOL   DEFAULT_LARGE_CMD_BOX         = 0;
+static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
+static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
+static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
+static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
+static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
+static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
+static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
+static const double DEFAULT_AMP_MARGIN            = 0.100;
+
+static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
+static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
+static const BOOL   DEFAULT_LOG_AUTO_SAVE        = 0;
+static const int    DEFAULT_LOG_AUTO_SAVE_MODE   = 0;
+static const BOOL   DEFAULT_LOG_SHOW_STATUS_BAR  = 1;
+static const BOOL   DEFAULT_LOG_TASKBAR_PROGRESS = 1;
+static const BOOL   DEFAULT_LOG_SAVE_SIZE        = 0;
+static const int    DEFAULT_LOG_WIDTH            = 0;
+static const int    DEFAULT_LOG_HEIGHT           = 0;
+
+static const BOOL   DEFAULT_FBC_CALC_BITRATE         = 1;
+static const BOOL   DEFAULT_FBC_CALC_TIME_FROM_FRAME = 0;
+static const int    DEFAULT_FBC_LAST_FRAME_NUM       = 0;
+static const double DEFAULT_FBC_LAST_FPS             = 29.970;
+static const int    DEFAULT_FBC_LAST_TIME_IN_SEC     = 0;
+static const double DEFAULT_FBC_INITIAL_SIZE         = 39.8;
+
+static inline double GetPrivateProfileDouble(const char *section, const char *keyname, double defaultValue, const char *ini_file) {
 	char buf[256], *eptr;
 	double d;
-	GetPrivateProfileString(section, keyname, defaultString, buf, sizeof(buf), ini_file);
+	char str_default[64];
+	sprintf_s(str_default, sizeof(str_default), "%f", defaultValue);
+	GetPrivateProfileString(section, keyname, str_default, buf, sizeof(buf), ini_file);
 	d = strtod(buf, &eptr);
 	if (*eptr == '\0') return d;
-	d = strtod(defaultString, &eptr);
-	if (*eptr == '\0') return d;
-	d = 0.0; return d;
+	return defaultValue;
 }
 
 static inline void GetFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
@@ -65,7 +94,7 @@ static inline void GetFontInfo(const char *section, const char *keyname_base, AU
 	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_name");
 	GetPrivateProfileString(section, key, "", font_info->name, sizeof(font_info->name), ini_file);
 	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_size");
-	font_info->size = GetPrivateProfileDouble(section, key, "0.0", ini_file);
+	font_info->size = GetPrivateProfileDouble(section, key, 0.0, ini_file);
 	strcpy_s(key + keyname_base_len, sizeof(key) - keyname_base_len, "_style");
 	font_info->style = GetPrivateProfileInt(section, key, 0, ini_file);
 }
@@ -76,10 +105,20 @@ static inline void WritePrivateProfileInt(const char *section, const char *keyna
 	WritePrivateProfileString(section, keyname, tmp, ini_file);
 }
 
+static inline void WritePrivateProfileIntWithDefault(const char *section, const char *keyname, int value, int _default, const char *ini_file) {
+	if (value != (int)GetPrivateProfileInt(section, keyname, _default, ini_file))
+		WritePrivateProfileInt(section, keyname, value, ini_file);
+}
+
 static inline void WritePrivateProfileDouble(const char *section, const char *keyname, double value, const char *ini_file) {
 	char tmp[64];
 	sprintf_s(tmp, sizeof(tmp), "%lf", value);
 	WritePrivateProfileString(section, keyname, tmp, ini_file);
+}
+
+static inline void WritePrivateProfileDoubleWithDefault(const char *section, const char *keyname, double value, double _default, const char *ini_file) {
+	if (abs(value - GetPrivateProfileDouble(section, keyname, _default, ini_file)) > 1.0e-6)
+		WritePrivateProfileDouble(section, keyname, value, ini_file);
 }
 
 static inline void WriteFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
@@ -413,7 +452,7 @@ void guiEx_settings::load_x264() {
 	s_x264.profile_vbv_multi = (float *)s_x264_mc.CutMem(sizeof(float) * s_x264.profile_count);
 	for (int i = 0; i < s_x264.profile_count; i++) {
 		sprintf_s(key, sizeof(key), "vbv_multi_%s", s_x264.profile.name[i]);
-		s_x264.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, "1.0", ini_fileName);
+		s_x264.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, 1.0, ini_fileName);
 	}
 
 	s_x264_refresh = TRUE;
@@ -431,17 +470,17 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox              = GetPrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",                  0,  conf_fileName);
-	s_local.auto_afs_disable          = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",              0,  conf_fileName);
-	s_local.auto_del_stats            = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",                0,  conf_fileName);
-	s_local.auto_del_chap             = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",                 1,  conf_fileName);
-	s_local.disable_tooltip_help      = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",          0,  conf_fileName);
-	s_local.disable_visual_styles     = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",         0,  conf_fileName);
-	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",            0,  conf_fileName);
+	s_local.large_cmdbox              = GetPrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	s_local.auto_afs_disable          = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	s_local.auto_del_stats            = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	s_local.auto_del_chap             = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	s_local.disable_tooltip_help      = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	s_local.disable_visual_styles     = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
 
-	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,  conf_fileName);
-	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN, conf_fileName);
-	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);
+	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
+	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
+	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);   
 	
 	GetFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 
@@ -464,16 +503,16 @@ void guiEx_settings::load_local() {
 
 void guiEx_settings::load_log_win() {
 	clear_log_win();
-	s_log.minimized          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",  0, conf_fileName);
-	s_log.transparent        = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",      1, conf_fileName);
-	s_log.auto_save_log      = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",        0, conf_fileName);
-	s_log.auto_save_log_mode = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",   0, conf_fileName);
+	s_log.minimized          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",  DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
+	s_log.transparent        = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",      DEFAULT_LOG_TRANSPARENT,      conf_fileName);
+	s_log.auto_save_log      = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",        DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
+	s_log.auto_save_log_mode = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",   DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path", "", s_log.auto_save_log_path, sizeof(s_log.auto_save_log_path), conf_fileName);
-	s_log.show_status_bar    = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",  1, conf_fileName);
-	s_log.taskbar_progress   = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress", 1, conf_fileName);
-	s_log.save_log_size      = GetPrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",        0, conf_fileName);
-	s_log.log_width          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_width",            0, conf_fileName);
-	s_log.log_height         = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_height",           0, conf_fileName);
+	s_log.show_status_bar    = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",  DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
+	s_log.taskbar_progress   = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress", DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
+	s_log.save_log_size      = GetPrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",        DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
+	s_log.log_width          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_width",            DEFAULT_LOG_WIDTH,            conf_fileName);
+	s_log.log_height         = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_height",           DEFAULT_LOG_HEIGHT,           conf_fileName);
 	GetFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
 }
 
@@ -488,23 +527,21 @@ void guiEx_settings::load_append() {
 
 void guiEx_settings::load_fbc() {
 	clear_fbc();
-	s_fbc.calc_bitrate = GetPrivateProfileInt(   INI_SECTION_FBC, "calc_bitrate",       1, conf_fileName);
-	s_fbc.initial_size = GetPrivateProfileDouble(INI_SECTION_FBC, "initial_size", "39.80", conf_fileName);
+	s_fbc.calc_bitrate         = GetPrivateProfileInt(   INI_SECTION_FBC, "calc_bitrate",         DEFAULT_FBC_CALC_BITRATE,         conf_fileName);
+	s_fbc.initial_size         = GetPrivateProfileDouble(INI_SECTION_FBC, "initial_size",         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
 }
 
 void guiEx_settings::save_local() {
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",              s_local.large_cmdbox,              conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",          s_local.auto_afs_disable,          conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",            s_local.auto_del_stats,            conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",             s_local.auto_del_chap,             conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",      s_local.disable_tooltip_help,      conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",     s_local.disable_visual_styles,     conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",        s_local.enable_stg_esc_key,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "large_cmdbox",              s_local.large_cmdbox,             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_afs_disable",          s_local.auto_afs_disable,         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
 
-	if (s_local.amp_retry_limit != DEFAULT_AMP_RETRY_LIMIT)
-		WritePrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,           conf_fileName);
-	if (s_local.amp_bitrate_margin_multi != strtod(DEFAULT_AMP_MARGIN, NULL))
-		WritePrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
+	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);
 
 	WriteFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
 
@@ -547,22 +584,22 @@ void guiEx_settings::save_local() {
 }
 
 void guiEx_settings::save_log_win() {
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",   s_log.minimized,          conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",       s_log.transparent,        conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",         s_log.auto_save_log,      conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",    s_log.auto_save_log_mode, conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_start_minimized",   s_log.minimized,          DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_transparent",       s_log.transparent,        DEFAULT_LOG_TRANSPARENT,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_auto_save",         s_log.auto_save_log,      DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_auto_save_mode",    s_log.auto_save_log_mode, DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
 	WritePrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,    conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress,   conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",         s_log.save_log_size,      conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_width",             s_log.log_width,          conf_fileName);
-	WritePrivateProfileInt(   INI_SECTION_MAIN, "log_height",            s_log.log_height,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,    DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress,   DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "save_log_size",         s_log.save_log_size,      DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_width",             s_log.log_width,          DEFAULT_LOG_WIDTH,            conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_height",            s_log.log_height,         DEFAULT_LOG_HEIGHT,           conf_fileName);
 	WriteFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::save_fbc() {
-	WritePrivateProfileInt(   INI_SECTION_FBC, "calc_bitrate", s_fbc.calc_bitrate, conf_fileName);
-	WritePrivateProfileDouble(INI_SECTION_FBC, "initial_size", s_fbc.initial_size, conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_FBC, "calc_bitrate",         s_fbc.calc_bitrate,         DEFAULT_FBC_CALC_BITRATE,         conf_fileName);
+	WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "initial_size",         s_fbc.initial_size,         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
 }
 
 BOOL guiEx_settings::get_reset_s_x264_referesh() {
