@@ -283,9 +283,11 @@ static BOOL check_amp() {
 	if (!conf.x264.use_auto_npass)
 		return check;
 	if (conf.vid.amp_check & AMPLIMIT_BITRATE) {
-		if (conf.x264.bitrate > conf.vid.amp_limit_bitrate) {
-			check = FALSE; error_amp_bitrate_confliction();
-		} else if (conf.vid.amp_limit_bitrate <= 0.0)
+		//if (conf.x264.bitrate > conf.vid.amp_limit_bitrate) {
+		//	check = FALSE; error_amp_bitrate_confliction();
+		//} else if (conf.vid.amp_limit_bitrate <= 0.0)
+		//	conf.vid.amp_check &= ~AMPLIMIT_BITRATE; //フラグを折る
+		if (conf.vid.amp_limit_bitrate <= 0.0)
 			conf.vid.amp_check &= ~AMPLIMIT_BITRATE; //フラグを折る
 	}
 	if (conf.vid.amp_check & AMPLIMIT_FILE_SIZE) {
