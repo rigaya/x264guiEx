@@ -4461,16 +4461,16 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			ofd.FileName = ExeName;
 			ofd.Filter = MakeExeFilter(ExeName);
 			if (Directory::Exists(LocalStg.LastAppDir))
-				ofd.InitialDirectory = LocalStg.LastAppDir;
+				ofd.InitialDirectory = Path::GetFullPath(LocalStg.LastAppDir);
 			else if (File::Exists(TX->Text))
-				ofd.InitialDirectory = Path::GetDirectoryName(TX->Text);
+				ofd.InitialDirectory = Path::GetFullPath(Path::GetDirectoryName(TX->Text));
 			else
 				ofd.InitialDirectory = String(sys_dat->aviutl_dir).ToString();
 			bool ret = (ofd.ShowDialog() == Windows::Forms::DialogResult::OK);
 			if (ret) {
 				if (sys_dat->exstg->s_local.get_relative_path)
 					ofd.FileName = GetRelativePath(ofd.FileName, CurrentDir);
-				LocalStg.LastAppDir = Path::GetDirectoryName(ofd.FileName);
+				LocalStg.LastAppDir = Path::GetDirectoryName(Path::GetFullPath(ofd.FileName));
 				TX->Text = ofd.FileName;
 				TX->SelectionStart = TX->Text->Length;
 			}
