@@ -229,6 +229,8 @@ System::Boolean frmConfig::CheckLocalStg() {
 		if (!File::Exists(AudioEncoderPath) 
 			&& (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index 
 			    || !check_if_faw2aac_exists()) ) {
+			//音声実行ファイルがない かつ
+			//選択された音声がfawでない または fawであってもfaw2aacがない
 			if (!error) err += L"\n\n";
 			error = true;
 			err += L"指定された 音声エンコーダ は存在しません。\n [ " + AudioEncoderPath + L" ]\n";
@@ -244,6 +246,7 @@ System::Boolean frmConfig::CheckLocalStg() {
 				+ L"x264guiEx.ini を確認してください。\n";
 		} else if (!File::Exists(LocalStg.audEncPath[sys_dat->exstg->s_aud_faw_index])
 			       && !check_if_faw2aac_exists()) {
+			//fawの実行ファイルが存在しない かつ faw2aacも存在しない
 			if (!error) err += L"\n\n";
 			error = true;
 			err += L"FAWCheckが選択されましたが、FAW(fawcl)へのパスが正しく指定されていません。\n"
