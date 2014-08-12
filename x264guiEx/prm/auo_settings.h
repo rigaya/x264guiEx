@@ -160,7 +160,7 @@ typedef struct {
 	char *tmp_cmd;                //一時フォルダ指定用コマンドライン
 	int ex_count;                 //拡張オプションの数
 	MUXER_CMD_EX *ex_cmd;         //拡張オプション
-	int pre_mux;                  //muxerを実行する前に別のmuxerを実行する
+	int post_mux;                 //muxerを実行したあとに別のmuxerを実行する
 } MUXER_SETTINGS;
 
 typedef struct {

@@ -187,8 +187,8 @@ static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, UINT64 expected_filesize) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
-	BOOL enable_aud_mux = (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0 && str_has_char(mux_stg->aud_cmd);
-	BOOL enable_tc_mux = (conf->vid.afs) != 0;
+	BOOL enable_aud_mux = ((oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0) && str_has_char(mux_stg->aud_cmd);
+	BOOL enable_tc_mux = ((conf->vid.afs) != 0) && str_has_char(mux_stg->tc_cmd);
 	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
 	char *audstr = (enable_aud_mux) ? mux_stg->aud_cmd : "";
 	char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
@@ -273,14 +273,6 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 
 	MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
 
-	//事前muxの必要があれば、それを行う(L-SMASH系 timelineeditor の前の remuxer を想定)
-	if (mux_stg->pre_mux >= MUXER_MP4) {
-		PRM_ENC pe_tmp = *pe;
-		pe_tmp.muxer_to_be_used = mux_stg->pre_mux; //ここだけすり替えてmuxerをもう一度呼ぶ
-		if (AUO_RESULT_SUCCESS != (ret |= mux(conf, oip, &pe_tmp, sys_dat)))
-			return ret;
-	}
-
 	if (!PathFileExists(mux_stg->fullpath)) {
 		ret |= AUO_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
 		return ret;
@@ -337,6 +329,14 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC
 	}
 
 	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+
+	//事前muxの必要があれば、それを行う(L-SMASH系 timelineeditor の前の remuxer を想定)
+	if (mux_stg->post_mux >= MUXER_MP4) {
+		PRM_ENC pe_tmp = *pe;
+		pe_tmp.muxer_to_be_used = mux_stg->post_mux; //ここだけすり替えてmuxerをもう一度呼ぶ
+		if (AUO_RESULT_SUCCESS != (ret |= mux(conf, oip, &pe_tmp, sys_dat)))
+			return ret;
+	}
 
 	return ret;
 }
