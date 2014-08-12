@@ -180,8 +180,8 @@ static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, con
 //不必要なチャプターコマンドを削除する
 static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 	if (!apple_type_only)
-		del_arg(cmd, "%{chapter}", -1);
-	del_arg(cmd, "%{chap_apple}", -1);
+		del_arg(cmd, "%{chap_apple}", -1);
+	del_arg(cmd, "%{chapter}", -1);
 }
 
 static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
