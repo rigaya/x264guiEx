@@ -37,6 +37,23 @@ BOOL check_if_faw2aac_exists() {
 	return FALSE;
 }
 
+
+// 進捗表示用
+static const OUTPUT_INFO *g_oip = NULL;
+static BOOL auo_rest_time_disp(int now, int total) {
+	if (g_oip)
+		g_oip->func_rest_time_disp(now, total);
+	//進捗表示
+	static DWORD tm_last = timeGetTime();
+	DWORD tm;
+	if ((tm = timeGetTime()) - tm_last > LOG_UPDATE_INTERVAL * 5) {
+		set_log_progress(now / (double)total);
+		tm_last = tm;
+	}
+	return TRUE;
+};
+
+
 AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	HMODULE hModule = NULL;
@@ -69,10 +86,15 @@ AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 		strcpy_s(pe->append.aud, _countof(pe->append.aud), aud_stg->aud_appendix); //pe一時パラメータにコピーしておく
 		get_aud_filename(audfile, _countof(audfile), pe);
 		oip_faw2aac.savefile = audfile;
+		//進捗表示の取り込み
+		g_oip = oip;
+		oip_faw2aac.func_rest_time_disp = auo_rest_time_disp;
+
+		//開始
 		if (opt->func_init && !opt->func_init()) {
 			ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "faw2aac.auoの初期化に失敗しました。");
 		} else {
-			set_window_title("faw2aac", PROGRESSBAR_MARQUEE);
+			set_window_title("faw2aac", PROGRESSBAR_CONTINUOUS);
 			write_log_auo_line(LOG_INFO, "faw2aac で音声エンコードを行います。");
 			if (FALSE == opt->func_output(&oip_faw2aac)) {
 				ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "faw2aac.auoの実行に失敗しました。");
