@@ -212,6 +212,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 		XmlNodeType nodeType;
 		BOOL flag_next_line_is_time = TRUE; //次は時間を取得するべき
 		size_t value_len;
+		char time_line_buffer[1024];
 
 		while (S_OK == pReader->Read(&nodeType)) {
 			switch (nodeType) {
@@ -238,7 +239,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 						ZeroMemory(&buf[0], sizeof(buf[0]) * buf.size());
 						WideCharToMultiByte(CP_ACP, NULL, pwAttributeValue, (int)value_len, &buf[0], (int)buf.size(), NULL, NULL);
 						key_num++;
-						fprintf(fp, "%s%02d=%s\r\n", KEY_BASE, key_num, &buf[0]);
+						sprintf_s(time_line_buffer, _countof(time_line_buffer), "%s%02d=%s\r\n", KEY_BASE, key_num, &buf[0]);
 						flag_next_line_is_time = FALSE;
 					} while (S_OK == pReader->MoveToNextAttribute());
 					break;
@@ -256,7 +257,7 @@ static AuoChapStatus write_nero_chap(FILE *fp, const char *orig_filename) {
 					//変換
 					ZeroMemory(&buf[0], sizeof(buf[0]) * buf.size());
 					WideCharToMultiByte(CP_ACP, NULL, pwValue, (int)value_len, &buf[0], (int)buf.size(), NULL, NULL);
-					fprintf(fp, "%s%02d%s=%s\r\n", KEY_BASE, key_num, KEY_NAME, &buf[0]);
+					fprintf(fp, "%s%s%02d%s=%s\r\n", time_line_buffer, KEY_BASE, key_num, KEY_NAME, &buf[0]);
 					flag_next_line_is_time = TRUE;
 					break;
 				default:
