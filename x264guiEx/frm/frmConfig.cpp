@@ -1604,7 +1604,8 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTX264->SetToolTip(fcgNUScenecut,         L"--scenecut");
 	fcgTTX264->SetToolTip(fcgNUKeyint,           L""
 		+ L"--keyint\n"
-		+ L"\"0\" で inifinite(無限大) を指定します。");
+		+ L"\"0\" で inifinite(無限大) を指定します。\n"
+		+ L"\"-1\"で エンコ時に自動的にfps×10を設定します。");
 	fcgTTX264->SetToolTip(fcgNUMinKeyint,        L""
 		 + L"--min-keyint\n"
 		 + L"\"0\" で 自動となります。"
