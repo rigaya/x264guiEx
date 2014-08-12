@@ -262,8 +262,10 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	//rawの形式情報追加
 	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_x264_input_csp(prm.x264.output_csp));
 	//fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
-	if (!prm.x264.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL)
-		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate, oip->scale);
+	if (!prm.x264.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
+		int gcd = get_gcd(oip->rate, oip->scale);
+		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
+	}
 	//出力ファイル
 	char *outfile = (prm.x264.nul_out) ? "nul" : pe->temp_filename;
 	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -o \"%s\"", outfile);
