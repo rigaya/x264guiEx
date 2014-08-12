@@ -108,10 +108,10 @@ public:
 	size_t GetRemain() {
 		return mp_size;
 	};
-	void CutString() {
+	void CutString(int sizeof_chr) {
 		size_t len = strlen(mp) + 1;
-		mp += len;
-		mp_size -= len;
+		mp += len * sizeof_chr;
+		mp_size -= len * sizeof_chr;
 	};
 };
 
