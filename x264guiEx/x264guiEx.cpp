@@ -25,6 +25,7 @@
 
 #include "auo_video.h"
 #include "auo_audio.h"
+#include "auo_faw2aac.h"
 #include "auo_mux.h"
 #include "auo_encode.h"
 #include "auo_runbat.h"
@@ -350,8 +351,11 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
 		AUDIO_SETTINGS *aud_stg = &sys_dat.exstg->s_aud[conf.aud.encoder];
 		if (str_has_char(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
-			error_no_exe_file(aud_stg->filename, aud_stg->fullpath);
-			check = FALSE;
+			//fawの場合はfaw2aacがあればOKだが、それもなければエラー
+			if (!(conf.aud.encoder == sys_dat.exstg->s_aud_faw_index && check_if_faw2aac_exists())) {
+				error_no_exe_file(aud_stg->filename, aud_stg->fullpath);
+				check = FALSE;
+			}
 		}
 	}
 
