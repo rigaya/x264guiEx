@@ -219,7 +219,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			this->richTextLog->Location = System::Drawing::Point(0, 0);
 			this->richTextLog->Name = L"richTextLog";
 			this->richTextLog->ReadOnly = true;
-			this->richTextLog->Size = System::Drawing::Size(684, 251);
+			this->richTextLog->Size = System::Drawing::Size(784, 296);
 			this->richTextLog->TabIndex = 0;
 			this->richTextLog->Text = L"";
 			this->richTextLog->WordWrap = false;
@@ -316,9 +316,9 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			// 
 			this->statusStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->toolStripStatusCurrentTask, 
 				this->toolStripStatusElapsedTime, this->toolStripCurrentProgress, this->toolStripStatusCurrentProgress});
-			this->statusStripLog->Location = System::Drawing::Point(0, 254);
+			this->statusStripLog->Location = System::Drawing::Point(0, 299);
 			this->statusStripLog->Name = L"statusStripLog";
-			this->statusStripLog->Size = System::Drawing::Size(684, 23);
+			this->statusStripLog->Size = System::Drawing::Size(784, 23);
 			this->statusStripLog->TabIndex = 1;
 			this->statusStripLog->Text = L"statusStrip1";
 			// 
@@ -335,7 +335,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 				static_cast<System::Byte>(128)));
 			this->toolStripStatusElapsedTime->Margin = System::Windows::Forms::Padding(6, 3, 0, 1);
 			this->toolStripStatusElapsedTime->Name = L"toolStripStatusElapsedTime";
-			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(628, 19);
+			this->toolStripStatusElapsedTime->Size = System::Drawing::Size(728, 19);
 			this->toolStripStatusElapsedTime->Spring = true;
 			this->toolStripStatusElapsedTime->Text = L"ElapsedTime";
 			this->toolStripStatusElapsedTime->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
@@ -371,7 +371,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
-			this->ClientSize = System::Drawing::Size(684, 277);
+			this->ClientSize = System::Drawing::Size(784, 322);
 			this->Controls->Add(this->statusStripLog);
 			this->Controls->Add(this->richTextLog);
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 

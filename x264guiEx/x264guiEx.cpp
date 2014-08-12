@@ -379,9 +379,9 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 }
 
 void open_log_window(const char *savefile, int current_pass, int total_pass) {
-	char mes[MAX_PATH_LEN + 256];
+	char mes[MAX_PATH_LEN + 512];
 	char *newLine = (get_current_log_len(current_pass)) ? "\r\n\r\n" : ""; //必要なら行送り
-	static const char *SEPARATOR = "--------------------------------------------------------------------------------------------------";
+	static const char *SEPARATOR = "------------------------------------------------------------------------------------------------------------------------------";
 	if (total_pass < 2)
 		sprintf_s(mes, sizeof(mes), "%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile, SEPARATOR);
 	else
