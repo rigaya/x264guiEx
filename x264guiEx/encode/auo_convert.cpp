@@ -97,9 +97,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 
 	//YUY2 -> nv12(8bit)
 #if (_MSC_VER >= 1700)
-	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P, 32,  AVX2,                 convert_yuy2_to_nv12_avx2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P, 32,  AVX2,                 convert_yuy2_to_nv12_avx2_mod32 },
 	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX2,                 convert_yuy2_to_nv12_avx2 },
-	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 32,  AVX2,                 convert_yuy2_to_nv12_i_avx2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 32,  AVX2,                 convert_yuy2_to_nv12_i_avx2_mod32 },
 	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  AVX2,                 convert_yuy2_to_nv12_i_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
@@ -117,7 +117,7 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  SSE2,                 convert_yuy2_to_nv12_i_sse2 },
 	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  NONE,                 convert_yuy2_to_nv12_i },
 #if (_MSC_VER >= 1700)
-	{ CF_YC48, OUT_CSP_NV12,   BIT16, P, 16,  AVX2,                 convert_yc48_to_nv12_16bit_avx2_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P, 16,  AVX2,                 convert_yc48_to_nv12_16bit_avx2_mod16 },
 	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX2,                 convert_yc48_to_nv12_16bit_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
