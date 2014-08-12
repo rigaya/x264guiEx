@@ -12,7 +12,6 @@
 
 #include <Windows.h>
 #include <stdio.h>
-#include "auo_frm.h"
 
 enum {
 	RP_USE_NO_PIPE = -1,

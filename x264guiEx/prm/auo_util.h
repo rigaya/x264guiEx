@@ -74,6 +74,9 @@ static inline BOOL check_range(int value, int min, int max) {
 static inline BOOL check_range(double value, double min, double max) {
 	return (min <= value && value <= max);
 }
+static inline BOOL check_range(void* value, void* min, void* max) {
+	return (min <= value && value <= max);
+}
 static inline int ceil_div_int(int i, int div) {
 	return (i + (div-1)) / div;
 }
@@ -246,6 +249,18 @@ static DWORD cpu_core_count() {
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 	return si.dwNumberOfProcessors;
+}
+
+static BOOL is_64bit_os() {
+	SYSTEM_INFO sinfo = { 0 };
+	GetNativeSystemInfo(&sinfo);
+	return sinfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
+}
+
+static size_t get_intlen(int i) {
+	char str[256];
+	sprintf_s(str, _countof(str), "%d", i);
+	return strlen(str);
 }
 
 //mmx    cpuid_1 CPUInfo[3] & 0x00800000
