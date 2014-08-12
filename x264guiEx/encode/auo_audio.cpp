@@ -61,6 +61,12 @@ static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, const guiEx_s
 	}
 }
 
+static AUO_RESULT check_audio_length(const OUTPUT_INFO *oip) {
+	double video_length = oip->n * (double)oip->scale / oip->rate;
+	double audio_length = oip->audio_n / (double)oip->audio_rate;
+	return (check_range(audio_length / video_length, 0.5, 1.5)) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
+}
+
 static void show_audio_enc_info(AUDIO_SETTINGS *aud_stg, CONF_AUDIO *cnf_aud) {
 	char bitrate[128] = { 0 };
 	if (aud_stg->mode[cnf_aud->enc_mode].bitrate)
@@ -248,6 +254,10 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 		error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
 		return AUO_RESULT_ERROR;
 	}
+
+	//音声長さチェック
+	if (AUO_RESULT_SUCCESS != check_audio_length(oip))
+		warning_audio_length();
 
 	//wavfile名作成
 	make_wavfilename(wavfile, _countof(wavfile), use_pipe, pe->temp_filename, pe->append.wav);

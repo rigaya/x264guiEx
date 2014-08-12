@@ -175,6 +175,15 @@ void error_no_wavefile() {
 	write_log_auo_line(LOG_ERROR, "wavファイルがみつかりません。音声エンコードに失敗しました。");
 }
 
+void warning_audio_length() {
+	write_log_line(LOG_WARNING, 
+		"auo [warning]: 音声の長さが動画の長さと大きく異なるようです。\n"
+		"               これが意図したものでない場合、音声が正常に出力されていないかもしれません。\n"
+		"               この問題は圧縮音声をソースとしていると発生することがあります。\n"
+		"               一度音声をデコードし、「音声読み込み」から無圧縮wavとして別に読み込むか、\n"
+		"               異なる入力プラグインを利用して読み込むといった方法を試してみてください。");
+}
+
 void error_audenc_failed(const char *name, const char *args) {
 	write_log_auo_line_fmt(LOG_ERROR, "出力音声ファイルがみつかりません。%s での音声のエンコードに失敗しました。", name);
 	write_log_auo_line(    LOG_ERROR, "音声エンコードのコマンドラインは…");
