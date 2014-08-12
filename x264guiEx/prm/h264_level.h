@@ -32,6 +32,7 @@ const X264_OPTION_STR list_x264guiEx_level[] = {
 	{ "4.2",  L"4.2"  },
 	{ "5",    L"5"    },
 	{ "5.1",  L"5.1"  },
+	{ "5.2",  L"5.2"  },
 	{ NULL, NULL }
 };
 
