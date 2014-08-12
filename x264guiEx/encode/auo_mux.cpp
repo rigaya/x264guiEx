@@ -164,15 +164,13 @@ static AUO_RESULT check_muxout_filesize(const char *muxout, UINT64 expected_file
 
 //%{par_x}と%{par_y}の置換を行う
 static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {	
-	char buf[64];
 	CONF_X264 conf_tmp;
 	memcpy(&conf_tmp, &conf->x264, sizeof(CONF_X264));
 	apply_guiEx_auto_settings(&conf_tmp, oip->w, oip->h, oip->rate, oip->scale);
-	if (conf_tmp.sar.x <= 0 || conf_tmp.sar.y <= 0) {
-		conf_tmp.sar.x = 1;
-		conf_tmp.sar.y = 1;
-	}
+	if (conf_tmp.sar.x <= 0 || conf_tmp.sar.y <= 0)
+		conf_tmp.sar.x = conf_tmp.sar.y = 1;
 
+	char buf[32];
 	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.x);
 	replace(cmd, nSize, "%{par_x}", buf);
 	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.y);

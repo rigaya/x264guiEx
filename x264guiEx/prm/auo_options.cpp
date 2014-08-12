@@ -817,12 +817,9 @@ static void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
 		int x = -1 * *sar_x * height;
 		int y = -1 * *sar_y * width;
 		if (abs(y - x) > -16 * *sar_y) {
-			//gcd
-			int a = x, b = y, c;
-			while ((c = a % b) != 0)
-				a = b, b = c;
-			*sar_x = x / b;
-			*sar_y = y / b;
+			int gcd = get_gcd(x, y);
+			*sar_x = x / gcd;
+			*sar_y = y / gcd;
 		} else {
 			*sar_x = *sar_y = 1;
 		}
@@ -888,9 +885,9 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
 	std::vector<CMD_ARG> cmd_arg_list;
 	//parse_argでコマンドラインは書き変えられるので、
 	//一度コピーしておく
-	size_t cmd_len = strlen(cmd_src) + 1;
-	char * const cmd = (char *)malloc(cmd_len + 1);
-	memcpy(cmd, cmd_src, cmd_len + 1);
+	size_t cmd_len = strlen(cmd_src);
+	char * const cmd = (char *)malloc((cmd_len + 1) * sizeof(cmd[0]));
+	memcpy(cmd, cmd_src, (cmd_len + 1) * sizeof(cmd[0]));
 	set_setting_list();
 	parse_arg(cmd, cmd_len, &cmd_arg_list);
 	foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {

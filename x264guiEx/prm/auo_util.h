@@ -78,6 +78,12 @@ static inline __int64 ceil_div_int64(__int64 i, int div) {
 static inline UINT64 ceil_div_int64(UINT64 i, int div) {
 	return (i + (div-1)) / div;
 }
+static inline int get_gcd(int a, int b) {
+	int c;
+	while ((c = a % b) != 0)
+		a = b, b = c;
+	return b;
+}
 
 //大文字小文字を無視して、1文字検索
 static inline const char *strichr(const char *str, int c) {
