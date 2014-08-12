@@ -124,6 +124,9 @@
     <ClCompile Include="..\x264guiEx\encode\convert_avx.cpp">
       <Filter>ソース ファイル\encode</Filter>
     </ClCompile>
+    <ClCompile Include="encode\auo_faw2aac.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\x264guiEx\x264guiEx.def">
@@ -204,6 +207,9 @@
       <Filter>ヘッダー ファイル\encode</Filter>
     </ClInclude>
     <ClInclude Include="..\x264guiEx\encode\vphelp_client.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="encode\auo_faw2aac.h">
       <Filter>ヘッダー ファイル\encode</Filter>
     </ClInclude>
   </ItemGroup>

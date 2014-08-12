@@ -224,6 +224,10 @@
     </ClCompile>
     <ClCompile Include="..\x264guiEx\frm\frmConfig.cpp" />
     <ClCompile Include="..\x264guiEx\frm\frmLog.cpp" />
+    <ClCompile Include="encode\auo_faw2aac.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\x264guiEx\x264guiEx.def" />
@@ -273,6 +277,7 @@
     <ClInclude Include="..\x264guiEx\frm\frmSaveNewStg.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="encode\auo_faw2aac.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\x264guiEx\frm\frmAutoSaveLogSettings.resx">
