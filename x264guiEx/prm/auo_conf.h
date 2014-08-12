@@ -80,6 +80,8 @@ typedef struct {
 	int  priority;        //mux優先度(インデックス)
 	int  mp4_temp_dir;    //mp4box用一時ディレクトリ
 	BOOL apple_mode;      //Apple用モード(mp4系専用)
+	BOOL disable_mpgext;  //mpg出力時、外部muxerを使用する
+	int  mpg_mode;        //mpg 外部muxer用追加コマンドの設定
 } CONF_MUX; //muxer用設定
 
 typedef struct {

@@ -183,6 +183,8 @@ System::Void frmConfig::LoadLocalStg() {
 	LocalStg.MKVMuxerPath    = String(_ex_stg->s_mux[MUXER_MKV].fullpath).ToString();
 	LocalStg.TC2MP4ExeName   = String(_ex_stg->s_mux[MUXER_TC2MP4].filename).ToString();
 	LocalStg.TC2MP4Path      = String(_ex_stg->s_mux[MUXER_TC2MP4].fullpath).ToString();
+	LocalStg.MPGMuxerExeName = String(_ex_stg->s_mux[MUXER_MPG].filename).ToString();
+	LocalStg.MPGMuxerPath    = String(_ex_stg->s_mux[MUXER_MPG].fullpath).ToString();
 
 	LocalStg.audEncName->Clear();
 	LocalStg.audEncExeName->Clear();
@@ -263,6 +265,7 @@ System::Void frmConfig::SaveLocalStg() {
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MP4].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MP4].fullpath),     LocalStg.MP4MuxerPath);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MKV].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MKV].fullpath),     LocalStg.MKVMuxerPath);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_TC2MP4].fullpath,  sizeof(_ex_stg->s_mux[MUXER_TC2MP4].fullpath),  LocalStg.TC2MP4Path);
+	GetCHARfromString(_ex_stg->s_mux[MUXER_MPG].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MPG].fullpath),     LocalStg.MPGMuxerPath);
 	for (int i = 0; i < _ex_stg->s_aud_count; i++)
 		GetCHARfromString(_ex_stg->s_aud[i].fullpath,         sizeof(_ex_stg->s_aud[i].fullpath),             LocalStg.audEncPath[i]);
 	_ex_stg->save_local();
@@ -277,12 +280,14 @@ System::Void frmConfig::SetLocalStg() {
 	fcgTXMP4MuxerPath->Text       = LocalStg.MP4MuxerPath;
 	fcgTXMKVMuxerPath->Text       = LocalStg.MKVMuxerPath;
 	fcgTXTC2MP4Path->Text         = LocalStg.TC2MP4Path;
+	fcgTXMPGMuxerPath->Text       = LocalStg.MPGMuxerPath;
 	fcgTXCustomAudioTempDir->Text = LocalStg.CustomAudTmpDir;
 	fcgTXCustomTempDir->Text      = LocalStg.CustomTmpDir;
 	fcgTXMP4BoxTempDir->Text      = LocalStg.CustomMP4TmpDir;
 	fcgLBMP4MuxerPath->Text       = LocalStg.MP4MuxerExeName + L" の指定";
 	fcgLBMKVMuxerPath->Text       = LocalStg.MKVMuxerExeName + L" の指定";
 	fcgLBTC2MP4Path->Text         = LocalStg.TC2MP4ExeName   + L" の指定";
+	fcgLBMPGMuxerPath->Text       = LocalStg.MPGMuxerExeName + L" の指定";
 
 	fcgTXX264Path->SelectionStart         = fcgTXX264Path->Text->Length;
 	fcgTXX264PathSub->SelectionStart      = fcgTXX264PathSub->Text->Length;
@@ -290,6 +295,7 @@ System::Void frmConfig::SetLocalStg() {
 	fcgTXMP4MuxerPath->SelectionStart     = fcgTXMP4MuxerPath->Text->Length;
 	fcgTXTC2MP4Path->SelectionStart       = fcgTXTC2MP4Path->Text->Length;
 	fcgTXMKVMuxerPath->SelectionStart     = fcgTXMKVMuxerPath->Text->Length;
+	fcgTXMPGMuxerPath->SelectionStart     = fcgTXMPGMuxerPath->Text->Length;
 }
 
 //////////////   TrackBar用タイマー関連     /////////////////////////
@@ -883,6 +889,7 @@ System::Void frmConfig::InitComboBox() {
 
 	setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
 	setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);
+	setMuxerCmdExNames(fcgCXMPGCmdEx, MUXER_MPG);
 
 	setAudioEncoderNames();
 
@@ -996,7 +1003,9 @@ System::Void frmConfig::InitForm() {
 	fcgLBVersion->Text     = String(AUO_VERSION_NAME).ToString();
 	fcgLBVersionDate->Text = L"build " + String(__DATE__).ToString() + L" " + String(__TIME__).ToString();
 	//スレッド数上限
-	fcgNUThreads->Maximum = (int)(cpu_core_count() * 1.5 + 0.51);
+	int max_threads_set = (int)(cpu_core_count() * 1.5 + 0.51);
+	fcgNUThreads->Maximum = max_threads_set;
+	fcgNULookaheadThreads->Maximum = max_threads_set;
 	//タイマーの初期化
 	InitTimer();
 	//ツールチップ
@@ -1086,6 +1095,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	SetNUValue(fcgNUAspectRatioY, abs(cx264->sar.y));
 
 	SetNUValue(fcgNUThreads,          cx264->threads);
+	SetNUValue(fcgNULookaheadThreads, cx264->lookahead_threads);
 	fcgCBSlicedThreads->Checked     = cx264->sliced_threading != 0;
 
 	SetCXIndex(fcgCXLogLevel,         cx264->log_mode);
@@ -1191,7 +1201,9 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		SetCXIndex(fcgCXMP4CmdEx,            cnf->mux.mp4_mode);
 		SetCXIndex(fcgCXMP4BoxTempDir,       cnf->mux.mp4_temp_dir);
 		fcgCBMKVMuxerExt->Checked          = cnf->mux.disable_mkvext == 0;
-		SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mkv_mode);
+		SetCXIndex(fcgCXMPGCmdEx,            cnf->mux.mkv_mode);
+		fcgCBMPGMuxerExt->Checked          = cnf->mux.disable_mpgext == 0;
+		SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mpg_mode);
 		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
@@ -1244,6 +1256,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->x264.sar.x                = (int)fcgNUAspectRatioX->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
 	cnf->x264.sar.y                = (int)fcgNUAspectRatioY->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
 	cnf->x264.threads              = (int)fcgNUThreads->Value;
+	cnf->x264.lookahead_threads    = (int)fcgNULookaheadThreads->Value;
 	cnf->x264.sliced_threading     = fcgCBSlicedThreads->Checked;
 	cnf->x264.log_mode             = fcgCXLogLevel->SelectedIndex;
 	cnf->x264.psnr                 = fcgCBPSNR->Checked;
@@ -1342,6 +1355,8 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->mux.mp4_temp_dir           = fcgCXMP4BoxTempDir->SelectedIndex;
 	cnf->mux.disable_mkvext         = !fcgCBMKVMuxerExt->Checked;
 	cnf->mux.mkv_mode               = fcgCXMKVCmdEx->SelectedIndex;
+	cnf->mux.disable_mpgext         = !fcgCBMPGMuxerExt->Checked;
+	cnf->mux.mpg_mode               = fcgCXMPGCmdEx->SelectedIndex;
 	cnf->mux.minimized              = fcgCBMuxMinimize->Checked;
 	cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
 
@@ -1565,6 +1580,9 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTX264->SetToolTip(fcgNUAspectRatioX,     L"アスペクト比 横 (幅)");
 	fcgTTX264->SetToolTip(fcgNUAspectRatioY,     L"アスペクト比 縦 (高さ)");
 	fcgTTX264->SetToolTip(fcgNUThreads,          L"--threads\n"
+		+ L"\"0\" で自動です。"
+		);
+	fcgTTX264->SetToolTip(fcgNULookaheadThreads, L"--lookahead-threads\n"
 		+ L"\"0\" で自動です。"
 		);
 	fcgTTX264->SetToolTip(fcgCBSlicedThreads,    L"--sliced-threads");
@@ -1856,6 +1874,20 @@ System::Void frmConfig::SetHelpToolTips() {
 		);
 	fcgTTEx->SetToolTip(fcgBTMKVMuxerPath, L""
 		+ L"mkv用muxerの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
+	fcgTTEx->SetToolTip(fcgCBMPGMuxerExt, L""
+		+ L"指定したmuxerでmuxを行います。\n"
+		+ L"チェックを外すとmuxを行いません。"
+		);
+	fcgTTEx->SetToolTip(fcgCXMPGCmdEx,    L""
+		+ L"muxerに渡す追加オプションを選択します。\n"
+		+ L"これらの設定はx264guiEx.iniに記述されています。"
+		);
+	fcgTTEx->SetToolTip(fcgBTMPGMuxerPath, L""
+		+ L"mpg用muxerの場所を指定します。\n"
 		+ L"\n"
 		+ L"この設定はx264guiEx.confに保存され、\n"
 		+ L"バッチ処理ごとの変更はできません。"

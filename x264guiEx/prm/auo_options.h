@@ -303,6 +303,7 @@ typedef struct {
 	BOOL    use_timebase;
 	INT2    timebase;
 	BOOL    disable_progress;
+	int     lookahead_threads;
 } CONF_X264;
 
 typedef struct {

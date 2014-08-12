@@ -316,8 +316,8 @@ void guiEx_settings::load_mux() {
 	char muxer_section[INI_KEY_MAX_LEN];
 	char key[INI_KEY_MAX_LEN];
 
-	static const int MUX_COUNT = 3;
-	static const char * MUXER_TYPE[MUX_COUNT] = { "MUXER_MP4", "MUXER_MKV", "MUXER_TC2MP4" };
+	static const int MUX_COUNT = 4;
+	static const char * MUXER_TYPE[MUX_COUNT] = { "MUXER_MP4", "MUXER_MKV", "MUXER_TC2MP4", "MUXER_MPG" };
 
 	clear_mux();
 

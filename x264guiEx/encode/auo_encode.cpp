@@ -200,8 +200,13 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 }
 
 int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
-	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf->oth.out_audio_only)
-		return (check_ext(oip->savefile, ".mp4")) ? VIDEO_OUTPUT_MP4 : ((check_ext(oip->savefile, ".mkv")) ? VIDEO_OUTPUT_MKV : VIDEO_OUTPUT_RAW);
+	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf->oth.out_audio_only) {
+		if (check_ext(oip->savefile, ".mp4"))  return VIDEO_OUTPUT_MP4;
+		if (check_ext(oip->savefile, ".mkv"))  return VIDEO_OUTPUT_MKV;
+		if (check_ext(oip->savefile, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
+		if (check_ext(oip->savefile, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
+		return VIDEO_OUTPUT_RAW;
+	}
 	return VIDEO_OUTPUT_DISABLED;
 }
 
@@ -217,6 +222,8 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 		return (conf->vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
 	else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
 		return MUXER_MKV;
+	else if (video_output_type == VIDEO_OUTPUT_MPEG2 && !conf->mux.disable_mpgext)
+		return MUXER_MPG;
 	else
 		return MUXER_DISABLED;
 }
