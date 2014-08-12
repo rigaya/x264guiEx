@@ -48,9 +48,8 @@ static const char * const INI_SECTION_FBC          = "BITRATE_CALC";
 static const char * const INI_SECTION_AMP          = "AUTO_MULTI_PASS";
 
 static inline double GetPrivateProfileDouble(const char *section, const char *keyname, double defaultValue, const char *ini_file) {
-	char buf[256], *eptr;
+	char buf[INI_KEY_MAX_LEN], str_default[64], *eptr;
 	double d;
-	char str_default[64];
 	sprintf_s(str_default, _countof(str_default), "%f", defaultValue);
 	GetPrivateProfileString(section, keyname, str_default, buf, _countof(buf), ini_file);
 	d = strtod(buf, &eptr);
@@ -60,8 +59,10 @@ static inline double GetPrivateProfileDouble(const char *section, const char *ke
 
 static inline void GetFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
 	const size_t keyname_base_len = strlen(keyname_base);
-	char key[256];
-	memcpy(key, keyname_base, sizeof(key[0]) * keyname_base_len);
+	if (keyname_base_len >= INI_KEY_MAX_LEN)
+		return;
+	char key[INI_KEY_MAX_LEN];
+	memcpy(key, keyname_base, sizeof(key[0]) * (keyname_base_len + 1));
 	strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_name");
 	GetPrivateProfileString(section, key, "", font_info->name, sizeof(font_info->name), ini_file);
 	strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_size");
@@ -94,8 +95,10 @@ static inline void WritePrivateProfileDoubleWithDefault(const char *section, con
 
 static inline void WriteFontInfo(const char *section, const char *keyname_base, AUO_FONT_INFO *font_info, const char *ini_file) {
 	const size_t keyname_base_len = strlen(keyname_base);
-	char key[256];
-	memcpy(key, keyname_base, sizeof(key[0]) * keyname_base_len);
+	if (keyname_base_len >= INI_KEY_MAX_LEN)
+		return;
+	char key[INI_KEY_MAX_LEN];
+	memcpy(key, keyname_base, sizeof(key[0]) * (keyname_base_len + 1));
 	if (str_has_char(font_info->name)) {
 		strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_name");
 		WritePrivateProfileString(section, key, font_info->name, ini_file);
@@ -324,9 +327,9 @@ void guiEx_settings::load_mux() {
 	s_mux = (MUXER_SETTINGS *)s_mux_mc.CutMem(s_mux_count * sizeof(MUXER_SETTINGS));
 	for (i = 0; i < s_mux_count; i++) {
 		sprintf_s(muxer_section, _countof(muxer_section), "%s%s", INI_SECTION_PREFIX, MUXER_TYPE[i]);
-		len = strlen(MUXER_TYPE[i]) + 1;
-		s_mux[i].keyName = (char *)s_mux_mc.CutMem(len * sizeof(s_mux[i].keyName[0]));
-		memcpy(s_mux[i].keyName, MUXER_TYPE[i], len);
+		len = strlen(MUXER_TYPE[i]);
+		s_mux[i].keyName = (char *)s_mux_mc.CutMem((len + 1) * sizeof(s_mux[i].keyName[0]));
+		memcpy(s_mux[i].keyName, MUXER_TYPE[i], (len + 1) * sizeof(s_mux[i].keyName[0]));
 		s_mux[i].dispname = s_mux_mc.SetPrivateProfileString(muxer_section, "dispname", "", ini_fileName);
 		s_mux[i].filename = s_mux_mc.SetPrivateProfileString(muxer_section, "filename", "", ini_fileName);
 		s_mux[i].base_cmd = s_mux_mc.SetPrivateProfileString(muxer_section, "base_cmd", "", ini_fileName);
@@ -358,8 +361,8 @@ void guiEx_settings::load_fn_replace() {
 	fn_rep_mc.init(ini_filesize);
 
 	char *ptr = (char *)fn_rep_mc.GetPtr();
-	size_t len = GetPrivateProfileSection(INI_SECTION_FN, ptr, (DWORD)fn_rep_mc.GetRemain() / sizeof(ptr[0]), ini_fileName) + 1;
-	fn_rep_mc.CutMem(len * sizeof(ptr[0]));
+	size_t len = GetPrivateProfileSection(INI_SECTION_FN, ptr, (DWORD)fn_rep_mc.GetRemain() / sizeof(ptr[0]), ini_fileName);
+	fn_rep_mc.CutMem((len + 1) * sizeof(ptr[0]));
 	for (; *ptr != NULL; ptr += strlen(ptr) + 1) {
 		FILENAME_REPLACE rep = { 0 };
 		char *p = strchr(ptr, '=');

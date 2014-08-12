@@ -545,32 +545,32 @@ static void write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *optio
 static void write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {	
 	DWORD *dwptr = (DWORD*)((BYTE*)cx + options->p_offset);
 	DWORD *defptr = (DWORD*)((BYTE*)def + options->p_offset);
-	if (write_all || *dwptr != *defptr) {
-		char tmp[64] = { 0 };
+	const char * const arg = " --partitions ";
+	if ((write_all || *dwptr != *defptr) && nSize > strlen(arg)) {
+		strcpy_s(cmd, nSize, arg);
+		cmd += strlen(arg); nSize -= strlen(arg);
 		if (*dwptr == MB_PARTITION_ALL)
-			strcpy_s(tmp, _countof(tmp), "all");
-		else if (*dwptr == MB_PARTITION_NONE)
-			strcpy_s(tmp, _countof(tmp), "none");
+			strcpy_s(cmd, nSize, "all");
 		else {
-			if (*dwptr & MB_PARTITION_P8x8) strcpy_s(tmp, _countof(tmp), "p8x8,");
-			if (*dwptr & MB_PARTITION_B8x8) strcat_s(tmp, _countof(tmp), "b8x8,");
-			if (*dwptr & MB_PARTITION_P4x4) strcat_s(tmp, _countof(tmp), "p4x4,");
-			if (*dwptr & MB_PARTITION_I8x8) strcat_s(tmp, _countof(tmp), "i8x8,");
-			if (*dwptr & MB_PARTITION_I4x4) strcat_s(tmp, _countof(tmp), "i4x4,");
-			if (strlen(tmp)) {
-				tmp[strlen(tmp)-1] = '\0'; //最後の","を取る
-			} else {
-				strcpy_s(tmp, _countof(tmp), "none"); //そんなはずないけどね
+			strcpy_s(cmd, nSize, "none");
+			if (*dwptr != MB_PARTITION_NONE) {
+				size_t len = 0;
+#define APPEND_OPT(v) { strcpy_s(cmd + len, nSize - len, v); len += strlen(v); }
+				if (*dwptr & MB_PARTITION_P8x8) APPEND_OPT("p8x8,");
+				if (*dwptr & MB_PARTITION_B8x8) APPEND_OPT("b8x8,");
+				if (*dwptr & MB_PARTITION_P4x4) APPEND_OPT("p4x4,");
+				if (*dwptr & MB_PARTITION_I8x8) APPEND_OPT("i8x8,");
+				if (*dwptr & MB_PARTITION_I4x4) APPEND_OPT("i4x4,");
+#undef APPEND_OPT
+				if (len)
+					cmd[len-1] = '\0'; //最後の","を取る
 			}
 		}
-		sprintf_s(cmd, nSize, " --partitions %s", tmp);
 	}
 }
 static void write_tff(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
-	if (cx->interlaced) {
-		char *interlace = (cx->tff) ? " --tff" : " --bff";
-		strcpy_s(cmd, nSize, interlace);
-	}
+	if (cx->interlaced)
+		strcpy_s(cmd, nSize, (cx->tff) ? " --tff" : " --bff");
 }
 static void write_timebase(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
 	if (cx->use_timebase)
@@ -736,8 +736,6 @@ static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
 
 void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
 	std::vector<CMD_ARG> cmd_arg_list;
-	//parse_argでコマンドラインは書き変えられるので、
-	//一度コピーしておく
 	set_setting_list();
 	parse_arg(cmd, cmd_len, &cmd_arg_list);
 	set_conf(&cmd_arg_list, conf_set);
