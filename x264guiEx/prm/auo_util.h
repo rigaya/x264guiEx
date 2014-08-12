@@ -776,7 +776,7 @@ static BOOL swap_file(const char *fileA, const char *fileB) {
 
 	char filetemp[MAX_PATH_LEN];
 	char appendix[MAX_APPENDIX_LEN];
-	for (int i = 0; i && PathFileExistsA(filetemp); i++) {
+	for (int i = 0; !i || PathFileExistsA(filetemp); i++) {
 		sprintf_s(appendix, _countof(appendix), ".swap%d.tmp", i);
 		apply_appendix(filetemp, _countof(filetemp), fileA, appendix);
 	}
@@ -794,7 +794,7 @@ static BOOL swap_file(const WCHAR *fileA, const WCHAR *fileB) {
 
 	WCHAR filetemp[MAX_PATH_LEN];
 	WCHAR appendix[MAX_APPENDIX_LEN];
-	for (int i = 0; i && PathFileExistsW(filetemp); i++) {
+	for (int i = 0; !i || PathFileExistsW(filetemp); i++) {
 		swprintf_s(appendix, _countof(appendix), L".swap%d.tmp", i);
 		apply_appendix(filetemp, _countof(filetemp), fileA, appendix);
 	}
