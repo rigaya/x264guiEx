@@ -289,10 +289,12 @@ static void change_mux_vid_filename(const char *muxout, const PRM_ENC *pe) {
 	rename(muxout, pe->temp_filename);
 }
 
+//rawなのかmp4なのか (拡張子による判定)
 static inline BOOL video_to_mux_is_raw(const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	return !check_ext(pe->temp_filename, sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext);
 }
 
+//rawなのかmp4なのか (拡張子による判定)
 static inline BOOL audio_to_mux_is_raw(const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	return !check_ext(pe->append.aud, ".m4a") 
 		&& !check_ext(pe->append.aud, sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext);
@@ -312,6 +314,9 @@ static inline BOOL muxer_is_for_raw_only(const PRM_ENC *pe, const SYSTEM_DATA *s
 		&& str_has_char(sys_dat->exstg->s_mux[MUXER_MP4_RAW].base_cmd));
 }
 
+//異なるmuxerを駆動し、最後にpe->muxer_to_be_usedを戻す
+//PRM_ENCをコピーして使用しないのは、PRM_ENCのファイル名(拡張子)が
+//muxによって変更されることがあるため(その情報を用いて、mp4かrawか判定していて、重要な情報)
 static AUO_RESULT run_mux_as(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat, int run_as) {
 	const int last_muxer = pe->muxer_to_be_used;
 	pe->muxer_to_be_used = run_as;
@@ -404,6 +409,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 				if (PathFileExists(pe->temp_filename)) remove(pe->temp_filename);
 				rename(muxout, pe->temp_filename);
 			} else {
+				//音声のみmuxなら、一時音声ファイルの情報を変更する
 				char aud_file[MAX_PATH_LEN] = { 0 };
 				get_aud_filename(aud_file, _countof(aud_file), pe);
 				remove(aud_file);
