@@ -872,4 +872,13 @@ BOOL fix_ImulL_WesternEurope(UINT *code_page);
 //値を削除できたらTRUEを返す
 BOOL del_arg(char *cmd, char *target_arg, int del_arg_delta);
 
+//TargetProcessIdに指定したプロセスのスレッドのうち、
+//スレッドのModuleがTargetModuleに指定した文字列に一致した場合(_strnicmpによる比較)
+//スレッド優先度をThreadPriorityに設定する
+//TargetModuleがNULLならTargetProcessIdの全スレッドに適用
+BOOL SetThreadPriorityForModule(DWORD TargetProcessId, const char *TargetModule, int ThreadPriority);
+BOOL SetThreadAffinityForModule(DWORD TargetProcessId, const char *TargetModule, DWORD_PTR ThreadAffinityMask);
+
+BOOL getProcessorCount(DWORD *physical_processor_core, DWORD *logical_processor_core);
+
 #endif //_AUO_UTIL_H_

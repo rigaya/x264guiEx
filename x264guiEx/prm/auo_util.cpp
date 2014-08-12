@@ -14,6 +14,8 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <algorithm>
+#include <tlhelp32.h>
+#include <vector>
 
 #include "auo_util.h"
 #include "auo_version.h"
@@ -191,4 +193,202 @@ BOOL del_arg(char *cmd, char *target_arg, int del_arg_delta) {
 		
 	memmove(p_start, ptr, (cmd_fin - ptr + 1) * sizeof(cmd[0]));
 	return TRUE;
+}
+
+static const int ThreadQuerySetWin32StartAddress = 9;
+typedef int (WINAPI *typeNtQueryInformationThread)(HANDLE, int, PVOID, ULONG, PULONG);
+
+static void *GetThreadBeginAddress(DWORD TargetProcessId) {
+	HMODULE hNtDll = NULL;
+	typeNtQueryInformationThread NtQueryInformationThread = NULL;
+	HANDLE hThread = NULL;
+	ULONG length = 0;
+	void *BeginAddress = NULL;
+
+	if (   NULL != (hNtDll = LoadLibrary("ntdll.dll"))
+		&& NULL != (NtQueryInformationThread = (typeNtQueryInformationThread)GetProcAddress(hNtDll, "NtQueryInformationThread"))
+		&& NULL != (hThread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, TargetProcessId)) ) {
+		NtQueryInformationThread(hThread, ThreadQuerySetWin32StartAddress, &BeginAddress, sizeof(BeginAddress), &length );
+	}
+	if (hNtDll)
+		FreeLibrary(hNtDll);
+	if (hThread)
+		CloseHandle(hThread);
+	return BeginAddress;
+}
+
+static inline std::vector<DWORD> GetThreadList(DWORD TargetProcessId) {
+	std::vector<DWORD> ThreadList;
+	HANDLE hSnapshot;
+
+	if (INVALID_HANDLE_VALUE != (hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0x00))) {
+		THREADENTRY32 te32 = { 0 };
+		te32.dwSize = sizeof(THREADENTRY32);
+
+		if (Thread32First(hSnapshot, &te32)) {
+			do {
+				if (te32.th32OwnerProcessID == TargetProcessId)
+					ThreadList.push_back(te32.th32ThreadID);
+			} while (Thread32Next(hSnapshot, &te32));
+		}
+		CloseHandle(hSnapshot);
+	}
+	return ThreadList;
+}
+
+static inline std::vector<MODULEENTRY32> GetModuleList(DWORD TargetProcessId) {
+	std::vector<MODULEENTRY32> ModuleList;
+	HANDLE hSnapshot;
+
+	if (INVALID_HANDLE_VALUE != (hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, TargetProcessId))) {
+		MODULEENTRY32 me32 = { 0 };
+		me32.dwSize = sizeof(MODULEENTRY32);
+
+		if (Module32First(hSnapshot, &me32)) {
+			do {
+				ModuleList.push_back(me32);
+			} while (Module32Next(hSnapshot, &me32));
+		}
+		CloseHandle(hSnapshot);
+	}
+	return ModuleList;
+}
+
+static BOOL SetThreadPriorityFromThreadId(DWORD TargetThreadId, int ThreadPriority) {
+	HANDLE hThread = OpenThread(THREAD_SET_INFORMATION, FALSE, TargetThreadId);
+	if (hThread == NULL)
+		return FALSE;
+	BOOL ret = SetThreadPriority(hThread, ThreadPriority);
+	CloseHandle(hThread);
+	return ret;
+}
+
+BOOL SetThreadPriorityForModule(DWORD TargetProcessId, const char *TargetModule, int ThreadPriority) {
+	BOOL ret = TRUE;
+	std::vector<DWORD> thread_list = GetThreadList(TargetProcessId);
+	std::vector<MODULEENTRY32> module_list = GetModuleList(TargetProcessId);
+	foreach(std::vector<DWORD>, it_tid, &thread_list) {
+		void *thread_address = GetThreadBeginAddress(*it_tid);
+		if (!thread_address) {
+			ret = FALSE;
+		} else {
+			foreach(std::vector<MODULEENTRY32>, it_module, &module_list) {
+				if (   check_range(thread_address, it_module->modBaseAddr, it_module->modBaseAddr + it_module->modBaseSize - 1)
+					&& (NULL == TargetModule || NULL == _strnicmp(TargetModule, it_module->szModule, strlen(TargetModule)))) {
+					ret &= !!SetThreadPriorityFromThreadId(*it_tid, ThreadPriority);
+					break;
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+static BOOL SetThreadAffinityFromThreadId(DWORD TargetThreadId, DWORD_PTR ThreadAffinityMask) {
+	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, TargetThreadId);
+	if (hThread == NULL)
+		return FALSE;
+	DWORD_PTR ret = SetThreadAffinityMask(hThread, ThreadAffinityMask);
+	CloseHandle(hThread);
+	return (ret != 0);
+}
+
+BOOL SetThreadAffinityForModule(DWORD TargetProcessId, const char *TargetModule, DWORD_PTR ThreadAffinityMask) {
+	BOOL ret = TRUE;
+	std::vector<DWORD> thread_list = GetThreadList(TargetProcessId);
+	std::vector<MODULEENTRY32> module_list = GetModuleList(TargetProcessId);
+	foreach(std::vector<DWORD>, it_tid, &thread_list) {
+		void *thread_address = GetThreadBeginAddress(*it_tid);
+		if (!thread_address) {
+			ret = FALSE;
+		} else {
+			foreach(std::vector<MODULEENTRY32>, it_module, &module_list) {
+				if (   check_range(thread_address, it_module->modBaseAddr, it_module->modBaseAddr + it_module->modBaseSize - 1)
+					&& (NULL == TargetModule || NULL == _strnicmp(TargetModule, it_module->szModule, strlen(TargetModule)))) {
+					ret &= !!SetThreadAffinityFromThreadId(*it_tid, ThreadAffinityMask);
+					break;
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+
+typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+
+static DWORD CountSetBits(ULONG_PTR bitMask) {
+    DWORD LSHIFT = sizeof(ULONG_PTR)*8 - 1;
+    DWORD bitSetCount = 0;
+    for (ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT; bitTest; bitTest >>= 1)
+        bitSetCount += ((bitMask & bitTest) != 0);
+
+    return bitSetCount;
+}
+
+BOOL getProcessorCount(DWORD *physical_processor_core, DWORD *logical_processor_core) {
+	*physical_processor_core = 0;
+	*logical_processor_core = 0;
+
+    LPFN_GLPI glpi = (LPFN_GLPI)GetProcAddress(GetModuleHandle("kernel32"), "GetLogicalProcessorInformation");
+    if (NULL == glpi)
+		return FALSE;
+
+    DWORD returnLength = 0;
+    PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
+	while (FALSE == glpi(buffer, &returnLength)) {
+		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+			if (buffer) 
+				free(buffer);
+			if (NULL == (buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(returnLength)))
+				return FALSE;
+		}
+	}
+
+    DWORD logicalProcessorCount = 0;
+    DWORD numaNodeCount = 0;
+    DWORD processorCoreCount = 0;
+    DWORD processorL1CacheCount = 0;
+    DWORD processorL2CacheCount = 0;
+    DWORD processorL3CacheCount = 0;
+    DWORD processorPackageCount = 0;
+    PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = buffer;
+    for (DWORD byteOffset = 0; byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength;
+		byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION)) {
+        switch (ptr->Relationship) {
+        case RelationNumaNode:
+            // Non-NUMA systems report a single record of this type.
+            numaNodeCount++;
+            break;
+        case RelationProcessorCore:
+            processorCoreCount++;
+            // A hyperthreaded core supplies more than one logical processor.
+            logicalProcessorCount += CountSetBits(ptr->ProcessorMask);
+            break;
+
+        case RelationCache:
+			{
+            // Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
+            PCACHE_DESCRIPTOR Cache = &ptr->Cache;
+			processorL1CacheCount += (Cache->Level == 1);
+			processorL2CacheCount += (Cache->Level == 2);
+			processorL3CacheCount += (Cache->Level == 3);
+            break;
+			}
+        case RelationProcessorPackage:
+            // Logical processors share a physical package.
+            processorPackageCount++;
+            break;
+
+        default:
+            //Unsupported LOGICAL_PROCESSOR_RELATIONSHIP value.
+            break;
+        }
+        ptr++;
+    }
+
+	*physical_processor_core = processorCoreCount;
+	*logical_processor_core = logicalProcessorCount;
+
+    return TRUE;
 }
