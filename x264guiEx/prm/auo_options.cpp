@@ -647,23 +647,13 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 
 static void set_setting_list() {
 	if (ex_stg->get_reset_s_x264_referesh()) {
-		int i;
-		for (i = 0; x264_options_table[i].long_name; i++) {
-			if (strcmp(x264_options_table[i].long_name, "preset") == NULL) {
-				x264_options_table[i].list = ex_stg->s_x264.preset.name;
-				break;
-			}
-		}
-		for (i = 0; x264_options_table[i].long_name; i++) {
-			if (strcmp(x264_options_table[i].long_name, "tune") == NULL) {
-				x264_options_table[i].list = ex_stg->s_x264.tune.name;
-				break;
-			}
-		}
-		for (i = 0; x264_options_table[i].long_name; i++) {
-			if (strcmp(x264_options_table[i].long_name, "profile") == NULL) {
-				x264_options_table[i].list = ex_stg->s_x264.profile.name;
-				break;
+		for (DWORD i = 0, check = 0x00; check != (0x04|0x02|0x01) && x264_options_table[i].long_name; i++) {
+			if        (!(check & 0x01) && strcmp(x264_options_table[i].long_name, "preset") == NULL) {
+				check |= 0x01; x264_options_table[i].list = ex_stg->s_x264.preset.name;
+			} else if (!(check & 0x02) && strcmp(x264_options_table[i].long_name, "tune") == NULL) {
+				check |= 0x02; x264_options_table[i].list = ex_stg->s_x264.tune.name;
+			} else if (!(check & 0x04) && strcmp(x264_options_table[i].long_name, "profile") == NULL) {
+				check |= 0x04; x264_options_table[i].list = ex_stg->s_x264.profile.name;
 			}
 		}
 	}
@@ -769,10 +759,8 @@ static void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
 		if (abs(y - x) > -16 * *sar_y) {
 			//gcd
 			int a = x, b = y, c;
-			while ((c = a % b) != 0) {
-				a = b;
-				b = c;
-			}
+			while ((c = a % b) != 0)
+				a = b, b = c;
 			*sar_x = x / b;
 			*sar_y = y / b;
 		} else {
@@ -841,7 +829,7 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
 	//parse_argでコマンドラインは書き変えられるので、
 	//一度コピーしておく
 	size_t cmd_len = strlen(cmd_src) + 1;
-	char *cmd = (char *)malloc(cmd_len + 1);
+	char * const cmd = (char *)malloc(cmd_len + 1);
 	memcpy(cmd, cmd_src, cmd_len + 1);
 	set_setting_list();
 	parse_arg(cmd, cmd_len, &cmd_arg_list);
