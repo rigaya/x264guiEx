@@ -23,6 +23,7 @@
 #include "auo_util.h"
 #include "auo_system.h"
 #include "fawcheck.h"
+#include "auo_faw2aac.h"
 
 #include "auo_encode.h"
 
@@ -225,6 +226,10 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	//FAWCheck
 	if (conf->aud.faw_check)
 		auo_faw_check(&conf->aud, oip, sys_dat->exstg);
+	if (conf->aud.encoder == sys_dat->exstg->s_aud_faw_index)
+		if (AUO_RESULT_SUCCESS == audio_faw2aac(conf, oip, pe, sys_dat))
+			return ret;
+
 	//使用するエンコーダの設定を選択
 	AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud[conf->aud.encoder];
 

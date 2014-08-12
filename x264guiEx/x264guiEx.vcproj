@@ -327,6 +327,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\encode\auo_faw2aac.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\encode\auo_mux.cpp"
 					>
 					<FileConfiguration
@@ -654,6 +674,10 @@
 				</File>
 				<File
 					RelativePath=".\encode\auo_encode.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\auo_faw2aac.h"
 					>
 				</File>
 				<File

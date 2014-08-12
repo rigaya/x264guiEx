@@ -14,6 +14,7 @@
 
 #include "auo_version.h"
 #include "auo_frm.h"
+#include "auo_faw2aac.h"
 #include "frmConfig.h"
 #include "frmSaveNewStg.h"
 #include "frmOtherSettings.h"
@@ -225,7 +226,9 @@ System::Boolean frmConfig::CheckLocalStg() {
 	//音声エンコーダのチェック (実行ファイル名がない場合はチェックしない)
 	if (LocalStg.audEncExeName[fcgCXAudioEncoder->SelectedIndex]->Length) {
 		String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
-		if (!File::Exists(AudioEncoderPath)) {
+		if (!File::Exists(AudioEncoderPath) 
+			&& (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index 
+			    || !check_if_faw2aac_exists()) ) {
 			if (!error) err += L"\n\n";
 			error = true;
 			err += L"指定された 音声エンコーダ は存在しません。\n [ " + AudioEncoderPath + L" ]\n";
@@ -239,7 +242,8 @@ System::Boolean frmConfig::CheckLocalStg() {
 			err += L"FAWCheckが選択されましたが、x264guiEx.ini から\n"
 				+ L"FAW の設定を読み込めませんでした。\n"
 				+ L"x264guiEx.ini を確認してください。\n";
-		} else if (!File::Exists(LocalStg.audEncPath[sys_dat->exstg->s_aud_faw_index])) {
+		} else if (!File::Exists(LocalStg.audEncPath[sys_dat->exstg->s_aud_faw_index])
+			       && !check_if_faw2aac_exists()) {
 			if (!error) err += L"\n\n";
 			error = true;
 			err += L"FAWCheckが選択されましたが、FAW(fawcl)へのパスが正しく指定されていません。\n"
