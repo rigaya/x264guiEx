@@ -186,6 +186,8 @@ System::Void frmConfig::LoadLocalStg() {
 	LocalStg.TC2MP4Path      = String(_ex_stg->s_mux[MUXER_TC2MP4].fullpath).ToString();
 	LocalStg.MPGMuxerExeName = String(_ex_stg->s_mux[MUXER_MPG].filename).ToString();
 	LocalStg.MPGMuxerPath    = String(_ex_stg->s_mux[MUXER_MPG].fullpath).ToString();
+	LocalStg.MP4RawExeName   = String(_ex_stg->s_mux[MUXER_MP4_RAW].filename).ToString();
+	LocalStg.MP4RawPath      = String(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath).ToString();
 
 	LocalStg.audEncName->Clear();
 	LocalStg.audEncExeName->Clear();
@@ -273,6 +275,7 @@ System::Void frmConfig::SaveLocalStg() {
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MKV].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MKV].fullpath),     LocalStg.MKVMuxerPath);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_TC2MP4].fullpath,  sizeof(_ex_stg->s_mux[MUXER_TC2MP4].fullpath),  LocalStg.TC2MP4Path);
 	GetCHARfromString(_ex_stg->s_mux[MUXER_MPG].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MPG].fullpath),     LocalStg.MPGMuxerPath);
+	GetCHARfromString(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath, sizeof(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath), LocalStg.MP4RawPath);
 	for (int i = 0; i < _ex_stg->s_aud_count; i++)
 		GetCHARfromString(_ex_stg->s_aud[i].fullpath,         sizeof(_ex_stg->s_aud[i].fullpath),             LocalStg.audEncPath[i]);
 	_ex_stg->save_local();
@@ -288,6 +291,7 @@ System::Void frmConfig::SetLocalStg() {
 	fcgTXMKVMuxerPath->Text       = LocalStg.MKVMuxerPath;
 	fcgTXTC2MP4Path->Text         = LocalStg.TC2MP4Path;
 	fcgTXMPGMuxerPath->Text       = LocalStg.MPGMuxerPath;
+	fcgTXMP4RawPath->Text         = LocalStg.MP4RawPath;
 	fcgTXCustomAudioTempDir->Text = LocalStg.CustomAudTmpDir;
 	fcgTXCustomTempDir->Text      = LocalStg.CustomTmpDir;
 	fcgTXMP4BoxTempDir->Text      = LocalStg.CustomMP4TmpDir;
@@ -295,6 +299,7 @@ System::Void frmConfig::SetLocalStg() {
 	fcgLBMKVMuxerPath->Text       = LocalStg.MKVMuxerExeName + L" の指定";
 	fcgLBTC2MP4Path->Text         = LocalStg.TC2MP4ExeName   + L" の指定";
 	fcgLBMPGMuxerPath->Text       = LocalStg.MPGMuxerExeName + L" の指定";
+	fcgLBMP4RawPath->Text         = LocalStg.MP4RawExeName + L" の指定";
 
 	fcgTXX264Path->SelectionStart         = fcgTXX264Path->Text->Length;
 	fcgTXX264PathSub->SelectionStart      = fcgTXX264PathSub->Text->Length;
@@ -303,6 +308,7 @@ System::Void frmConfig::SetLocalStg() {
 	fcgTXTC2MP4Path->SelectionStart       = fcgTXTC2MP4Path->Text->Length;
 	fcgTXMKVMuxerPath->SelectionStart     = fcgTXMKVMuxerPath->Text->Length;
 	fcgTXMPGMuxerPath->SelectionStart     = fcgTXMPGMuxerPath->Text->Length;
+	fcgTXMP4RawPath->SelectionStart       = fcgTXMP4RawPath->Text->Length;
 }
 
 //////////////   TrackBar用タイマー関連     /////////////////////////
@@ -853,7 +859,6 @@ System::Void frmConfig::RebuildStgFileDropDown(String^ stgDir) {
 	RebuildStgFileDropDown(fcgTSSettings, Path::GetFullPath(CurrentStgDir));
 }
 
-
 //////////////   初期化関連     ////////////////
 System::Void frmConfig::InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data) {
 	if (set_config->size_all != CONF_INITIALIZED) {
@@ -920,6 +925,8 @@ System::Void frmConfig::SetTXMaxLenAll() {
 	SetTXMaxLen(fcgTXMP4MuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
 	SetTXMaxLen(fcgTXMKVMuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);
 	SetTXMaxLen(fcgTXTC2MP4Path,         sizeof(sys_dat->exstg->s_mux[MUXER_TC2MP4].fullpath) - 1);
+	SetTXMaxLen(fcgTXMPGMuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MPG].fullpath) - 1);
+	SetTXMaxLen(fcgTXMP4RawPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MP4_RAW].fullpath) - 1);
 	SetTXMaxLen(fcgTXCustomTempDir,      sizeof(sys_dat->exstg->s_local.custom_tmp_dir) - 1);
 	SetTXMaxLen(fcgTXCustomAudioTempDir, sizeof(sys_dat->exstg->s_local.custom_audio_tmp_dir) - 1);
 	SetTXMaxLen(fcgTXMP4BoxTempDir,      sizeof(sys_dat->exstg->s_local.custom_mp4box_tmp_dir) - 1);
@@ -954,12 +961,37 @@ System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventA
 	fcgCBNulOutCLI->Visible = fcgTSBCMDOnly->Checked;
 }
 
-System::Void frmConfig::fcgMP4TempDirEnabled() {
-	bool enabled = str_has_char(sys_dat->exstg->s_mux[MUXER_MP4].tmp_cmd) != FALSE;
-	fcgCXMP4BoxTempDir->Visible = enabled;
-	fcgLBMP4BoxTempDir->Visible = enabled;
-	fcgTXMP4BoxTempDir->Visible = enabled;
-	fcgBTMP4BoxTempDir->Visible = enabled;
+System::Void frmConfig::fcgChangeMuxerVisible(System::Object^  sender, System::EventArgs^  e) {
+	//tc2mp4のチェック
+	const bool enable_tc2mp4_muxer = (0 != str_has_char(sys_dat->exstg->s_mux[MUXER_TC2MP4].base_cmd));
+	fcgTXTC2MP4Path->Visible = enable_tc2mp4_muxer;
+	fcgLBTC2MP4Path->Visible = enable_tc2mp4_muxer;
+	fcgBTTC2MP4Path->Visible = enable_tc2mp4_muxer;
+	//mp4 rawのチェック
+	const bool enable_mp4raw_muxer = (0 != str_has_char(sys_dat->exstg->s_mux[MUXER_MP4_RAW].base_cmd));
+	fcgTXMP4RawPath->Visible = enable_mp4raw_muxer;
+	fcgLBMP4RawPath->Visible = enable_mp4raw_muxer;
+	fcgBTMP4RawPath->Visible = enable_mp4raw_muxer;
+	//一時フォルダのチェック
+	const bool enable_mp4_tmp = (0 != str_has_char(sys_dat->exstg->s_mux[MUXER_MP4].tmp_cmd));
+	fcgCXMP4BoxTempDir->Visible = enable_mp4_tmp;
+	fcgLBMP4BoxTempDir->Visible = enable_mp4_tmp;
+	fcgTXMP4BoxTempDir->Visible = enable_mp4_tmp;
+	fcgBTMP4BoxTempDir->Visible = enable_mp4_tmp;
+	//Apple Chapterのチェック
+	bool enable_mp4_apple_cmdex = false;
+	for (int i = 0; i < sys_dat->exstg->s_mux[MUXER_MP4].ex_count; i++)
+		enable_mp4_apple_cmdex |= (0 != str_has_char(sys_dat->exstg->s_mux[MUXER_MP4].ex_cmd[i].cmd_apple));
+	fcgCBMP4MuxApple->Visible = enable_mp4_apple_cmdex;
+
+	//位置の調整
+	static const int HEIGHT = 31;
+	fcgLBTC2MP4Path->Location = Point(fcgLBTC2MP4Path->Location.X, fcgLBMP4MuxerPath->Location.Y + HEIGHT * enable_tc2mp4_muxer);
+	fcgTXTC2MP4Path->Location = Point(fcgTXTC2MP4Path->Location.X, fcgTXMP4MuxerPath->Location.Y + HEIGHT * enable_tc2mp4_muxer);
+	fcgBTTC2MP4Path->Location = Point(fcgBTTC2MP4Path->Location.X, fcgBTMP4MuxerPath->Location.Y + HEIGHT * enable_tc2mp4_muxer);
+	fcgLBMP4RawPath->Location = Point(fcgLBMP4RawPath->Location.X, fcgLBTC2MP4Path->Location.Y   + HEIGHT * enable_mp4raw_muxer);
+	fcgTXMP4RawPath->Location = Point(fcgTXMP4RawPath->Location.X, fcgTXTC2MP4Path->Location.Y   + HEIGHT * enable_mp4raw_muxer);
+	fcgBTMP4RawPath->Location = Point(fcgBTMP4RawPath->Location.X, fcgBTTC2MP4Path->Location.Y   + HEIGHT * enable_mp4raw_muxer);
 }
 
 System::Void frmConfig::SetStgEscKey(bool Enable) {
@@ -1031,7 +1063,7 @@ System::Void frmConfig::InitForm() {
 	fcgLBYC48ColMatConv->Visible = false;
 #endif
 	//フォームの変更可不可を更新
-	fcgMP4TempDirEnabled();
+	fcgChangeMuxerVisible(nullptr, nullptr);
 	fcgChangeEnabled(nullptr, nullptr);
 	fcgCBAFS_CheckedChanged(nullptr, nullptr);
 	EnableSettingsNoteChange(false);
@@ -1857,6 +1889,12 @@ System::Void frmConfig::SetHelpToolTips() {
 		);
 	fcgTTEx->SetToolTip(fcgBTTC2MP4Path, L""
 		+ L"tc2mp4modの場所を指定します。\n"
+		+ L"\n"
+		+ L"この設定はx264guiEx.confに保存され、\n"
+		+ L"バッチ処理ごとの変更はできません。"
+		);
+	fcgTTEx->SetToolTip(fcgBTMP4RawPath, L""
+		+ L"raw用mp4muxerの場所を指定します。\n"
 		+ L"\n"
 		+ L"この設定はx264guiEx.confに保存され、\n"
 		+ L"バッチ処理ごとの変更はできません。"

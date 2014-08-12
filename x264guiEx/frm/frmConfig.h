@@ -588,6 +588,15 @@ private: System::Windows::Forms::Label^  fcgLBMPGMuxerCmdEx;
 private: System::Windows::Forms::CheckBox^  fcgCBMPGMuxerExt;
 private: System::Windows::Forms::Label^  fcgLBLookaheadThreads;
 private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
+private: System::Windows::Forms::Button^  fcgBTMP4RawPath;
+
+private: System::Windows::Forms::TextBox^  fcgTXMP4RawPath;
+private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
+
+
+
+
+
 
 
 
@@ -872,6 +881,9 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			this->fcgLBAudioTemp = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlMux = (gcnew System::Windows::Forms::TabControl());
 			this->fcgtabPageMP4 = (gcnew System::Windows::Forms::TabPage());
+			this->fcgBTMP4RawPath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXMP4RawPath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgLBMP4RawPath = (gcnew System::Windows::Forms::Label());
 			this->fcgCBMP4MuxApple = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgBTMP4BoxTempDir = (gcnew System::Windows::Forms::Button());
 			this->fcgTXMP4BoxTempDir = (gcnew System::Windows::Forms::TextBox());
@@ -3598,10 +3610,6 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			// fcgtabPageMP4
 			// 
 			this->fcgtabPageMP4->Controls->Add(this->fcgCBMP4MuxApple);
-			this->fcgtabPageMP4->Controls->Add(this->fcgBTMP4BoxTempDir);
-			this->fcgtabPageMP4->Controls->Add(this->fcgTXMP4BoxTempDir);
-			this->fcgtabPageMP4->Controls->Add(this->fcgCXMP4BoxTempDir);
-			this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4BoxTempDir);
 			this->fcgtabPageMP4->Controls->Add(this->fcgBTTC2MP4Path);
 			this->fcgtabPageMP4->Controls->Add(this->fcgTXTC2MP4Path);
 			this->fcgtabPageMP4->Controls->Add(this->fcgBTMP4MuxerPath);
@@ -3611,6 +3619,13 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			this->fcgtabPageMP4->Controls->Add(this->fcgCXMP4CmdEx);
 			this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4CmdEx);
 			this->fcgtabPageMP4->Controls->Add(this->fcgCBMP4MuxerExt);
+			this->fcgtabPageMP4->Controls->Add(this->fcgBTMP4RawPath);
+			this->fcgtabPageMP4->Controls->Add(this->fcgTXMP4RawPath);
+			this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4RawPath);
+			this->fcgtabPageMP4->Controls->Add(this->fcgBTMP4BoxTempDir);
+			this->fcgtabPageMP4->Controls->Add(this->fcgTXMP4BoxTempDir);
+			this->fcgtabPageMP4->Controls->Add(this->fcgCXMP4BoxTempDir);
+			this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4BoxTempDir);
 			this->fcgtabPageMP4->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageMP4->Name = L"fcgtabPageMP4";
 			this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3);
@@ -3618,6 +3633,36 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			this->fcgtabPageMP4->TabIndex = 0;
 			this->fcgtabPageMP4->Text = L"mp4";
 			this->fcgtabPageMP4->UseVisualStyleBackColor = true;
+			// 
+			// fcgBTMP4RawPath
+			// 
+			this->fcgBTMP4RawPath->Location = System::Drawing::Point(340, 109);
+			this->fcgBTMP4RawPath->Name = L"fcgBTMP4RawPath";
+			this->fcgBTMP4RawPath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTMP4RawPath->TabIndex = 22;
+			this->fcgBTMP4RawPath->Text = L"...";
+			this->fcgBTMP4RawPath->UseVisualStyleBackColor = true;
+			this->fcgBTMP4RawPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTMP4RawMuxerPath_Click);
+			// 
+			// fcgTXMP4RawPath
+			// 
+			this->fcgTXMP4RawPath->AllowDrop = true;
+			this->fcgTXMP4RawPath->Location = System::Drawing::Point(136, 110);
+			this->fcgTXMP4RawPath->Name = L"fcgTXMP4RawPath";
+			this->fcgTXMP4RawPath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXMP4RawPath->TabIndex = 21;
+			this->fcgTXMP4RawPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4RawMuxerPath_TextChanged);
+			this->fcgTXMP4RawPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXMP4RawPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
+			// 
+			// fcgLBMP4RawPath
+			// 
+			this->fcgLBMP4RawPath->AutoSize = true;
+			this->fcgLBMP4RawPath->Location = System::Drawing::Point(4, 113);
+			this->fcgLBMP4RawPath->Name = L"fcgLBMP4RawPath";
+			this->fcgLBMP4RawPath->Size = System::Drawing::Size(49, 14);
+			this->fcgLBMP4RawPath->TabIndex = 20;
+			this->fcgLBMP4RawPath->Text = L"～の指定";
 			// 
 			// fcgCBMP4MuxApple
 			// 
@@ -3669,7 +3714,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			// 
 			// fcgBTTC2MP4Path
 			// 
-			this->fcgBTTC2MP4Path->Location = System::Drawing::Point(340, 96);
+			this->fcgBTTC2MP4Path->Location = System::Drawing::Point(340, 87);
 			this->fcgBTTC2MP4Path->Name = L"fcgBTTC2MP4Path";
 			this->fcgBTTC2MP4Path->Size = System::Drawing::Size(30, 23);
 			this->fcgBTTC2MP4Path->TabIndex = 5;
@@ -3680,7 +3725,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			// fcgTXTC2MP4Path
 			// 
 			this->fcgTXTC2MP4Path->AllowDrop = true;
-			this->fcgTXTC2MP4Path->Location = System::Drawing::Point(136, 97);
+			this->fcgTXTC2MP4Path->Location = System::Drawing::Point(136, 88);
 			this->fcgTXTC2MP4Path->Name = L"fcgTXTC2MP4Path";
 			this->fcgTXTC2MP4Path->Size = System::Drawing::Size(202, 21);
 			this->fcgTXTC2MP4Path->TabIndex = 4;
@@ -3713,7 +3758,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 			// fcgLBTC2MP4Path
 			// 
 			this->fcgLBTC2MP4Path->AutoSize = true;
-			this->fcgLBTC2MP4Path->Location = System::Drawing::Point(4, 100);
+			this->fcgLBTC2MP4Path->Location = System::Drawing::Point(4, 91);
 			this->fcgLBTC2MP4Path->Name = L"fcgLBTC2MP4Path";
 			this->fcgLBTC2MP4Path->Size = System::Drawing::Size(49, 14);
 			this->fcgLBTC2MP4Path->TabIndex = 4;
@@ -4357,6 +4402,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 		System::Void SetX264VersionToolTip(String^ x264Path, bool as10bit);
 		System::Void fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgChangeMuxerVisible(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBBitrateCalc_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void CloseBitrateCalc();
 		System::Void SetfbcBTABEnable(bool enable, int max);
@@ -4376,7 +4422,6 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 		System::Void SetStgEscKey(bool Enable);
 		System::Void fcgArrangeForAutoMultiPass(bool enable);
 		System::Boolean fcgLastX264ModeAsAMP;
-		System::Void fcgMP4TempDirEnabled();
 	public:
 		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);
@@ -4511,6 +4556,10 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 	private: 
 		System::Void fcgBTTC2MP4Path_Click(System::Object^  sender, System::EventArgs^  e) {
 			openExeFile(fcgTXTC2MP4Path, LocalStg.TC2MP4ExeName);
+		}
+	private:
+		System::Void fcgBTMP4RawMuxerPath_Click(System::Object^  sender, System::EventArgs^  e) {
+			openExeFile(fcgTXMP4RawPath, LocalStg.MP4RawExeName);
 		}
 	private: 
 		System::Void fcgBTAudioEncoderPath_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -4854,6 +4903,10 @@ private: System::Windows::Forms::NumericUpDown^  fcgNULookaheadThreads;
 	private: 
 		System::Void fcgTXTC2MP4Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.TC2MP4Path = fcgTXTC2MP4Path->Text;
+		}
+	private:
+		System::Void fcgTXMP4RawMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			LocalStg.MP4RawPath = fcgTXMP4RawPath->Text;
 		}
 	private: 
 		System::Void fcgTXMKVMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {

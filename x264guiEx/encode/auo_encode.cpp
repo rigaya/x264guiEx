@@ -29,16 +29,18 @@ void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe) {
 	apply_appendix(audfile, nSize, audfile, pe->append.aud);
 }
 
-static void get_muxout_appendix(char *muxout_appendix, size_t nSize, const char *tmp_filename) {
-	static const char * const MUXOUT_APPENDIX = "_out";
+static void get_muxout_appendix(char *muxout_appendix, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe) {
+	static const char * const MUXOUT_APPENDIX = "_muxout";
 	strcpy_s(muxout_appendix, nSize, MUXOUT_APPENDIX);
-	strcat_s(muxout_appendix, nSize, PathFindExtension(tmp_filename));
+	const char *ext = (pe->muxer_to_be_used >= 0 && str_has_char(sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext)) ?
+		sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext : PathFindExtension(pe->temp_filename);
+	strcat_s(muxout_appendix, nSize, ext);
 }
 
-void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename) {
+void get_muxout_filename(char *filename, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe) {
 	char muxout_appendix[MAX_APPENDIX_LEN];
-	get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), tmp_filename);
-	apply_appendix(filename, nSize, tmp_filename, muxout_appendix);
+	get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), sys_dat, pe);
+	apply_appendix(filename, nSize, pe->temp_filename, muxout_appendix);
 }
 
 //チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
@@ -98,7 +100,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.tc);
 	replace(cmd, nSize, "%{tcpath}", tmp);
 	//%{muxout}
-	get_muxout_filename(tmp, _countof(tmp), pe->temp_filename);
+	get_muxout_filename(tmp, _countof(tmp), sys_dat, pe);
 	replace(cmd, nSize, "%{muxout}", tmp);
 
 	char fullpath[MAX_PATH_LEN];
@@ -150,12 +152,12 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret) {
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
-		if (!move_temp_file(PathFindExtension(savefile), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
+		if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? savefile : pe->temp_filename), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
 			ret |= AUO_RESULT_ERROR;
 	//mux後ファイル
 	if (pe->muxer_to_be_used >= 0) {
 		char muxout_appendix[MAX_APPENDIX_LEN];
-		get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), pe->temp_filename);
+		get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), sys_dat, pe);
 		move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
 	}
 	//qpファイル
@@ -343,7 +345,7 @@ AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_
 		strcpy_s(muxout, _countof(muxout), pe->temp_filename);
 	} else {
 		//tempfileがない場合、mux後ファイルをチェックする
-		get_muxout_filename(muxout, _countof(muxout), pe->temp_filename);
+		get_muxout_filename(muxout, _countof(muxout), sys_dat, pe);
 		if (pe->muxer_to_be_used < 0 || !PathFileExists(muxout)) {
 			error_check_muxout_exist(); warning_amp_failed();
 			return AUO_RESULT_ERROR;

@@ -316,8 +316,9 @@ void guiEx_settings::load_mux() {
 	char muxer_section[INI_KEY_MAX_LEN];
 	char key[INI_KEY_MAX_LEN];
 
-	static const int MUX_COUNT = 4;
-	static const char * MUXER_TYPE[MUX_COUNT] = { "MUXER_MP4", "MUXER_MKV", "MUXER_TC2MP4", "MUXER_MPG" };
+	static const int MUX_COUNT = 5;
+	static const char * MUXER_TYPE[MUX_COUNT]    = { "MUXER_MP4", "MUXER_MKV", "MUXER_TC2MP4", "MUXER_MPG", "MUXER_MP4_RAW" };
+	static const char * MUXER_OUT_EXT[MUX_COUNT] = {      ".mp4",      ".mkv",         ".mp4",      ".mpg",          ".mp4" }; 
 
 	clear_mux();
 
@@ -333,6 +334,10 @@ void guiEx_settings::load_mux() {
 		s_mux[i].dispname = s_mux_mc.SetPrivateProfileString(muxer_section, "dispname", "", ini_fileName);
 		s_mux[i].filename = s_mux_mc.SetPrivateProfileString(muxer_section, "filename", "", ini_fileName);
 		s_mux[i].base_cmd = s_mux_mc.SetPrivateProfileString(muxer_section, "base_cmd", "", ini_fileName);
+		s_mux[i].out_ext = (char *)s_mux_mc.GetPtr();
+		strcpy_s(s_mux[i].out_ext, s_mux_mc.GetRemain(), MUXER_OUT_EXT[i]);
+		s_mux_mc.CutString(sizeof(s_mux[i].out_ext[0]));
+		s_mux[i].vid_cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, "vd_cmd",   "", ini_fileName);
 		s_mux[i].aud_cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, "au_cmd",   "", ini_fileName);
 		s_mux[i].tc_cmd   = s_mux_mc.SetPrivateProfileString(muxer_section, "tc_cmd",   "", ini_fileName);
 		s_mux[i].tmp_cmd  = s_mux_mc.SetPrivateProfileString(muxer_section, "tmp_cmd",  "", ini_fileName);

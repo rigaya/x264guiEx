@@ -425,6 +425,20 @@ static inline BOOL check_ext(const WCHAR *filename, const WCHAR *ext) {
 	return (_wcsicmp(PathFindExtensionW(filename), ext) == NULL) ? TRUE : FALSE;
 }
 
+//パスの拡張子を変更する
+static inline void change_ext(char *filename, size_t nSize, const char *ext) {
+	size_t len_to_ext;
+	char *ext_ptr = PathFindExtensionA(filename);
+	len_to_ext = (ext_ptr) ? ext_ptr - filename : strlen(filename);
+	strcpy_s(filename + len_to_ext, nSize - len_to_ext, ext);
+}
+static inline void change_ext(WCHAR *filename, size_t nSize, const WCHAR *ext) {
+	size_t len_to_ext;
+	WCHAR *ext_ptr = PathFindExtensionW(filename);
+	len_to_ext = (ext_ptr) ? ext_ptr - filename : wcslen(filename);
+	wcscpy_s(filename + len_to_ext, nSize - len_to_ext, ext);
+}
+
 //ルートディレクトリを取得
 static inline BOOL PathGetRoot(const char *path, char *root, size_t nSize) {
 	if (PathIsRelativeA(path) == FALSE)

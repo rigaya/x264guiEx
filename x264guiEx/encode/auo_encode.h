@@ -25,7 +25,7 @@ static const char * const PIPE_FN = "-";
 typedef AUO_RESULT (*encode_task) (CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
 
 void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe); //音声一時ファイル名を作成
-void get_muxout_filename(char *filename, size_t nSize, const char *tmp_filename); //mux出力ファイル名を作成
+void get_muxout_filename(char *filename, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe); //mux出力ファイル名を作成
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
 					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savfile); //チャプターファイルのパスを生成
 void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savefile); //コマンドラインの共通置換を実行

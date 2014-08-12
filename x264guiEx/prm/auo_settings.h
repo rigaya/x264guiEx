@@ -154,7 +154,9 @@ typedef struct {
 	char *dispname;               //名前
 	char *filename;               //拡張子付き名前
 	char fullpath[MAX_PATH_LEN];  //エンコーダの場所(フルパス)
+	char *out_ext;                //mux後ファイルの拡張子
 	char *base_cmd;               //もととなるコマンドライン
+	char *vid_cmd;                //映像mux用のコマンドライン
 	char *aud_cmd;                //音声mux用のコマンドライン
 	char *tc_cmd;                 //タイムコードmux用のコマンドライン
 	char *tmp_cmd;                //一時フォルダ指定用コマンドライン
