@@ -200,6 +200,47 @@ static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe)
 	return ret;
 }
 
+static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
+	AUO_RESULT ret = AUO_RESULT_WARNING;
+	char buffer[2048];
+	if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
+		char print_line[512];
+		const char *LINE_HEADER = "x264 version: ";
+		const char *LINE_CONFIGURATION = "configuration:";
+		BOOL line_configuration = FALSE;
+		sprintf_s(print_line, _countof(print_line), LINE_HEADER);
+		int a = -1, b = -1, c = -1;
+		for (char *ptr = buffer, *qtr = NULL; NULL != (ptr = strtok_s(ptr, "\r\n", &qtr)); ) {
+			if (ptr == buffer) {
+				strcat_s(print_line, _countof(print_line), ptr + strlen("x264 ") * (NULL == strncmp(ptr, "x264 ", strlen("x264 "))));
+				if (3 != sscanf_s(ptr, "x264 %d.%d.%d", &a, &b, &c))
+					a = b = c = -1;
+			} else if (strstr(ptr, LINE_CONFIGURATION)) {
+				strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+				line_configuration = TRUE;
+			} else if (line_configuration) {
+				const char *rtr = ptr;
+				while (*rtr == ' ') rtr++;
+				if ((size_t)(rtr - ptr) == strlen(LINE_CONFIGURATION) + 1) {
+					strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+				} else {
+					line_configuration = FALSE;
+				}
+			} else {
+				line_configuration = FALSE;
+			}
+			ptr = NULL;
+		}
+		if (strlen(print_line) > strlen(LINE_HEADER)) {
+			write_log_auo_line(LOG_INFO, print_line);
+		}
+		if (a >= 0 && b >= 0 && c >= 0) {
+			ret = (b >= 104 || c >= 1673) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
+		}
+	}
+	return ret;
+}
+
 //auo_pipe.cppのread_from_pipeのx264用特別版
 static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
 	DWORD pipe_read = 0;
@@ -366,6 +407,12 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	pipes.stdIn.mode = AUO_PIPE_ENABLE;
 	pipes.stdErr.mode = AUO_PIPE_ENABLE;
 	pipes.stdIn.bufferSize = pixel_data.total_size * 2;
+
+	//x264バージョン情報表示・チェック
+	if (AUO_RESULT_ERROR == write_log_x264_version(x264fullpath)) {
+		ret |= AUO_RESULT_ERROR; error_x264_version();
+		return ret;
+	}
 
 	//コマンドライン生成
 	build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);

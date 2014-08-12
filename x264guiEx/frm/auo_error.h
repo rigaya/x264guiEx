@@ -35,6 +35,7 @@ void error_malloc_pixel_data();
 void error_malloc_tc();
 void error_malloc_8bit();
 void error_x264_dead();
+void error_x264_version();
 void error_afs_get_frame();
 void error_audenc_failed(const char *name, const char *args);
 void error_no_wavefile();
