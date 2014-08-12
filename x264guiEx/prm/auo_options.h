@@ -327,6 +327,7 @@ typedef struct {
 	char *value;        //オプションの値
 	BOOL value_had_dQB; //前後に'"'があったか
 	BOOL ret;           //構造体に読み込まれたかどうか
+	BOOL type_mediainfo; //MediaInfoの書式だったかどうか
 } CMD_ARG;
 
 //コマンドラインの解析・生成

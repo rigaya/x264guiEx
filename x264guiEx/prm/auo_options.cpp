@@ -22,29 +22,36 @@
 
 
 //オプションの種類(色々便利なので1から始める)
-static const DWORD OPTION_TYPE_BOOL             =  1;
-static const DWORD OPTION_TYPE_BOOL_REVERSE     =  2;
-static const DWORD OPTION_TYPE_INT              =  3;
-static const DWORD OPTION_TYPE_FLOAT            =  4;
-static const DWORD OPTION_TYPE_INT2             =  5;
-static const DWORD OPTION_TYPE_FLOAT2           =  6;
-static const DWORD OPTION_TYPE_BOOL2_REVERSE    =  7;
-static const DWORD OPTION_TYPE_LIST             =  8;
-//個別
-static const DWORD OPTION_TYPE_CRF              =  9;
-static const DWORD OPTION_TYPE_BITRATE          = 10;
-static const DWORD OPTION_TYPE_QP               = 11;
-static const DWORD OPTION_TYPE_KEYINT           = 12;
-static const DWORD OPTION_TYPE_DEBLOCK          = 13;
-static const DWORD OPTION_TYPE_CQM              = 14;
-static const DWORD OPTION_TYPE_TCFILE_IN        = 15;
-static const DWORD OPTION_TYPE_INPUT_DEPTH      = 16;
-static const DWORD OPTION_TYPE_PASS             = 17;
-static const DWORD OPTION_TYPE_MB_PARTITION     = 18;
-static const DWORD OPTION_TYPE_TFF              = 19;
-static const DWORD OPTION_TYPE_BFF              = 20;
-static const DWORD OPTION_TYPE_TIMEBASE         = 21;
-static const DWORD OPTION_TYPE_LEVEL            = 22;
+enum {
+	OPTION_TYPE_BOOL = 1,
+	OPTION_TYPE_BOOL_REVERSE,
+	OPTION_TYPE_INT,
+	OPTION_TYPE_FLOAT,
+	OPTION_TYPE_INT2,
+	OPTION_TYPE_FLOAT2,
+	OPTION_TYPE_BOOL2_REVERSE,
+	OPTION_TYPE_LIST,
+	//個別
+	OPTION_TYPE_CRF,
+	OPTION_TYPE_BITRATE,
+	OPTION_TYPE_QP,
+	OPTION_TYPE_KEYINT,
+	OPTION_TYPE_DEBLOCK,
+	OPTION_TYPE_CQM,
+	OPTION_TYPE_TCFILE_IN,
+	OPTION_TYPE_INPUT_DEPTH,
+	OPTION_TYPE_PASS,
+	OPTION_TYPE_MB_PARTITION,
+	OPTION_TYPE_TFF,
+	OPTION_TYPE_BFF,
+	OPTION_TYPE_TIMEBASE,
+	OPTION_TYPE_LEVEL,
+	OPTION_TYPE_ANALYSE,
+	OPTION_TYPE_RC,
+	OPTION_TYPE_AQ,
+	OPTION_TYPE_INTERLACED,
+	OPTION_TYPE_PSY,
+};
 
 //値を取らないオプションタイプのリスト
 static const DWORD OPTION_NO_VALUE[] = { 
@@ -71,8 +78,8 @@ static X264_OPTIONS x264_options_table[] = {
 	{ "crf",              "",   OPTION_TYPE_CRF,           NULL,                 NULL                                 },
 	{ "bitrate",          "B",  OPTION_TYPE_BITRATE,       NULL,                 NULL                                 },
 	{ "qp",               "q",  OPTION_TYPE_QP,            NULL,                 NULL                                 },
-	{ "ipratio",         "",    OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, ip_ratio       ) },
-	{ "pbratio",         "",    OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, pb_ratio       ) },
+	{ "ipratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, ip_ratio       ) },
+	{ "pbratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, pb_ratio       ) },
 	{ "qpmin",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_min         ) },
 	{ "qpmax",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_max         ) },
 	{ "qpstep",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_step        ) },
@@ -86,7 +93,7 @@ static X264_OPTIONS x264_options_table[] = {
 	{ "aq-mode",          "",   OPTION_TYPE_INT,           list_aq,              offsetof(CONF_X264, aq_mode        ) },
 	{ "aq-strength",      "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, aq_strength    ) },
 	{ "psy-rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_X264, psy_rd         ) },
-	{ "psy",              "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_X264, psy_rd         ) },
+	{ "psy",              "",   OPTION_TYPE_PSY,           NULL,                 offsetof(CONF_X264, psy_rd         ) },
 	{ "no-psy",           "",   OPTION_TYPE_BOOL2_REVERSE, NULL,                 offsetof(CONF_X264, psy_rd         ) },
 	{ "scenecut",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, scenecut       ) },
 	{ "no-scenecut",      "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, scenecut       ) },
@@ -148,7 +155,37 @@ static X264_OPTIONS x264_options_table[] = {
 	{ "timebase",         "",   OPTION_TYPE_TIMEBASE,      NULL,                 NULL                                 },
 	{ "progress",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, disable_progress) },
 	{ "no-progress",      "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, disable_progress) },
-	{ NULL,               NULL, NULL,                      NULL,                 NULL                                 }
+	//書き出しの場合はここまでで終わり
+	{ NULL,               NULL, NULL,                      NULL,                 NULL                                 },
+	//MediaInfoの書式を回収する
+	{ "analyse",          "",   OPTION_TYPE_ANALYSE,       NULL,                 offsetof(CONF_X264, mb_partition   ) },
+	{ "psy_rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_X264, psy_rd         ) },
+	{ "mixed_ref",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, mixed_ref      ) },
+	{ "me_range",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, me_range       ) },
+	{ "chroma_me",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, chroma_me      ) },
+	{ "fast_pskip",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, no_fast_pskip  ) },
+	{ "chroma_qp_offset", "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, chroma_qp_offset) },
+	{ "lookahead_threads","",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, lookahead_threads) },
+	{ "sliced_threads",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, sliced_threading) },
+	{ "decimate",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, no_dct_decimate) },
+	{ "bluray_compat",    "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, bluray_compat  ) },
+	{ "b_pyramid",        "",   OPTION_TYPE_LIST,          list_b_pyramid,       offsetof(CONF_X264, b_pyramid      ) },
+	{ "b_adapt",          "",   OPTION_TYPE_INT,           list_b_adpat,         offsetof(CONF_X264, b_adapt        ) },
+	{ "b_bias",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, b_bias         ) },
+	{ "open_gop",         "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, open_gop       ) },
+	{ "keyint_min",       "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, keyint_min     ) },
+	{ "rc_lookahead",     "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, rc_lookahead   ) },
+	{ "nal_hrd",          "",   OPTION_TYPE_LIST,          list_nal_hrd,         offsetof(CONF_X264, nal_hrd        ) },
+	{ "ip_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, ip_ratio       ) },
+	{ "pb_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, pb_ratio       ) },
+	{ "vbv_maxrate",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_maxrate    ) },
+	{ "vbv_bufsize",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_bufsize    ) },
+	{ "interlaced",       "",   OPTION_TYPE_INTERLACED,    NULL,                 NULL                                 },
+	{ "mbaff",            "",   OPTION_TYPE_INTERLACED,    NULL,                 NULL                                 },
+	{ "rc",               "",   OPTION_TYPE_RC,            NULL,                 NULL                                 },
+	{ "aq",               "",   OPTION_TYPE_AQ,            NULL,                 NULL                                 },
+	{ "wpredb",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, weight_b       ) },
+	{ "wpredp",           "",   OPTION_TYPE_INT,           list_weightp,         offsetof(CONF_X264, weight_p       ) },
 };
 
 static BOOL x264guiEx_strtol(int *i, const char *str, DWORD len) {
@@ -235,21 +272,30 @@ static BOOL x264guiEx_parse_float(float *f, const char *value, DWORD len) {
 #pragma warning( disable: 4100 )
 
 static BOOL set_bool(void *b, const char *value, const X264_OPTION_STR *list) {
-	*(BOOL*)b = TRUE;
-	return TRUE;
+	BOOL ret = TRUE;
+	if (value) {
+		int i = -1;
+		if (FALSE != (ret = x264guiEx_parse_int(&i, value, NULL)))
+			if (FALSE != (ret = check_range(i, FALSE, TRUE)))
+				*(int *)b = i;
+	} else {
+		*(BOOL*)b = TRUE;
+	}
+	return ret;
 }
 
 static BOOL set_bool_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
-	*(BOOL*)b = FALSE;
-	return TRUE;
+	BOOL ret = TRUE;
+	if (value) {
+		int i = -1;
+		if (FALSE != (ret = x264guiEx_parse_int(&i, value, NULL)))
+			if (FALSE != (ret = check_range(i, FALSE, TRUE)))
+				*(int *)b = !i;
+	} else {
+		*(BOOL*)b = FALSE;
+	}
+	return ret;
 }
-
-static BOOL set_bool2_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
-	((INT2*)b)->x = FALSE;
-	((INT2*)b)->y = FALSE;
-	return TRUE;
-}
-
 static BOOL set_int(void *i, const char *value, const X264_OPTION_STR *list) {
 	return x264guiEx_parse_int((int *)i, value, NULL);
 }
@@ -275,6 +321,21 @@ static BOOL set_int2(void *i, const char *value, const X264_OPTION_STR *list) {
 	return ret;
 }
 
+static BOOL set_bool2_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = TRUE;
+	if (value) {
+		INT2 i_value = { 0, 0 };
+		if (FALSE != (ret = set_int2(&i_value, value, NULL))) {
+			if (i_value.x == 0) ((INT2*)b)->x = FALSE;
+			if (i_value.y == 0) ((INT2*)b)->y = FALSE;
+		}
+	} else {
+		((INT2*)b)->x = FALSE;
+		((INT2*)b)->y = FALSE;
+	}
+	return TRUE;
+}
+
 static BOOL set_float2(void *f, const char *value, const X264_OPTION_STR *list) {
 	const size_t len = strlen(value);
 	BOOL ret = FALSE;
@@ -293,20 +354,30 @@ static BOOL set_float2(void *f, const char *value, const X264_OPTION_STR *list) 
 
 static BOOL set_list(void *i, const char *value, const X264_OPTION_STR *list) {
 	BOOL ret = FALSE;
-	for (int j = 0; list[j].name; j++)
+	for (int j = 0; list[j].name; j++) {
 		if (_stricmp(value, list[j].name) == NULL) {
 			*(int*)i = j;
 			ret = TRUE;
 			break;
 		}
+	}
 	//数値での指定に対応
-	//int k = -1;
-	//x264guiEx_parse_int(&k, value);
-	//if (-1 < k && k < j)
-	//	*(int*)i = k;
+	if (!ret) {
+		int k = -1;
+		if (FALSE != (ret = x264guiEx_parse_int(&k, value, NULL))) {
+			//取得した数が、listに存在するか確認する
+			ret = FALSE;
+			for (int i_check = 0; list[i_check].name; i_check++) {
+				if (i_check == k) {
+					*(int*)i = k;
+					ret = TRUE;
+					break;
+				}
+			}
+		}
+	}
 	return ret; 
 }
-
 static BOOL set_crf(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
 	float f = 23.0f;
@@ -328,8 +399,19 @@ static BOOL set_keyint(void *i, const char *value, const X264_OPTION_STR *list) 
 	return TRUE;
 }
 static BOOL set_deblock(void *cx, const char *value, const X264_OPTION_STR *list) {
-	((CONF_X264 *)cx)->use_deblock = TRUE;
-	return set_int2(&((CONF_X264 *)cx)->deblock, value, list);
+	BOOL ret = FALSE;
+	int a, b, c;
+	if (3 == sscanf_s(value, "%d:%d:%d", &a, &b, &c)) {
+		//type mediainfo
+		((CONF_X264 *)cx)->use_deblock = !!a;
+		((CONF_X264 *)cx)->deblock.x = b;
+		((CONF_X264 *)cx)->deblock.y = c;
+		ret = TRUE;
+	}
+	if (!ret)
+		if (FALSE != (ret = set_int2(&((CONF_X264 *)cx)->deblock, value, list)))
+			((CONF_X264 *)cx)->use_deblock = TRUE;
+	return ret;
 }
 static BOOL set_input_depth(void *b, const char *value, const X264_OPTION_STR *list) {
 	*(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
@@ -414,6 +496,80 @@ static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) 
 				*(p + 1) = '\0';
 			}
 			ret = set_list(cx, buf, list);
+		}
+	}
+	return ret;
+}
+static BOOL set_analyse(void *cx, const char *value, const X264_OPTION_STR *list) {
+	INT2 i_val = { 0, 0 };
+	BOOL ret = set_int2(&i_val, value, list);
+	if (ret) {
+		*(DWORD*)cx = MB_PARTITION_NONE;
+		if ((DWORD)i_val.y & 0x0100) *(DWORD*)cx |= MB_PARTITION_B8x8;
+		if ((DWORD)i_val.y & 0x0020) *(DWORD*)cx |= MB_PARTITION_P4x4;
+		if ((DWORD)i_val.y & 0x0010) *(DWORD*)cx |= MB_PARTITION_P8x8;
+		if ((DWORD)i_val.y & 0x0002) *(DWORD*)cx |= MB_PARTITION_I8x8;
+		if ((DWORD)i_val.y & 0x0001) *(DWORD*)cx |= MB_PARTITION_I4x4;
+	}
+	return ret; 
+}
+static BOOL set_rc(void *cx, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = TRUE;
+	if (NULL == strncmp(value, "2pass", strlen("2pass"))) {
+		((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
+		((CONF_X264 *)cx)->use_auto_npass = TRUE;
+		((CONF_X264 *)cx)->auto_npass = 2;
+	} else if (NULL == strncmp(value, "crf", strlen("crf"))) {
+		((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
+	} else if (NULL == strncmp(value, "cbr", strlen("cbr"))
+		    || NULL == strncmp(value, "abr", strlen("abr"))) {
+		((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
+		((CONF_X264 *)cx)->use_auto_npass = FALSE;
+	} else if (NULL == strncmp(value, "cqp", strlen("cqp"))) {
+		((CONF_X264 *)cx)->rc_mode = X264_RC_QP;
+	} else {
+		ret = FALSE;
+	}
+	return ret; 
+}
+static BOOL set_aq(void *cx, const char *value, const X264_OPTION_STR *list) {
+	FLOAT2 f_val = { 0, 0 };
+	BOOL ret = set_float2(&f_val, value, list);
+	if (ret) {
+		((CONF_X264 *)cx)->aq_mode = ((int)(f_val.x + 0.5));
+		((CONF_X264 *)cx)->aq_strength = f_val.y;
+	}
+	return ret; 
+}
+static BOOL set_interlaced(void *cx, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = TRUE;
+	if (!value) {
+		((CONF_X264 *)cx)->interlaced = TRUE;
+		((CONF_X264 *)cx)->tff = TRUE;
+	} else if (NULL == strncmp(value, "tff", strlen("tff"))) {
+		((CONF_X264 *)cx)->interlaced = TRUE;
+		((CONF_X264 *)cx)->tff = TRUE;
+	} else if (NULL == strncmp(value, "bff", strlen("bff"))) {
+		((CONF_X264 *)cx)->interlaced = TRUE;
+		((CONF_X264 *)cx)->tff = FALSE;
+	} else if (NULL == strncmp(value, "0", strlen("0"))) {
+		((CONF_X264 *)cx)->interlaced = FALSE;
+		((CONF_X264 *)cx)->tff = FALSE;
+	} else {
+		ret = FALSE;
+	}
+	return ret; 
+}
+static BOOL set_psy(void *cx, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = TRUE;
+	if (value) {
+		if (NULL == strcmp(value, "0")) {
+			((FLOAT2 *)cx)->x = 0.0;
+			((FLOAT2 *)cx)->y = 0.0;
+		} else if (NULL == strcmp(value, "1")) {
+			; //何もしない
+		} else {
+			ret = set_float2(cx, value, list);
 		}
 	}
 	return ret;
@@ -610,7 +766,12 @@ const SET_VALUE set_value[] = {
 	set_tff,
 	set_bff,
 	set_timebase,
-	set_level
+	set_level,
+	set_analyse,
+	set_rc,
+	set_aq,
+	set_interlaced,
+	set_psy
 };
 
 //この配列に従って各関数に飛ばされる
@@ -638,13 +799,27 @@ const WRITE_CMD write_cmd[] = {
 	write_tff,
 	write_do_nothing,
 	write_timebase,
-	write_list
+	write_list,
+	write_do_nothing,
+	write_do_nothing,
+	write_do_nothing,
+	write_do_nothing,
+	write_do_nothing
 };
+
+//MediaInfoからの情報で無視するもの
+static BOOL is_arg_ignore_mediainfo(const char *arg) {
+	static const char * const IGNORE_ARGS[] = { "threads", "lookahead_threads", NULL };
+	for (int i = 0; IGNORE_ARGS[i]; i++)
+		if (NULL == strcmp(arg, IGNORE_ARGS[i]))
+			return TRUE;
+	return FALSE;
+}
 
 static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_list) {
 	BOOL dQB = FALSE;
 	BOOL space_flag = TRUE;
-	BOOL next_option_flag = FALSE;
+	BOOL next_option_flag = TRUE;
 	CMD_ARG cmd_arg = { 0 };
 	const char *cmd_fin = cmd + cmd_len;
 	while (cmd < cmd_fin) {
@@ -654,6 +829,7 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 				*cmd = '\0';
 				space_flag = TRUE;
 			} else if (space_flag) {
+				space_flag = FALSE;
 				if (*cmd == '-' && !isdigit(*(cmd+1))) { //isdigitは負数を避けるため
 					if (cmd_arg.arg_type) {
 						cmd_arg_list->push_back(cmd_arg);
@@ -666,21 +842,54 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 						cmd_arg.arg_type = ARG_TYPE_LONG;
 					} else {
 						cmd_arg.arg_type = ARG_TYPE_SHORT;
+						if (cmd[1] != ' ')
+							cmd_arg.value = cmd + 1;
 					}
 					cmd_arg.option_name = cmd;
 					next_option_flag = FALSE;
 				} else if (!next_option_flag) {
 					cmd_arg.value = cmd;
 					next_option_flag = TRUE;
+				} else if (cmd[0] == '/' && cmd[1] == ' ') {
+					;
+				} else {
+					//オプション名でもなく、オプション値でもない
+					//MediaInfoのオプションかどうかをチェック
+					BOOL b_QB = FALSE;
+					for (char *ptr = cmd; ptr <= cmd_fin; ptr++) {
+						if (*ptr == '"') b_QB = !b_QB;
+						if (!b_QB) {
+							if ((*ptr == ' ' || *ptr == '\r' || *ptr == '\n' || ptr == cmd_fin)) {
+								char *equal_ptr = NULL;
+								if (NULL != (equal_ptr = strrchr(cmd, '=', ptr - cmd))) {
+									//mediainfoの書式
+									*equal_ptr = '\0';
+									CMD_ARG cmd_arg_media_info = { 0 };
+									char *r_space_ptr = strrchr(equal_ptr, ' ');
+									cmd_arg_media_info.option_name = (r_space_ptr) ? r_space_ptr + 1 : cmd;
+									if (!is_arg_ignore_mediainfo(cmd_arg_media_info.option_name)) {
+										cmd_arg_media_info.arg_type = ARG_TYPE_LONG;
+										cmd_arg_media_info.value = equal_ptr + 1;
+										cmd_arg_media_info.type_mediainfo = TRUE;
+										cmd_arg_list->push_back(cmd_arg_media_info);
+									}
+								}
+								cmd = ptr;
+								*cmd = '\0';
+								space_flag = TRUE;
+								next_option_flag = TRUE;
+								break;
+							}
+						}
+					}
 				}
-				space_flag = FALSE;
 			}
 		} else if (space_flag) {
+			space_flag = FALSE;
 			if (!next_option_flag) {
 				cmd_arg.value = cmd;
 				next_option_flag = TRUE;
 			}
-			space_flag = FALSE;
 		}
 		cmd++;
 	}
@@ -714,6 +923,36 @@ static void set_setting_list() {
 	}
 }
 
+//MediaInfoからの情報の補正を行う
+static void check_values_from_mediainfo(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
+	BOOL keyint_from_mediainfo = FALSE;
+	BOOL keyint_min_from_mediainfo = FALSE;
+	BOOL chroma_qp_offset_from_mediainfo = FALSE;
+	//2重に指定された場合などを考え、一度すべて見てみてから判定
+	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
+		if (it_arg->ret) {
+			if        (NULL == strcmp(it_arg->option_name, "chroma_qp_offset")) {
+				chroma_qp_offset_from_mediainfo = it_arg->type_mediainfo;
+			} else if (NULL == strcmp(it_arg->option_name, "keyint")) {
+				keyint_from_mediainfo = it_arg->type_mediainfo;
+			} else if (NULL == strcmp(it_arg->option_name, "keyint_min")) {
+				keyint_min_from_mediainfo = it_arg->type_mediainfo;
+			}
+		}
+	}
+	if (chroma_qp_offset_from_mediainfo) {
+		conf_set->chroma_qp_offset += ((conf_set->psy_rd.x > 0.0) + (conf_set->psy_rd.x > 0.25));
+		conf_set->chroma_qp_offset += ((conf_set->psy_rd.y > 0.0) + (conf_set->psy_rd.y > 0.25));
+	}
+	if (keyint_from_mediainfo && keyint_min_from_mediainfo)
+		if (conf_set->keyint_max / 10 == conf_set->keyint_min)
+			conf_set->keyint_min = 0;
+
+	if (keyint_from_mediainfo)
+		if (conf_set->keyint_max % 10 == 0)
+			conf_set->keyint_max = -1;
+}
+
 static inline BOOL option_has_no_value(DWORD type) {
 	for (int i = 0; OPTION_NO_VALUE[i]; i++)
 		if (type == OPTION_NO_VALUE[i])
@@ -722,10 +961,13 @@ static inline BOOL option_has_no_value(DWORD type) {
 }
 
 static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
-	int i;
 	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
-		for (i = 0; x264_options_table[i].long_name; i++) {
-			if (strcmp(it_arg->option_name, ((it_arg->arg_type == ARG_TYPE_LONG) ? x264_options_table[i].long_name : x264_options_table[i].short_name)) == NULL) {
+		int i;
+		for (i = 0; i < _countof(x264_options_table); i++) {
+			if (NULL == x264_options_table[i].long_name) //書き出しの終了条件
+				continue;
+			if (NULL == ((it_arg->arg_type == ARG_TYPE_LONG) ? strcmp(it_arg->option_name, x264_options_table[i].long_name) : 
+				                                               strncmp(it_arg->option_name, x264_options_table[i].short_name, 1))) {
 				it_arg->ret = (option_has_no_value(x264_options_table[i].type) == FALSE && it_arg->value == NULL) ? FALSE : TRUE;
 				break;
 			}
@@ -733,6 +975,7 @@ static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
 		if (it_arg->ret)
 			it_arg->ret = set_value[x264_options_table[i].type]((void *)((BYTE *)conf_set + x264_options_table[i].p_offset), it_arg->value, x264_options_table[i].list);
 	}
+	check_values_from_mediainfo(cmd_arg_list, conf_set);
 }
 
 void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
@@ -748,7 +991,8 @@ void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_
 		char * const tmp = (char *)calloc((cmd_len + 1) * sizeof(tmp[0]), 1);
 		size_t new_len = 0;
 		const_foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {
-			if (!it_arg->ret) {
+			//正常に読み込まれていない、かつMediaInfoの書式でないものを再構成する
+			if (!it_arg->ret && !it_arg->type_mediainfo) {
 				new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, "%s%s%s",
 					(new_len) ? " " : "", (it_arg->arg_type == ARG_TYPE_LONG) ? "--" : "-", it_arg->option_name);
 				if (it_arg->value) {
