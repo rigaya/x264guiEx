@@ -16,9 +16,11 @@
 
 const int LOG_UPDATE_INTERVAL = 50;
 
-const int LOG_INFO    = 0;
-const int LOG_WARNING = 1;
-const int LOG_ERROR   = 2;
+enum {
+	LOG_INFO    = 0,
+	LOG_WARNING = 1,
+	LOG_ERROR   = 2,
+};
 
 ///ログ表示で使う色              R    G    B
 const int LOG_COLOR[3][3] = { { 198, 253, 226 },   //LOG_INFO
@@ -27,9 +29,11 @@ const int LOG_COLOR[3][3] = { { 198, 253, 226 },   //LOG_INFO
 
 const float LOG_TRANSPARENT_RATIO[2] = { 1.000f, 0.725f };
 
-const int PROGRESSBAR_DISABLED   = 0;
-const int PROGRESSBAR_CONTINUOUS = 1;
-const int PROGRESSBAR_MARQUEE    = 2;
+enum {
+	PROGRESSBAR_DISABLED   = 0,
+	PROGRESSBAR_CONTINUOUS = 1,
+	PROGRESSBAR_MARQUEE    = 2,
+};
 
 //設定ウィンドウ
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat);
