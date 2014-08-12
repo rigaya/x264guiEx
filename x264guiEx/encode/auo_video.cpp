@@ -363,8 +363,8 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	}
 
 	//パイプの設定
-	pipes.stdIn.enable = TRUE;
-	pipes.stdErr.enable = TRUE;
+	pipes.stdIn.mode = AUO_PIPE_ENABLE;
+	pipes.stdErr.mode = AUO_PIPE_ENABLE;
 	pipes.stdIn.bufferSize = pixel_data.total_size * 2;
 
 	//コマンドライン生成
@@ -485,7 +485,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	}
 
 	//解放処理
-	if (pipes.stdErr.enable)
+	if (pipes.stdErr.mode)
 		CloseHandle(pipes.stdErr.h_read);
 	CloseHandle(pi_x264.hProcess);
 	CloseHandle(pi_x264.hThread);

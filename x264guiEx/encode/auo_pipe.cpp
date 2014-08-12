@@ -29,19 +29,19 @@ void InitPipes(PIPE_SET *pipes) {
 static int StartPipes(PIPE_SET *pipes) {
 	int ret = RP_USE_NO_PIPE;
 	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-	if (pipes->stdOut.enable) {
+	if (pipes->stdOut.mode) {
 		if (!CreatePipe(&pipes->stdOut.h_read, &pipes->stdOut.h_write, &sa, pipes->stdOut.bufferSize) || 
 			!SetHandleInformation(pipes->stdOut.h_read, HANDLE_FLAG_INHERIT, 0))
 			return RP_ERROR_OPEN_PIPE;
 		ret = RP_SUCCESS;
 	}
-	if (pipes->stdErr.enable) {
+	if (pipes->stdErr.mode) {
 		if (!CreatePipe(&pipes->stdErr.h_read, &pipes->stdErr.h_write, &sa, pipes->stdErr.bufferSize) ||
 			!SetHandleInformation(pipes->stdErr.h_read, HANDLE_FLAG_INHERIT, 0))
 			return RP_ERROR_OPEN_PIPE;
 		ret = RP_SUCCESS;
 	}
-	if (pipes->stdIn.enable) {
+	if (pipes->stdIn.mode) {
 		if (!CreatePipe(&pipes->stdIn.h_read, &pipes->stdIn.h_write, &sa, pipes->stdIn.bufferSize) ||
 			!SetHandleInformation(pipes->stdIn.h_write, HANDLE_FLAG_INHERIT, 0))
 			return RP_ERROR_OPEN_PIPE;
@@ -66,11 +66,11 @@ int RunProcess(char *args, const char *exe_dir, PROCESS_INFORMATION *pi, PIPE_SE
 		return ret;
 
 	if (ret == RP_SUCCESS) {
-		if (pipes->stdOut.enable)
+		if (pipes->stdOut.mode)
 			si.hStdOutput = pipes->stdOut.h_write;
-		if (pipes->stdErr.enable)
-			si.hStdError = pipes->stdErr.h_write;
-		if (pipes->stdIn.enable)
+		if (pipes->stdErr.mode)
+			si.hStdError = (pipes->stdErr.mode == AUO_PIPE_MUXED) ? pipes->stdOut.h_write : pipes->stdErr.h_write;
+		if (pipes->stdIn.mode)
 			si.hStdInput = pipes->stdIn.h_read;
 		si.dwFlags |= STARTF_USESTDHANDLES;
 		Inherit = TRUE;
@@ -89,25 +89,26 @@ int RunProcess(char *args, const char *exe_dir, PROCESS_INFORMATION *pi, PIPE_SE
 	ret = (CreateProcess(NULL, args, NULL, NULL, Inherit, flag, NULL, exe_dir, &si, pi)) ? RP_SUCCESS : RP_ERROR_CREATE_PROCESS;
 
 	if (pipes) {
-		if (pipes->stdOut.enable) {
+		if (pipes->stdOut.mode) {
 			CloseHandle(pipes->stdOut.h_write);
 			if (ret != RP_SUCCESS) {
 				CloseHandle(pipes->stdOut.h_read);
-				pipes->stdOut.enable = FALSE;
+				pipes->stdOut.mode = AUO_PIPE_DISABLE;
 			}
 		}
-		if (pipes->stdErr.enable) {
-			CloseHandle(pipes->stdErr.h_write);
+		if (pipes->stdErr.mode) {
+			if (pipes->stdErr.mode)
+				CloseHandle(pipes->stdErr.h_write);
 			if (ret != RP_SUCCESS) {
 				CloseHandle(pipes->stdErr.h_read);
-				pipes->stdErr.enable = FALSE;
+				pipes->stdErr.mode = AUO_PIPE_DISABLE;
 			}
 		}
-		if (pipes->stdIn.enable) {
+		if (pipes->stdIn.mode) {
 			CloseHandle(pipes->stdIn.h_read);
 			if (ret != RP_SUCCESS) {
 				CloseHandle(pipes->stdIn.h_write);
-				pipes->stdIn.enable = FALSE;
+				pipes->stdIn.mode = AUO_PIPE_DISABLE;
 			}
 		}
 	}
@@ -116,10 +117,10 @@ int RunProcess(char *args, const char *exe_dir, PROCESS_INFORMATION *pi, PIPE_SE
 }
 
 void CloseStdIn(PIPE_SET *pipes) {
-	if (pipes->stdIn.enable) {
+	if (pipes->stdIn.mode) {
 		_fclose_nolock(pipes->f_stdin);
 		CloseHandle(pipes->stdIn.h_write);
-		pipes->stdIn.enable = FALSE;
+		pipes->stdIn.mode = AUO_PIPE_DISABLE;
 	}
 }
 
@@ -137,7 +138,8 @@ static int read_from_pipe(PIPE_SET *pipes, BOOL fromStdErr) {
 	return pipe_read;
 }
 
-BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t nSize) {
+//失敗... TRUE / 成功... FALSE
+BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t nSize, AUO_PIPE_MODE stderr_mode) {
 	BOOL ret = FALSE;
 	char exe_dir[MAX_PATH_LEN];
 	size_t len = strlen(exe_path) + strlen(args) + 5;
@@ -146,8 +148,9 @@ BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t n
 	PIPE_SET pipes;
 
 	InitPipes(&pipes);
-	pipes.stdErr.enable = TRUE;
-	pipes.stdOut.enable = TRUE;
+	pipes.stdErr.mode = stderr_mode;
+	pipes.stdOut.mode = (stderr_mode == AUO_PIPE_ENABLE) ? AUO_PIPE_DISABLE : AUO_PIPE_ENABLE;
+	buf[0] = '\0';
 
 	strcpy_s(exe_dir, _countof(exe_dir), exe_path);
 	PathRemoveFileSpecFixed(exe_dir);
@@ -156,18 +159,89 @@ BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t n
 	if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
 		WaitForSingleObject(pi.hProcess, INFINITE);
 
-		read_from_pipe(&pipes, TRUE);
-		read_from_pipe(&pipes, FALSE);
+		while (read_from_pipe(&pipes, pipes.stdOut.mode == AUO_PIPE_DISABLE) > 0) {
+			strcat_s(buf, nSize, pipes.read_buf);
+			pipes.buf_len = 0;
+		}
 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
 
 	free(fullargs);
-	CloseHandle(pipes.stdErr.h_read);
-	CloseHandle(pipes.stdOut.h_read);
+	if (pipes.stdErr.mode) CloseHandle(pipes.stdErr.h_read);
+	if (pipes.stdOut.mode) CloseHandle(pipes.stdOut.h_read);
 
-	strcpy_s(buf, nSize, pipes.read_buf);
+	return ret;
+}
+
+//改行コードの'\r\n'への変換
+//対応   '\n'   → '\r\n'
+//       '\r\n' → '\r\n'
+//非対応 '\r'   → '\r\n'
+static void write_to_file_in_crlf(FILE *fp, const char *str) {
+	if (((size_t)fp & (size_t)str) != NULL) {
+		const char *const fin_ptr = str + strlen(str);
+		for (const char *ptr = str, *qtr = NULL; ptr < fin_ptr; ptr = qtr+1) {
+			qtr = strchr(ptr, '\n');
+			if (qtr == NULL) {
+				fwrite(ptr, fin_ptr - ptr, 1, fp);
+				break;
+			} else {
+				if (qtr != ptr) {
+					int cr_count;
+					for (cr_count = 0 ; qtr - cr_count >= ptr; cr_count++)
+						if (qtr[-1-cr_count] != '\r')
+							break;
+					fwrite(ptr, qtr - ptr - cr_count, 1, fp);
+				}
+				fwrite("\r\n", sizeof(char) * strlen("\r\n"), 1, fp);
+			}
+		}
+	}
+}
+
+//実行ファイルのメッセージをファイルに追記モードで書き出す
+//失敗... TRUE / 成功... FALSE
+BOOL get_exe_message_to_file(const char *exe_path, const char *args, const char *filepath, AUO_PIPE_MODE stderr_mode, DWORD loop_ms) {
+	BOOL ret = FALSE;
+	char exe_dir[MAX_PATH_LEN];
+	size_t len = strlen(exe_path) + strlen(args) + 5;
+	char *const fullargs = (char*)malloc(len);
+	PROCESS_INFORMATION pi;
+	PIPE_SET pipes;
+
+	InitPipes(&pipes);
+	pipes.stdErr.mode = stderr_mode;
+	pipes.stdOut.mode = (stderr_mode == AUO_PIPE_ENABLE) ? AUO_PIPE_DISABLE : AUO_PIPE_ENABLE;
+
+	strcpy_s(exe_dir, _countof(exe_dir), exe_path);
+	PathRemoveFileSpecFixed(exe_dir);
+
+	FILE *fp = NULL;
+	if (fopen_s(&fp, filepath, "ab") == NULL && fp) {
+		sprintf_s(fullargs, len, "\"%s\" %s", exe_path, args);
+		if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
+			while (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, loop_ms)) {
+				read_from_pipe(&pipes, pipes.stdOut.mode == AUO_PIPE_DISABLE);
+				write_to_file_in_crlf(fp, pipes.read_buf);
+				pipes.buf_len = 0;
+			}
+
+			CloseHandle(pi.hProcess);
+			CloseHandle(pi.hThread);
+
+			while (read_from_pipe(&pipes, pipes.stdOut.mode == AUO_PIPE_DISABLE) > 0) {
+				write_to_file_in_crlf(fp, pipes.read_buf);
+				pipes.buf_len = 0;
+			}
+		}
+		fclose(fp);
+	}
+
+	free(fullargs);
+	if (pipes.stdErr.mode) CloseHandle(pipes.stdErr.h_read);
+	if (pipes.stdOut.mode) CloseHandle(pipes.stdOut.h_read);
 
 	return ret;
 }

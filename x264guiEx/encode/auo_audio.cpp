@@ -162,7 +162,7 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL 
 	//パイプ or ファイルオープン
 	if (use_pipe) {
 		//パイプ準備
-		pipes.stdIn.enable = TRUE;
+		pipes.stdIn.mode = AUO_PIPE_ENABLE;
 		pipes.stdIn.bufferSize = bufsize * 2;
 		//エンコーダ準備
 		if ((rp_ret = RunProcess(audargs, auddir, pi_aud, &pipes, encoder_priority, TRUE, FALSE)) != RP_SUCCESS) {
