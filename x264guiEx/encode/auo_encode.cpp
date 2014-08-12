@@ -49,6 +49,7 @@ void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_
 	strcpy_s(chap_file, cf_nSize, chap_base);
 	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, savfile);
 	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
+	sys_dat->exstg->apply_fn_replace(PathFindFileName(chap_apple), ca_nSize - (PathFindFileName(chap_apple) - chap_apple));
 }
 
 void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savefile) {
@@ -94,7 +95,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{aviutldir}", tmp);
 	//%{chpath}
-	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.chap);
+	apply_appendix(tmp, _countof(tmp), savefile, pe->append.chap);
 	replace(cmd, nSize, "%{chpath}", tmp);
 	//%{tcpath}
 	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.tc);
