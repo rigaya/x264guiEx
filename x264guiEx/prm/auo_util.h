@@ -193,6 +193,13 @@ static inline int countchr(const char *str, int ch) {
 			i++;
 	return i;
 }
+static inline int countchr(const WCHAR *str, int ch) {
+	int i = 0;
+	for (; *str; str++)
+		if (*str == ch)
+			i++;
+	return i;
+}
 
 //文字列の末尾についている '\r' '\n' ' ' を削除する
 static inline size_t deleteCRLFSpace_at_End(WCHAR *str) {
@@ -218,6 +225,13 @@ static inline size_t deleteCRLFSpace_at_End(char *str) {
 static inline BOOL str_has_char(const char *str) {
 	BOOL ret = FALSE;
 	for (; !ret && *str != '\0'; str++)
+		ret = (*str != ' ');
+	return ret;
+}
+
+static inline BOOL str_has_char(const WCHAR *str) {
+	BOOL ret = FALSE;
+	for (; !ret && *str != L'\0'; str++)
 		ret = (*str != ' ');
 	return ret;
 }
@@ -308,11 +322,18 @@ static BOOL check_OS_Win7orLater() {
 	return ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && ((osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 1) || osvi.dwMajorVersion > 6));
 }
 
-static const char *GetFullPath(const char *path, char *buffer, size_t nSize) {
-	if (PathIsRelative(path) == FALSE)
+static inline const char *GetFullPath(const char *path, char *buffer, size_t nSize) {
+	if (PathIsRelativeA(path) == FALSE)
 		return path;
 
 	_fullpath(buffer, path, nSize);
+	return buffer;
+}
+static inline const WCHAR *GetFullPath(const WCHAR *path, WCHAR *buffer, size_t nSize) {
+	if (PathIsRelativeW(path) == FALSE)
+		return path;
+
+	_wfullpath(buffer, path, nSize);
 	return buffer;
 }
 //文字列の置換に必要な領域を計算する
@@ -323,6 +344,16 @@ static size_t calc_replace_mem_required(char *str, const char *old_str, const ch
 		return size;
 	char *p = str;
 	while ((p == strstr(p, old_str)) != NULL)
+		size += move_len;
+	return size;
+}
+static size_t calc_replace_mem_required(WCHAR *str, const WCHAR *old_str, const WCHAR *new_str) {
+	size_t size = wcslen(str) + 1;
+	const int move_len = wcslen(new_str) - wcslen(old_str);
+	if (move_len <= 0)
+		return size;
+	WCHAR *p = str;
+	while ((p == wcsstr(p, old_str)) != NULL)
 		size += move_len;
 	return size;
 }
@@ -350,26 +381,64 @@ static int replace(char *str, size_t nSize, const char *old_str, const char *new
 	}
 	return count;
 }
+static int replace(WCHAR *str, size_t nSize, const WCHAR *old_str, const WCHAR *new_str) {
+	WCHAR *c = str;
+	WCHAR *p = NULL;
+	WCHAR *fin = str + wcslen(str) + 1;//null文字まで
+	WCHAR * const limit = str + nSize;
+	int count = 0;
+	const size_t old_len = wcslen(old_str);
+	const size_t new_len = wcslen(new_str);
+	const int move_len = (int)(new_len - old_len);
+	if (old_len) {
+		while ((p = wcsstr(c, old_str)) != NULL) {
+			if (move_len) {
+				if (fin + move_len > limit)
+					break;
+				memmove((c = p + new_len), p + old_len, (fin - (p + old_len)) * sizeof(str[0]));
+				fin += move_len;
+			}
+			memcpy(p, new_str, new_len * sizeof(str[0]));
+			count++;
+		}
+	}
+	return count;
+}
 
 //ファイル名(拡張子除く)の後ろに文字列を追加する
-static void apply_appendix(char *new_filename, size_t new_filename_size, const char *orig_filename, const char *appendix) {
+static inline void apply_appendix(char *new_filename, size_t new_filename_size, const char *orig_filename, const char *appendix) {
 	if (new_filename != orig_filename)
 		strcpy_s(new_filename, new_filename_size, orig_filename);
-	strcpy_s(PathFindExtension(new_filename), new_filename_size - (PathFindExtension(new_filename) - new_filename), appendix);
+	strcpy_s(PathFindExtensionA(new_filename), new_filename_size - (PathFindExtensionA(new_filename) - new_filename), appendix);
+}
+static inline void apply_appendix(WCHAR *new_filename, size_t new_filename_size, const WCHAR *orig_filename, const WCHAR *appendix) {
+	if (new_filename != orig_filename)
+		wcscpy_s(new_filename, new_filename_size, orig_filename);
+	wcscpy_s(PathFindExtensionW(new_filename), new_filename_size - (PathFindExtensionW(new_filename) - new_filename), appendix);
 }
 
 //拡張子が一致するか確認する
-static BOOL check_ext(const char *filename, const char *ext) {
-	return (_stricmp(PathFindExtension(filename), ext) == NULL) ? TRUE : FALSE;
+static inline BOOL check_ext(const char *filename, const char *ext) {
+	return (_stricmp(PathFindExtensionA(filename), ext) == NULL) ? TRUE : FALSE;
+}
+static inline BOOL check_ext(const WCHAR *filename, const WCHAR *ext) {
+	return (_wcsicmp(PathFindExtensionW(filename), ext) == NULL) ? TRUE : FALSE;
 }
 
 //ルートディレクトリを取得
-static BOOL PathGetRoot(const char *path, char *root, size_t nSize) {
-	if (PathIsRelative(path) == FALSE)
+static inline BOOL PathGetRoot(const char *path, char *root, size_t nSize) {
+	if (PathIsRelativeA(path) == FALSE)
 		strcpy_s(root, nSize, path);
 	else
 		_fullpath(root, path, nSize);
-	return PathStripToRoot(root);
+	return PathStripToRootA(root);
+}
+static inline BOOL PathGetRoot(const WCHAR *path, WCHAR *root, size_t nSize) {
+	if (PathIsRelativeW(path) == FALSE)
+		wcscpy_s(root, nSize, path);
+	else
+		_wfullpath(root, path, nSize);
+	return PathStripToRootW(root);
 }
 
 //パスのルートが存在するかどうか
@@ -377,39 +446,71 @@ static BOOL PathRootExists(const char *path) {
 	if (path == NULL)
 		return FALSE;
 	char root[MAX_PATH_LEN];
-	return (PathGetRoot(path, root, _countof(root)) && PathIsDirectory(root));
+	return (PathGetRoot(path, root, _countof(root)) && PathIsDirectoryA(root));
+}
+static BOOL PathRootExists(const WCHAR *path) {
+	if (path == NULL)
+		return FALSE;
+	WCHAR root[MAX_PATH_LEN];
+	return (PathGetRoot(path, root, _countof(root)) && PathIsDirectoryW(root));
 }
 
 //PathRemoveFileSpecFixedがVistaでは5C問題を発生させるため、その回避策
 static BOOL PathRemoveFileSpecFixed(char *path) {
-	char *ptr = PathFindFileName(path);
+	char *ptr = PathFindFileNameA(path);
 	if (path == ptr)
 		return FALSE;
 	*(ptr - 1) = '\0';
 	return TRUE;
 }
+static BOOL PathRemoveFileSpecFixed(WCHAR *path) {
+	WCHAR *ptr = PathFindFileNameW(path);
+	if (path == ptr)
+		return FALSE;
+	*(ptr - 1) = L'\0';
+	return TRUE;
+}
 
 //フォルダがあればOK、なければ作成する
 static BOOL DirectoryExistsOrCreate(const char *dir) {
-	if (PathIsDirectory(dir))
+	if (PathIsDirectoryA(dir))
 		return TRUE;
-	return (PathRootExists(dir) && CreateDirectory(dir, NULL) != NULL) ? TRUE : FALSE;
+	return (PathRootExists(dir) && CreateDirectoryA(dir, NULL) != NULL) ? TRUE : FALSE;
+}
+static BOOL DirectoryExistsOrCreate(const WCHAR *dir) {
+	if (PathIsDirectoryW(dir))
+		return TRUE;
+	return (PathRootExists(dir) && CreateDirectoryW(dir, NULL) != NULL) ? TRUE : FALSE;
 }
 
 //ファイルの存在と0byteより大きいかを確認
 static BOOL FileExistsAndHasSize(const char *path) {
 	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
-	return GetFileAttributesEx(path, GetFileExInfoStandard, &fd) && ((((UINT64)fd.nFileSizeHigh) << 32) + (UINT64)fd.nFileSizeLow) > 0;
+	return GetFileAttributesExA(path, GetFileExInfoStandard, &fd) && ((((UINT64)fd.nFileSizeHigh) << 32) + (UINT64)fd.nFileSizeLow) > 0;
+}
+static BOOL FileExistsAndHasSize(const WCHAR *path) {
+	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
+	return GetFileAttributesExW(path, GetFileExInfoStandard, &fd) && ((((UINT64)fd.nFileSizeHigh) << 32) + (UINT64)fd.nFileSizeLow) > 0;
 }
 
 static void PathGetDirectory(char *dir, size_t nSize, const char *path) {
 	strcpy_s(dir, nSize, path);
 	PathRemoveFileSpecFixed(dir);
 }
+static void PathGetDirectory(WCHAR *dir, size_t nSize, const WCHAR *path) {
+	wcscpy_s(dir, nSize, path);
+	PathRemoveFileSpecFixed(dir);
+}
 
 static BOOL GetFileSizeDWORD(const char *filepath, DWORD *filesize) {
 	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
-	BOOL ret = (GetFileAttributesEx(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
+	BOOL ret = (GetFileAttributesExA(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
+	*filesize = (ret) ? fd.nFileSizeLow : 0;
+	return ret;
+}
+static BOOL GetFileSizeDWORD(const WCHAR *filepath, DWORD *filesize) {
+	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
+	BOOL ret = (GetFileAttributesExW(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
 	*filesize = (ret) ? fd.nFileSizeLow : 0;
 	return ret;
 }
@@ -417,19 +518,39 @@ static BOOL GetFileSizeDWORD(const char *filepath, DWORD *filesize) {
 //64bitでファイルサイズを取得,TRUEで成功
 static BOOL GetFileSizeUInt64(const char *filepath, UINT64 *filesize) {
 	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
-	BOOL ret = (GetFileAttributesEx(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
+	BOOL ret = (GetFileAttributesExA(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
+	*filesize = (ret) ? (((UINT64)fd.nFileSizeHigh) << 32) + (UINT64)fd.nFileSizeLow : NULL;
+	return ret;
+}
+static BOOL GetFileSizeUInt64(const WCHAR *filepath, UINT64 *filesize) {
+	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
+	BOOL ret = (GetFileAttributesExW(filepath, GetFileExInfoStandard, &fd)) ? TRUE : FALSE;
 	*filesize = (ret) ? (((UINT64)fd.nFileSizeHigh) << 32) + (UINT64)fd.nFileSizeLow : NULL;
 	return ret;
 }
 
 static UINT64 GetFileLastUpdate(const char *filepath) {
 	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
-	GetFileAttributesEx(filepath, GetFileExInfoStandard, &fd);
+	GetFileAttributesExA(filepath, GetFileExInfoStandard, &fd);
+	return ((UINT64)fd.ftLastWriteTime.dwHighDateTime << 32) + (UINT64)fd.ftLastWriteTime.dwLowDateTime;
+}
+static UINT64 GetFileLastUpdate(const WCHAR *filepath) {
+	WIN32_FILE_ATTRIBUTE_DATA fd = { 0 };
+	GetFileAttributesExW(filepath, GetFileExInfoStandard, &fd);
 	return ((UINT64)fd.ftLastWriteTime.dwHighDateTime << 32) + (UINT64)fd.ftLastWriteTime.dwLowDateTime;
 }
 
-static size_t append_str(char **dst, size_t *nSize, const char *append) {
+static inline size_t append_str(char **dst, size_t *nSize, const char *append) {
 	size_t len = strlen(append);
+	if (*nSize - 1 <= len)
+		return 0;
+	memcpy(*dst, append, (len + 1) * sizeof(dst[0][0]));
+	*dst += len;
+	*nSize -= len;
+	return len;
+}
+static inline size_t append_str(WCHAR **dst, size_t *nSize, const WCHAR *append) {
+	size_t len = wcslen(append);
 	if (*nSize - 1 <= len)
 		return 0;
 	memcpy(*dst, append, (len + 1) * sizeof(dst[0][0]));
@@ -440,11 +561,20 @@ static size_t append_str(char **dst, size_t *nSize, const char *append) {
 
 //多くのPath～関数はMAX_LEN(260)以上でもOKだが、一部は不可
 //これもそのひとつ
-static BOOL PathAddBackSlashLong(char *dir) {
+static inline BOOL PathAddBackSlashLong(char *dir) {
 	size_t len = strlen(dir);
 	if (dir[len-1] != '\\') {
 		dir[len] = '\\';
 		dir[len+1] = '\0';
+		return TRUE;
+	}
+	return FALSE;
+}
+static inline BOOL PathAddBackSlashLong(WCHAR *dir) {
+	size_t len = wcslen(dir);
+	if (dir[len-1] != L'\\') {
+		dir[len] = L'\\';
+		dir[len+1] = L'\0';
 		return TRUE;
 	}
 	return FALSE;
@@ -469,22 +599,54 @@ static BOOL PathCombineLong(char *path, size_t nSize, const char *dir, const cha
 	memcpy(path + dir_len, filename, (filename_len+1) * sizeof(path[0]));
 	return TRUE;
 }
+static BOOL PathCombineLong(WCHAR *path, size_t nSize, const WCHAR *dir, const WCHAR *filename) {
+	size_t dir_len;
+	if (path == dir) {
+		dir_len = wcslen(path);
+	} else {
+		dir_len = wcslen(dir);
+		if (nSize <= dir_len)
+			return FALSE;
+
+		memcpy(path, dir, (dir_len+1) * sizeof(path[0]));
+	}
+	dir_len += PathAddBackSlashLong(path);
+
+	size_t filename_len = wcslen(filename);
+	if (nSize - dir_len <= filename_len)
+		return FALSE;
+	memcpy(path + dir_len, filename, (filename_len+1) * sizeof(path[0]));
+	return TRUE;
+}
 
 static BOOL GetPathRootFreeSpace(const char *path, UINT64 *freespace) {
 	//指定されたドライブが存在するかどうか
 	char temp_root[MAX_PATH_LEN];
 	strcpy_s(temp_root, _countof(temp_root), path);
-	PathStripToRoot(temp_root);
+	PathStripToRootA(temp_root);
 	//ドライブの空き容量取得
 	ULARGE_INTEGER drive_avail_space = { 0 };
-	if (GetDiskFreeSpaceEx(temp_root, &drive_avail_space, NULL, NULL)) {
+	if (GetDiskFreeSpaceExA(temp_root, &drive_avail_space, NULL, NULL)) {
+		*freespace = drive_avail_space.QuadPart;
+		return TRUE;
+	}
+	return FALSE;
+}
+static BOOL GetPathRootFreeSpace(const WCHAR *path, UINT64 *freespace) {
+	//指定されたドライブが存在するかどうか
+	WCHAR temp_root[MAX_PATH_LEN];
+	wcscpy_s(temp_root, _countof(temp_root), path);
+	PathStripToRootW(temp_root);
+	//ドライブの空き容量取得
+	ULARGE_INTEGER drive_avail_space = { 0 };
+	if (GetDiskFreeSpaceExW(temp_root, &drive_avail_space, NULL, NULL)) {
 		*freespace = drive_avail_space.QuadPart;
 		return TRUE;
 	}
 	return FALSE;
 }
 
-static BOOL PathForceRemoveBackSlash(char *path) {
+static inline BOOL PathForceRemoveBackSlash(char *path) {
 	size_t len = strlen(path);
 	int ret = FALSE;
 	if (path != NULL && len) {
@@ -496,8 +658,86 @@ static BOOL PathForceRemoveBackSlash(char *path) {
 	}
 	return ret;
 }
+static inline BOOL PathForceRemoveBackSlash(WCHAR *path) {
+	size_t len = wcslen(path);
+	int ret = FALSE;
+	if (path != NULL && len) {
+		WCHAR *ptr = path + len - 1;
+		if (*ptr == L'\\') {
+			*ptr = L'\0';
+			ret = TRUE;
+		}
+	}
+	return ret;
+}
 
-static BOOL check_process_exitcode(PROCESS_INFORMATION *pi) {
+//pathのbaseDirに対する相対パスを取得する
+//baseDirがnull場合は、CurrentDirctoryに対する相対パスを取得する
+//attr ... pathのFILE_ATTRIBUTE
+static void GetRelativePathTo(char *buf, size_t nSize, const char *path, DWORD attr, const char *baseDir) {
+	if (!str_has_char(path) || PathIsRelativeA(path) == TRUE) {
+		strcpy_s(buf, nSize, path);
+	} else {
+		char baseDirPath[MAX_PATH_LEN];
+		if (baseDir && str_has_char(baseDir))
+			strcpy_s(baseDirPath, _countof(baseDirPath), baseDir);
+		else
+			GetCurrentDirectoryA(_countof(baseDirPath), baseDirPath);
+		PathAddBackSlashLong(baseDirPath);
+
+		if (FALSE == PathRelativePathToA(buf, baseDirPath, FILE_ATTRIBUTE_DIRECTORY, path, attr))
+			strcpy_s(buf, nSize, path); //失敗
+	}
+}
+static inline void GetRelativePathTo(char *buf, size_t nSize, const char *path, DWORD attr) {
+	GetRelativePathTo(buf, nSize, path, attr, NULL);
+}
+static inline void GetRelativePathTo(char *buf, size_t nSize, const char *path) {
+	GetRelativePathTo(buf, nSize, path, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+static inline void GetRelativePathTo(char *path, size_t nSize, DWORD attr) {
+	size_t len = strlen(path);
+	char *target_path = (char *)malloc((len + 1) * sizeof(target_path[0]));
+	memcpy(target_path, path, (len + 1) * sizeof(target_path[0]));
+	GetRelativePathTo(path, nSize, target_path, attr, NULL);
+	free(target_path);
+}
+static inline void GetRelativePathTo(char *path, size_t nSize) {
+	GetRelativePathTo(path, nSize, FILE_ATTRIBUTE_NORMAL);
+}
+static void GetRelativePathTo(WCHAR *buf, size_t nSize, const WCHAR *path, DWORD attr, const WCHAR *baseDir) {
+	if (!str_has_char(path) || PathIsRelativeW(path) == TRUE) {
+		wcscpy_s(buf, nSize, path);
+	} else {
+		WCHAR baseDirPath[MAX_PATH_LEN];
+		if (baseDir && str_has_char(baseDir))
+			wcscpy_s(baseDirPath, _countof(baseDirPath), baseDir);
+		else
+			GetCurrentDirectoryW(_countof(baseDirPath), baseDirPath);
+		PathAddBackSlashLong(baseDirPath);
+
+		if (FALSE == PathRelativePathToW(buf, baseDirPath, FILE_ATTRIBUTE_DIRECTORY, path, attr))
+			wcscpy_s(buf, nSize, path); //失敗
+	}
+}
+static inline void GetRelativePathTo(WCHAR *buf, size_t nSize, const WCHAR *path, DWORD attr) {
+	GetRelativePathTo(buf, nSize, path, attr, NULL);
+}
+static inline void GetRelativePathTo(WCHAR *buf, size_t nSize, const WCHAR *path) {
+	GetRelativePathTo(buf, nSize, path, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+static inline void GetRelativePathTo(WCHAR *path, size_t nSize, DWORD attr) {
+	size_t len = wcslen(path);
+	WCHAR *target_path = (WCHAR *)malloc((len + 1) * sizeof(target_path[0]));
+	memcpy(target_path, path, (len + 1) * sizeof(target_path[0]));
+	GetRelativePathTo(path, nSize, target_path, attr, NULL);
+	free(target_path);
+}
+static inline void GetRelativePathTo(WCHAR *path, size_t nSize) {
+	GetRelativePathTo(path, nSize, FILE_ATTRIBUTE_NORMAL);
+}
+
+static inline BOOL check_process_exitcode(PROCESS_INFORMATION *pi) {
 	DWORD exit_code;
 	if (!GetExitCodeProcess(pi->hProcess, &exit_code))
 		return TRUE;
@@ -505,12 +745,12 @@ static BOOL check_process_exitcode(PROCESS_INFORMATION *pi) {
 }
 
 static BOOL swap_file(const char *fileA, const char *fileB) {
-	if (!PathFileExists(fileA) || !PathFileExists(fileB))
+	if (!PathFileExistsA(fileA) || !PathFileExistsA(fileB))
 		return FALSE;
 
 	char filetemp[MAX_PATH_LEN];
 	char appendix[MAX_APPENDIX_LEN];
-	for (int i = 0; i && PathFileExists(filetemp); i++) {
+	for (int i = 0; i && PathFileExistsA(filetemp); i++) {
 		sprintf_s(appendix, _countof(appendix), ".swap%d.tmp", i);
 		apply_appendix(filetemp, _countof(filetemp), fileA, appendix);
 	}
@@ -522,20 +762,52 @@ static BOOL swap_file(const char *fileA, const char *fileB) {
 		return FALSE;
 	return TRUE;
 }
+static BOOL swap_file(const WCHAR *fileA, const WCHAR *fileB) {
+	if (!PathFileExistsW(fileA) || !PathFileExistsW(fileB))
+		return FALSE;
+
+	WCHAR filetemp[MAX_PATH_LEN];
+	WCHAR appendix[MAX_APPENDIX_LEN];
+	for (int i = 0; i && PathFileExistsW(filetemp); i++) {
+		swprintf_s(appendix, _countof(appendix), L".swap%d.tmp", i);
+		apply_appendix(filetemp, _countof(filetemp), fileA, appendix);
+	}
+	if (_wrename(fileA, filetemp))
+		return FALSE;
+	if (_wrename(fileB, fileA))
+		return FALSE;
+	if (_wrename(filetemp, fileB))
+		return FALSE;
+	return TRUE;
+}
 //最後に"\"なしで戻る
-static void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
-	GetModuleFileName(NULL, aviutl_dir, (DWORD)nSize);
+static inline void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
+	GetModuleFileNameA(NULL, aviutl_dir, (DWORD)nSize);
 	PathRemoveFileSpecFixed(aviutl_dir);
 }
-static void get_auo_path(char *auo_path, size_t nSize) {
-	GetModuleFileName(GetModuleHandle(AUO_NAME), auo_path, (DWORD)nSize);
+static inline void get_aviutl_dir(WCHAR *aviutl_dir, size_t nSize) {
+	GetModuleFileNameW(NULL, aviutl_dir, (DWORD)nSize);
+	PathRemoveFileSpecFixed(aviutl_dir);
+}
+static inline void get_auo_path(char *auo_path, size_t nSize) {
+	GetModuleFileNameA(GetModuleHandleA(AUO_NAME), auo_path, (DWORD)nSize);
+}
+static inline void get_auo_path(WCHAR *auo_path, size_t nSize) {
+	GetModuleFileNameW(GetModuleHandleW(AUO_NAME_W), auo_path, (DWORD)nSize);
 }
 
-static int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {
+static inline int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {
 	int ret = 0;
 	ret += replace(cmd, nSize, "\r\n", " ");
 	ret += replace(cmd, nSize, "\r",   " ");
 	ret += replace(cmd, nSize, "\n",   " ");
+	return ret;
+}
+static inline int replace_cmd_CRLF_to_Space(WCHAR *cmd, size_t nSize) {
+	int ret = 0;
+	ret += replace(cmd, nSize, L"\r\n", L" ");
+	ret += replace(cmd, nSize, L"\r",   L" ");
+	ret += replace(cmd, nSize, L"\n",   L" ");
 	return ret;
 }
 

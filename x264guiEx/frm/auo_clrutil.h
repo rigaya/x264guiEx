@@ -7,14 +7,16 @@
 //   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
 //  -----------------------------------------------------------------------------------------
 
-#ifndef _X264GUIEX_CLRUTIL_H_
-#define _X264GUIEX_CLRUTIL_H_
+#ifndef _AUO_CLRUTIL_H_
+#define _AUO_CLRUTIL_H_
 
 #include <Windows.h>
+#include <vcclr.h>
 #include "auo.h"
 #include "auo_util.h"
 
 using namespace System;
+using namespace System::IO;
 using namespace System::Drawing;
 using namespace System::Windows::Forms;
 
@@ -110,4 +112,37 @@ static void SetFontFamilyToForm(Form^ form, FontFamily^ NewFontFamily, FontFamil
 	form->Refresh(); //強制再描画
 }
 
-#endif //_X264GUIEX_CLRUTIL_H_
+static String^ AddBackSlash(String^ Dir) {
+	if (Dir != nullptr && 
+		Dir->Length > 0 && 
+		L'\\' != Dir[Dir->Length - 1])
+		Dir += L"\\";
+	return Dir;
+}
+
+//相対パスに変換して返す
+static String^ GetRelativePath(String^ path, String^ baseDir) { 
+	//相対パスならそのまま返す
+	if (path == nullptr || !Path::IsPathRooted(path))
+		return path;
+	//nullptrならCurrentDirを取得
+	if (baseDir == nullptr)
+		baseDir = Directory::GetCurrentDirectory();
+	baseDir = AddBackSlash(baseDir);
+	//同じルートでなければそのまま返す
+	if (String::Compare(Directory::GetDirectoryRoot(path), Directory::GetDirectoryRoot(baseDir), true))
+		return path;
+	//相対パスへの変換
+	pin_ptr<const WCHAR> base_dir = PtrToStringChars(baseDir);
+	pin_ptr<const WCHAR> target_path = PtrToStringChars(path);
+	WCHAR buf[MAX_PATH_LEN];
+	GetRelativePathTo(buf, _countof(buf), target_path, NULL, base_dir);
+	return String(buf).ToString();
+}
+
+//CurentDirectoryをベースフォルダとして相対パスに変換して返す
+static String^ GetRelativePath(String^ path) {
+	return GetRelativePath(path, Directory::GetCurrentDirectory());
+}
+
+#endif //_AUO_CLRUTIL_H_
