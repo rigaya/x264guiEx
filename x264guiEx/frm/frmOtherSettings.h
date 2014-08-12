@@ -161,6 +161,7 @@ namespace x264guiEx {
 			this->fosTabControl = (gcnew System::Windows::Forms::TabControl());
 			this->fostabPageGeneral = (gcnew System::Windows::Forms::TabPage());
 			this->fostabPageAMP = (gcnew System::Windows::Forms::TabPage());
+			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
 			this->fosGroupBoxAMPLimit = (gcnew System::Windows::Forms::GroupBox());
 			this->fosLBAMPLimitMarginWarning = (gcnew System::Windows::Forms::Label());
 			this->fosBTAMPMarginMulti = (gcnew System::Windows::Forms::Button());
@@ -179,7 +180,6 @@ namespace x264guiEx {
 			this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
 			this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
 			this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
-			this->fosCBAutoDelStats = (gcnew System::Windows::Forms::CheckBox());
 			this->fosTabControl->SuspendLayout();
 			this->fostabPageGeneral->SuspendLayout();
 			this->fostabPageAMP->SuspendLayout();
@@ -384,6 +384,16 @@ namespace x264guiEx {
 			this->fostabPageAMP->Text = L"自動マルチパス";
 			this->fostabPageAMP->UseVisualStyleBackColor = true;
 			// 
+			// fosCBAutoDelStats
+			// 
+			this->fosCBAutoDelStats->AutoSize = true;
+			this->fosCBAutoDelStats->Location = System::Drawing::Point(19, 59);
+			this->fosCBAutoDelStats->Name = L"fosCBAutoDelStats";
+			this->fosCBAutoDelStats->Size = System::Drawing::Size(293, 19);
+			this->fosCBAutoDelStats->TabIndex = 19;
+			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
+			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
+			// 
 			// fosGroupBoxAMPLimit
 			// 
 			this->fosGroupBoxAMPLimit->Controls->Add(this->fosLBAMPLimitMarginWarning);
@@ -527,6 +537,8 @@ namespace x264guiEx {
 			// fosNUAMPLimitMargin
 			// 
 			this->fosNUAMPLimitMargin->Location = System::Drawing::Point(177, 63);
+			this->fosNUAMPLimitMargin->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {20, 0, 0, 0});
+			this->fosNUAMPLimitMargin->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 			this->fosNUAMPLimitMargin->Name = L"fosNUAMPLimitMargin";
 			this->fosNUAMPLimitMargin->Size = System::Drawing::Size(73, 23);
 			this->fosNUAMPLimitMargin->TabIndex = 3;
@@ -558,7 +570,7 @@ namespace x264guiEx {
 			this->fosTBAMPLimitMarginMulti->BackColor = System::Drawing::SystemColors::Window;
 			this->fosTBAMPLimitMarginMulti->Location = System::Drawing::Point(66, 32);
 			this->fosTBAMPLimitMarginMulti->Maximum = 20;
-			this->fosTBAMPLimitMarginMulti->Minimum = 2;
+			this->fosTBAMPLimitMarginMulti->Minimum = 1;
 			this->fosTBAMPLimitMarginMulti->Name = L"fosTBAMPLimitMarginMulti";
 			this->fosTBAMPLimitMarginMulti->Size = System::Drawing::Size(240, 31);
 			this->fosTBAMPLimitMarginMulti->TabIndex = 0;
@@ -574,16 +586,6 @@ namespace x264guiEx {
 			this->fosCBAmpKeepOldFile->TabIndex = 17;
 			this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
 			this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
-			// 
-			// fosCBAutoDelStats
-			// 
-			this->fosCBAutoDelStats->AutoSize = true;
-			this->fosCBAutoDelStats->Location = System::Drawing::Point(19, 59);
-			this->fosCBAutoDelStats->Name = L"fosCBAutoDelStats";
-			this->fosCBAutoDelStats->Size = System::Drawing::Size(293, 19);
-			this->fosCBAutoDelStats->TabIndex = 19;
-			this->fosCBAutoDelStats->Text = L"自動マルチパス時、ステータスファイルも自動的に削除する";
-			this->fosCBAutoDelStats->UseVisualStyleBackColor = true;
 			// 
 			// frmOtherSettings
 			// 
