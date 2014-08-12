@@ -300,13 +300,11 @@ void warning_mux_chapter(int sts) {
 
 void error_select_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv) {
 	write_log_auo_line(    LOG_ERROR, "色形式変換関数の取得に失敗しました。");
-	write_log_auo_line_fmt(LOG_ERROR, "%dx%d%s, output-csp %s%s%s, colormatrix変換 %d",
+	write_log_auo_line_fmt(LOG_ERROR, "%dx%d%s, output-csp %s%s%s",
 		width, height,
 		(interlaced) ? "i" : "p",
 		specify_csp[output_csp],
 		(use10bit) ? "(10bit)" : "",
-		(fullrange) ? ", fullrange" : "",
-		yc48_colmat_conv
 		);
 }
 

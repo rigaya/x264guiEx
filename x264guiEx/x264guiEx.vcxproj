@@ -246,6 +246,7 @@
     <ClInclude Include="..\x264guiEx\encode\auo_runbat.h" />
     <ClInclude Include="..\x264guiEx\encode\auo_video.h" />
     <ClInclude Include="..\x264guiEx\encode\convert.h" />
+    <ClInclude Include="..\x264guiEx\encode\convert_const.h" />
     <ClInclude Include="..\x264guiEx\encode\fawcheck.h" />
     <ClInclude Include="..\x264guiEx\encode\vphelp_client.h" />
     <ClInclude Include="..\x264guiEx\frm\auo_clrutil.h" />

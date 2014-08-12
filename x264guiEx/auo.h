@@ -12,9 +12,6 @@
 
 #include <Windows.h>
 
-//これでBT.601->BT.709変換を設定できるようにする
-//#define ENABLE_BT709_CONV
-
 const int   MAX_PATH_LEN          = 1024; //NTFSでは32768文字らしいが...いらんやろ
 const int   MAX_APPENDIX_LEN      = 63; //適当
 

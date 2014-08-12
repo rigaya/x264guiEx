@@ -14,9 +14,9 @@
 #include "convert.h"
 
 func_audio_16to8 get_audio_16to8_func(); //使用する音声16bit->8bit関数の選択
-func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv); //使用する関数の選択
+func_convert_frame get_convert_func(int width, BOOL use16bit, BOOL interlaced, int output_csp); //使用する関数の選択
 
-BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL use10bit); //映像バッファ用メモリ確保
+BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL usehighbit); //映像バッファ用メモリ確保
 void free_pixel_data(CONVERT_CF_DATA *pixel_data); //映像バッファ用メモリ開放
 
 #endif //_AUO_CONVERT_H_

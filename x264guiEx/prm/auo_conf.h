@@ -52,7 +52,7 @@ typedef struct {
 	char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
 	char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
 	char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
-	int    yc48_colormatrix_conv;    //YC48の色変換
+	int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
 	DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
 	double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
 	double amp_limit_bitrate;        //自動マルチパス時のビットレート制限(kbps)

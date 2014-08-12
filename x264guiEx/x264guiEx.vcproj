@@ -447,6 +447,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\encode\convert_avx.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\encode\fawcheck.cpp"
 					>
 					<FileConfiguration
@@ -698,6 +718,10 @@
 				</File>
 				<File
 					RelativePath=".\encode\convert.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\convert_const.h"
 					>
 				</File>
 				<File

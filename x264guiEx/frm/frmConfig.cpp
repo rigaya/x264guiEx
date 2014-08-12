@@ -897,7 +897,6 @@ System::Void frmConfig::InitComboBox() {
 	setComboBox(fcgCXX264Mode,       x264_encodemode_desc);
 	setComboBox(fcgCXWeightP,        list_weightp);
 	setComboBox(fcgCXInterlaced,     interlaced_desc);
-	setComboBox(fcgCXYC48ColMatConv, yc48_colmat_conv_desc);
 
 	setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
 	setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);
@@ -1212,7 +1211,6 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
 		fcgCBAuoTcfileout->Checked         = cnf->vid.auo_tcfile_out != 0;
 		fcgCBCheckKeyframes->Checked       = cnf->vid.check_keyframe != 0;
-		fcgCXYC48ColMatConv->SelectedIndex = cnf->vid.yc48_colormatrix_conv;
 
 		SetCXIndex(fcgCXX264Priority,        cnf->vid.priority);
 		SetCXIndex(fcgCXTempDir,             cnf->oth.temp_dir);
@@ -1370,7 +1368,6 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->vid.auo_tcfile_out         = fcgCBAuoTcfileout->Checked;
 	cnf->vid.check_keyframe         = fcgCBCheckKeyframes->Checked;
 	cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
-	cnf->vid.yc48_colormatrix_conv  = fcgCXYC48ColMatConv->SelectedIndex;
 	cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
 	GetCHARfromString(cnf->vid.cmdex, sizeof(cnf->vid.cmdex), fcgTXCmdEx->Text);
 
@@ -1797,19 +1794,6 @@ System::Void frmConfig::SetHelpToolTips() {
 		);
 	fcgTTEx->SetToolTip(fcgBTCmdEx,       L""
 		+ L"入力したコマンド(オプション)をGUIに反映させます。"
-		);
-	fcgTTEx->SetToolTip(fcgCXYC48ColMatConv, L""
-		+ L"Aviutlからの入力としてYC48を使用する際のcolormatrix変換を指定します。\n"
-		+ L"YC48をAviutlから受け取る際には、Aviutlの色変換設定が反映されないため、\n"
-		+ L"ここで設定する必要があります。\n"
-		+ L"基本的にはAviutlの色変換 [出力] の設定と合わせると良いでしょう。\n"
-		+ L"自動 とすると以下のように設定します。\n"
-		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"以上 … BT.601→BT.709変換\n"
-		+ L"縦解像度" + COLOR_MATRIX_THRESHOLD + L"未満 … 無変換\n"
-		+ L"\n"
-		+ L"YC48をAviutlから受け取るのは以下の場合です。\n"
-		+ L"・10bit深度を使用\n"
-		+ L"・output-csp i444を使用"
 		);
 
 	//音声

@@ -253,13 +253,6 @@ const int StgNotesColor[][3] = {
 	{ 120, 120, 120 }
 };
 
-const WCHAR * const yc48_colmat_conv_desc[] = {
-	L"自動",
-	L"無変換",
-	L"BT.601 → BT.709",
-	NULL
-};
-
 const WCHAR * const DefaultStgNotes = L"メモ...";
 const WCHAR * const DefaultStatusFilePath = L"%{savfile}.stats";
 const WCHAR * const DefaultTcFilePath = L"%{savfile}_tc.txt";
