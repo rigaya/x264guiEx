@@ -225,7 +225,7 @@ typedef struct {
 //guiExで使いやすいよう、適当に
 //並び順に意味はない
 typedef struct {
-	BOOL    use_10bit_depth;
+	BOOL    use_highbit_depth;
 	int     output_csp;
 	int     pass;
 	BOOL    slow_first_pass;
@@ -331,7 +331,7 @@ typedef struct {
 //コマンドラインの解析・生成
 void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set);
 void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
-void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_10bit);
+void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_highbit);
 //void set_preset_to_conf(CONF_X264 *conf_set, int preset_index);
 //void set_tune_to_conf(CONF_X264 *conf_set, int tune_index);
 void set_profile_to_conf(CONF_X264 *conf_set, int profile_index);

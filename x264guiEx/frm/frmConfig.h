@@ -113,7 +113,7 @@ namespace x264guiEx {
 
 	private: System::Windows::Forms::CheckBox^  fcgCBNulOut;
 	private: System::Windows::Forms::ComboBox^  fcgCXX264Mode;
-	private: System::Windows::Forms::CheckBox^  fcgCBUse10bit;
+	private: System::Windows::Forms::CheckBox^  fcgCBUsehighbit;
 
 	private: System::Windows::Forms::Button^  fcgBTX264Path;
 
@@ -542,17 +542,17 @@ private: System::Windows::Forms::Button^  fcgBTX264PathSub;
 private: System::Windows::Forms::TextBox^  fcgTXX264PathSub;
 
 private: System::Windows::Forms::Label^  fcgLBX264PathSub;
-private: System::Windows::Forms::Label^  fcgLBX264PathSub10bit;
+private: System::Windows::Forms::Label^  fcgLBX264PathSubhighbit;
 private: System::Windows::Forms::Label^  fcgLBX264PathSub8bit;
-private: System::Windows::Forms::Button^  fcgBTX264PathSub10bit;
-private: System::Windows::Forms::TextBox^  fcgTXX264PathSub10bit;
+private: System::Windows::Forms::Button^  fcgBTX264PathSubhighbit;
+private: System::Windows::Forms::TextBox^  fcgTXX264PathSubhighbit;
 private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
 
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
 private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
 private: System::Windows::Forms::CheckBox^  fcgCBMP4MuxApple;
-private: System::Windows::Forms::ComboBox^  fcgCXYC48ColMatConv;
-private: System::Windows::Forms::Label^  fcgLBYC48ColMatConv;
+
+
 private: System::Windows::Forms::TabPage^  fcgtabPageBat;
 private: System::Windows::Forms::CheckBox^  fcgCBRunBat;
 
@@ -680,7 +680,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCBSlicedThreads = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgLBThreads = (gcnew System::Windows::Forms::Label());
 			this->fcgNUThreads = (gcnew System::Windows::Forms::NumericUpDown());
-			this->fcgCBUse10bit = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCBUsehighbit = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBBlurayCompat = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAud = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCXVideoFormat = (gcnew System::Windows::Forms::ComboBox());
@@ -819,10 +819,10 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgLBDeblockThreshold = (gcnew System::Windows::Forms::Label());
 			this->fcgLBDeblockStrength = (gcnew System::Windows::Forms::Label());
 			this->fcgtabPageExSettings = (gcnew System::Windows::Forms::TabPage());
-			this->fcgLBX264PathSub10bit = (gcnew System::Windows::Forms::Label());
+			this->fcgLBX264PathSubhighbit = (gcnew System::Windows::Forms::Label());
 			this->fcgLBX264PathSub8bit = (gcnew System::Windows::Forms::Label());
-			this->fcgBTX264PathSub10bit = (gcnew System::Windows::Forms::Button());
-			this->fcgTXX264PathSub10bit = (gcnew System::Windows::Forms::TextBox());
+			this->fcgBTX264PathSubhighbit = (gcnew System::Windows::Forms::Button());
+			this->fcgTXX264PathSubhighbit = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTX264PathSub = (gcnew System::Windows::Forms::Button());
 			this->fcgTXX264PathSub = (gcnew System::Windows::Forms::TextBox());
 			this->fcgLBX264PathSub = (gcnew System::Windows::Forms::Label());
@@ -837,8 +837,6 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
 			this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
-			this->fcgCXYC48ColMatConv = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgLBYC48ColMatConv = (gcnew System::Windows::Forms::Label());
 			this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAuoTcfileout = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAFSBitrateCorrection = (gcnew System::Windows::Forms::CheckBox());
@@ -881,14 +879,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgLBAudioTemp = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlMux = (gcnew System::Windows::Forms::TabControl());
 			this->fcgtabPageMP4 = (gcnew System::Windows::Forms::TabPage());
-			this->fcgBTMP4RawPath = (gcnew System::Windows::Forms::Button());
-			this->fcgTXMP4RawPath = (gcnew System::Windows::Forms::TextBox());
-			this->fcgLBMP4RawPath = (gcnew System::Windows::Forms::Label());
 			this->fcgCBMP4MuxApple = (gcnew System::Windows::Forms::CheckBox());
-			this->fcgBTMP4BoxTempDir = (gcnew System::Windows::Forms::Button());
-			this->fcgTXMP4BoxTempDir = (gcnew System::Windows::Forms::TextBox());
-			this->fcgCXMP4BoxTempDir = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgLBMP4BoxTempDir = (gcnew System::Windows::Forms::Label());
 			this->fcgBTTC2MP4Path = (gcnew System::Windows::Forms::Button());
 			this->fcgTXTC2MP4Path = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTMP4MuxerPath = (gcnew System::Windows::Forms::Button());
@@ -898,6 +889,13 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCXMP4CmdEx = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBMP4CmdEx = (gcnew System::Windows::Forms::Label());
 			this->fcgCBMP4MuxerExt = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgBTMP4RawPath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXMP4RawPath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgLBMP4RawPath = (gcnew System::Windows::Forms::Label());
+			this->fcgBTMP4BoxTempDir = (gcnew System::Windows::Forms::Button());
+			this->fcgTXMP4BoxTempDir = (gcnew System::Windows::Forms::TextBox());
+			this->fcgCXMP4BoxTempDir = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgLBMP4BoxTempDir = (gcnew System::Windows::Forms::Label());
 			this->fcgtabPageMKV = (gcnew System::Windows::Forms::TabPage());
 			this->fcgBTMKVMuxerPath = (gcnew System::Windows::Forms::Button());
 			this->fcgTXMKVMuxerPath = (gcnew System::Windows::Forms::TextBox());
@@ -1037,7 +1035,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgtabPageX264Main->Controls->Add(this->fcgLBSlices);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCXOutputCsp);
 			this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxThreads);
-			this->fcgtabPageX264Main->Controls->Add(this->fcgCBUse10bit);
+			this->fcgtabPageX264Main->Controls->Add(this->fcgCBUsehighbit);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCBBlurayCompat);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCBAud);
 			this->fcgtabPageX264Main->Controls->Add(this->fcgCXVideoFormat);
@@ -1472,17 +1470,17 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgNUThreads->Tag = L"reCmd";
 			this->fcgNUThreads->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
 			// 
-			// fcgCBUse10bit
+			// fcgCBUsehighbit
 			// 
-			this->fcgCBUse10bit->AutoSize = true;
-			this->fcgCBUse10bit->Location = System::Drawing::Point(277, 10);
-			this->fcgCBUse10bit->Name = L"fcgCBUse10bit";
-			this->fcgCBUse10bit->Size = System::Drawing::Size(89, 18);
-			this->fcgCBUse10bit->TabIndex = 1;
-			this->fcgCBUse10bit->Tag = L"reCmd";
-			this->fcgCBUse10bit->Text = L"10bit depth";
-			this->fcgCBUse10bit->UseVisualStyleBackColor = true;
-			this->fcgCBUse10bit->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCBUse10bit_CheckedChanged);
+			this->fcgCBUsehighbit->AutoSize = true;
+			this->fcgCBUsehighbit->Location = System::Drawing::Point(277, 10);
+			this->fcgCBUsehighbit->Name = L"fcgCBUsehighbit";
+			this->fcgCBUsehighbit->Size = System::Drawing::Size(99, 18);
+			this->fcgCBUsehighbit->TabIndex = 1;
+			this->fcgCBUsehighbit->Tag = L"reCmd";
+			this->fcgCBUsehighbit->Text = L"highbit depth";
+			this->fcgCBUsehighbit->UseVisualStyleBackColor = true;
+			this->fcgCBUsehighbit->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCBUsehighbit_CheckedChanged);
 			// 
 			// fcgCBBlurayCompat
 			// 
@@ -2964,14 +2962,14 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgtabPageExSettings->Text = L"拡張";
 			this->fcgtabPageExSettings->UseVisualStyleBackColor = true;
 			// 
-			// fcgLBX264PathSub10bit
+			// fcgLBX264PathSubhighbit
 			// 
-			this->fcgLBX264PathSub10bit->AutoSize = true;
-			this->fcgLBX264PathSub10bit->Location = System::Drawing::Point(344, 64);
-			this->fcgLBX264PathSub10bit->Name = L"fcgLBX264PathSub10bit";
-			this->fcgLBX264PathSub10bit->Size = System::Drawing::Size(46, 14);
-			this->fcgLBX264PathSub10bit->TabIndex = 11;
-			this->fcgLBX264PathSub10bit->Text = L"10bit用";
+			this->fcgLBX264PathSubhighbit->AutoSize = true;
+			this->fcgLBX264PathSubhighbit->Location = System::Drawing::Point(344, 64);
+			this->fcgLBX264PathSubhighbit->Name = L"fcgLBX264PathSubhighbit";
+			this->fcgLBX264PathSubhighbit->Size = System::Drawing::Size(56, 14);
+			this->fcgLBX264PathSubhighbit->TabIndex = 11;
+			this->fcgLBX264PathSubhighbit->Text = L"highbit用";
 			// 
 			// fcgLBX264PathSub8bit
 			// 
@@ -2982,25 +2980,25 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgLBX264PathSub8bit->TabIndex = 10;
 			this->fcgLBX264PathSub8bit->Text = L"8bit用";
 			// 
-			// fcgBTX264PathSub10bit
+			// fcgBTX264PathSubhighbit
 			// 
-			this->fcgBTX264PathSub10bit->Location = System::Drawing::Point(575, 60);
-			this->fcgBTX264PathSub10bit->Name = L"fcgBTX264PathSub10bit";
-			this->fcgBTX264PathSub10bit->Size = System::Drawing::Size(27, 22);
-			this->fcgBTX264PathSub10bit->TabIndex = 9;
-			this->fcgBTX264PathSub10bit->Text = L"...";
-			this->fcgBTX264PathSub10bit->UseVisualStyleBackColor = true;
-			this->fcgBTX264PathSub10bit->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTX264PathSub10bit_Click);
+			this->fcgBTX264PathSubhighbit->Location = System::Drawing::Point(575, 60);
+			this->fcgBTX264PathSubhighbit->Name = L"fcgBTX264PathSubhighbit";
+			this->fcgBTX264PathSubhighbit->Size = System::Drawing::Size(27, 22);
+			this->fcgBTX264PathSubhighbit->TabIndex = 9;
+			this->fcgBTX264PathSubhighbit->Text = L"...";
+			this->fcgBTX264PathSubhighbit->UseVisualStyleBackColor = true;
+			this->fcgBTX264PathSubhighbit->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTX264PathSubhighbit_Click);
 			// 
-			// fcgTXX264PathSub10bit
+			// fcgTXX264PathSubhighbit
 			// 
-			this->fcgTXX264PathSub10bit->AllowDrop = true;
-			this->fcgTXX264PathSub10bit->Location = System::Drawing::Point(395, 61);
-			this->fcgTXX264PathSub10bit->Name = L"fcgTXX264PathSub10bit";
-			this->fcgTXX264PathSub10bit->Size = System::Drawing::Size(176, 21);
-			this->fcgTXX264PathSub10bit->TabIndex = 8;
-			this->fcgTXX264PathSub10bit->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub10bit_TextChanged);
-			this->fcgTXX264PathSub10bit->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSub10bit_Leave);
+			this->fcgTXX264PathSubhighbit->AllowDrop = true;
+			this->fcgTXX264PathSubhighbit->Location = System::Drawing::Point(395, 61);
+			this->fcgTXX264PathSubhighbit->Name = L"fcgTXX264PathSubhighbit";
+			this->fcgTXX264PathSubhighbit->Size = System::Drawing::Size(176, 21);
+			this->fcgTXX264PathSubhighbit->TabIndex = 8;
+			this->fcgTXX264PathSubhighbit->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSubhighbit_TextChanged);
+			this->fcgTXX264PathSubhighbit->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264PathSubhighbit_Leave);
 			// 
 			// fcgBTX264PathSub
 			// 
@@ -3134,8 +3132,6 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			// 
 			// fcggroupBoxExSettings
 			// 
-			this->fcggroupBoxExSettings->Controls->Add(this->fcgCXYC48ColMatConv);
-			this->fcggroupBoxExSettings->Controls->Add(this->fcgLBYC48ColMatConv);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAuoTcfileout);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFSBitrateCorrection);
@@ -3146,25 +3142,6 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcggroupBoxExSettings->TabIndex = 0;
 			this->fcggroupBoxExSettings->TabStop = false;
 			this->fcggroupBoxExSettings->Text = L"拡張設定";
-			// 
-			// fcgCXYC48ColMatConv
-			// 
-			this->fcgCXYC48ColMatConv->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXYC48ColMatConv->FormattingEnabled = true;
-			this->fcgCXYC48ColMatConv->Location = System::Drawing::Point(97, 148);
-			this->fcgCXYC48ColMatConv->Name = L"fcgCXYC48ColMatConv";
-			this->fcgCXYC48ColMatConv->Size = System::Drawing::Size(132, 22);
-			this->fcgCXYC48ColMatConv->TabIndex = 5;
-			this->fcgCXYC48ColMatConv->Tag = L"chValue";
-			// 
-			// fcgLBYC48ColMatConv
-			// 
-			this->fcgLBYC48ColMatConv->AutoSize = true;
-			this->fcgLBYC48ColMatConv->Location = System::Drawing::Point(15, 151);
-			this->fcgLBYC48ColMatConv->Name = L"fcgLBYC48ColMatConv";
-			this->fcgLBYC48ColMatConv->Size = System::Drawing::Size(57, 14);
-			this->fcgLBYC48ColMatConv->TabIndex = 4;
-			this->fcgLBYC48ColMatConv->Text = L"YC48出力";
 			// 
 			// fcgCBCheckKeyframes
 			// 
@@ -3634,36 +3611,6 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgtabPageMP4->Text = L"mp4";
 			this->fcgtabPageMP4->UseVisualStyleBackColor = true;
 			// 
-			// fcgBTMP4RawPath
-			// 
-			this->fcgBTMP4RawPath->Location = System::Drawing::Point(340, 109);
-			this->fcgBTMP4RawPath->Name = L"fcgBTMP4RawPath";
-			this->fcgBTMP4RawPath->Size = System::Drawing::Size(30, 23);
-			this->fcgBTMP4RawPath->TabIndex = 22;
-			this->fcgBTMP4RawPath->Text = L"...";
-			this->fcgBTMP4RawPath->UseVisualStyleBackColor = true;
-			this->fcgBTMP4RawPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTMP4RawMuxerPath_Click);
-			// 
-			// fcgTXMP4RawPath
-			// 
-			this->fcgTXMP4RawPath->AllowDrop = true;
-			this->fcgTXMP4RawPath->Location = System::Drawing::Point(136, 110);
-			this->fcgTXMP4RawPath->Name = L"fcgTXMP4RawPath";
-			this->fcgTXMP4RawPath->Size = System::Drawing::Size(202, 21);
-			this->fcgTXMP4RawPath->TabIndex = 21;
-			this->fcgTXMP4RawPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4RawMuxerPath_TextChanged);
-			this->fcgTXMP4RawPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
-			this->fcgTXMP4RawPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
-			// 
-			// fcgLBMP4RawPath
-			// 
-			this->fcgLBMP4RawPath->AutoSize = true;
-			this->fcgLBMP4RawPath->Location = System::Drawing::Point(4, 113);
-			this->fcgLBMP4RawPath->Name = L"fcgLBMP4RawPath";
-			this->fcgLBMP4RawPath->Size = System::Drawing::Size(49, 14);
-			this->fcgLBMP4RawPath->TabIndex = 20;
-			this->fcgLBMP4RawPath->Text = L"～の指定";
-			// 
 			// fcgCBMP4MuxApple
 			// 
 			this->fcgCBMP4MuxApple->AutoSize = true;
@@ -3674,43 +3621,6 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCBMP4MuxApple->Tag = L"chValue";
 			this->fcgCBMP4MuxApple->Text = L"Apple形式に対応";
 			this->fcgCBMP4MuxApple->UseVisualStyleBackColor = true;
-			// 
-			// fcgBTMP4BoxTempDir
-			// 
-			this->fcgBTMP4BoxTempDir->Location = System::Drawing::Point(340, 159);
-			this->fcgBTMP4BoxTempDir->Name = L"fcgBTMP4BoxTempDir";
-			this->fcgBTMP4BoxTempDir->Size = System::Drawing::Size(30, 23);
-			this->fcgBTMP4BoxTempDir->TabIndex = 8;
-			this->fcgBTMP4BoxTempDir->Text = L"...";
-			this->fcgBTMP4BoxTempDir->UseVisualStyleBackColor = true;
-			this->fcgBTMP4BoxTempDir->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTMP4BoxTempDir_Click);
-			// 
-			// fcgTXMP4BoxTempDir
-			// 
-			this->fcgTXMP4BoxTempDir->Location = System::Drawing::Point(107, 160);
-			this->fcgTXMP4BoxTempDir->Name = L"fcgTXMP4BoxTempDir";
-			this->fcgTXMP4BoxTempDir->Size = System::Drawing::Size(227, 21);
-			this->fcgTXMP4BoxTempDir->TabIndex = 7;
-			this->fcgTXMP4BoxTempDir->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4BoxTempDir_TextChanged);
-			// 
-			// fcgCXMP4BoxTempDir
-			// 
-			this->fcgCXMP4BoxTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXMP4BoxTempDir->FormattingEnabled = true;
-			this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(145, 132);
-			this->fcgCXMP4BoxTempDir->Name = L"fcgCXMP4BoxTempDir";
-			this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(206, 22);
-			this->fcgCXMP4BoxTempDir->TabIndex = 6;
-			this->fcgCXMP4BoxTempDir->Tag = L"chValue";
-			// 
-			// fcgLBMP4BoxTempDir
-			// 
-			this->fcgLBMP4BoxTempDir->AutoSize = true;
-			this->fcgLBMP4BoxTempDir->Location = System::Drawing::Point(25, 135);
-			this->fcgLBMP4BoxTempDir->Name = L"fcgLBMP4BoxTempDir";
-			this->fcgLBMP4BoxTempDir->Size = System::Drawing::Size(105, 14);
-			this->fcgLBMP4BoxTempDir->TabIndex = 18;
-			this->fcgLBMP4BoxTempDir->Text = L"mp4box一時フォルダ";
 			// 
 			// fcgBTTC2MP4Path
 			// 
@@ -3802,6 +3712,73 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCBMP4MuxerExt->Tag = L"chValue";
 			this->fcgCBMP4MuxerExt->Text = L"外部muxerを使用";
 			this->fcgCBMP4MuxerExt->UseVisualStyleBackColor = true;
+			// 
+			// fcgBTMP4RawPath
+			// 
+			this->fcgBTMP4RawPath->Location = System::Drawing::Point(340, 109);
+			this->fcgBTMP4RawPath->Name = L"fcgBTMP4RawPath";
+			this->fcgBTMP4RawPath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTMP4RawPath->TabIndex = 22;
+			this->fcgBTMP4RawPath->Text = L"...";
+			this->fcgBTMP4RawPath->UseVisualStyleBackColor = true;
+			this->fcgBTMP4RawPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTMP4RawMuxerPath_Click);
+			// 
+			// fcgTXMP4RawPath
+			// 
+			this->fcgTXMP4RawPath->AllowDrop = true;
+			this->fcgTXMP4RawPath->Location = System::Drawing::Point(136, 110);
+			this->fcgTXMP4RawPath->Name = L"fcgTXMP4RawPath";
+			this->fcgTXMP4RawPath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXMP4RawPath->TabIndex = 21;
+			this->fcgTXMP4RawPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4RawMuxerPath_TextChanged);
+			this->fcgTXMP4RawPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXMP4RawPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
+			// 
+			// fcgLBMP4RawPath
+			// 
+			this->fcgLBMP4RawPath->AutoSize = true;
+			this->fcgLBMP4RawPath->Location = System::Drawing::Point(4, 113);
+			this->fcgLBMP4RawPath->Name = L"fcgLBMP4RawPath";
+			this->fcgLBMP4RawPath->Size = System::Drawing::Size(49, 14);
+			this->fcgLBMP4RawPath->TabIndex = 20;
+			this->fcgLBMP4RawPath->Text = L"～の指定";
+			// 
+			// fcgBTMP4BoxTempDir
+			// 
+			this->fcgBTMP4BoxTempDir->Location = System::Drawing::Point(340, 159);
+			this->fcgBTMP4BoxTempDir->Name = L"fcgBTMP4BoxTempDir";
+			this->fcgBTMP4BoxTempDir->Size = System::Drawing::Size(30, 23);
+			this->fcgBTMP4BoxTempDir->TabIndex = 8;
+			this->fcgBTMP4BoxTempDir->Text = L"...";
+			this->fcgBTMP4BoxTempDir->UseVisualStyleBackColor = true;
+			this->fcgBTMP4BoxTempDir->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTMP4BoxTempDir_Click);
+			// 
+			// fcgTXMP4BoxTempDir
+			// 
+			this->fcgTXMP4BoxTempDir->Location = System::Drawing::Point(107, 160);
+			this->fcgTXMP4BoxTempDir->Name = L"fcgTXMP4BoxTempDir";
+			this->fcgTXMP4BoxTempDir->Size = System::Drawing::Size(227, 21);
+			this->fcgTXMP4BoxTempDir->TabIndex = 7;
+			this->fcgTXMP4BoxTempDir->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4BoxTempDir_TextChanged);
+			// 
+			// fcgCXMP4BoxTempDir
+			// 
+			this->fcgCXMP4BoxTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXMP4BoxTempDir->FormattingEnabled = true;
+			this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(145, 132);
+			this->fcgCXMP4BoxTempDir->Name = L"fcgCXMP4BoxTempDir";
+			this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(206, 22);
+			this->fcgCXMP4BoxTempDir->TabIndex = 6;
+			this->fcgCXMP4BoxTempDir->Tag = L"chValue";
+			// 
+			// fcgLBMP4BoxTempDir
+			// 
+			this->fcgLBMP4BoxTempDir->AutoSize = true;
+			this->fcgLBMP4BoxTempDir->Location = System::Drawing::Point(25, 135);
+			this->fcgLBMP4BoxTempDir->Name = L"fcgLBMP4BoxTempDir";
+			this->fcgLBMP4BoxTempDir->Size = System::Drawing::Size(105, 14);
+			this->fcgLBMP4BoxTempDir->TabIndex = 18;
+			this->fcgLBMP4BoxTempDir->Text = L"mp4box一時フォルダ";
 			// 
 			// fcgtabPageMKV
 			// 
@@ -4399,7 +4376,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void CheckTSItemsEnabled(CONF_X264GUIEX *current_conf);
 		System::Void SetHelpToolTips();
 		System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
-		System::Void SetX264VersionToolTip(String^ x264Path, bool as10bit);
+		System::Void SetX264VersionToolTip(String^ x264Path, bool ashighbit);
 		System::Void fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeMuxerVisible(System::Object^  sender, System::EventArgs^  e);
@@ -4407,7 +4384,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void CloseBitrateCalc();
 		System::Void SetfbcBTABEnable(bool enable, int max);
 		System::Void SetfbcBTVBEnable(bool enable);
-		System::Void fcgCBUse10bit_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgCBUsehighbit_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCBAudio2pass_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCBAFS_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
@@ -4525,7 +4502,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 	private: 
 		System::Void fcgBTX264Path_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (openExeFile(fcgTXX264Path, LocalStg.x264ExeName))
-				SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
+				SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUsehighbit->Checked);
 		}
 	private: 
 		System::Void fcgBTX264PathSub_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -4533,21 +4510,21 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 				SetX264VersionToolTip(fcgTXX264PathSub->Text, false);
 		}
 	private: 
-		System::Void fcgBTX264PathSub10bit_Click(System::Object^  sender, System::EventArgs^  e) {
-			if (openExeFile(fcgTXX264PathSub10bit, LocalStg.x264ExeName))
-				SetX264VersionToolTip(fcgTXX264PathSub10bit->Text, true);
+		System::Void fcgBTX264PathSubhighbit_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (openExeFile(fcgTXX264PathSubhighbit, LocalStg.x264ExeName))
+				SetX264VersionToolTip(fcgTXX264PathSubhighbit->Text, true);
 		}
 	private: 
 		System::Void fcgTXX264Path_Leave(System::Object^  sender, System::EventArgs^  e) {
-			SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
+			SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUsehighbit->Checked);
 		}
 	private: 
 		System::Void fcgTXX264PathSub_Leave(System::Object^  sender, System::EventArgs^  e) {
 			SetX264VersionToolTip(fcgTXX264PathSub->Text, false);
 		}
 	private: 
-		System::Void fcgTXX264PathSub10bit_Leave(System::Object^  sender, System::EventArgs^  e) {
-			SetX264VersionToolTip(fcgTXX264PathSub10bit->Text, true);
+		System::Void fcgTXX264PathSubhighbit_Leave(System::Object^  sender, System::EventArgs^  e) {
+			SetX264VersionToolTip(fcgTXX264PathSubhighbit->Text, true);
 		}
 	private: 
 		System::Void fcgBTMP4MuxerPath_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -4785,7 +4762,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void fcgBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (CheckLocalStg())
 				return;
-			init_CONF_X264GUIEX(conf, fcgCBUse10bit->Checked);
+			init_CONF_X264GUIEX(conf, fcgCBUsehighbit->Checked);
 			FrmToConf(conf);
 			SaveLocalStg();
 			ZeroMemory(conf->oth.notes, sizeof(conf->oth.notes));
@@ -4811,7 +4788,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void fcgRebuildCmd(System::Object^  sender, System::EventArgs^  e) {
 			char re_cmd[MAX_CMD_LEN] = { 0 };
 			CONF_X264GUIEX rebuild;
-			init_CONF_X264GUIEX(&rebuild, fcgCBUse10bit->Checked);
+			init_CONF_X264GUIEX(&rebuild, fcgCBUsehighbit->Checked);
 			FrmToConf(&rebuild);
 			if (!rebuild.oth.disable_guicmd)
 				build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.x264, &rebuild.vid, FALSE);
@@ -4824,7 +4801,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			if (CheckedStgMenuItem == nullptr)
 				return;
 			CONF_X264GUIEX check_change;
-			init_CONF_X264GUIEX(&check_change, fcgCBUse10bit->Checked);
+			init_CONF_X264GUIEX(&check_change, fcgCBUsehighbit->Checked);
 			FrmToConf(&check_change);
 			ChangePresetNameDisplay(memcmp(&check_change, cnf_stgSelected, sizeof(CONF_X264GUIEX)) != 0);
 		}
@@ -4861,10 +4838,10 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 	private: 
 		System::Void fcgTXX264Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			int c = fcgTXX264Path->SelectionStart;
-			if (fcgCBUse10bit->Checked) {
-				LocalStg.x264Path10bit = fcgTXX264Path->Text;
-				fcgTXX264PathSub10bit->Text = LocalStg.x264Path10bit;
-				fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
+			if (fcgCBUsehighbit->Checked) {
+				LocalStg.x264Pathhighbit = fcgTXX264Path->Text;
+				fcgTXX264PathSubhighbit->Text = LocalStg.x264Pathhighbit;
+				fcgTXX264PathSubhighbit->SelectionStart = fcgTXX264PathSubhighbit->Text->Length;
 			} else {
 				LocalStg.x264Path      = fcgTXX264Path->Text;
 				fcgTXX264PathSub->Text = LocalStg.x264Path;
@@ -4876,21 +4853,21 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void fcgTXX264PathSub_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.x264Path   = fcgTXX264PathSub->Text;
 			int c = fcgTXX264PathSub->SelectionStart;
-			if (!fcgCBUse10bit->Checked) {
+			if (!fcgCBUsehighbit->Checked) {
 				fcgTXX264Path->Text = LocalStg.x264Path;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 			}
 			fcgTXX264PathSub->SelectionStart = c;
 		}
 	private: 
-		System::Void fcgTXX264PathSub10bit_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-			LocalStg.x264Path10bit   = fcgTXX264PathSub10bit->Text;
-			int c = fcgTXX264PathSub10bit->SelectionStart;
-			if (fcgCBUse10bit->Checked) {
-				fcgTXX264Path->Text = LocalStg.x264Path10bit;
+		System::Void fcgTXX264PathSubhighbit_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+			LocalStg.x264Pathhighbit   = fcgTXX264PathSubhighbit->Text;
+			int c = fcgTXX264PathSubhighbit->SelectionStart;
+			if (fcgCBUsehighbit->Checked) {
+				fcgTXX264Path->Text = LocalStg.x264Pathhighbit;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 			}
-			fcgTXX264PathSub10bit->SelectionStart = c;
+			fcgTXX264PathSubhighbit->SelectionStart = c;
 		}
 	private: 
 		System::Void fcgTXAudioEncoderPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {

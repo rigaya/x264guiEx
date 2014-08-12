@@ -243,10 +243,10 @@ void delete_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
 	}
 	_sys_dat->init = FALSE;
 }
-void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_10bit) {
+void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit) {
 	ZeroMemory(conf, sizeof(CONF_X264GUIEX));
 	guiEx_config::write_conf_header(conf);
-	get_default_conf_x264(&conf->x264, use_10bit);
+	get_default_conf_x264(&conf->x264, use_highbit);
 	conf->size_all = CONF_INITIALIZED;
 }
 void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
@@ -340,7 +340,7 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	//必要な実行ファイル
 	//x264
 	if (!conf.oth.disable_guicmd) {
-		char *x264fullpath = (conf.x264.use_10bit_depth) ? sys_dat.exstg->s_x264.fullpath_10bit : sys_dat.exstg->s_x264.fullpath;
+		char *x264fullpath = (conf.x264.use_highbit_depth) ? sys_dat.exstg->s_x264.fullpath_highbit : sys_dat.exstg->s_x264.fullpath;
 		if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(x264fullpath)) {
 			error_no_exe_file("x264.exe", x264fullpath);
 			check = FALSE;

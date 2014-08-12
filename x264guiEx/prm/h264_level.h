@@ -37,6 +37,6 @@ const X264_OPTION_STR list_x264guiEx_level[] = {
 };
 
 int calc_auto_level(int width, int height, int ref, BOOL interlaced, int fps_num, int fps_den, int vbv_max, int vbv_buf);
-void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int use_10bit, guiEx_settings *ex_stg);
+void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int use_highbit, guiEx_settings *ex_stg);
 
 #endif //_H264_LEVEL_H_

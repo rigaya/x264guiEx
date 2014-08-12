@@ -172,7 +172,7 @@ System::Void frmConfig::LoadLocalStg() {
 	_ex_stg->load_encode_stg();
 	LocalStg.x264ExeName     = String(_ex_stg->s_x264.filename).ToString();
 	LocalStg.x264Path        = String(_ex_stg->s_x264.fullpath).ToString();
-	LocalStg.x264Path10bit   = String(_ex_stg->s_x264.fullpath_10bit).ToString();
+	LocalStg.x264Pathhighbit = String(_ex_stg->s_x264.fullpath_highbit).ToString();
 	LocalStg.CustomTmpDir    = String(_ex_stg->s_local.custom_tmp_dir).ToString();
 	LocalStg.CustomAudTmpDir = String(_ex_stg->s_local.custom_audio_tmp_dir).ToString();
 	LocalStg.CustomMP4TmpDir = String(_ex_stg->s_local.custom_mp4box_tmp_dir).ToString();
@@ -205,25 +205,25 @@ System::Boolean frmConfig::CheckLocalStg() {
 	bool error = false;
 	String^ err = "";
 	//x264のチェック
-	bool CheckX26410bit;
+	bool CheckX264highbit;
 	if (fcgTSBCMDOnly->Checked) {
-		//CLIモードの時はコマンドラインを解析して10bitかどうか判定
+		//CLIモードの時はコマンドラインを解析してhighbitかどうか判定
 		CONF_X264GUIEX cnf;
 		init_CONF_X264GUIEX(&cnf, FALSE);
 		char cmdex[2048] = { 0 };
 		GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
 		set_cmd_to_conf(cmdex, &cnf.x264);
-		CheckX26410bit = cnf.x264.use_10bit_depth != 0;
+		CheckX264highbit = cnf.x264.use_highbit_depth != 0;
 	} else {
-		CheckX26410bit = fcgCBUse10bit->Checked;
+		CheckX264highbit = fcgCBUsehighbit->Checked;
 	}
-	if (!CheckX26410bit && !File::Exists(LocalStg.x264Path)) {
+	if (!CheckX264highbit && !File::Exists(LocalStg.x264Path)) {
 		error = true;
 		err += L"指定された x264 は存在しません。\n [ " + LocalStg.x264Path + L" ]\n";
 	}
-	if (CheckX26410bit && !File::Exists(LocalStg.x264Path10bit)) {
+	if (CheckX264highbit && !File::Exists(LocalStg.x264Pathhighbit)) {
 		error = true;
-		err += L"指定された x264 (10bit用) は存在しません。\n [ " + LocalStg.x264Path10bit + L" ]\n";
+		err += L"指定された x264 (highbit用) は存在しません。\n [ " + LocalStg.x264Pathhighbit + L" ]\n";
 	}
 	//音声エンコーダのチェック (実行ファイル名がない場合はチェックしない)
 	if (LocalStg.audEncExeName[fcgCXAudioEncoder->SelectedIndex]->Length) {
@@ -265,7 +265,7 @@ System::Void frmConfig::SaveLocalStg() {
 	_ex_stg->load_encode_stg();
 	_ex_stg->s_local.large_cmdbox = fcgTXCmd->Multiline;
 	GetCHARfromString(_ex_stg->s_x264.fullpath,               sizeof(_ex_stg->s_x264.fullpath),               LocalStg.x264Path);
-	GetCHARfromString(_ex_stg->s_x264.fullpath_10bit,         sizeof(_ex_stg->s_x264.fullpath_10bit),         LocalStg.x264Path10bit);
+	GetCHARfromString(_ex_stg->s_x264.fullpath_highbit,       sizeof(_ex_stg->s_x264.fullpath_highbit),       LocalStg.x264Pathhighbit);
 	GetCHARfromString(_ex_stg->s_local.custom_tmp_dir,        sizeof(_ex_stg->s_local.custom_tmp_dir),        LocalStg.CustomTmpDir);
 	GetCHARfromString(_ex_stg->s_local.custom_mp4box_tmp_dir, sizeof(_ex_stg->s_local.custom_mp4box_tmp_dir), LocalStg.CustomMP4TmpDir);
 	GetCHARfromString(_ex_stg->s_local.custom_audio_tmp_dir,  sizeof(_ex_stg->s_local.custom_audio_tmp_dir),  LocalStg.CustomAudTmpDir);
@@ -284,9 +284,9 @@ System::Void frmConfig::SaveLocalStg() {
 System::Void frmConfig::SetLocalStg() {
 	fcgLBX264Path->Text           = L"x264.exe の指定";
 	fcgLBX264PathSub->Text        = L"x264.exe の指定";
-	fcgTXX264Path->Text           = (fcgCBUse10bit->Checked) ? LocalStg.x264Path10bit : LocalStg.x264Path;
+	fcgTXX264Path->Text           = (fcgCBUsehighbit->Checked) ? LocalStg.x264Pathhighbit : LocalStg.x264Path;
 	fcgTXX264PathSub->Text        = LocalStg.x264Path;
-	fcgTXX264PathSub10bit->Text   = LocalStg.x264Path10bit;
+	fcgTXX264PathSubhighbit->Text = LocalStg.x264Pathhighbit;
 	fcgTXMP4MuxerPath->Text       = LocalStg.MP4MuxerPath;
 	fcgTXMKVMuxerPath->Text       = LocalStg.MKVMuxerPath;
 	fcgTXTC2MP4Path->Text         = LocalStg.TC2MP4Path;
@@ -301,14 +301,14 @@ System::Void frmConfig::SetLocalStg() {
 	fcgLBMPGMuxerPath->Text       = LocalStg.MPGMuxerExeName + L" の指定";
 	fcgLBMP4RawPath->Text         = LocalStg.MP4RawExeName + L" の指定";
 
-	fcgTXX264Path->SelectionStart         = fcgTXX264Path->Text->Length;
-	fcgTXX264PathSub->SelectionStart      = fcgTXX264PathSub->Text->Length;
-	fcgTXX264PathSub10bit->SelectionStart = fcgTXX264PathSub10bit->Text->Length;
-	fcgTXMP4MuxerPath->SelectionStart     = fcgTXMP4MuxerPath->Text->Length;
-	fcgTXTC2MP4Path->SelectionStart       = fcgTXTC2MP4Path->Text->Length;
-	fcgTXMKVMuxerPath->SelectionStart     = fcgTXMKVMuxerPath->Text->Length;
-	fcgTXMPGMuxerPath->SelectionStart     = fcgTXMPGMuxerPath->Text->Length;
-	fcgTXMP4RawPath->SelectionStart       = fcgTXMP4RawPath->Text->Length;
+	fcgTXX264Path->SelectionStart           = fcgTXX264Path->Text->Length;
+	fcgTXX264PathSub->SelectionStart        = fcgTXX264PathSub->Text->Length;
+	fcgTXX264PathSubhighbit->SelectionStart = fcgTXX264PathSubhighbit->Text->Length;
+	fcgTXMP4MuxerPath->SelectionStart       = fcgTXMP4MuxerPath->Text->Length;
+	fcgTXTC2MP4Path->SelectionStart         = fcgTXTC2MP4Path->Text->Length;
+	fcgTXMKVMuxerPath->SelectionStart       = fcgTXMKVMuxerPath->Text->Length;
+	fcgTXMPGMuxerPath->SelectionStart       = fcgTXMPGMuxerPath->Text->Length;
+	fcgTXMP4RawPath->SelectionStart         = fcgTXMP4RawPath->Text->Length;
 }
 
 //////////////   TrackBar用タイマー関連     /////////////////////////
@@ -383,10 +383,10 @@ System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, Sy
 	fcgRebuildCmd(sender, e);
 }
 
-System::Void frmConfig::fcgCBUse10bit_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-	//8bit/10bitで異なるQPの最大最小を管理する
+System::Void frmConfig::fcgCBUsehighbit_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+	//8bit/highbitで異なるQPの最大最小を管理する
 	int old_max = (int)fcgNUQpmax->Maximum;
-	fcgNUQpmax->Maximum = (fcgCBUse10bit->Checked) ? X264_QP_MAX_10BIT : X264_QP_MAX_8BIT;
+	fcgNUQpmax->Maximum = (fcgCBUsehighbit->Checked) ? X264_QP_MAX_10BIT : X264_QP_MAX_8BIT;
 	fcgNUQpmin->Maximum = fcgNUQpmax->Maximum;
 	fcgNUQpstep->Maximum = fcgNUQpmax->Maximum;
 	fcgNUChromaQp->Minimum = -1 * fcgNUQpmax->Maximum;
@@ -394,10 +394,10 @@ System::Void frmConfig::fcgCBUse10bit_CheckedChanged(System::Object^  sender, Sy
 	if ((int)fcgNUQpmax->Value == old_max)
 		fcgNUQpmax->Value = fcgNUQpmax->Maximum;
 	fcgCXX264Mode_SelectedIndexChanged(sender, e);
-	fcgTXX264Path->Text = (fcgCBUse10bit->Checked) ? LocalStg.x264Path10bit : LocalStg.x264Path;
+	fcgTXX264Path->Text = (fcgCBUsehighbit->Checked) ? LocalStg.x264Pathhighbit : LocalStg.x264Path;
 	fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
-	fcgLBX264Path->Text = (fcgCBUse10bit->Checked) ? L"x264.exe(10bit) の指定" : L"x264.exe の指定";
-	SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUse10bit->Checked);
+	fcgLBX264Path->Text = (fcgCBUsehighbit->Checked) ? L"x264.exe(highbit) の指定" : L"x264.exe の指定";
+	SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUsehighbit->Checked);
 	SetTBValueToTextBox();
 }
 
@@ -485,7 +485,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			fcgLBQuality->Text = L"品質(Quality)";
 			fcgLBQualityLeft->Text = L"高品質";
 			fcgLBQualityRight->Text = L"低品質";
-			fcgTBQuality->Minimum = (fcgCBUse10bit->Checked) ? -12*2 : 0;
+			fcgTBQuality->Minimum = (fcgCBUsehighbit->Checked) ? -12*2 : 0;
 			fcgTBQuality->Maximum = 51*2;
 			fcgCBNulOut->Enabled = false; //Enabledの変更が先
 			fcgCBNulOut->Checked = false;
@@ -753,7 +753,7 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 	size_t nameLen = CountStringBytes(stgName) + 1; 
 	char *stg_name = (char *)malloc(nameLen);
 	GetCHARfromString(stg_name, nameLen, stgName);
-	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUse10bit->Checked);
+	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
 	FrmToConf(cnf_stgSelected);
 	String^ stgDir = Path::GetDirectoryName(stgName);
 	if (!Directory::Exists(stgDir))
@@ -771,7 +771,7 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 		default:
 			break;
 	}
-	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUse10bit->Checked);
+	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
 	FrmToConf(cnf_stgSelected);
 }
 
@@ -916,25 +916,25 @@ System::Void frmConfig::SetTXMaxLen(TextBox^ TX, int max_len) {
 
 System::Void frmConfig::SetTXMaxLenAll() {
 	//MaxLengthに最大文字数をセットし、それをもとにバイト数計算を行うイベントをセットする。
-	SetTXMaxLen(fcgTXCmdEx,              sizeof(conf->vid.cmdex) - 1);
-	SetTXMaxLen(fcgTXX264Path,           sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
-	SetTXMaxLen(fcgTXX264PathSub,        sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
-	SetTXMaxLen(fcgTXX264PathSub10bit,   sizeof(sys_dat->exstg->s_x264.fullpath_10bit) - 1);
-	SetTXMaxLen(fcgTXAudioEncoderPath,   sizeof(sys_dat->exstg->s_aud[0].fullpath) - 1);
-	SetTXMaxLen(fcgTXMP4MuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
-	SetTXMaxLen(fcgTXMKVMuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);
-	SetTXMaxLen(fcgTXTC2MP4Path,         sizeof(sys_dat->exstg->s_mux[MUXER_TC2MP4].fullpath) - 1);
-	SetTXMaxLen(fcgTXMPGMuxerPath,       sizeof(sys_dat->exstg->s_mux[MUXER_MPG].fullpath) - 1);
-	SetTXMaxLen(fcgTXMP4RawPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MP4_RAW].fullpath) - 1);
-	SetTXMaxLen(fcgTXCustomTempDir,      sizeof(sys_dat->exstg->s_local.custom_tmp_dir) - 1);
-	SetTXMaxLen(fcgTXCustomAudioTempDir, sizeof(sys_dat->exstg->s_local.custom_audio_tmp_dir) - 1);
-	SetTXMaxLen(fcgTXMP4BoxTempDir,      sizeof(sys_dat->exstg->s_local.custom_mp4box_tmp_dir) - 1);
-	SetTXMaxLen(fcgTXStatusFile,         sizeof(conf->vid.stats) - 1);
-	SetTXMaxLen(fcgTXTCIN,               sizeof(conf->vid.tcfile_in) - 1);
-	SetTXMaxLen(fcgTXCQM,                sizeof(conf->vid.cqmfile) - 1);
-	SetTXMaxLen(fcgTXBatPath,            sizeof(conf->oth.batfile) - 1);
+	SetTXMaxLen(fcgTXCmdEx,                sizeof(conf->vid.cmdex) - 1);
+	SetTXMaxLen(fcgTXX264Path,             sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
+	SetTXMaxLen(fcgTXX264PathSub,          sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
+	SetTXMaxLen(fcgTXX264PathSubhighbit,   sizeof(sys_dat->exstg->s_x264.fullpath_highbit) - 1);
+	SetTXMaxLen(fcgTXAudioEncoderPath,     sizeof(sys_dat->exstg->s_aud[0].fullpath) - 1);
+	SetTXMaxLen(fcgTXMP4MuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
+	SetTXMaxLen(fcgTXMKVMuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);
+	SetTXMaxLen(fcgTXTC2MP4Path,           sizeof(sys_dat->exstg->s_mux[MUXER_TC2MP4].fullpath) - 1);
+	SetTXMaxLen(fcgTXMPGMuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MPG].fullpath) - 1);
+	SetTXMaxLen(fcgTXMP4RawPath,           sizeof(sys_dat->exstg->s_mux[MUXER_MP4_RAW].fullpath) - 1);
+	SetTXMaxLen(fcgTXCustomTempDir,        sizeof(sys_dat->exstg->s_local.custom_tmp_dir) - 1);
+	SetTXMaxLen(fcgTXCustomAudioTempDir,   sizeof(sys_dat->exstg->s_local.custom_audio_tmp_dir) - 1);
+	SetTXMaxLen(fcgTXMP4BoxTempDir,        sizeof(sys_dat->exstg->s_local.custom_mp4box_tmp_dir) - 1);
+	SetTXMaxLen(fcgTXStatusFile,           sizeof(conf->vid.stats) - 1);
+	SetTXMaxLen(fcgTXTCIN,                 sizeof(conf->vid.tcfile_in) - 1);
+	SetTXMaxLen(fcgTXCQM,                  sizeof(conf->vid.cqmfile) - 1);
+	SetTXMaxLen(fcgTXBatPath,              sizeof(conf->oth.batfile) - 1);
 
-	fcgTSTSettingsNotes->MaxLength     = sizeof(conf->oth.notes) - 1;
+	fcgTSTSettingsNotes->MaxLength     =   sizeof(conf->oth.notes) - 1;
 }
 
 System::Void frmConfig::InitStgFileList() {
@@ -946,11 +946,11 @@ System::Void frmConfig::InitStgFileList() {
 System::Void frmConfig::fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e) {
 	fcgLBX264PathSub->Visible = fcgTSBCMDOnly->Checked;
 	fcgLBX264PathSub8bit->Visible = fcgTSBCMDOnly->Checked;
-	fcgLBX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
+	fcgLBX264PathSubhighbit->Visible = fcgTSBCMDOnly->Checked;
 	fcgTXX264PathSub->Visible = fcgTSBCMDOnly->Checked;
 	fcgBTX264PathSub->Visible = fcgTSBCMDOnly->Checked;
-	fcgTXX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
-	fcgBTX264PathSub10bit->Visible = fcgTSBCMDOnly->Checked;
+	fcgTXX264PathSubhighbit->Visible = fcgTSBCMDOnly->Checked;
+	fcgBTX264PathSubhighbit->Visible = fcgTSBCMDOnly->Checked;
 	fcggroupBoxDeblock->Enabled = fcgCBDeblock->Checked;
 	fcgTXTCIN->Enabled = fcgCBTCIN->Checked;
 	fcgBTTCIN->Enabled = fcgCBTCIN->Checked;
@@ -1049,18 +1049,13 @@ System::Void frmConfig::InitForm() {
 	//ツールチップ
 	SetHelpToolTips();
 	SetX264VersionToolTip(LocalStg.x264Path, false);
-	SetX264VersionToolTip(LocalStg.x264Path10bit, true);
+	SetX264VersionToolTip(LocalStg.x264Pathhighbit, true);
 	ActivateToolTip(sys_dat->exstg->s_local.disable_tooltip_help == FALSE);
 	//パラメータセット
 	ConfToFrm(conf, true);
 	//イベントセット
 	SetTXMaxLenAll(); //テキストボックスの最大文字数
-	SetAllCheckChangedEvents(this); //変更の確認,ついでにNUのEnterEvent
-	//YC48 BT.601->BT.709の可否
-#ifndef ENABLE_BT709_CONV
-	fcgCXYC48ColMatConv->Visible = false;
-	fcgLBYC48ColMatConv->Visible = false;
-#endif
+	SetAllCheckChangedEvents(this); //変更の確認,ついでにNUの
 	//フォームの変更可不可を更新
 	fcgChangeMuxerVisible(nullptr, nullptr);
 	fcgChangeEnabled(nullptr, nullptr);
@@ -1083,7 +1078,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	CONF_X264 *cx264 = &cnf->x264;
 	memcpy(cnf_fcgTemp, cx264, sizeof(CONF_X264)); //一時保存用
 	this->SuspendLayout();
-	fcgCBUse10bit->Checked = cx264->use_10bit_depth != 0;
+	fcgCBUsehighbit->Checked = cx264->use_highbit_depth != 0;
 	switch (cx264->rc_mode) {
 		case X264_RC_QP:
 			fcgCXX264Mode->SelectedIndex = 1;
@@ -1261,7 +1256,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	//これもひたすら書くだけ。めんどい
 	//x264部
-	cnf->x264.use_10bit_depth      = fcgCBUse10bit->Checked;
+	cnf->x264.use_highbit_depth    = fcgCBUsehighbit->Checked;
 	cnf->x264.rc_mode              = cnf_fcgTemp->rc_mode;
 	cnf->x264.bitrate              = cnf_fcgTemp->bitrate;
 	cnf->x264.qp                   = cnf_fcgTemp->qp;
@@ -1491,16 +1486,16 @@ System::Void frmConfig::SetHelpToolTipsColorMatrix(Control^ control, const char 
 
 System::Void frmConfig::SetHelpToolTips() {
 	//x264基本
-	fcgTTX264->SetToolTip(fcgCBUse10bit, L"" 
-		+ L"--input-depth 10\n"
+	fcgTTX264->SetToolTip(fcgCBUsehighbit, L"" 
+		+ L"--input-depth 16\n"
 		+ L"\n"
-		+ L"色深度10bitでエンコードを行います。\n"
-		+ L"x264も10bit版を使用してください。\n"
+		+ L"high bit-depthでエンコードを行います。\n"
+		+ L"x264も10bit版など、high bit depthのものを使用してください。\n"
 		+ L"通常のプレーヤーでは再生できないこともあるため、\n"
-		+ L"10bitエンコードがなにかを理解している場合にのみ、\n"
+		+ L"high bit depthエンコードがなにかを理解している場合にのみ、\n"
 		+ L"使用してください。\n"
 		+ L"\n"
-		+ L"8bit用x264.exeと10bit用x264.exeは別々に設定でき、\n"
+		+ L"8bit用x264.exeとhigh bit depth用x264.exeは別々に設定でき、\n"
 		+ L"このチェックボックスによって切り替わります。"
 		);
 	fcgTTX264->SetToolTip(fcgBTX264Path, L""
@@ -1515,8 +1510,8 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"この設定はx264guiEx.confに保存され、\n"
 		+ L"バッチ処理ごとの変更はできません。"
 		);
-	fcgTTX264->SetToolTip(fcgBTX264PathSub10bit, L""
-		+ L"x264.exe(10bit用)の場所を指定します。\n"
+	fcgTTX264->SetToolTip(fcgBTX264PathSubhighbit, L""
+		+ L"x264.exe(high bit depth用)の場所を指定します。\n"
 		+ L"\n"
 		+ L"この設定はx264guiEx.confに保存され、\n"
 		+ L"バッチ処理ごとの変更はできません。"
@@ -1975,23 +1970,23 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"デフォルト設定をロードします。"
 		);
 }
-System::Void frmConfig::SetX264VersionToolTip(String^ x264Path, bool as10bit) {
+System::Void frmConfig::SetX264VersionToolTip(String^ x264Path, bool ashighbit) {
 	String^ mes;
 	if (File::Exists(x264Path)) {
 		char mes_buf[2560];
 		char exe_path[MAX_PATH_LEN];
 		GetCHARfromString(exe_path, sizeof(exe_path), x264Path);
-		if (get_exe_message(exe_path, "--version", mes_buf, sizeof(mes_buf)) == RP_SUCCESS)
+		if (get_exe_message(exe_path, "--version", mes_buf, _countof(mes_buf), AUO_PIPE_MUXED) == RP_SUCCESS)
 			mes = String(mes_buf).ToString();
 		else
 			mes = L"バージョン情報の取得に失敗しました。";
 	} else {
 		mes = L"指定されたx264が存在しません。";
 	}
-	if (as10bit == fcgCBUse10bit->Checked)
+	if (ashighbit == fcgCBUsehighbit->Checked)
 		fcgTTX264Version->SetToolTip(fcgTXX264Path, mes);
 
-	fcgTTX264Version->SetToolTip((as10bit) ? fcgTXX264PathSub10bit : fcgTXX264PathSub, mes);
+	fcgTTX264Version->SetToolTip((ashighbit) ? fcgTXX264PathSubhighbit : fcgTXX264PathSub, mes);
 }
 
 #pragma warning( pop )

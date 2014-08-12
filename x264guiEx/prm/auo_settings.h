@@ -171,21 +171,22 @@ typedef struct {
 } X264_CMD;
 
 typedef struct {
-	char *filename;                    //x264のファイル名
-	char fullpath[MAX_PATH_LEN];       //x264の場所(フルパス)
-	char fullpath_10bit[MAX_PATH_LEN]; //x264の場所(フルパス) 10bit用
-	char *default_cmd;                 //デフォルト設定用コマンドライン
-	char *default_cmd_10bit;           //10bit depthデフォルト設定用追加コマンドライン
-	int preset_count;                  //presetの数
-	int tune_count;                    //tuneの数
-	int profile_count;                 //profileの数
-	int default_preset;                //デフォルトpresetのインデックス
-	int default_tune;                  //デフォルトtuneのインデックス
-	int default_profile;               //デフォルトprofileのインデックス
-	X264_CMD preset;                   //presetコマンドライン集
-	X264_CMD tune;                     //tuneコマンドライン集
-	X264_CMD profile;                  //profileコマンドライン集
-	float *profile_vbv_multi;          //profileによるvbv倍率
+	char *filename;                      //x264のファイル名
+	char fullpath[MAX_PATH_LEN];         //x264の場所(フルパス)
+	char fullpath_highbit[MAX_PATH_LEN]; //x264の場所(フルパス) highbit用
+	char *default_cmd;                   //デフォルト設定用コマンドライン
+	char *default_cmd_highbit;           //highbit depthデフォルト設定用追加コマンドライン
+	char *help_cmd;                      //ヘルプ表示用cmd
+	int preset_count;                    //presetの数
+	int tune_count;                      //tuneの数
+	int profile_count;                   //profileの数
+	int default_preset;                  //デフォルトpresetのインデックス
+	int default_tune;                    //デフォルトtuneのインデックス
+	int default_profile;                 //デフォルトprofileのインデックス
+	X264_CMD preset;                     //presetコマンドライン集
+	X264_CMD tune;                       //tuneコマンドライン集
+	X264_CMD profile;                    //profileコマンドライン集
+	float *profile_vbv_multi;            //profileによるvbv倍率
 } X264_SETTINGS;
 
 typedef struct {

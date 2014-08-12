@@ -121,6 +121,6 @@ public:
 };
 
 //定義はx264guiEx.cpp
-void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_10bit); //初期化し、x264設定のデフォルトを設定 
+void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定 
 
 #endif //_AUO_CONF_H_

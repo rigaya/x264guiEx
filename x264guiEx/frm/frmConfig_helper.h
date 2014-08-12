@@ -22,7 +22,7 @@ namespace x264guiEx {
 	public:
 		String^ x264ExeName;
 		String^ x264Path;
-		String^ x264Path10bit;
+		String^ x264Pathhighbit;
 		List<String^>^ audEncName;
 		List<String^>^ audEncExeName;
 		List<String^>^ audEncPath;

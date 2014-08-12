@@ -47,7 +47,7 @@ static const char * specify_x264_input_csp(int output_csp) {
 	return specify_csp[output_csp];
 }
 
-int get_aviutl_color_format(int use_10bit, int output_csp) {
+int get_aviutl_color_format(int use_highbit, int output_csp) {
 	//Aviutlからの入力に使用するフォーマット
 	switch (output_csp) {
 		case OUT_CSP_YUV444:
@@ -57,7 +57,7 @@ int get_aviutl_color_format(int use_10bit, int output_csp) {
 		case OUT_CSP_YUV420:
 		case OUT_CSP_YUV422:
 		default:
-			return (use_10bit) ? CF_YC48 : CF_YUY2;
+			return (use_highbit) ? CF_YC48 : CF_YUY2;
 	}
 }
 
@@ -71,7 +71,7 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, B
 	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return TRUE;
 
-	const int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp);
+	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp);
 	const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
 	//Aviutl(自動フィールドシフト)からの映像入力
 	if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, COLORFORMATS[color_format].FOURCC)) {
@@ -105,13 +105,13 @@ void close_afsvideo(PRM_ENC *pe) {
 
 static AUO_RESULT check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
-	const int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
+	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
 		get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
 	//cmdexを適用
 	set_cmd_to_conf(conf->vid.cmdex, &conf->x264);
 
-	if (color_format != get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp)) {
+	if (color_format != get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp)) {
 		//cmdexで入力色形式が変更になる場合、再初期化
 		close_afsvideo(pe);
 		if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
@@ -287,7 +287,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 }
 
 static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *conf, int w, int h) {
-	const int byte_per_pixel = (conf->x264.use_10bit_depth) ? sizeof(short) : sizeof(BYTE);
+	const int byte_per_pixel = (conf->x264.use_highbit_depth) ? sizeof(short) : sizeof(BYTE);
 	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
 		case OUT_CSP_YUV422: //nv16 (YUV422)
@@ -331,7 +331,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	char x264cmd[MAX_CMD_LEN]  = { 0 };
 	char x264args[MAX_CMD_LEN] = { 0 };
 	char x264dir[MAX_PATH_LEN] = { 0 };
-	char *x264fullpath = (conf->x264.use_10bit_depth) ? sys_dat->exstg->s_x264.fullpath_10bit : sys_dat->exstg->s_x264.fullpath;
+	char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
 	
 	const BOOL afs = conf->vid.afs != 0;
 	CONVERT_CF_DATA pixel_data;
@@ -351,13 +351,13 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	PathGetDirectory(x264dir, _countof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
-	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.input_range, conf->vid.yc48_colormatrix_conv);
+	const func_convert_frame convert_frame = get_convert_func(oip->w, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
 	if (convert_frame == NULL) {
-		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.input_range, conf->vid.yc48_colormatrix_conv);
+		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
 		return ret;
 	}
 	//映像バッファ用メモリ確保
-	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, conf->x264.use_10bit_depth)) {
+	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, conf->x264.use_highbit_depth)) {
 		ret |= AUO_RESULT_ERROR; error_malloc_pixel_data();
 		return ret;
 	}

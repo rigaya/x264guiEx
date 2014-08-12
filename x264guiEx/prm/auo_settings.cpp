@@ -421,9 +421,10 @@ void guiEx_settings::load_x264() {
 
 	s_x264_mc.init(ini_filesize);
 	  
-	s_x264.filename          = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName);
-	s_x264.default_cmd       = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName);
-	s_x264.default_cmd_10bit = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName);
+	s_x264.filename            = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName);
+	s_x264.default_cmd         = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName);
+	s_x264.default_cmd_highbit = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName);
+	s_x264.help_cmd            = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_help",          "", ini_fileName);
 
 	load_x264_cmd(&s_x264.preset,  &s_x264.preset_count,  &s_x264.default_preset,  INI_SECTION_X264_PRESET);
 	load_x264_cmd(&s_x264.tune,    &s_x264.tune_count,    &s_x264.default_tune,    INI_SECTION_X264_TUNE);
@@ -483,12 +484,12 @@ void guiEx_settings::load_local() {
 
 	s_local.audio_buffer_size   = min(GetPrivateProfileInt(INI_SECTION_MAIN, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
 
-	GetPrivateProfileString(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,       _countof(s_x264.fullpath),       conf_fileName);
-	GetPrivateProfileString(INI_SECTION_X264,    "X264_10bit",     "", s_x264.fullpath_10bit, _countof(s_x264.fullpath_10bit), conf_fileName);
+	GetPrivateProfileString(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,         _countof(s_x264.fullpath),         conf_fileName);
+	GetPrivateProfileString(INI_SECTION_X264,    "X264_10bit",     "", s_x264.fullpath_highbit, _countof(s_x264.fullpath_highbit), conf_fileName);
 	for (int i = 0; i < s_aud_count; i++)
-		GetPrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,     _countof(s_aud[i].fullpath),     conf_fileName);
+		GetPrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName);
 	for (int i = 0; i < s_mux_count; i++)
-		GetPrivateProfileString(INI_SECTION_MUX, s_mux[i].keyName, "", s_mux[i].fullpath,     _countof(s_mux[i].fullpath),     conf_fileName);
+		GetPrivateProfileString(INI_SECTION_MUX, s_mux[i].keyName, "", s_mux[i].fullpath,       _countof(s_mux[i].fullpath),       conf_fileName);
 }
 
 void guiEx_settings::load_log_win() {
@@ -566,9 +567,9 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
 
 	PathRemoveBlanks(s_x264.fullpath);
-	PathRemoveBlanks(s_x264.fullpath_10bit);
-	WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_x264.fullpath,       conf_fileName);
-	WritePrivateProfileString(INI_SECTION_X264,    "X264_10bit",     s_x264.fullpath_10bit, conf_fileName);
+	PathRemoveBlanks(s_x264.fullpath_highbit);
+	WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_x264.fullpath,         conf_fileName);
+	WritePrivateProfileString(INI_SECTION_X264,    "X264_10bit",     s_x264.fullpath_highbit, conf_fileName);
 	for (int i = 0; i < s_aud_count; i++) {
 		PathRemoveBlanks(s_aud[i].fullpath);
 		WritePrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, s_aud[i].fullpath, conf_fileName);

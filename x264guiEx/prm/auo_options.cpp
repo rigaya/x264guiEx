@@ -60,7 +60,7 @@ static const DWORD OPTION_NO_VALUE[] = {
 static guiEx_settings *ex_stg;
 
 static X264_OPTIONS x264_options_table[] = {
-	{ "input-depth",      "",   OPTION_TYPE_INPUT_DEPTH,   NULL,                 offsetof(CONF_X264, use_10bit_depth) },
+	{ "input-depth",      "",   OPTION_TYPE_INPUT_DEPTH,   NULL,                 offsetof(CONF_X264, use_highbit_depth) },
 	{ "output-csp",       "",   OPTION_TYPE_LIST,          list_output_csp,      offsetof(CONF_X264, output_csp     ) },
 	{ "pass",             "p",  OPTION_TYPE_PASS,          NULL,                 offsetof(CONF_X264, pass           ) },
 	{ "slow-firstpass",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, slow_first_pass) },
@@ -540,8 +540,8 @@ static void write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options,
 		sprintf_s(cmd, nSize, " --tcfile-in \"%s\"", vid->tcfile_in);
 }
 static void write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
-	if (cx->use_10bit_depth)
-		strcpy_s(cmd, nSize, " --input-depth 10");
+	if (cx->use_highbit_depth)
+		strcpy_s(cmd, nSize, " --input-depth 16");
 }
 static void write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {	
 	DWORD *dwptr = (DWORD*)((BYTE*)cx + options->p_offset);
@@ -772,11 +772,11 @@ void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set) {
 	free(cmd);
 }
 
-void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_10bit) {
+void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_highbit) {
 	ZeroMemory(conf_set, sizeof(CONF_X264));
 	set_cmd_to_conf(ex_stg->s_x264.default_cmd, conf_set);
-	if (use_10bit)
-		set_cmd_to_conf(ex_stg->s_x264.default_cmd_10bit, conf_set);
+	if (use_highbit)
+		set_cmd_to_conf(ex_stg->s_x264.default_cmd_highbit, conf_set);
 }
 
 void set_preset_to_conf(CONF_X264 *conf_set, int preset_index) {
@@ -814,7 +814,7 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const v
 	CONF_X264 x264def;
 	CONF_X264 *def = &x264def;
 	CONF_VIDEO *vid = (CONF_VIDEO *)_vid;
-	get_default_conf_x264(def, conf->use_10bit_depth);
+	get_default_conf_x264(def, conf->use_highbit_depth);
 	set_preset_to_conf(def, conf->preset);
 	set_tune_to_conf(def, conf->tune);
 	set_profile_to_conf(def, conf->profile);
@@ -866,7 +866,7 @@ static void set_x264guiEx_auto_vbv(CONF_X264 *cx, int width, int height, int fps
 			level_index = calc_auto_level(width, height, cx->ref_frames, cx->interlaced, fps_num, fps_den, cx->vbv_maxrate, cx->vbv_bufsize);
 		int *vbv_buf = (cx->vbv_bufsize < 0) ? &cx->vbv_bufsize : NULL;
 		int *vbv_max = (cx->vbv_maxrate < 0) ? &cx->vbv_maxrate : NULL;
-		get_vbv_value(vbv_max, vbv_buf, level_index, profile_index, cx->use_10bit_depth, ex_stg);
+		get_vbv_value(vbv_max, vbv_buf, level_index, profile_index, cx->use_highbit_depth, ex_stg);
 	}
 }
 
