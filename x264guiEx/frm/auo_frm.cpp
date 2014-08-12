@@ -22,11 +22,13 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 	char *a, *b, *mes = msg;
 	char * const fin = mes + *log_len; //null文字の位置
 	*fin = '\0';
+	char buf[1024];
 	while ((a = strchr(mes, '\n')) != NULL) {
 		if ((b = strrchr(mes, '\r', a - mes - 2)) != NULL)
 			mes = b + 1;
 		*a = '\0';
-		write_log_line(check_log_type(mes), mes);
+		if (NULL == strstr(mes, "fps       kb/s     elapsed")) //x264 rev2207以降の進捗タイトル行を弾く
+			write_log_line(check_log_type(mes), mes);
 		mes = a + 1;
 	}
 	if ((a = strrchr(mes, '\r', fin - mes - 1)) != NULL) {
@@ -36,7 +38,34 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 		*(b+1) = '\0';
 		if ((b = strrchr(mes, '\r', b - mes - 2)) != NULL)
 			mes = b + 1;
-		set_window_title_x264_mes(mes, total_drop, current_frames);
+		//ウィンドウタイトルの整形
+		const char *ptr_start = strchr(mes, ']');
+		if (ptr_start == NULL) ptr_start = mes;
+		int a_tmp, b_tmp, tm[3];
+		double fps, bitrate;
+		const char *ptr_remain = strrchr(ptr_start+1, ' ');
+		const char *ptr_tmp = strchr(ptr_start+1, '/');
+		if (ptr_remain && 
+			6 == sscanf_s(1 + ((ptr_tmp) ? ptr_tmp : ptr_start), "%d %lf %lf %d:%d:%d", &b_tmp, &fps, &bitrate, &tm[0], &tm[1], &tm[2])) {
+			//x264 rev2207以降の出力
+			a_tmp = 0;
+			if (ptr_tmp) {
+				//通常時
+				a_tmp = strtol(ptr_start+1, NULL, 0);
+				a_tmp = (int)sprintf_s(buf, _countof(buf), "[%.1f%%] %d/", (100.0 * a_tmp) / b_tmp, a_tmp);
+				ptr_tmp = ", remain";
+			} else {
+				//afs時
+				ptr_remain = "";
+				ptr_tmp = "";
+			}
+			a_tmp += sprintf_s(buf + a_tmp, _countof(buf) - a_tmp, "%d frames, %.2f fps, %.2f kb/s%s%s", b_tmp, fps, bitrate, ptr_tmp, ptr_remain);
+			ptr_start = buf;
+		} else {
+			//そのまま出力
+			ptr_start = mes;
+		}
+		set_window_title_x264_mes(ptr_start, total_drop, current_frames);
 		mes = a + 1;
 	}
 	if (mes == msg && *log_len) {
