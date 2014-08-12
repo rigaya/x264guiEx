@@ -56,49 +56,49 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	replace(cmd, nSize, "%{vidpath}", pe->temp_filename);
 	//%{audpath}
 	if (pe->append.aud && str_has_char(pe->append.aud)) {
-		get_aud_filename(tmp, sizeof(tmp), pe);
+		get_aud_filename(tmp, _countof(tmp), pe);
 		replace(cmd, nSize, "%{audpath}", tmp);
 	}
 	//%{tmpdir}
-	strcpy_s(tmp, sizeof(tmp), pe->temp_filename);
+	strcpy_s(tmp, _countof(tmp), pe->temp_filename);
 	PathRemoveFileSpecFixed(tmp);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{tmpdir}", tmp);
 	//%{tmpfile}
-	strcpy_s(tmp, sizeof(tmp), pe->temp_filename);
+	strcpy_s(tmp, _countof(tmp), pe->temp_filename);
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{tmpfile}", tmp);
 	//%{tmpname}
-	strcpy_s(tmp, sizeof(tmp), PathFindFileName(pe->temp_filename));
+	strcpy_s(tmp, _countof(tmp), PathFindFileName(pe->temp_filename));
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{tmpname}", tmp);
 	//%{savpath}
 	replace(cmd, nSize, "%{savpath}", savefile);
 	//%{savfile}
-	strcpy_s(tmp, sizeof(tmp), savefile);
+	strcpy_s(tmp, _countof(tmp), savefile);
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{savfile}", tmp);
 	//%{savname}
-	strcpy_s(tmp, sizeof(tmp), PathFindFileName(savefile));
+	strcpy_s(tmp, _countof(tmp), PathFindFileName(savefile));
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{savname}", tmp);
 	//%{savdir}
-	strcpy_s(tmp, sizeof(tmp), savefile);
+	strcpy_s(tmp, _countof(tmp), savefile);
 	PathRemoveFileSpecFixed(tmp);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{savdir}", tmp);
 	//%{aviutldir}
-	strcpy_s(tmp, sizeof(tmp), sys_dat->aviutl_dir);
+	strcpy_s(tmp, _countof(tmp), sys_dat->aviutl_dir);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{aviutldir}", tmp);
 	//%{chpath}
-	apply_appendix(tmp, sizeof(tmp), pe->temp_filename, pe->append.chap);
+	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.chap);
 	replace(cmd, nSize, "%{chpath}", tmp);
 	//%{tcpath}
-	apply_appendix(tmp, sizeof(tmp), pe->temp_filename, pe->append.tc);
+	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.tc);
 	replace(cmd, nSize, "%{tcpath}", tmp);
 	//%{muxout}
-	get_muxout_filename(tmp, sizeof(tmp), pe->temp_filename);
+	get_muxout_filename(tmp, _countof(tmp), pe->temp_filename);
 	replace(cmd, nSize, "%{muxout}", tmp);
 
 	char fullpath[MAX_PATH_LEN];
@@ -121,9 +121,9 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 static BOOL move_temp_file(const char *appendix, const char *temp_filename, const char *savefile, DWORD ret, BOOL erase, const char *name, BOOL must_exist) {
 	char move_from[MAX_PATH_LEN] = { 0 };
 	if (appendix)
-		apply_appendix(move_from, sizeof(move_from), temp_filename, appendix);
+		apply_appendix(move_from, _countof(move_from), temp_filename, appendix);
 	else
-		strcpy_s(move_from, sizeof(move_from), temp_filename);
+		strcpy_s(move_from, _countof(move_from), temp_filename);
 
 	if (!PathFileExists(move_from)) {
 		if (must_exist)
@@ -137,7 +137,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	if (savefile == NULL || appendix == NULL)
 		return TRUE;
 	char move_to[MAX_PATH_LEN] = { 0 };
-	apply_appendix(move_to, sizeof(move_to), savefile, appendix);
+	apply_appendix(move_to, _countof(move_to), savefile, appendix);
 	if (_stricmp(move_from, move_to) != NULL) {
 		if (PathFileExists(move_to))
 			remove(move_to);
@@ -155,7 +155,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 	//mux後ファイル
 	if (pe->muxer_to_be_used >= 0) {
 		char muxout_appendix[MAX_APPENDIX_LEN];
-		get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), pe->temp_filename);
+		get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), pe->temp_filename);
 		move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
 	}
 	//qpファイル
@@ -168,7 +168,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 		char chap_file[MAX_PATH_LEN];
 		char chap_apple[MAX_PATH_LEN];
 		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
-		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, savefile);
+		set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, savefile);
 		move_temp_file(NULL, chap_file,  NULL, ret, TRUE, "チャプター",        FALSE);
 		move_temp_file(NULL, chap_apple, NULL, ret, TRUE, "チャプター(Apple)", FALSE);
 	}
@@ -186,7 +186,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 		move_temp_file(pe->append.wav,  pe->temp_filename, savefile, ret, TRUE, "wav", FALSE);
 	//音声ファイル(エンコード後ファイル)
 	char aud_tempfile[MAX_PATH_LEN];
-	PathCombineLong(aud_tempfile, sizeof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
+	PathCombineLong(aud_tempfile, _countof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
 	if (!move_temp_file(pe->append.aud, aud_tempfile, savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
 		ret |= AUO_RESULT_ERROR;
 	return ret;
@@ -228,7 +228,7 @@ AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, 
 			char log_file_dir[MAX_PATH_LEN];
 			strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
 			cmd_replace(log_file_path, nSize, pe, sys_dat, conf, savefile);
-			PathGetDirectory(log_file_dir, sizeof(log_file_dir), log_file_path);
+			PathGetDirectory(log_file_dir, _countof(log_file_dir), log_file_path);
 			if (DirectoryExistsOrCreate(log_file_dir))
 				break;
 			ret = AUO_RESULT_WARNING;

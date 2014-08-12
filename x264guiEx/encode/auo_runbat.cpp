@@ -25,15 +25,15 @@
 
 static void bat_replace(char *cmd, size_t nSize, const char *savefile, const PRM_ENC *pe, const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat) {
 	char log_path[MAX_PATH_LEN];
-	getLogFilePath(log_path, sizeof(log_path), pe, savefile, sys_dat, conf);
+	getLogFilePath(log_path, _countof(log_path), pe, savefile, sys_dat, conf);
 	replace(cmd, nSize, "%{logpath}", log_path);
-	
+
 	char chap_file[MAX_PATH_LEN] = { 0 };
 	char chap_apple[MAX_PATH_LEN] = { 0 };
 	if (pe->muxer_to_be_used >= 0) {
 		const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
 		const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
-		set_chap_filename(chap_file, sizeof(chap_file), chap_apple, sizeof(chap_apple), 
+		set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), 
 			muxer_mode->chap_file, pe, sys_dat, conf, savefile);
 	}
 	replace(cmd, nSize, "%{chapter}",    chap_file);
@@ -49,26 +49,26 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 	}
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char bat_tmp[MAX_PATH_LEN];
-	apply_appendix(bat_tmp, sizeof(bat_tmp), conf->oth.batfile, "_tmp.bat");
+	apply_appendix(bat_tmp, _countof(bat_tmp), conf->oth.batfile, "_tmp.bat");
 
 	const int BAT_REPLACE_MARGIN = 4096;
-	int buf_size = BAT_REPLACE_MARGIN * 2;
+	int buf_len = BAT_REPLACE_MARGIN * 2;
 	FILE *fp_orig = NULL, *fp_tmp = NULL;
 	char *line_buf = NULL;
 	if        (fopen_s(&fp_orig, conf->oth.batfile, "r" ) != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_orig();
 	} else if (fopen_s(&fp_tmp,  bat_tmp,           "wb") != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_new();
-	} else if ((line_buf = (char *)calloc(buf_size, sizeof(char))) == NULL) {
+	} else if ((line_buf = (char *)calloc(buf_len, sizeof(line_buf[0]))) == NULL) {
 		ret = AUO_RESULT_ERROR; warning_malloc_batfile_tmp();
 	} else {
 		//一行づつ処理
-		while (fgets(line_buf + strlen(line_buf), buf_size - strlen(line_buf), fp_orig) != NULL) {
+		while (fgets(line_buf + strlen(line_buf), buf_len - (int)strlen(line_buf), fp_orig) != NULL) {
 			//十分なバッファがなければ拡張する
-			BOOL buf_not_enough = ((int)strlen(line_buf) + BAT_REPLACE_MARGIN > buf_size);
+			BOOL buf_not_enough = ((int)strlen(line_buf) + BAT_REPLACE_MARGIN > buf_len);
 			if (buf_not_enough) {
-				buf_size *= 2;
-				if (NULL == (line_buf = (char *)realloc(line_buf, buf_size))) {
+				buf_len *= 2;
+				if (NULL == (line_buf = (char *)realloc(line_buf, buf_len * sizeof(line_buf[0])))) {
 					ret = AUO_RESULT_ERROR; warning_malloc_batfile_tmp(); break;
 				}
 			}
@@ -78,8 +78,8 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 				if (ptr)
 					*ptr = '\0';
 				deleteCRLFSpace_at_End(line_buf);
-				cmd_replace(line_buf, buf_size, pe, sys_dat, conf, oip->savefile);
-				bat_replace(line_buf, buf_size, oip->savefile, pe, conf, sys_dat); 
+				cmd_replace(line_buf, buf_len, pe, sys_dat, conf, oip->savefile);
+				bat_replace(line_buf, buf_len, oip->savefile, pe, conf, sys_dat); 
 				fprintf(fp_tmp, "%s\r\n", line_buf);
 				*line_buf = '\0'; //line_bufの長さを0に
 			}
@@ -98,8 +98,8 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 	int rp_ret;
 	char bat_args[MAX_PATH_LEN];
 	char bat_dir[MAX_PATH_LEN];
-	sprintf_s(bat_args, sizeof(bat_args), "\"%s\"", bat_tmp);
-	sprintf_s(bat_dir, sizeof(bat_dir), "\"%s\"", sys_dat->aviutl_dir);
+	sprintf_s(bat_args, _countof(bat_args), "\"%s\"", bat_tmp);
+	sprintf_s(bat_dir, _countof(bat_dir), "\"%s\"", sys_dat->aviutl_dir);
 	set_window_title("バッチファイル処理", PROGRESSBAR_MARQUEE);
 	if (RP_SUCCESS != (rp_ret = RunProcess(bat_args, sys_dat->aviutl_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, FALSE))) {
 		ret |= AUO_RESULT_ERROR; error_run_process("バッチファイル処理", rp_ret);

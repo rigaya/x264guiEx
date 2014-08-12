@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <algorithm>
 #include <intrin.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
@@ -520,31 +521,6 @@ static void get_aviutl_dir(char *aviutl_dir, size_t nSize) {
 }
 static void get_auo_path(char *auo_path, size_t nSize) {
 	GetModuleFileName(GetModuleHandle(AUO_NAME), auo_path, (DWORD)nSize);
-}
-//cmd中のtarget_argを抜き出し削除する
-//del_valueがTRUEならその値削除する
-//値を削除できたらTRUEを返す
-static BOOL del_arg(char *cmd, char *target_arg, BOOL del_value) {
-	char *p_start, *ptr;
-	char * const cmd_fin = cmd + strlen(cmd);
-	if ((p_start = strstr(cmd, target_arg)) == NULL)
-		return FALSE;
-	ptr = p_start + strlen(target_arg);
-
-	if (del_value) {
-		while (*ptr == ' ' || *ptr == '\r' || *ptr == '\n')
-			ptr++;
-
-		BOOL dQB = FALSE;
-		while (ptr < cmd_fin) {
-			if (*ptr == '"') dQB = !dQB;
-			if (!dQB && *ptr == ' ')
-				break;
-			ptr++;
-		}
-	}
-	memmove(p_start, ptr, (cmd_fin - ptr + 1) * sizeof(cmd[0]));
-	return TRUE;
 }
 
 static int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {

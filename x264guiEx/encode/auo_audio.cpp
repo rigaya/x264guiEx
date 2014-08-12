@@ -63,7 +63,7 @@ static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, const guiEx_s
 static void show_audio_enc_info(AUDIO_SETTINGS *aud_stg, CONF_AUDIO *cnf_aud) {
 	char bitrate[128] = { 0 };
 	if (aud_stg->mode[cnf_aud->enc_mode].bitrate)
-		sprintf_s(bitrate, sizeof(bitrate), ", %dkbps", cnf_aud->bitrate);
+		sprintf_s(bitrate, _countof(bitrate), ", %dkbps", cnf_aud->bitrate);
 	char *use2pass = (cnf_aud->use_2pass) ? ", 2pass" : "";
 	write_log_auo_line_fmt(LOG_INFO, "%s で音声エンコードを行います。%s%s%s", aud_stg->dispname, aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
 }
@@ -125,7 +125,7 @@ static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, co
 	replace(cmd, nSize, "%{wavpath}",  wavfile);
 	//%{rate}
 	char tmp[22];
-	sprintf_s(tmp, sizeof(tmp), "%d", conf->aud.bitrate);
+	sprintf_s(tmp, _countof(tmp), "%d", conf->aud.bitrate);
 	replace(cmd, nSize, "%{rate}", tmp);
 
 	cmd_replace(cmd, nSize, pe, sys_dat, conf, savefile);
@@ -134,9 +134,9 @@ static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, co
 static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_mode) {
 	char mes[1024];
 	if (use_pipe)
-		sprintf_s(mes, sizeof(mes), "%s でエンコード中...", enc_name);
+		sprintf_s(mes, _countof(mes), "%s でエンコード中...", enc_name);
 	else
-		strcpy_s(mes, sizeof(mes), "wav出力中...");
+		strcpy_s(mes, _countof(mes), "wav出力中...");
 	set_window_title(mes, progress_mode);
 }
 
@@ -245,21 +245,21 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	}
 
 	//wavfile名作成
-	make_wavfilename(wavfile, sizeof(wavfile), use_pipe, pe->temp_filename, pe->append.wav);
+	make_wavfilename(wavfile, _countof(wavfile), use_pipe, pe->temp_filename, pe->append.wav);
 
 	//audfile名作成
-	strcpy_s(pe->append.aud, sizeof(pe->append.aud), aud_stg->aud_appendix); //pe一時パラメータにコピーしておく
-	get_aud_filename(audfile, sizeof(audfile), pe);
+	strcpy_s(pe->append.aud, _countof(pe->append.aud), aud_stg->aud_appendix); //pe一時パラメータにコピーしておく
+	get_aud_filename(audfile, _countof(audfile), pe);
 
 	//情報表示
 	show_audio_enc_info(aud_stg, &conf->aud);
 
 	//auddir作成
-	PathGetDirectory(auddir, sizeof(auddir), aud_stg->fullpath);
+	PathGetDirectory(auddir, _countof(auddir), aud_stg->fullpath);
 
 	//コマンドライン作成
-	build_audcmd(audcmd, sizeof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip->savefile);
-	sprintf_s(audargs, sizeof(audargs), "\"%s\" %s", aud_stg->fullpath, audcmd);
+	build_audcmd(audcmd, _countof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip->savefile);
+	sprintf_s(audargs, _countof(audargs), "\"%s\" %s", aud_stg->fullpath, audcmd);
 
 	//wav出力
 	ret |= wav_output(oip, wavfile, aud_stg->mode[conf->aud.enc_mode].use_8bit, sys_dat->exstg->s_local.audio_buffer_size,
