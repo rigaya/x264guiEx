@@ -383,9 +383,9 @@ static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) 
 	BOOL ret = FALSE;
 	size_t len = strlen(value);
 	const char *tmp = value + len - 1;
-	if (*tmp != '0') {
+	if (*tmp != '0')
 		ret = set_list(cx, value, list);
-	} else {
+	if (!ret) {
 		//"5.0"とかを"5"に整形
 		char *copy = (char *)malloc((len + 1) * sizeof(copy[0]));
 		memcpy(copy, value, (len + 1) * sizeof(copy[0]));
@@ -396,6 +396,24 @@ static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) 
 		*(p + 1) = '\0';
 		ret = set_list(cx, copy, list);
 		free(copy);
+	}
+	//整数指定を解析
+	if (!ret) {
+		int i = 0;
+		if (x264guiEx_strtol(&i, value, NULL)) {
+			char buf[16];
+			if (i == 9)
+				strcpy_s(buf, _countof(buf), "1b");
+			else {
+				size_t len = sprintf_s(buf, _countof(buf), "%.1f", i / 10.0);
+				char *p = buf + len - 1;
+				while (*p == '0' && p >= buf)
+					p--;
+				if (*p == '.') p--; //最後に'.'が残ったら消す
+				*(p + 1) = '\0';
+			}
+			ret = set_list(cx, buf, list);
+		}
 	}
 	return ret;
 }
