@@ -92,15 +92,14 @@ public:
 		return ptr;
 	};
 	char *SetPrivateProfileString(const char *section, const char *keyname, const char *defaultString, const char *ini_file) {
+		char *ptr = NULL;
 		if (mp_size > 0) {
-			size_t len = GetPrivateProfileString(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file) + 1;
-			char *ptr = mp;
-			mp += len;
-			mp_size -= len;
-			return ptr;
-		} else {
-			return NULL;
+			size_t len = GetPrivateProfileString(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file);
+			ptr = mp;
+			mp += len + 1;
+			mp_size -= len + 1;
 		}
+		return ptr;
 	};
 	void *GetPtr() {
 		return mp;
@@ -109,9 +108,9 @@ public:
 		return mp_size;
 	};
 	void CutString(int sizeof_chr) {
-		size_t len = strlen(mp) + 1;
-		mp += len * sizeof_chr;
-		mp_size -= len * sizeof_chr;
+		size_t cut_size = (strlen(mp) + 1) * sizeof_chr;
+		mp += cut_size;
+		mp_size -= cut_size;
 	};
 };
 

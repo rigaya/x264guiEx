@@ -670,7 +670,7 @@ System::Void frmConfig::AudioEncodeModeChanged() {
 		fcgLBAudioBitrate->Visible = false;
 		fcgNUAudioBitrate->Visible = false;
 		fcgNUAudioBitrate->Minimum = 0;
-		fcgNUAudioBitrate->Maximum = 1536;
+		fcgNUAudioBitrate->Maximum = 1536; //音声の最大レートは1536kbps
 	}
 	fcgCBAudio2pass->Enabled = astg->mode[index].enc_2pass != 0;
 	if (!fcgCBAudio2pass->Enabled) fcgCBAudio2pass->Checked = false;
