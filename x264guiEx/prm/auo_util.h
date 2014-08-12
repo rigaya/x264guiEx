@@ -542,7 +542,8 @@ DWORD get_code_page(const void *str, DWORD size_in_byte);
 BOOL fix_ImulL_WesternEurope(UINT *code_page);
 
 //cmd中のtarget_argを抜き出し削除する
-//del_valueがTRUEならその値削除する
-BOOL del_arg(char *cmd, char *target_arg, BOOL del_value);
+//del_valueが+1ならその後の値を削除する、-1ならその前の値を削除する
+//値を削除できたらTRUEを返す
+BOOL del_arg(char *cmd, char *target_arg, int del_arg_delta);
 
 #endif //_AUO_UTIL_H_
