@@ -675,7 +675,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 					} else {
 						LogLineColor[i] = Color::FromArgb(LOG_COLOR[0][0], LOG_COLOR[0][1], LOG_COLOR[0][2]);
 					}
-					position += richTextLog->Lines[i]->Length;
+					position += richTextLog->Lines[i]->Length + 1; //改行コード分追加
 				}
 				array<String^>^ LogLines = richTextLog->Lines; //各行の文字列
 				//テキストボックスをクリア
