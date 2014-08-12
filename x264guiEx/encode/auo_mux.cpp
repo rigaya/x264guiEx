@@ -429,6 +429,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 		CloseHandle(pi_mux.hThread);
 	}
 
+	release_log_cache(&log_line_cache);
 	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 
 	//さらにmuxの必要があれば、それを行う(L-SMASH系 timelineeditor のあとの remuxer を想定)
