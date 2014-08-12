@@ -332,7 +332,7 @@ static BOOL set_deblock(void *cx, const char *value, const X264_OPTION_STR *list
 	return set_int2(&((CONF_X264 *)cx)->deblock, value, list);
 }
 static BOOL set_input_depth(void *b, const char *value, const X264_OPTION_STR *list) {
-	*(BOOL*)b = (atoi(value) == 10) ? TRUE : FALSE;
+	*(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
 	return TRUE;
 }
 static BOOL set_mb_partitions(void *cx, const char *value, const X264_OPTION_STR *list) {
