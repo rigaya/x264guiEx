@@ -949,6 +949,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+			this->fcgLBguiExBlog = (gcnew System::Windows::Forms::LinkLabel());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -4244,11 +4245,28 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			this->fcgCSReplaceStrings->Name = L"fcgCSReplaceStrings";
 			this->fcgCSReplaceStrings->Size = System::Drawing::Size(61, 4);
 			// 
+			// fcgLBguiExBlog
+			// 
+			this->fcgLBguiExBlog->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
+			this->fcgLBguiExBlog->AutoSize = true;
+			this->fcgLBguiExBlog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(128)));
+			this->fcgLBguiExBlog->LinkColor = System::Drawing::Color::Gray;
+			this->fcgLBguiExBlog->Location = System::Drawing::Point(623, 580);
+			this->fcgLBguiExBlog->Name = L"fcgLBguiExBlog";
+			this->fcgLBguiExBlog->Size = System::Drawing::Size(100, 14);
+			this->fcgLBguiExBlog->TabIndex = 10;
+			this->fcgLBguiExBlog->TabStop = true;
+			this->fcgLBguiExBlog->Text = L"x264guiExについて";
+			this->fcgLBguiExBlog->VisitedLinkColor = System::Drawing::Color::Gray;
+			this->fcgLBguiExBlog->LinkClicked += gcnew System::Windows::Forms::LinkLabelLinkClickedEventHandler(this, &frmConfig::fcgLBguiExBlog_LinkClicked);
+			// 
 			// frmConfig
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->ClientSize = System::Drawing::Size(1008, 602);
+			this->Controls->Add(this->fcgLBguiExBlog);
 			this->Controls->Add(this->fcgLBVersion);
 			this->Controls->Add(this->fcgLBVersionDate);
 			this->Controls->Add(this->fcgBTDefault);
@@ -5065,6 +5083,15 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 				}
 			}
 			MessageBox::Show(L"ヘルプ表示用のコマンドが設定されていません。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+	private:
+		System::Void fcgLBguiExBlog_LinkClicked(System::Object^  sender, System::Windows::Forms::LinkLabelLinkClickedEventArgs^  e) {
+			fcgLBguiExBlog->LinkVisited = true;
+			try {
+				System::Diagnostics::Process::Start(String(sys_dat->exstg->blog_url).ToString());
+			} catch (...) {
+				//まあ放置
+			};
 		}
 };
 }

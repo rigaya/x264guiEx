@@ -278,6 +278,7 @@ private:
 	BOOL check_inifile();            //iniファイルが読めるかテスト
 
 public:
+	static char blog_url[MAX_PATH_LEN];      //ブログページのurl
 	int s_aud_count;                 //音声エンコーダの数
 	int s_mux_count;                 //muxerの数 (基本3固定)
 	AUDIO_SETTINGS *s_aud;           //音声エンコーダの設定

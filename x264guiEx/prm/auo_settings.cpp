@@ -119,6 +119,7 @@ char    guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
 char    guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
 char    guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
 DWORD   guiEx_settings::ini_filesize = 0;
+char  guiEx_settings::blog_url[MAX_PATH_LEN] = { 0 };
 
 guiEx_settings::guiEx_settings() {
 	initialize(false);
@@ -143,6 +144,7 @@ void guiEx_settings::initialize(BOOL disable_loading) {
 		apply_appendix(ini_fileName,  _countof(ini_fileName),  auo_path, INI_APPENDIX);
 		apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
 		init = check_inifile() && !disable_loading;
+		GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(ini_section_main), ini_fileName);
 		if (init) {
 			load_encode_stg();
 			load_fn_replace();
