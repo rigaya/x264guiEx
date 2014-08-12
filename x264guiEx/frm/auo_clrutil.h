@@ -36,8 +36,17 @@ static int CountStringBytes(System::String^ str) {
 }
 
 static String^ MakeExeFilter(System::String^ fileExeName) {
-	String^ fileName = System::IO::Path::GetFileNameWithoutExtension(fileExeName);
-	String^ filter = fileName + L"*" + System::IO::Path::GetExtension(fileExeName);
+	array<String^>^ fileNames = fileExeName->Split(L';');
+	String^ fileName;
+	String^ filter;
+	for (int i = 0; i < fileNames->Length; i++) {
+		if (i) {
+			fileName += L"/";
+			filter += L";";
+		}
+		fileName += System::IO::Path::GetFileNameWithoutExtension(fileNames[i]);
+		filter += System::IO::Path::GetFileNameWithoutExtension(fileNames[i]) + L"*" + System::IO::Path::GetExtension(fileNames[i]);
+	}
 	return fileName + L" (" + filter + L")|" + filter;
 }
 
