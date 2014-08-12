@@ -176,6 +176,15 @@ namespace x264guiEx {
 //			stgName->RemoveAt(index);
 //		}
 //	};
+
+
+	value struct ExeControls
+	{
+		String^ Name;
+		String^ Path;
+		const char* args;
+	};
+
 	const int fcgTBQualityTimerLatency = 600;
 	const int fcgTBQualityTimerPeriod = 40;
 	const int fcgTXCmdfulloffset = 57;

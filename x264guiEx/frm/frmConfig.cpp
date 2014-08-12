@@ -1988,5 +1988,41 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path, bool ashighbit) 
 
 	fcgTTX264Version->SetToolTip((ashighbit) ? fcgTXX264PathSubhighbit : fcgTXX264PathSub, mes);
 }
+System::Void frmConfig::ShowExehelp(String^ ExePath, String^ args) {
+	if (!File::Exists(ExePath)) {
+		MessageBox::Show(L"指定された実行ファイルが存在しません。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+	} else {
+		char exe_path[MAX_PATH_LEN];
+		char file_path[MAX_PATH_LEN];
+		char cmd[MAX_CMD_LEN];
+		GetCHARfromString(exe_path, sizeof(exe_path), ExePath);
+		apply_appendix(file_path, _countof(file_path), exe_path, "_fullhelp.txt");
+		File::Delete(String(file_path).ToString());
+		array<String^>^ arg_list = args->Split(L';');
+		for (int i = 0; i < arg_list->Length; i++) {
+			if (i) {
+				StreamWriter^ sw;
+				try {
+					sw = gcnew StreamWriter(String(file_path).ToString(), true, System::Text::Encoding::GetEncoding("shift_jis"));
+					sw->WriteLine();
+					sw->WriteLine();
+				} finally {
+					if (sw != nullptr) { sw->Close(); }
+				}
+			}
+			GetCHARfromString(cmd, sizeof(cmd), arg_list[i]);
+			if (get_exe_message_to_file(exe_path, cmd, file_path, AUO_PIPE_MUXED, 5) != RP_SUCCESS) {
+				File::Delete(String(file_path).ToString());
+				MessageBox::Show(L"helpの取得に失敗しました。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+				return;
+			}
+		}
+		try {
+			System::Diagnostics::Process::Start(String(file_path).ToString());
+		} catch (...) {
+			MessageBox::Show(L"helpを開く際に不明なエラーが発生しました。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+	}
+}
 
 #pragma warning( pop )

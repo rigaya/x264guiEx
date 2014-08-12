@@ -592,6 +592,10 @@ private: System::Windows::Forms::Button^  fcgBTMP4RawPath;
 
 private: System::Windows::Forms::TextBox^  fcgTXMP4RawPath;
 private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
+private: System::Windows::Forms::ContextMenuStrip^  fcgCSExeFiles;
+private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
+
+
 
 
 
@@ -841,6 +845,8 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCBAuoTcfileout = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAFSBitrateCorrection = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAFS = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCSExeFiles = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+			this->fcgTSExeFileshelp = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->fcgtoolStripSettings = (gcnew System::Windows::Forms::ToolStrip());
 			this->fcgTSBSave = (gcnew System::Windows::Forms::ToolStripButton());
 			this->fcgTSBSaveNew = (gcnew System::Windows::Forms::ToolStripButton());
@@ -996,6 +1002,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgtabPageExSettings->SuspendLayout();
 			this->fcggroupBoxCmdEx->SuspendLayout();
 			this->fcggroupBoxExSettings->SuspendLayout();
+			this->fcgCSExeFiles->SuspendLayout();
 			this->fcgtoolStripSettings->SuspendLayout();
 			this->fcggroupBoxAudio->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fcgNUAudioBitrate))->BeginInit();
@@ -2940,10 +2947,10 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			// 
 			// fcgtabPageExSettings
 			// 
-			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub10bit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSubhighbit);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub8bit);
-			this->fcgtabPageExSettings->Controls->Add(this->fcgBTX264PathSub10bit);
-			this->fcgtabPageExSettings->Controls->Add(this->fcgTXX264PathSub10bit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgBTX264PathSubhighbit);
+			this->fcgtabPageExSettings->Controls->Add(this->fcgTXX264PathSubhighbit);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgBTX264PathSub);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgTXX264PathSub);
 			this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264PathSub);
@@ -3187,6 +3194,19 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcgCBAFS->Text = L"自動フィールドシフト(afs)を使用する";
 			this->fcgCBAFS->UseVisualStyleBackColor = true;
 			this->fcgCBAFS->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCBAFS_CheckedChanged);
+			// 
+			// fcgCSExeFiles
+			// 
+			this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->fcgTSExeFileshelp});
+			this->fcgCSExeFiles->Name = L"fcgCSx264";
+			this->fcgCSExeFiles->Size = System::Drawing::Size(153, 48);
+			// 
+			// fcgTSExeFileshelp
+			// 
+			this->fcgTSExeFileshelp->Name = L"fcgTSExeFileshelp";
+			this->fcgTSExeFileshelp->Size = System::Drawing::Size(152, 22);
+			this->fcgTSExeFileshelp->Text = L"helpを表示";
+			this->fcgTSExeFileshelp->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSExeFileshelp_Click);
 			// 
 			// fcgtoolStripSettings
 			// 
@@ -4295,6 +4315,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			this->fcggroupBoxCmdEx->PerformLayout();
 			this->fcggroupBoxExSettings->ResumeLayout(false);
 			this->fcggroupBoxExSettings->PerformLayout();
+			this->fcgCSExeFiles->ResumeLayout(false);
 			this->fcgtoolStripSettings->ResumeLayout(false);
 			this->fcgtoolStripSettings->PerformLayout();
 			this->fcggroupBoxAudio->ResumeLayout(false);
@@ -4377,6 +4398,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 		System::Void SetHelpToolTips();
 		System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
 		System::Void SetX264VersionToolTip(String^ x264Path, bool ashighbit);
+		System::Void ShowExehelp(String^ ExePath, String^ args);
 		System::Void fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeEnabled(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgChangeMuxerVisible(System::Object^  sender, System::EventArgs^  e);
@@ -4737,7 +4759,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 	private: 
 		System::Void fcgBTApplyPreset_Click(System::Object^  sender, System::EventArgs^  e) {
 			CONF_X264GUIEX cnf;
-			init_CONF_X264GUIEX(&cnf, fcgCBUse10bit->Checked);
+			init_CONF_X264GUIEX(&cnf, fcgCBUsehighbit->Checked);
 			cnf.x264.preset = fcgCXPreset->SelectedIndex;
 			cnf.x264.tune = fcgCXTune->SelectedIndex;
 			cnf.x264.profile = fcgCXProfile->SelectedIndex;
@@ -4747,7 +4769,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 	private: 
 		System::Void fcgBTCmdEx_Click(System::Object^  sender, System::EventArgs^  e) {
 			CONF_X264GUIEX cnf;
-			init_CONF_X264GUIEX(&cnf, fcgCBUse10bit->Checked);
+			init_CONF_X264GUIEX(&cnf, fcgCBUsehighbit->Checked);
 			FrmToConf(&cnf);
 			char cmdex[2048] = { 0 };
 			GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
@@ -4848,6 +4870,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 				fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
 			}
 			fcgTXX264Path->SelectionStart = c;
+			fcgBTX264Path->ContextMenuStrip = (File::Exists(fcgTXX264Path->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXX264PathSub_TextChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -4858,6 +4881,7 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 			}
 			fcgTXX264PathSub->SelectionStart = c;
+			fcgBTX264PathSub->ContextMenuStrip = (File::Exists(fcgTXX264PathSub->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXX264PathSubhighbit_TextChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -4868,30 +4892,37 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 				fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 			}
 			fcgTXX264PathSubhighbit->SelectionStart = c;
+			fcgBTX264PathSubhighbit->ContextMenuStrip = (File::Exists(fcgTXX264PathSubhighbit->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXAudioEncoderPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex] = fcgTXAudioEncoderPath->Text;
+			fcgBTAudioEncoderPath->ContextMenuStrip = (File::Exists(fcgTXAudioEncoderPath->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXMP4MuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MP4MuxerPath = fcgTXMP4MuxerPath->Text;
+			fcgBTMP4MuxerPath->ContextMenuStrip = (File::Exists(fcgTXMP4MuxerPath->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXTC2MP4Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.TC2MP4Path = fcgTXTC2MP4Path->Text;
+			fcgBTTC2MP4Path->ContextMenuStrip = (File::Exists(fcgTXTC2MP4Path->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private:
 		System::Void fcgTXMP4RawMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MP4RawPath = fcgTXMP4RawPath->Text;
+			fcgBTMP4RawPath->ContextMenuStrip = (File::Exists(fcgTXMP4RawPath->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXMKVMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MKVMuxerPath = fcgTXMKVMuxerPath->Text;
+			fcgBTMKVMuxerPath->ContextMenuStrip = (File::Exists(fcgTXMKVMuxerPath->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private:
 		System::Void fcgTXMPGMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 			LocalStg.MPGMuxerPath = fcgTXMPGMuxerPath->Text;
+			fcgBTMPGMuxerPath->ContextMenuStrip = (File::Exists(fcgTXMPGMuxerPath->Text)) ? fcgCSExeFiles : nullptr;
 		}
 	private: 
 		System::Void fcgTXMP4BoxTempDir_TextChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -4919,6 +4950,33 @@ private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 			if (sys_dat->exstg->s_local.get_relative_path)
 				filePath = GetRelativePath(filePath);
 			TX->Text = filePath;
+		}
+	private:
+		System::Void fcgTSExeFileshelp_Click(System::Object^  sender, System::EventArgs^  e) {
+			System::Windows::Forms::ToolStripMenuItem^ TS = dynamic_cast<System::Windows::Forms::ToolStripMenuItem^>(sender);
+			if (TS == nullptr) return;
+			System::Windows::Forms::ContextMenuStrip^ CS = dynamic_cast<System::Windows::Forms::ContextMenuStrip^>(TS->Owner);
+			if (CS == nullptr) return;
+
+			//Name, args, Path の順番
+			array<ExeControls>^ ControlList = {
+				{ fcgBTX264Path->Name,           fcgTXX264Path->Text,           sys_dat->exstg->s_x264.help_cmd },
+				{ fcgBTX264PathSub->Name,        fcgTXX264PathSub->Text,        sys_dat->exstg->s_x264.help_cmd },
+				{ fcgBTX264PathSubhighbit->Name, fcgTXX264PathSubhighbit->Text, sys_dat->exstg->s_x264.help_cmd },
+				{ fcgBTAudioEncoderPath->Name,   fcgTXAudioEncoderPath->Text,   sys_dat->exstg->s_aud[fcgCXAudioEncoder->SelectedIndex].cmd_help },
+				{ fcgBTMP4MuxerPath->Name,       fcgTXMP4MuxerPath->Text,       sys_dat->exstg->s_mux[MUXER_MP4].help_cmd },
+				{ fcgBTTC2MP4Path->Name,         fcgTXTC2MP4Path->Text,         sys_dat->exstg->s_mux[MUXER_TC2MP4].help_cmd },
+				{ fcgBTMP4RawPath->Name,         fcgTXMP4RawPath->Text,         sys_dat->exstg->s_mux[MUXER_MP4_RAW].help_cmd },
+				{ fcgBTMKVMuxerPath->Name,       fcgTXMKVMuxerPath->Text,       sys_dat->exstg->s_mux[MUXER_MKV].help_cmd },
+				{ fcgBTMPGMuxerPath->Name,       fcgTXMPGMuxerPath->Text,       sys_dat->exstg->s_mux[MUXER_MPG].help_cmd }
+			};
+			for (int i = 0; i < ControlList->Length; i++) {
+				if (NULL == String::Compare(CS->SourceControl->Name, ControlList[i].Name)) {
+					ShowExehelp(ControlList[i].Path, String(ControlList[i].args).ToString());
+					return;
+				}
+			}
+			MessageBox::Show(L"ヘルプ表示用のコマンドが設定されていません。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
 		}
 };
 }
