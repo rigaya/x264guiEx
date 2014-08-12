@@ -28,7 +28,7 @@ static const int INI_VER = 2;
 static const char * const INI_APPENDIX  = ".ini";
 static const char * const CONF_APPENDIX = ".conf";
 
-static const char * const STG_DEFAULT_DIRECTORY_NAME = "x264guiEx_stg";
+static const char * const STG_DEFAULT_DIRECTORY_APPENDIX = "_stg";
 
 //----    セクション名    ---------------------------------------------------
 
@@ -114,11 +114,13 @@ static inline void WriteFontInfo(const char *section, const char *keyname_base, 
 }
 
 
-BOOL    guiEx_settings::init = FALSE;
-char    guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
-char    guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
-char    guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
-DWORD   guiEx_settings::ini_filesize = 0;
+BOOL  guiEx_settings::init = FALSE;
+char  guiEx_settings::ini_section_main[256] = { 0 };
+char  guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
+char  guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
+char  guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
+DWORD guiEx_settings::ini_filesize = 0;
+
 char  guiEx_settings::blog_url[MAX_PATH_LEN] = { 0 };
 
 guiEx_settings::guiEx_settings() {
@@ -129,7 +131,15 @@ guiEx_settings::guiEx_settings(BOOL disable_loading) {
 	initialize(disable_loading);
 }
 
+guiEx_settings::guiEx_settings(BOOL disable_loading, const char *_auo_path, const char *main_section) {
+	initialize(disable_loading, _auo_path, main_section);
+}
+
 void guiEx_settings::initialize(BOOL disable_loading) {
+	initialize(disable_loading, NULL, NULL);
+}
+
+void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, const char *main_section) {
 	s_aud_count = 0;
 	s_mux_count = 0;
 	s_aud = NULL;
@@ -140,7 +150,11 @@ void guiEx_settings::initialize(BOOL disable_loading) {
 	ZeroMemory(&s_append, sizeof(s_append));
 	s_aud_faw_index = FAW_INDEX_ERROR;
 	if (!init) {
-		get_auo_path(auo_path, _countof(auo_path));
+		if (_auo_path == NULL)
+			get_auo_path(auo_path, _countof(auo_path));
+		else
+			strcpy_s(auo_path, _countof(auo_path), _auo_path);
+		strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
 		apply_appendix(ini_fileName,  _countof(ini_fileName),  auo_path, INI_APPENDIX);
 		apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
 		init = check_inifile() && !disable_loading;
@@ -166,7 +180,7 @@ guiEx_settings::~guiEx_settings() {
 }
 
 BOOL guiEx_settings::check_inifile() {
-	BOOL ret = (INI_VER == GetPrivateProfileInt(INI_SECTION_MAIN, "ini_ver", 0, ini_fileName));
+	BOOL ret = (INI_VER == GetPrivateProfileInt(ini_section_main, "ini_ver", 0, ini_fileName));
 	if (ret && !GetFileSizeDWORD(ini_fileName, &ini_filesize))
 		ret = FALSE;
 	return ret;
@@ -449,8 +463,8 @@ void guiEx_settings::make_default_stg_dir(char *default_stg_dir, DWORD nSize) {
 	//相対パスで作成
 	GetRelativePathTo(default_stg_dir, nSize, auo_path, NULL);
 
-	char *filename_ptr = PathFindFileName(default_stg_dir);
-	strcpy_s(filename_ptr, nSize - (filename_ptr - default_stg_dir), STG_DEFAULT_DIRECTORY_NAME);
+	char *filename_ptr = PathFindExtension(default_stg_dir);
+	strcpy_s(filename_ptr, nSize - (filename_ptr - default_stg_dir), STG_DEFAULT_DIRECTORY_APPENDIX);
 }
 
 void guiEx_settings::load_local() {
@@ -459,34 +473,34 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox              = GetPrivateProfileInt(   INI_SECTION_MAIN, "large_cmdbox",             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
-	s_local.auto_afs_disable          = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_afs_disable",         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
-	s_local.auto_del_stats            = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
-	s_local.auto_del_chap             = GetPrivateProfileInt(   INI_SECTION_MAIN, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
-	s_local.disable_tooltip_help      = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
-	s_local.disable_visual_styles     = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
-	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
-	s_local.get_relative_path         = GetPrivateProfileInt(   INI_SECTION_MAIN, "get_relative_path",        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	s_local.large_cmdbox              = GetPrivateProfileInt(   ini_section_main, "large_cmdbox",             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	s_local.auto_afs_disable          = GetPrivateProfileInt(   ini_section_main, "auto_afs_disable",         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	s_local.auto_del_stats            = GetPrivateProfileInt(   ini_section_main, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	s_local.auto_del_chap             = GetPrivateProfileInt(   ini_section_main, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	s_local.disable_tooltip_help      = GetPrivateProfileInt(   ini_section_main, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	s_local.disable_visual_styles     = GetPrivateProfileInt(   ini_section_main, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   ini_section_main, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	s_local.get_relative_path         = GetPrivateProfileInt(   ini_section_main, "get_relative_path",        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
 
 	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
 	s_local.amp_keep_old_file         = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_keep_old_file",        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);   
 	
-	GetFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
+	GetFontInfo(ini_section_main, "conf_font", &s_local.conf_font, conf_fileName);
 
-	GetPrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        _countof(s_local.custom_tmp_dir),        conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  _countof(s_local.custom_audio_tmp_dir),  conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, _countof(s_local.custom_mp4box_tmp_dir), conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "stg_dir",  default_stg_dir, s_local.stg_dir,               _countof(s_local.stg_dir),               conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          "", s_local.app_dir,               _countof(s_local.app_dir),               conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          "", s_local.bat_dir,               _countof(s_local.bat_dir),               conf_fileName);
+	GetPrivateProfileString(ini_section_main, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        _countof(s_local.custom_tmp_dir),        conf_fileName);
+	GetPrivateProfileString(ini_section_main, "custom_audio_tmp_dir",  "", s_local.custom_audio_tmp_dir,  _countof(s_local.custom_audio_tmp_dir),  conf_fileName);
+	GetPrivateProfileString(ini_section_main, "custom_mp4box_tmp_dir", "", s_local.custom_mp4box_tmp_dir, _countof(s_local.custom_mp4box_tmp_dir), conf_fileName);
+	GetPrivateProfileString(ini_section_main, "stg_dir",  default_stg_dir, s_local.stg_dir,               _countof(s_local.stg_dir),               conf_fileName);
+	GetPrivateProfileString(ini_section_main, "last_app_dir",          "", s_local.app_dir,               _countof(s_local.app_dir),               conf_fileName);
+	GetPrivateProfileString(ini_section_main, "last_bat_dir",          "", s_local.bat_dir,               _countof(s_local.bat_dir),               conf_fileName);
 
 	//設定ファイル保存場所をチェックする
 	if (!str_has_char(s_local.stg_dir) || !PathRootExists(s_local.stg_dir))
 		strcpy_s(s_local.stg_dir, _countof(s_local.stg_dir), default_stg_dir);
 
-	s_local.audio_buffer_size   = min(GetPrivateProfileInt(INI_SECTION_MAIN, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
+	s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
 
 	GetPrivateProfileString(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,         _countof(s_x264.fullpath),         conf_fileName);
 	GetPrivateProfileString(INI_SECTION_X264,    "X264_10bit",     "", s_x264.fullpath_highbit, _countof(s_x264.fullpath_highbit), conf_fileName);
@@ -498,17 +512,17 @@ void guiEx_settings::load_local() {
 
 void guiEx_settings::load_log_win() {
 	clear_log_win();
-	s_log.minimized          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_start_minimized",  DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
-	s_log.transparent        = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_transparent",      DEFAULT_LOG_TRANSPARENT,      conf_fileName);
-	s_log.auto_save_log      = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save",        DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
-	s_log.auto_save_log_mode = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_auto_save_mode",   DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
-	GetPrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path", "", s_log.auto_save_log_path, _countof(s_log.auto_save_log_path), conf_fileName);
-	s_log.show_status_bar    = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_show_status_bar",  DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
-	s_log.taskbar_progress   = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_taskbar_progress", DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
-	s_log.save_log_size      = GetPrivateProfileInt(   INI_SECTION_MAIN, "save_log_size",        DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
-	s_log.log_width          = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_width",            DEFAULT_LOG_WIDTH,            conf_fileName);
-	s_log.log_height         = GetPrivateProfileInt(   INI_SECTION_MAIN, "log_height",           DEFAULT_LOG_HEIGHT,           conf_fileName);
-	GetFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
+	s_log.minimized          = GetPrivateProfileInt(   ini_section_main, "log_start_minimized",  DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
+	s_log.transparent        = GetPrivateProfileInt(   ini_section_main, "log_transparent",      DEFAULT_LOG_TRANSPARENT,      conf_fileName);
+	s_log.auto_save_log      = GetPrivateProfileInt(   ini_section_main, "log_auto_save",        DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
+	s_log.auto_save_log_mode = GetPrivateProfileInt(   ini_section_main, "log_auto_save_mode",   DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
+	GetPrivateProfileString(ini_section_main, "log_auto_save_path", "", s_log.auto_save_log_path, _countof(s_log.auto_save_log_path), conf_fileName);
+	s_log.show_status_bar    = GetPrivateProfileInt(   ini_section_main, "log_show_status_bar",  DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
+	s_log.taskbar_progress   = GetPrivateProfileInt(   ini_section_main, "log_taskbar_progress", DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
+	s_log.save_log_size      = GetPrivateProfileInt(   ini_section_main, "save_log_size",        DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
+	s_log.log_width          = GetPrivateProfileInt(   ini_section_main, "log_width",            DEFAULT_LOG_WIDTH,            conf_fileName);
+	s_log.log_height         = GetPrivateProfileInt(   ini_section_main, "log_height",           DEFAULT_LOG_HEIGHT,           conf_fileName);
+	GetFontInfo(ini_section_main, "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::load_append() {
@@ -531,44 +545,44 @@ void guiEx_settings::load_fbc() {
 }
 
 void guiEx_settings::save_local() {
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "large_cmdbox",              s_local.large_cmdbox,             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_afs_disable",          s_local.auto_afs_disable,         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "get_relative_path",         s_local.get_relative_path,        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "large_cmdbox",              s_local.large_cmdbox,             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_afs_disable",          s_local.auto_afs_disable,         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "get_relative_path",         s_local.get_relative_path,        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
 
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_keep_old_file",         s_local.amp_keep_old_file,        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 
-	WriteFontInfo(INI_SECTION_MAIN, "conf_font", &s_local.conf_font, conf_fileName);
+	WriteFontInfo(ini_section_main, "conf_font", &s_local.conf_font, conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_tmp_dir);
 	PathRemoveBackslash(s_local.custom_tmp_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "custom_tmp_dir",        s_local.custom_tmp_dir,        conf_fileName);
+	WritePrivateProfileString(ini_section_main, "custom_tmp_dir",        s_local.custom_tmp_dir,        conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_audio_tmp_dir);
 	PathRemoveBackslash(s_local.custom_audio_tmp_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "custom_audio_tmp_dir",  s_local.custom_audio_tmp_dir,  conf_fileName);
+	WritePrivateProfileString(ini_section_main, "custom_audio_tmp_dir",  s_local.custom_audio_tmp_dir,  conf_fileName);
 
 	PathRemoveBlanks(s_local.custom_mp4box_tmp_dir);
 	PathRemoveBackslash(s_local.custom_mp4box_tmp_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "custom_mp4box_tmp_dir", s_local.custom_mp4box_tmp_dir, conf_fileName);
+	WritePrivateProfileString(ini_section_main, "custom_mp4box_tmp_dir", s_local.custom_mp4box_tmp_dir, conf_fileName);
 
 	PathRemoveBlanks(s_local.stg_dir);
 	PathRemoveBackslash(s_local.stg_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "stg_dir",               s_local.stg_dir,               conf_fileName);
+	WritePrivateProfileString(ini_section_main, "stg_dir",               s_local.stg_dir,               conf_fileName);
 
 	PathRemoveBlanks(s_local.app_dir);
 	PathRemoveBackslash(s_local.app_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          s_local.app_dir,               conf_fileName);
+	WritePrivateProfileString(ini_section_main, "last_app_dir",          s_local.app_dir,               conf_fileName);
 
 	PathRemoveBlanks(s_local.bat_dir);
 	PathRemoveBackslash(s_local.bat_dir);
-	WritePrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
+	WritePrivateProfileString(ini_section_main, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
 
 	PathRemoveBlanks(s_x264.fullpath);
 	PathRemoveBlanks(s_x264.fullpath_highbit);
@@ -585,17 +599,17 @@ void guiEx_settings::save_local() {
 }
 
 void guiEx_settings::save_log_win() {
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_start_minimized",   s_log.minimized,          DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_transparent",       s_log.transparent,        DEFAULT_LOG_TRANSPARENT,      conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_auto_save",         s_log.auto_save_log,      DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_auto_save_mode",    s_log.auto_save_log_mode, DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
-	WritePrivateProfileString(INI_SECTION_MAIN, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_show_status_bar",   s_log.show_status_bar,    DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_taskbar_progress",  s_log.taskbar_progress,   DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "save_log_size",         s_log.save_log_size,      DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_width",             s_log.log_width,          DEFAULT_LOG_WIDTH,            conf_fileName);
-	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "log_height",            s_log.log_height,         DEFAULT_LOG_HEIGHT,           conf_fileName);
-	WriteFontInfo(INI_SECTION_MAIN, "log_font", &s_log.log_font, conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_start_minimized",   s_log.minimized,          DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_transparent",       s_log.transparent,        DEFAULT_LOG_TRANSPARENT,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_auto_save",         s_log.auto_save_log,      DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_auto_save_mode",    s_log.auto_save_log_mode, DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
+	WritePrivateProfileString(ini_section_main, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_show_status_bar",   s_log.show_status_bar,    DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_taskbar_progress",  s_log.taskbar_progress,   DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "save_log_size",         s_log.save_log_size,      DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_width",             s_log.log_width,          DEFAULT_LOG_WIDTH,            conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_height",            s_log.log_height,         DEFAULT_LOG_HEIGHT,           conf_fileName);
+	WriteFontInfo(ini_section_main, "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::save_fbc() {

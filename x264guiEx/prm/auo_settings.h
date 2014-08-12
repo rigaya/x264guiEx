@@ -232,7 +232,7 @@ typedef struct {
 	int    amp_retry_limit;                     //自動マルチパス試行回数制限
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
 	BOOL   amp_keep_old_file;                   //自動マルチパスで、上限を超えてしまったファイルを削除しない
-	BOOL   get_relative_path;                  //相対パスで保存する
+	BOOL   get_relative_path;                   //相対パスで保存する
 	char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
@@ -258,6 +258,7 @@ private:
 	mem_cutter s_mux_mc;
 
 	static BOOL  init;                        //静的確保したものが初期化
+	static char  ini_section_main[256];       //メインセクション
 	static char  auo_path[MAX_PATH_LEN];      //自分(auo)のフルパス
 	static char  ini_fileName[MAX_PATH_LEN];  //iniファイル(読み込み用)の場所
 	static char  conf_fileName[MAX_PATH_LEN]; //configファイル(読み書き用)の場所
@@ -294,6 +295,7 @@ public:
 
 	guiEx_settings();
 	guiEx_settings(BOOL disable_loading);
+	guiEx_settings(BOOL disable_loading, const char *_auo_path, const char *main_section);
 	~guiEx_settings();
 
 	BOOL get_init_success();                 //iniファイルが存在し、正しいバージョンだったか
@@ -314,6 +316,7 @@ public:
 
 private:
 	void initialize(BOOL disable_loading);
+	void initialize(BOOL disable_loading, const char *_auo_path, const char *main_section);
 
 	void clear_aud();         //音声エンコーダ関連の設定の消去
 	void clear_mux();         //muxerの設定の消去
