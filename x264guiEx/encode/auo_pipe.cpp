@@ -157,7 +157,11 @@ BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t n
 
 	sprintf_s(fullargs, len, "\"%s\" %s", exe_path, args);
 	if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
-		WaitForSingleObject(pi.hProcess, INFINITE);
+		while (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 10)) {
+			read_from_pipe(&pipes, pipes.stdOut.mode == AUO_PIPE_DISABLE);
+			strcat_s(buf, nSize, pipes.read_buf);
+			pipes.buf_len = 0;
+		}
 
 		while (read_from_pipe(&pipes, pipes.stdOut.mode == AUO_PIPE_DISABLE) > 0) {
 			strcat_s(buf, nSize, pipes.read_buf);
