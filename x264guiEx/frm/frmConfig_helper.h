@@ -256,6 +256,13 @@ const WCHAR * const interlaced_desc[] = {
 	NULL
 };
 
+const WCHAR * const audio_enc_timing_desc[] = {
+	L"後",
+	L"前",
+	L"同時",
+	NULL
+};
+
 //メモ表示用 RGB
 const int StgNotesColor[][3] = {
 	{  80,  72,  92 },

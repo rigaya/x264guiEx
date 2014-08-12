@@ -68,6 +68,12 @@ static inline double pow2(double a) {
 static inline int pow2(int a) {
 	return a * a;
 }
+static inline bool check_range(int value, int min, int max) {
+	return (min <= value && value <= max);
+}
+static inline bool check_range(double value, double min, double max) {
+	return (min <= value && value <= max);
+}
 static inline int ceil_div_int(int i, int div) {
 	return (i + (div-1)) / div;
 }

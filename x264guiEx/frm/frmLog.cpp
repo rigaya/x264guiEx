@@ -28,7 +28,8 @@ void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles) {
 //ログウィンドウのタイトルを設定
 [STAThreadAttribute]
 void set_window_title(const char *chr, int progress_mode) {
-	frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);
+	if (!frmLog::Instance::get()->InvokeRequired)
+		frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);
 }
 //x264からのメッセージをログウィンドウのタイトルに
 [STAThreadAttribute]
@@ -36,23 +37,32 @@ void set_window_title_x264_mes(const char *chr, int total_drop, int frame_n) {
 	frmLog::Instance::get()->SetWindowTitleX264Mes(chr, total_drop, frame_n);
 }
 //x264guiExからのメッセージとして、ログウィンドウに表示
+delegate void write_log_auo_line_delegate(int log_type_index, const char *chr);
 [STAThreadAttribute]
 void write_log_auo_line(int log_type_index, const char *chr) {
-	frmLog::Instance::get()->WriteLogAuoLine(chr, log_type_index);
+	frmLog::Instance::get()->WriteLogAuoLine(String(chr).ToString(), log_type_index);
 }
+//現在実行中の内容の設定
 [STAThreadAttribute]
 void set_task_name(const char *chr) {
-	frmLog::Instance::get()->SetTaskName(chr);
+	if (!frmLog::Instance::get()->InvokeRequired)
+		frmLog::Instance::get()->SetTaskName(chr);
 }
 //進捗情報の表示
 [STAThreadAttribute]
 void set_log_progress(double progress) {
-	frmLog::Instance::get()->SetProgress(progress);
+	if (!frmLog::Instance::get()->InvokeRequired)
+		frmLog::Instance::get()->SetProgress(progress);
 }
 //メッセージを直接ログウィンドウに表示
 [STAThreadAttribute]
 void write_log_line(int log_type_index, const char *chr) {
-	frmLog::Instance::get()->WriteLogLine(chr, log_type_index);
+	frmLog::Instance::get()->WriteLogLine(String(chr).ToString(), log_type_index);
+}
+//音声を並列に処理する際に、蓄えた音声のログを表示
+//必ず音声処理が動いていないところで呼ぶこと!
+void flush_audio_log() {
+	frmLog::Instance::get()->FlushAudioLogCache();
 }
 //ログウィンドウからのx264制御を有効化
 [STAThreadAttribute]
@@ -82,7 +92,8 @@ void log_reload_settings() {
 //ログウィンドウにイベントを実行させる
 [STAThreadAttribute]
 void log_process_events() {
-	System::Windows::Forms::Application::DoEvents();
+	if (!frmLog::Instance::get()->InvokeRequired)
+		System::Windows::Forms::Application::DoEvents();
 }
 //現在のログの長さを返す
 [STAThreadAttribute]

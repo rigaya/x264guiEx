@@ -7,17 +7,20 @@
 //   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
 //  -----------------------------------------------------------------------------------------
 
-#ifndef _AUO_AUDIO_H_
-#define _AUO_AUDIO_H_
+#ifndef _AUO_AUDIO_PARALLEL_H_
+#define _AUO_AUDIO_PARALLEL_H_
 
-#include <Windows.h>
-#include "output.h"
-#include "auo_conf.h"
+#include <process.h>
+#include "auo.h"
 #include "auo_system.h"
 
-void *get_audio_data(const OUTPUT_INFO *oip, PRM_ENC *pe, int start, int length, int *readed);
+static inline void if_valid_wait_for_single_object(HANDLE he, DWORD dwMilliseconds) {
+	if (he) WaitForSingleObject(he, dwMilliseconds);
+}
+static inline void if_valid_set_event(HANDLE he) {
+	if (he) SetEvent(he);
+}
 
-AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat); //音声処理を実行
-AUO_RESULT audio_output_parallel(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
+void release_audio_parallel_events(PRM_ENC *pe);
 
-#endif //_AUO_AUDIO_H_
+#endif //_AUO_AUDIO_PARALLEL_H_

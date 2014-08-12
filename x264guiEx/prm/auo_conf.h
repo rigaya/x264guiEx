@@ -59,16 +59,16 @@ typedef struct {
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {
-	int  encoder;            //使用する音声エンコーダ
-	int  enc_mode;           //使用する音声エンコーダの設定
-	int  bitrate;            //ビットレート指定モード
-	BOOL use_2pass;          //音声2passエンコードを行う
-	BOOL use_wav;            //パイプを使用せず、wavを出力してエンコードを行う
-	BOOL faw_check;          //FAWCheckを行う
-	int  priority;           //音声エンコーダのCPU優先度(インデックス)
-	BOOL minimized;          //音声エンコーダを最小化で実行
-	int  aud_temp_dir;       //音声専用一時フォルダ
-	BOOL audio_encode_first; //音声を先にエンコード
+	int  encoder;             //使用する音声エンコーダ
+	int  enc_mode;            //使用する音声エンコーダの設定
+	int  bitrate;             //ビットレート指定モード
+	BOOL use_2pass;           //音声2passエンコードを行う
+	BOOL use_wav;             //パイプを使用せず、wavを出力してエンコードを行う
+	BOOL faw_check;           //FAWCheckを行う
+	int  priority;            //音声エンコーダのCPU優先度(インデックス)
+	BOOL minimized;           //音声エンコーダを最小化で実行
+	int  aud_temp_dir;        //音声専用一時フォルダ
+	int  audio_encode_timing; //音声を先にエンコード
 } CONF_AUDIO; //音声用設定
 
 typedef struct {

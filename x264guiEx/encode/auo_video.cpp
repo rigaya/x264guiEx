@@ -40,6 +40,7 @@
 
 #include "auo_encode.h"
 #include "auo_video.h"
+#include "auo_audio_parallel.h"
 
 const int DROP_FRAME_FLAG = INT_MAX;
 
@@ -54,8 +55,8 @@ int get_aviutl_color_format(int use_highbit, int output_csp) {
 			return CF_YC48;
 		case OUT_CSP_RGB:
 			return CF_RGB;
-		case OUT_CSP_YUV420:
-		case OUT_CSP_YUV422:
+		case OUT_CSP_NV12:
+		case OUT_CSP_NV16:
 		default:
 			return (use_highbit) ? CF_YC48 : CF_YUY2;
 	}
@@ -202,6 +203,8 @@ static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe)
 
 static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 	AUO_RESULT ret = AUO_RESULT_WARNING;
+	static const int REQUIRED_X264_CORE = 104;
+	static const int REQUIRED_X264_REV = 1673;
 	char buffer[2048];
 	if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
 		char print_line[512];
@@ -235,7 +238,7 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 			write_log_auo_line(LOG_INFO, print_line);
 		}
 		if (a >= 0 && b >= 0 && c >= 0) {
-			ret = (b >= 104 || c >= 1673) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
+			ret = (b >= REQUIRED_X264_CORE || c >= REQUIRED_X264_REV) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
 		}
 	}
 	return ret;
@@ -331,7 +334,7 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 	const int byte_per_pixel = (conf->x264.use_highbit_depth) ? sizeof(short) : sizeof(BYTE);
 	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
-		case OUT_CSP_YUV422: //nv16 (YUV422)
+		case OUT_CSP_NV16: //nv16 (YUV422)
 			pixel_data->count = 2;
 			pixel_data->size[0] = w * h * byte_per_pixel;
 			pixel_data->size[1] = pixel_data->size[0];
@@ -346,7 +349,7 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 			pixel_data->count = 1;
 			pixel_data->size[0] = w * h * 3 * sizeof(BYTE); //8bit only
 			break;
-		case OUT_CSP_YUV420: //nv12 (YUV420)
+		case OUT_CSP_NV12: //nv12 (YUV420)
 		default:
 			pixel_data->count = 2;
 			pixel_data->size[0] = w * h * byte_per_pixel;
@@ -358,10 +361,90 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 		pixel_data->total_size += pixel_data->size[i];
 }
 
-static void check_x264_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) {
+static inline void check_x264_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) {
 	if (priority == AVIUTLSYNC_PRIORITY_CLASS)
 		priority = GetPriorityClass(h_aviutl);
 	SetPriorityClass(h_x264, priority);
+}
+
+//並列処理時に音声データを取得する
+static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+	AUD_PARALLEL_ENC *aud_p = &pe->aud_parallel; //長いんで省略したいだけ
+	if (aud_p->th_aud) {
+		//---   排他ブロック 開始  ---> 音声スレッドが止まっていなければならない
+		if_valid_wait_for_single_object(aud_p->he_vid_start, INFINITE);
+		if (aud_p->he_vid_start && aud_p->get_length) {
+			DWORD required_buf_size = aud_p->get_length * (DWORD)oip->audio_size;
+			if (aud_p->buf_max_size < required_buf_size) {
+				//メモリ不足なら再確保
+				if (aud_p->buffer) free(aud_p->buffer);
+				aud_p->buf_max_size = required_buf_size;
+				if (NULL == (aud_p->buffer = malloc(aud_p->buf_max_size)))
+					aud_p->buf_max_size = 0; //ここのmallocエラーは次の分岐でAUO_RESULT_ERRORに設定
+			}
+			void *data_ptr = NULL;
+			if (NULL == aud_p->buffer || 
+				NULL == (data_ptr = oip->func_get_audio(aud_p->start, aud_p->get_length, &aud_p->get_length))) {
+				ret = AUO_RESULT_ERROR; //mallocエラーかget_audioのエラー
+			} else {
+				//自前のバッファにコピーしてdata_ptrが破棄されても良いようにする
+				memcpy(aud_p->buffer, data_ptr, aud_p->get_length * oip->audio_size);
+			}
+			if (!aud_p->abort) //すでにTRUEなら変更しないようにする
+				aud_p->abort = oip->func_is_abort();
+		}
+		flush_audio_log();
+		if_valid_set_event(aud_p->he_aud_start);
+		//---   排他ブロック 終了  ---> 音声スレッドを開始
+	}
+	return ret;
+}
+
+//音声処理をどんどん回して終了させる
+static AUO_RESULT finish_aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+	if (pe->aud_parallel.th_aud) {
+		write_log_auo_line(LOG_INFO, "音声処理の終了を待機しています...");
+		set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
+		while (pe->aud_parallel.he_vid_start)
+			ret |= aud_parallel_task(oip, pe);
+		set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+	}
+	return ret;
+}
+
+//並列処理スレッドの終了を待ち、終了コードを回収する
+static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *pe) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+	ret |= finish_aud_parallel_task(oip, pe); //wav出力を完了させる
+	release_audio_parallel_events(pe);
+	if (pe->aud_parallel.buffer) free(pe->aud_parallel.buffer);
+	if (pe->aud_parallel.th_aud) {
+		//音声エンコードを完了させる
+		//2passエンコードとかだと音声エンコーダの終了を待機する必要あり
+		BOOL wait_for_audio = FALSE;
+		while (WaitForSingleObject(pe->aud_parallel.th_aud, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT) {
+			if (!wait_for_audio) {
+				set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
+				wait_for_audio = !wait_for_audio;
+			}
+			if (!pe->aud_parallel.abort)
+				pe->aud_parallel.abort = oip->func_is_abort();
+			flush_audio_log();
+			log_process_events();
+		}
+		if (wait_for_audio)
+			set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+
+		DWORD exit_code = 0;
+		//GetExitCodeThreadの返り値がNULLならエラー
+		ret |= (NULL == GetExitCodeThread(pe->aud_parallel.th_aud, &exit_code)) ? AUO_RESULT_ERROR : exit_code;
+		CloseHandle(pe->aud_parallel.th_aud);
+	}
+	//初期化 (重要!!!)
+	ZeroMemory(&pe->aud_parallel, sizeof(pe->aud_parallel));
+	return ret;
 }
 
 static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
@@ -447,11 +530,10 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		//------------メインループ------------
 		for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
 			//中断を確認
-			if (oip->func_is_abort()) {
+			if (FALSE != (pe->aud_parallel.abort = oip->func_is_abort())) {
 				ret |= AUO_RESULT_ABORT;
 				break;
 			}
-
 			//x264が実行中なら、メッセージを取得・ログウィンドウに表示
 			if (ReadLogX264(&pipes, pe->drop_count, i) < 0) {
 				//勝手に死んだ...
@@ -471,8 +553,10 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 
 				//x264優先度
 				check_x264_priority(pe->h_p_aviutl, pi_x264.hProcess, set_priority);
-			}
 
+				//音声同時処理
+				ret |= aud_parallel_task(oip, pe);
+			}
 			//Aviutl(afs)からフレームをもらう
 			if ((frame = afs_get_video((OUTPUT_INFO *)oip, i, &drop, next_jitter)) == NULL) {
 				ret |= AUO_RESULT_ERROR; error_afs_get_frame();
@@ -508,13 +592,16 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		//パイプを閉じる
 		CloseStdIn(&pipes);
 
-		if (!ret) {
-			oip->func_rest_time_disp(oip->n * pe->current_x264_pass, oip->n * pe->total_x264_pass);
+		if (!ret) oip->func_rest_time_disp(oip->n * pe->current_x264_pass, oip->n * pe->total_x264_pass);
 
-			//タイムコード出力
-			if (afs || conf->vid.auo_tcfile_out)
-				tcfile_out(jitter, oip->n, (double)oip->rate / (double)oip->scale, afs, pe);
-		}
+		//音声の同時処理を終了させる
+		ret |= finish_aud_parallel_task(oip, pe);
+		//音声との同時処理が終了
+		release_audio_parallel_events(pe);
+
+		//タイムコード出力
+		if (!ret && (afs || conf->vid.auo_tcfile_out))
+			tcfile_out(jitter, oip->n, (double)oip->rate / (double)oip->scale, afs, pe);
 
 		//x264終了待機
 		while (WaitForSingleObject(pi_x264.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
@@ -538,16 +625,20 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	CloseHandle(pi_x264.hThread);
 
 	free_pixel_data(&pixel_data);
-	if (jitter) free(jitter); 
+	if (jitter) free(jitter);
+
+	ret |= exit_audio_parallel_control(oip, pe);
 
 	return ret;
 }
 
-static void set_window_title_x264(PRM_ENC *pe) {
+static void set_window_title_x264(const PRM_ENC *pe) {
 	char mes[256];
 	strcpy_s(mes, _countof(mes), "x264エンコード");
 	if (pe->total_x264_pass > 1)
 		sprintf_s(mes + strlen(mes), _countof(mes) - strlen(mes), "   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
+	if (pe->aud_parallel.th_aud)
+		strcat_s(mes, _countof(mes), " + 音声エンコード");
 	set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
@@ -613,7 +704,7 @@ static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_EN
 	return AUO_RESULT_SUCCESS;
 }
 
-AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT video_output_inside(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//動画エンコードの必要がなければ終了
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED)
@@ -622,8 +713,9 @@ AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	//最初のみ実行する部分
 	if (pe->current_x264_pass <= 1) {
 		//自動マルチパス用チェック
-		if ((ret |= check_amp(conf, oip, pe, sys_dat)) != AUO_RESULT_SUCCESS)
-			return ret & ~AUO_RESULT_ABORT; //AUO_RESULT_ABORTなら、音声を先にエンコードするため、動画エンコードを一時的にスキップ
+		if ((ret |= check_amp(conf, oip, pe, sys_dat)) != AUO_RESULT_SUCCESS) {
+			return (ret & ~AUO_RESULT_ABORT); //AUO_RESULT_ABORTなら、音声を先にエンコードするため、動画エンコードを一時的にスキップ
+		}
 		//追加コマンドをパラメータに適用する
 		ret |= check_cmdex(conf, oip, pe, sys_dat);
 
@@ -656,6 +748,9 @@ AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	}
 
 	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
-
 	return ret;
+}
+
+AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	return (video_output_inside(conf, oip, pe, sys_dat) | exit_audio_parallel_control(oip, pe));
 }

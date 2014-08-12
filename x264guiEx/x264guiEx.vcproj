@@ -267,6 +267,26 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\encode\auo_audio_parallel.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\encode\auo_chapter.cpp"
 					>
 					<FileConfiguration
@@ -682,6 +702,10 @@
 				</File>
 				<File
 					RelativePath=".\encode\auo_audio.h"
+					>
+				</File>
+				<File
+					RelativePath=".\encode\auo_audio_parallel.h"
 					>
 				</File>
 				<File

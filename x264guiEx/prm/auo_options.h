@@ -42,8 +42,8 @@ enum {
 };
 
 enum {
-	OUT_CSP_YUV420,
-	OUT_CSP_YUV422,
+	OUT_CSP_NV12,
+	OUT_CSP_NV16,
 	OUT_CSP_YUV444,
 	OUT_CSP_RGB,
 };
@@ -55,15 +55,15 @@ enum {
 };
 
 //x264のinput-cspとして使用するもの
-//OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
+//OUT_CSP_NV12, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 static const char * const specify_csp[] = {
-	"nv12", //OUT_CSP_YUV420
-	"nv16", //OUT_CSP_YUV422
+	"nv12", //OUT_CSP_NV12
+	"nv16", //OUT_CSP_NV16
 	"i444", //OUT_CSP_YUV444
 	"rgb"   //OUT_CSP_RGB
 };
 //文字列を引数にとるオプションの引数リスト
-//OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
+//OUT_CSP_NV12, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 const X264_OPTION_STR list_output_csp[] = {
 	{ "i420", L"i420" },
 	{ "i422", L"i422" },

@@ -10,6 +10,8 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
+#include <process.h>
+#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "user32.lib") //WaitforInputIdle
 
 #include "output.h"
@@ -25,19 +27,34 @@
 #include "fawcheck.h"
 #include "auo_faw2aac.h"
 
+#include "auo_audio_parallel.h"
 #include "auo_encode.h"
 
 const int WAVE_HEADER_SIZE = 44;
 const int RIFF_SIZE_POS    = 4;
 const int WAVE_SIZE_POS    = WAVE_HEADER_SIZE - 4;
 
-static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, const guiEx_settings *ex_stg) {
+inline void *get_audio_data(const OUTPUT_INFO *oip, PRM_ENC *pe, int start, int length, int *readed) {
+	if (pe->aud_parallel.th_aud) {
+		pe->aud_parallel.start = start;
+		pe->aud_parallel.get_length = length;
+		if_valid_set_event(pe->aud_parallel.he_vid_start);
+		if_valid_wait_for_single_object(pe->aud_parallel.he_aud_start, INFINITE);
+		if (pe->aud_parallel.he_aud_start) {
+			*readed = pe->aud_parallel.get_length;
+			return pe->aud_parallel.buffer;
+		}
+	}
+	return oip->func_get_audio(start, length, readed);
+}
+
+static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const guiEx_settings *ex_stg) {
 	if (ex_stg->s_aud_faw_index == FAW_INDEX_ERROR) {
 		write_log_auo_line(LOG_WARNING, "FAWCheck : "AUO_NAME_WITHOUT_EXT".iniからのFAWの情報取得に失敗したため、判定を中止しました。");
 		return;
 	}
 	int n = 0;
-	short *dat = (short *)oip->func_get_audio(0, min(oip->audio_n, 10 * oip->audio_rate), &n);
+	short *dat = (short *)get_audio_data(oip, pe, 0, min(oip->audio_n, 10 * oip->audio_rate), &n);
 	int ret = FAWCheck(dat, n, oip->audio_rate, oip->audio_size);
 	switch (ret) {
 		case NON_FAW:
@@ -147,7 +164,7 @@ static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_m
 	set_window_title(mes, progress_mode);
 }
 
-static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL wav_8bit, int bufsize, 
+static AUO_RESULT wav_output(const OUTPUT_INFO *oip, PRM_ENC *pe, const char *wavfile, BOOL wav_8bit, int bufsize,
 						PROCESS_INFORMATION *pi_aud, const char *auddispname, char *audargs, 
 						const char *auddir, DWORD encoder_priority) 
 {
@@ -158,13 +175,23 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL 
 	const func_audio_16to8 audio_16to8 = get_audio_16to8_func();
 	const BOOL use_pipe = (strcmp(wavfile, PIPE_FN) == NULL); 
 	int rp_ret;
-
+	
+	//並列時は8フレーム分
+	if (pe->aud_parallel.th_aud) {
+		bufsize = ceil_div_int((int)(oip->audio_rate * (double)oip->scale / (double)oip->rate), 16) * 16 * 8;
+		//あとから音声エンコーダを回す必要が有る場合、wav出力を倍速で
+		if (!use_pipe && str_has_char(auddir))
+			bufsize *= 2;
+	}
 	//8bitを使用する場合のメモリ確保
 	if (wav_8bit && (buf8bit = (BYTE*)malloc(bufsize * oip->audio_ch * sizeof(BYTE))) == NULL) {
 		ret |= AUO_RESULT_ERROR; error_malloc_8bit();
 		return ret;
 	}
 
+	//確実なfcloseのために何故か一度ここで待機する必要あり
+	if_valid_set_event(pe->aud_parallel.he_vid_start);
+	if_valid_wait_for_single_object(pe->aud_parallel.he_aud_start, INFINITE);
 	//パイプ or ファイルオープン
 	if (use_pipe) {
 		//パイプ準備
@@ -196,11 +223,11 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL 
 		//wav出力ループ
 		while (oip->audio_n - samples_read > 0 && samples_get) {
 			//中断
-			if (oip->func_is_abort()) {
+			if ((pe->aud_parallel.he_aud_start) ? pe->aud_parallel.abort : oip->func_is_abort()) {
 				ret |= AUO_RESULT_ABORT;
 				break;
 			}
-			audio_dat = oip->func_get_audio(samples_read, min(oip->audio_n - samples_read, bufsize), &samples_get);
+			audio_dat = get_audio_data(oip, pe, samples_read, min(oip->audio_n - samples_read, bufsize), &samples_get);
 			samples_read += samples_get;
 			set_log_progress(samples_read / (double)oip->audio_n);
 
@@ -209,6 +236,8 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip,  const char *wavfile, BOOL 
 
 			_fwrite_nolock((wav_8bit) ? buf8bit : audio_dat, samples_get * wav_sample_size, 1, f_out);
 		}
+		//動画との音声との同時処理が終了
+		release_audio_parallel_events(pe);
 		//終了処理
 		if (!use_pipe && oip->audio_n != samples_read)
 			correct_header(f_out, samples_read * wav_sample_size);
@@ -231,7 +260,7 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 		return ret;
 	//FAWCheck
 	if (conf->aud.faw_check)
-		auo_faw_check(&conf->aud, oip, sys_dat->exstg);
+		auo_faw_check(&conf->aud, oip, pe, sys_dat->exstg);
 	if (conf->aud.encoder == sys_dat->exstg->s_aud_faw_index)
 		if (AUO_RESULT_SUCCESS == audio_faw2aac(conf, oip, pe, sys_dat))
 			return ret;
@@ -276,8 +305,9 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	build_audcmd(audcmd, _countof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip);
 	sprintf_s(audargs, _countof(audargs), "\"%s\" %s", aud_stg->fullpath, audcmd);
 
+
 	//wav出力
-	ret |= wav_output(oip, wavfile, aud_stg->mode[conf->aud.enc_mode].use_8bit, sys_dat->exstg->s_local.audio_buffer_size,
+	ret |= wav_output(oip, pe, wavfile, aud_stg->mode[conf->aud.enc_mode].use_8bit, sys_dat->exstg->s_local.audio_buffer_size,
 		&pi_aud, aud_stg->dispname, audargs, auddir, encoder_priority);
 	
 	//音声エンコード(filenameが空文字列なら実行しない)

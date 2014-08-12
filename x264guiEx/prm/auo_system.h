@@ -15,7 +15,26 @@
 #include "auo_settings.h"
 #include "auo_conf.h"
 
+#if _M_IX86
+#define ALIGN_PTR __declspec(align(4))
+#else
+#define ALIGN_PTR __declspec(align(8))
+#endif
+
+typedef struct ALIGN_PTR {
+	HANDLE ALIGN_PTR he_aud_start; //InterlockedExchangeを使用するため、__declspec(align(4))が必要
+	HANDLE ALIGN_PTR he_vid_start; //InterlockedExchangeを使用するため、__declspec(align(4))が必要
+	HANDLE th_aud;
+	void  *buffer;
+	DWORD  buf_len;
+	DWORD  buf_max_size;
+	int    start;
+	int    get_length;
+	BOOL   abort;
+} AUD_PARALLEL_ENC;
+
 typedef struct {
+	AUD_PARALLEL_ENC aud_parallel;      //音声並列処理の管理
 	int video_out_type;                 //出力する動画のフォーマット(拡張子により判断)
 	int muxer_to_be_used;               //使用するmuxerのインデックス
 	int current_x264_pass;              //現在のx264パス数

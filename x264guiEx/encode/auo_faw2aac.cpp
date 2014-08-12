@@ -20,6 +20,8 @@
 #include "auo_system.h"
 #include "auo_frm.h"
 #include "auo_encode.h"
+#include "auo_audio.h"
+#include "auo_audio_parallel.h"
 #include "auo_faw2aac.h"
 
 typedef OUTPUT_PLUGIN_TABLE* (*func_get_auo_table)(void);
@@ -37,22 +39,32 @@ BOOL check_if_faw2aac_exists() {
 	return FALSE;
 }
 
-
-// 進捗表示用
-static const OUTPUT_INFO *g_oip = NULL;
+static const OUTPUT_INFO *g_oip;
+static PRM_ENC *g_pe;
 static BOOL auo_rest_time_disp(int now, int total) {
-	if (g_oip)
-		g_oip->func_rest_time_disp(now, total);
-	//進捗表示
-	static DWORD tm_last = timeGetTime();
-	DWORD tm;
-	if ((tm = timeGetTime()) - tm_last > LOG_UPDATE_INTERVAL * 5) {
-		set_log_progress(now / (double)total);
-		tm_last = tm;
+	if (!g_pe || !g_pe->aud_parallel.th_aud) { //並列処理時には進捗表示をスキップ
+		if (g_oip)
+			g_oip->func_rest_time_disp(now, total);
+		//進捗表示
+		static DWORD tm_last = timeGetTime();
+		DWORD tm;
+		if ((tm = timeGetTime()) - tm_last > LOG_UPDATE_INTERVAL * 5) {
+			set_log_progress(now / (double)total);
+			tm_last = tm;
+		}
 	}
 	return TRUE;
 };
-
+//音声並列処理用
+static void *auo_get_audio(int start, int length, int *readed) {
+	return get_audio_data(g_oip, g_pe, start, length, readed);
+}
+static BOOL auo_get_if_abort() {
+	return (g_pe) ? g_pe->aud_parallel.abort : FALSE;
+}
+static int auo_kill_update_preview() {
+	return TRUE;
+}
 
 AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
@@ -89,6 +101,13 @@ AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 		//進捗表示の取り込み
 		g_oip = oip;
 		oip_faw2aac.func_rest_time_disp = auo_rest_time_disp;
+		//並列処理制御用
+		g_pe = pe;
+		if (pe->aud_parallel.th_aud) {
+			oip_faw2aac.func_get_audio = auo_get_audio;
+			oip_faw2aac.func_is_abort = auo_get_if_abort;
+			oip_faw2aac.func_update_preview = auo_kill_update_preview;
+		}
 
 		//開始
 		if (opt->func_init && !opt->func_init()) {
@@ -101,7 +120,10 @@ AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *
 			}
 			if (opt->func_exit)
 				opt->func_exit();
+			release_audio_parallel_events(pe);
 		}
+		g_oip = NULL;
+		g_pe = NULL;
 	}
 
 	if (hModule)

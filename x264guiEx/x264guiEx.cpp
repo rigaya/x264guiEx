@@ -141,7 +141,7 @@ BOOL func_exit()
 BOOL func_output( OUTPUT_INFO *oip ) 
 {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
-	static const encode_task task[2][2] = { { video_output, audio_output }, { audio_output, video_output } };
+	static const encode_task task[3][2] = { { video_output, audio_output }, { audio_output, video_output }, { audio_output_parallel, video_output }  };
 	PRM_ENC pe = { 0 };
 	const DWORD tm_start_enc = timeGetTime();
 
@@ -161,7 +161,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 	if (check_output(oip, &pe) && setup_afsvideo(oip, &conf, &pe, sys_dat.exstg->s_local.auto_afs_disable)) { //※3 start
 
 		for (int i = 0; !ret && i < 2; i++)
-			ret |= task[conf.aud.audio_encode_first != FALSE][i](&conf, oip, &pe, &sys_dat);
+			ret |= task[conf.aud.audio_encode_timing][i](&conf, oip, &pe, &sys_dat);
 
 		do {
 			if (!ret) ret |= video_output(&conf, oip, &pe, &sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
@@ -312,9 +312,9 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 		case OUT_CSP_YUV444:
 		case OUT_CSP_RGB:
 			w_mul = 1, h_mul = 1; break;
-		case OUT_CSP_YUV422:
+		case OUT_CSP_NV16:
 			w_mul = 2, h_mul = 1; break;
-		case OUT_CSP_YUV420:
+		case OUT_CSP_NV12:
 		default:
 			w_mul = 2; h_mul = 2; break;
 	}

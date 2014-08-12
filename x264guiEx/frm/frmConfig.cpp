@@ -898,6 +898,8 @@ System::Void frmConfig::InitComboBox() {
 	setComboBox(fcgCXWeightP,        list_weightp);
 	setComboBox(fcgCXInterlaced,     interlaced_desc);
 
+	setComboBox(fcgCXAudioEncTiming, audio_enc_timing_desc);
+
 	setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
 	setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);
 	setMuxerCmdExNames(fcgCXMPGCmdEx, MUXER_MPG);
@@ -1224,7 +1226,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		SetNUValue(fcgNUAudioBitrate,       (cnf->aud.bitrate != 0) ? cnf->aud.bitrate : GetCurrentAudioDefaultBitrate());
 		SetCXIndex(fcgCXAudioPriority,       cnf->aud.priority);
 		SetCXIndex(fcgCXAudioTempDir,        cnf->aud.aud_temp_dir);
-		fcgCBAudioEncFirst->Checked        = cnf->aud.audio_encode_first != 0;
+		SetCXIndex(fcgCXAudioEncTiming,      cnf->aud.audio_encode_timing);
 		fcgCBAudioMinimized->Checked       = cnf->aud.minimized != 0;
 
 		//mux
@@ -1375,7 +1377,7 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->aud.use_2pass              = fcgCBAudio2pass->Checked;
 	cnf->aud.use_wav                = !fcgCBAudioUsePipe->Checked;
 	cnf->aud.priority               = fcgCXAudioPriority->SelectedIndex;
-	cnf->aud.audio_encode_first     = fcgCBAudioEncFirst->Checked;
+	cnf->aud.audio_encode_timing    = fcgCXAudioEncTiming->SelectedIndex;
 	cnf->aud.minimized              = fcgCBAudioMinimized->Checked;
 	cnf->aud.aud_temp_dir           = fcgCXAudioTempDir->SelectedIndex;
 
@@ -1833,8 +1835,11 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"音声エンコーダのCPU優先度を設定します。\n"
 		+ L"AviutlSync で Aviutlの優先度と同じになります。"
 		);
-	fcgTTEx->SetToolTip(fcgCBAudioEncFirst, L""
-		+ L"音声を動画より先にエンコードします。"
+	fcgTTEx->SetToolTip(fcgCXAudioEncTiming, L""
+		+ L"音声を処理するタイミングを設定します。\n"
+		+ L" 後　 … 映像→音声の順で処理します。\n"
+		+ L" 前　 … 音声→映像の順で処理します。\n"
+		+ L" 同時 … 映像と音声を同時に処理します。"
 		);
 	fcgTTEx->SetToolTip(fcgCBAudioMinimized, L""
 		+ L"音声エンコードのウィンドウを最小化で開始します。"

@@ -486,7 +486,7 @@ private: System::Windows::Forms::Label^  fcgLBThreads;
 private: System::Windows::Forms::NumericUpDown^  fcgNUThreads;
 private: System::Windows::Forms::Label^  fcgLBOutputCF;
 private: System::Windows::Forms::ComboBox^  fcgCXOutputCsp;
-private: System::Windows::Forms::CheckBox^  fcgCBAudioEncFirst;
+
 private: System::Windows::Forms::CheckBox^  fcgCBAudioUsePipe;
 private: System::Windows::Forms::NumericUpDown^  fcgNUSlices;
 private: System::Windows::Forms::Label^  fcgLBSlices;
@@ -594,6 +594,8 @@ private: System::Windows::Forms::TextBox^  fcgTXMP4RawPath;
 private: System::Windows::Forms::Label^  fcgLBMP4RawPath;
 private: System::Windows::Forms::ContextMenuStrip^  fcgCSExeFiles;
 private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
+private: System::Windows::Forms::Label^  fcgCBAudioEncTiming;
+private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 
 
 
@@ -866,7 +868,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			this->fcgTXCustomAudioTempDir = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTCustomAudioTempDir = (gcnew System::Windows::Forms::Button());
 			this->fcgCBAudioUsePipe = (gcnew System::Windows::Forms::CheckBox());
-			this->fcgCBAudioEncFirst = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgLBAudioBitrate = (gcnew System::Windows::Forms::Label());
 			this->fcgNUAudioBitrate = (gcnew System::Windows::Forms::NumericUpDown());
 			this->fcgCBAudio2pass = (gcnew System::Windows::Forms::CheckBox());
@@ -943,6 +944,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+			this->fcgCXAudioEncTiming = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgCBAudioEncTiming = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -3199,12 +3202,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			// 
 			this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->fcgTSExeFileshelp});
 			this->fcgCSExeFiles->Name = L"fcgCSx264";
-			this->fcgCSExeFiles->Size = System::Drawing::Size(153, 48);
+			this->fcgCSExeFiles->Size = System::Drawing::Size(137, 26);
 			// 
 			// fcgTSExeFileshelp
 			// 
 			this->fcgTSExeFileshelp->Name = L"fcgTSExeFileshelp";
-			this->fcgTSExeFileshelp->Size = System::Drawing::Size(152, 22);
+			this->fcgTSExeFileshelp->Size = System::Drawing::Size(136, 22);
 			this->fcgTSExeFileshelp->Text = L"helpを表示";
 			this->fcgTSExeFileshelp->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSExeFileshelp_Click);
 			// 
@@ -3346,11 +3349,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			// 
 			// fcggroupBoxAudio
 			// 
+			this->fcggroupBoxAudio->Controls->Add(this->fcgCBAudioEncTiming);
+			this->fcggroupBoxAudio->Controls->Add(this->fcgCXAudioEncTiming);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgCXAudioTempDir);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgTXCustomAudioTempDir);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgBTCustomAudioTempDir);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgCBAudioUsePipe);
-			this->fcggroupBoxAudio->Controls->Add(this->fcgCBAudioEncFirst);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgLBAudioBitrate);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgNUAudioBitrate);
 			this->fcggroupBoxAudio->Controls->Add(this->fcgCBAudio2pass);
@@ -3414,17 +3418,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			this->fcgCBAudioUsePipe->Tag = L"chValue";
 			this->fcgCBAudioUsePipe->Text = L"パイプ処理";
 			this->fcgCBAudioUsePipe->UseVisualStyleBackColor = true;
-			// 
-			// fcgCBAudioEncFirst
-			// 
-			this->fcgCBAudioEncFirst->AutoSize = true;
-			this->fcgCBAudioEncFirst->Location = System::Drawing::Point(258, 82);
-			this->fcgCBAudioEncFirst->Name = L"fcgCBAudioEncFirst";
-			this->fcgCBAudioEncFirst->Size = System::Drawing::Size(109, 18);
-			this->fcgCBAudioEncFirst->TabIndex = 4;
-			this->fcgCBAudioEncFirst->Tag = L"chValue";
-			this->fcgCBAudioEncFirst->Text = L"音声先にエンコード";
-			this->fcgCBAudioEncFirst->UseVisualStyleBackColor = true;
 			// 
 			// fcgLBAudioBitrate
 			// 
@@ -4208,6 +4201,25 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 			// 
 			this->fcgCSReplaceStrings->Name = L"fcgCSReplaceStrings";
 			this->fcgCSReplaceStrings->Size = System::Drawing::Size(61, 4);
+			// 
+			// fcgCXAudioEncTiming
+			// 
+			this->fcgCXAudioEncTiming->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXAudioEncTiming->FormattingEnabled = true;
+			this->fcgCXAudioEncTiming->Location = System::Drawing::Point(292, 80);
+			this->fcgCXAudioEncTiming->Name = L"fcgCXAudioEncTiming";
+			this->fcgCXAudioEncTiming->Size = System::Drawing::Size(68, 22);
+			this->fcgCXAudioEncTiming->TabIndex = 27;
+			this->fcgCXAudioEncTiming->Tag = L"chValue";
+			// 
+			// fcgCBAudioEncTiming
+			// 
+			this->fcgCBAudioEncTiming->AutoSize = true;
+			this->fcgCBAudioEncTiming->Location = System::Drawing::Point(247, 83);
+			this->fcgCBAudioEncTiming->Name = L"fcgCBAudioEncTiming";
+			this->fcgCBAudioEncTiming->Size = System::Drawing::Size(40, 14);
+			this->fcgCBAudioEncTiming->TabIndex = 28;
+			this->fcgCBAudioEncTiming->Text = L"処理順";
 			// 
 			// frmConfig
 			// 

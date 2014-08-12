@@ -56,24 +56,24 @@ static const BOOL BIT16 = 1;  //16bit用
 static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	//YUY2 -> nv16(8bit)
 #if (_MSC_VER >= 1700)
-	{ CF_YUY2, OUT_CSP_YUV422, BIT_8, A,  1,  AVX2,                 convert_yuy2_to_nv16_avx2 },
+	{ CF_YUY2, OUT_CSP_NV16,   BIT_8, A,  1,  AVX2,                 convert_yuy2_to_nv16_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
-	{ CF_YUY2, OUT_CSP_YUV422, BIT_8, A,  1,  AVX|SSE2,             convert_yuy2_to_nv16_avx },
+	{ CF_YUY2, OUT_CSP_NV16,   BIT_8, A,  1,  AVX|SSE2,             convert_yuy2_to_nv16_avx },
 #endif
-	{ CF_YUY2, OUT_CSP_YUV422, BIT_8, A,  1,  SSE2,                 convert_yuy2_to_nv16_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV422, BIT_8, A,  1,  NONE,                 convert_yuy2_to_nv16 },
+	{ CF_YUY2, OUT_CSP_NV16,   BIT_8, A,  1,  SSE2,                 convert_yuy2_to_nv16_sse2 },
+	{ CF_YUY2, OUT_CSP_NV16,   BIT_8, A,  1,  NONE,                 convert_yuy2_to_nv16 },
 	//YC48 -> nv16(16bit)
 #if (_MSC_VER >= 1700)
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  AVX2,                 convert_yc48_to_nv16_16bit_avx2 },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  AVX2,                 convert_yc48_to_nv16_16bit_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv16_16bit_avx },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv16_16bit_avx },
 #endif
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_16bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_16bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  SSE2,                 convert_yc48_to_nv16_16bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  NONE,                 convert_yc48_to_nv16_16bit },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv16_16bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  SSSE3|SSE2,           convert_yc48_to_nv16_16bit_ssse3 },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  SSE2,                 convert_yc48_to_nv16_16bit_sse2 },
+	{ CF_YC48, OUT_CSP_NV16,   BIT16, A,  1,  NONE,                 convert_yc48_to_nv16_16bit },
 
 	//YC48 -> yuv444(8bit)
 	{ CF_YC48, OUT_CSP_YUV444, BIT_8, A,  1,  SSE2,                 convert_yc48_to_yuv444_sse2 },
@@ -94,55 +94,55 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 
 	//YUY2 -> nv12(8bit)
 #if (_MSC_VER >= 1700)
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P, 32,  AVX2,                 convert_yuy2_to_nv12_avx2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P,  1,  AVX2,                 convert_yuy2_to_nv12_avx2 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I, 32,  AVX2,                 convert_yuy2_to_nv12_i_avx2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I,  1,  AVX2,                 convert_yuy2_to_nv12_i_avx2 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P, 32,  AVX2,                 convert_yuy2_to_nv12_avx2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX2,                 convert_yuy2_to_nv12_avx2 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 32,  AVX2,                 convert_yuy2_to_nv12_i_avx2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  AVX2,                 convert_yuy2_to_nv12_i_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P, 16,  AVX|SSE2,             convert_yuy2_to_nv12_avx_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P,  1,  AVX|SSE2,             convert_yuy2_to_nv12_avx },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I, 16,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I,  1,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P, 16,  AVX|SSE2,             convert_yuy2_to_nv12_avx_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX|SSE2,             convert_yuy2_to_nv12_avx },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 16,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  AVX|SSE2,             convert_yuy2_to_nv12_i_avx },
 #endif //_MSC_VER >= 1600
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P, 16,  SSE2,                 convert_yuy2_to_nv12_sse2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P,  1,  SSE2,                 convert_yuy2_to_nv12_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, P,  1,  NONE,                 convert_yuy2_to_nv12 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I, 16,  SSSE3|SSE2,           convert_yuy2_to_nv12_i_ssse3_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I,  1,  SSSE3|SSE2,           convert_yuy2_to_nv12_i_ssse3 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I, 16,  SSE2,                 convert_yuy2_to_nv12_i_sse2_mod16 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I,  1,  SSE2,                 convert_yuy2_to_nv12_i_sse2 },
-	{ CF_YUY2, OUT_CSP_YUV420, BIT_8, I,  1,  NONE,                 convert_yuy2_to_nv12_i },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P, 16,  SSE2,                 convert_yuy2_to_nv12_sse2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  SSE2,                 convert_yuy2_to_nv12_sse2 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  NONE,                 convert_yuy2_to_nv12 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 16,  SSSE3|SSE2,           convert_yuy2_to_nv12_i_ssse3_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  SSSE3|SSE2,           convert_yuy2_to_nv12_i_ssse3 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I, 16,  SSE2,                 convert_yuy2_to_nv12_i_sse2_mod16 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  SSE2,                 convert_yuy2_to_nv12_i_sse2 },
+	{ CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  NONE,                 convert_yuy2_to_nv12_i },
 #if (_MSC_VER >= 1700)
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P, 16,  AVX2,                 convert_yc48_to_nv12_16bit_avx2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  AVX2,                 convert_yc48_to_nv12_16bit_avx2 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P, 16,  AVX2,                 convert_yc48_to_nv12_16bit_avx2_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX2,                 convert_yc48_to_nv12_16bit_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_16bit_avx_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_16bit_avx },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_16bit_avx_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_16bit_avx },
 #endif
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_16bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_16bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_16bit_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_16bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  8,  SSE2,                 convert_yc48_to_nv12_16bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  SSE2,                 convert_yc48_to_nv12_16bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, P,  1,  NONE,                 convert_yc48_to_nv12_16bit },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_16bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_16bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_16bit_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_16bit_ssse3 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  SSE2,                 convert_yc48_to_nv12_16bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  SSE2,                 convert_yc48_to_nv12_16bit_sse2 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  NONE,                 convert_yc48_to_nv12_16bit },
 #if (_MSC_VER >= 1700)
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I, 16,  AVX2,                 convert_yc48_to_nv12_i_16bit_avx2_mod16 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  AVX2,                 convert_yc48_to_nv12_i_16bit_avx2 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I, 16,  AVX2,                 convert_yc48_to_nv12_i_16bit_avx2_mod16 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX2,                 convert_yc48_to_nv12_i_16bit_avx2 },
 #endif
 #if (_MSC_VER >= 1600)
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_16bit_avx_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_16bit_avx },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_16bit_avx_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_16bit_avx },
 #endif
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_16bit_sse4_1_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_16bit_sse4_1 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_16bit_ssse3_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_i_16bit_ssse3 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  8,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2_mod8 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2 },
-	{ CF_YC48, OUT_CSP_YUV420, BIT16, I,  1,  NONE,                 convert_yc48_to_nv12_i_16bit },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_16bit_sse4_1_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_16bit_sse4_1 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_16bit_ssse3_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_i_16bit_ssse3 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2_mod8 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2 },
+	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  NONE,                 convert_yc48_to_nv12_i_16bit },
 
 	{ 0, 0, 0, A, 0, 0, NULL }
 };
@@ -231,7 +231,7 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
 
 	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
 	switch (output_csp) {
-		case OUT_CSP_YUV422:
+		case OUT_CSP_NV16:
 			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
 				ret = FALSE;
 			pixel_data->data[1] = pixel_data->data[0] + frame_size;
@@ -246,7 +246,7 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
 			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
 				ret = FALSE;
 			break;
-		case OUT_CSP_YUV420:
+		case OUT_CSP_NV12:
 		default:
 			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
 				ret = FALSE;

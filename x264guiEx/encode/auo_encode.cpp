@@ -171,7 +171,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 
 	char fullpath[MAX_PATH_LEN];
 	replace(cmd, nSize, "%{x264path}",     GetFullPath(sys_dat->exstg->s_x264.fullpath,                   fullpath, _countof(fullpath)));
-	replace(cmd, nSize, "%{x264_10path}",  GetFullPath(sys_dat->exstg->s_x264.fullpath_highbit,             fullpath, _countof(fullpath)));
+	replace(cmd, nSize, "%{x264_10path}",  GetFullPath(sys_dat->exstg->s_x264.fullpath_highbit,           fullpath, _countof(fullpath)));
 	replace(cmd, nSize, "%{audencpath}",   GetFullPath(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, fullpath, _countof(fullpath)));
 	replace(cmd, nSize, "%{mp4muxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         fullpath, _countof(fullpath)));
 	replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         fullpath, _countof(fullpath)));

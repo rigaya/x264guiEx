@@ -20,7 +20,7 @@ const int    FAW_ZERO_HALF              = SHRT_MIN;
 const double ZERO_BLOCK_THRESHOLD_RATIO = 0.005;
 const double FAW_ERROR_TOO_SHORT_RATIO  = 0.2; //音声サンプリングレートに対する割合
 const int    ZERO_BLOCK_COUNT_THRESHOLD = 16; //ゼロブロックが最低秒間いくつあるか
-const double ZERO_SUM_RATIO_MIN         = 0.5; //全体に対するゼロの数下限
+const double ZERO_SUM_RATIO_MIN[2]      = { 768.0 / 1536.0, 256.0 / 1536.0 }; //全体に対するゼロの数下限(フルサイズ, ハーフサイズ)
 const double ZERO_SUM_RATIO_MAX         = 0.99479; //全体に対するゼロの数上限
 const double ZERO_SD_RATIO              = 0.25; //ゼロブロック内のゼロの平均数に対する標準偏差
 
@@ -72,7 +72,7 @@ int FAWCheck(short *audio_dat, int audio_n, int audio_rate, int audio_size) {
 		int zero_sum = 0;
 		foreach(std::vector<int>, it_zero_len, &zero_blocks[i])
 			zero_sum += *it_zero_len;
-		if (zero_sum < audio_n * ZERO_SUM_RATIO_MIN || zero_sum > audio_n * ZERO_SUM_RATIO_MAX)
+		if (zero_sum < audio_n * ZERO_SUM_RATIO_MIN[i] || zero_sum > audio_n * ZERO_SUM_RATIO_MAX)
 			continue;
 		double zero_avg = zero_sum / (double)(zero_blocks[i].size());
 		double zero_sd = 0;

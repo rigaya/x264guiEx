@@ -508,28 +508,66 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			}
 		}
 	public:
-		System::Void WriteLogAuoLine(const char *chr, int log_type_index) {
-			log_type_index = clamp(log_type_index, LOG_INFO, LOG_ERROR);
-			richTextLog->SuspendLayout();
-			richTextLog->SelectionStart = richTextLog->Text->Length;
-			richTextLog->SelectionLength = richTextLog->Text->Length;
-			richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
-			richTextLog->AppendText(L"auo [" + log_type[log_type_index] + L"]: " + String(chr).ToString() + L"\n");
-			richTextLog->SelectionStart = richTextLog->Text->Length;
-			richTextLog->ScrollToCaret();
-			richTextLog->ResumeLayout();
+		value struct LogData {
+			int type;
+			String^ str;
+			int log_type_index;
+		};
+	private:
+		Generic::List<LogData> AudioParallelCache;
+		//delegate void WriteLogAuoLineDelegate(String^ str, int log_type_index);
+	public:
+		System::Void WriteLogAuoLine(String^ str, int log_type_index) {
+			if (this->InvokeRequired) {
+				LogData dat;
+				dat.type = 0;
+				dat.str = str;
+				dat.log_type_index = log_type_index;
+				AudioParallelCache.Add(dat);
+				//richTextLog->Invoke(gcnew WriteLogAuoLineDelegate(this, &frmLog::WriteLogAuoLine), arg_list);
+			} else {
+				log_type_index = clamp(log_type_index, LOG_INFO, LOG_ERROR);
+				richTextLog->SuspendLayout();
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->SelectionLength = richTextLog->Text->Length;
+				richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
+				richTextLog->AppendText(L"auo [" + log_type[log_type_index] + L"]: " + str + L"\n");
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->ScrollToCaret();
+				richTextLog->ResumeLayout();
+			}
+		}
+	private:
+		//delegate System::Void WriteLogLineDelegate(String^ str, int log_type_index);
+	public:
+		System::Void WriteLogLine(String^ str, int log_type_index) {
+			if (this->InvokeRequired) {
+				LogData dat;
+				dat.type = 1;
+				dat.str = str;
+				dat.log_type_index = log_type_index;
+				AudioParallelCache.Add(dat);
+				//richTextLog->Invoke(gcnew WriteLogLineDelegate(this, &frmLog::WriteLogLine), arg_list);
+			} else {
+				log_type_index = clamp(log_type_index, LOG_INFO, LOG_ERROR);
+				richTextLog->SuspendLayout();
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->SelectionLength = richTextLog->Text->Length;
+				richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
+				richTextLog->AppendText(str + L"\n");
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->ScrollToCaret();
+				richTextLog->ResumeLayout();
+			}
 		}
 	public:
-		System::Void WriteLogLine(const char *chr, int log_type_index) {
-			log_type_index = clamp(log_type_index, LOG_INFO, LOG_ERROR);
-			richTextLog->SuspendLayout();
-			richTextLog->SelectionStart = richTextLog->Text->Length;
-			richTextLog->SelectionLength = richTextLog->Text->Length;
-			richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
-			richTextLog->AppendText(String(chr).ToString() + L"\n");
-			richTextLog->SelectionStart = richTextLog->Text->Length;
-			richTextLog->ScrollToCaret();
-			richTextLog->ResumeLayout();
+		System::Void FlushAudioLogCache() {
+			for (int i = 0; i < AudioParallelCache.Count; i++) {
+				(AudioParallelCache[i].type) 
+					? WriteLogLine(AudioParallelCache[i].str, AudioParallelCache[i].log_type_index)
+					: WriteLogAuoLine(AudioParallelCache[i].str, AudioParallelCache[i].log_type_index);
+			}
+			AudioParallelCache.Clear();
 		}
 	private:
 		System::Void SaveLog(String^ SaveLogName) {

@@ -46,6 +46,7 @@ void set_task_name(const char *chr);
 void set_log_progress(double progress);
 void write_log_auo_line(int log_type_index, const char *chr);
 void write_log_line(int log_type_index, const char *chr);
+void flush_audio_log();
 void enable_x264_control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL add_progress, DWORD start_time, int _total_frame);
 void disable_x264_control();
 void set_prevent_log_close(BOOL prevent);

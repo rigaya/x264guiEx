@@ -10,8 +10,8 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION          0,1,53,0
-#define AUO_VERSION_STR      "1.53"
+#define AUO_VERSION          0,1,54,16
+#define AUO_VERSION_STR      "1.54"
 #define AUO_NAME_WITHOUT_EXT "x264guiEx"
 #define AUO_NAME             "x264guiEx.auo"
 #define AUO_NAME_W          L"x264guiEx.auo"
@@ -35,7 +35,7 @@
 #define VER_STR_FILEVERSION      AUO_VERSION_STR
 #define VER_STR_INTERNALNAME     AUO_FULL_NAME
 #define VER_STR_ORIGINALFILENAME AUO_NAME
-#define VER_STR_LEGALCOPYRIGHT   "拡張 x264 出力(GUI) Ex by rigaya"
+#define VER_STR_LEGALCOPYRIGHT   AUO_FULL_NAME" by rigaya"
 #define VER_STR_PRODUCTNAME      AUO_NAME_WITHOUT_EXT
 #define VER_PRODUCTVERSION       VER_FILEVERSION
 #define VER_STR_PRODUCTVERSION   VER_STR_FILEVERSION
