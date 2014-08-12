@@ -228,25 +228,25 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	if (func_info->bt709conv == BT709S)
 		write_log_auo_line_fmt(LOG_INFO, "converting YC48 BT.601 -> BT.709");
 	char simd_buf[128];
-	build_simd_info(func_info->SIMD, simd_buf, sizeof(simd_buf));
+	build_simd_info(func_info->SIMD, simd_buf, _countof(simd_buf));
 
 	if (func_info->output_csp == OUT_CSP_RGB) {
 		write_log_auo_line_fmt(LOG_INFO, "Copying RGB%s", simd_buf);
 		return;
 	}
 
-	char *interlaced = NULL;
+	const char *interlaced = NULL;
 	switch (func_info->for_interlaced) {
 		case P: interlaced = "p"; break;
 		case I: interlaced = "i"; break;
 		case A: 
 		default:interlaced = ""; break;
 	}
-	char *colmat_from = (func_info->bt709conv == BT709F) ? "(BT.601)" : "";
+	const char *colmat_from = (func_info->bt709conv == BT709F) ? "(BT.601)" : "";
 	char out_append[256] = { 0 };
-	if (func_info->for_10bit == BIT10)  strcpy_s(out_append, sizeof(out_append), " 10bit,");
-	if (func_info->bt709conv == BT709F) strcat_s(out_append, sizeof(out_append), " BT.709,");
-	if (func_info->fullrange == FULL)   strcat_s(out_append, sizeof(out_append), " fullrange,");
+	if (func_info->for_10bit == BIT10)  strcpy_s(out_append, _countof(out_append), " 10bit,");
+	if (func_info->bt709conv == BT709F) strcat_s(out_append, _countof(out_append), " BT.709,");
+	if (func_info->fullrange == FULL)   strcat_s(out_append, _countof(out_append), " fullrange,");
 	if (str_has_char(out_append)) {
 		out_append[0] = '('; out_append[strlen(out_append)-1] = ')';
 	}
@@ -265,10 +265,10 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 #pragma warning( disable: 4189 )
 //使用する関数を選択する
 func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL interlaced, int output_csp, BOOL fullrange, int yc48_colmat_conv) {
-	BOOL convert_yc48_to_bt709 = (yc48_colmat_conv == YC48_COLMAT_CONV_BT709 ||
-		                         (yc48_colmat_conv == YC48_COLMAT_CONV_AUTO  && height >= COLOR_MATRIX_THRESHOLD));
+	const BOOL convert_yc48_to_bt709 = (yc48_colmat_conv == YC48_COLMAT_CONV_BT709 ||
+		                                (yc48_colmat_conv == YC48_COLMAT_CONV_AUTO  && height >= COLOR_MATRIX_THRESHOLD));
 
-	DWORD availableSIMD = get_availableSIMD();
+	const DWORD availableSIMD = get_availableSIMD();
 
 	const COVERT_FUNC_INFO *func_info = NULL;
 	for (int i = 0; FUNC_TABLE[i].func; i++) {

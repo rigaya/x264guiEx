@@ -149,7 +149,7 @@ BOOL get_exe_message(const char *exe_path, const char *args, char *buf, size_t n
 	pipes.stdErr.enable = TRUE;
 	pipes.stdOut.enable = TRUE;
 
-	strcpy_s(exe_dir, sizeof(exe_dir), exe_path);
+	strcpy_s(exe_dir, _countof(exe_dir), exe_path);
 	PathRemoveFileSpecFixed(exe_dir);
 
 	sprintf_s(fullargs, len, "\"%s\" %s", exe_path, args);

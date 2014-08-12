@@ -14,17 +14,17 @@
 #include "auo_conf.h"
 #include "auo_system.h"
 
-static const int CF_YUY2 = 0;
-static const int CF_YC48 = 1;
-static const int CF_RGB  = 2;
-
-static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB" };
-
 typedef struct {
 	DWORD FOURCC;   //FOURCC
 	DWORD size;  //1ピクセルあたりバイト数
 } COLORFORMAT_DATA;
 
+enum {
+	CF_YUY2 = 0,
+	CF_YC48 = 1,
+	CF_RGB  = 2,
+};
+static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB" };
 static const COLORFORMAT_DATA COLORFORMATS[] = {
 	{ MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
 	{ MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48

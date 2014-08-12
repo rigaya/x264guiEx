@@ -18,8 +18,6 @@
 #include "auo_util.h"
 #include "auo_version.h"
 
-
-
 //ボム文字かどうか、コードページの判定
 DWORD check_bom(const void* chr) {
 	if (chr == NULL) return CODE_PAGE_UNSET;
@@ -72,7 +70,7 @@ static BOOL isASCII(const void *str, DWORD size_in_byte) {
 	return TRUE;
 }
 
-static DWORD jpn_check(const void *str, DWORD size_in_byte) {
+static int jpn_check(const void *str, DWORD size_in_byte) {
 	int score_sjis = 0;
 	int score_euc = 0;
 	int score_utf8 = 0;
@@ -119,7 +117,7 @@ static DWORD jpn_check(const void *str, DWORD size_in_byte) {
 }
 
 DWORD get_code_page(const void *str, DWORD size_in_byte) {
-	DWORD ret = CODE_PAGE_UNSET;
+	int ret = CODE_PAGE_UNSET;
 	if ((ret = check_bom(str)) != CODE_PAGE_UNSET)
 		return ret;
 

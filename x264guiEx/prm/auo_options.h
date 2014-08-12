@@ -17,9 +17,11 @@
 #include "auo_settings.h"
 
 //エンコードモード
-const int X264_RC_CRF     = 0;
-const int X264_RC_BITRATE = 1;
-const int X264_RC_QP      = 2;
+enum {
+	X264_RC_CRF = 0,
+	X264_RC_BITRATE,
+	X264_RC_QP,
+};
 
 //QPの最大値
 const int X264_QP_MAX_8BIT  = 69;
@@ -29,22 +31,28 @@ const int X264_QP_MAX_10BIT = 81;
 const float EPS_FLOAT = 1.0e-4f;
 
 //マクロブロックタイプの一般的なオプション
-const DWORD MB_PARTITION_NONE = 0x00000000;
-const DWORD MB_PARTITION_P8x8 = 0x00000001;
-const DWORD MB_PARTITION_B8x8 = 0x00000002;
-const DWORD MB_PARTITION_P4x4 = 0x00000004;
-const DWORD MB_PARTITION_I8x8 = 0x00000008;
-const DWORD MB_PARTITION_I4x4 = 0x00000010;
-const DWORD MB_PARTITION_ALL  = 0x0000001F;
+enum {
+	MB_PARTITION_NONE = 0x00000000,
+	MB_PARTITION_P8x8 = 0x00000001,
+	MB_PARTITION_B8x8 = 0x00000002,
+	MB_PARTITION_P4x4 = 0x00000004,
+	MB_PARTITION_I8x8 = 0x00000008,
+	MB_PARTITION_I4x4 = 0x00000010,
+	MB_PARTITION_ALL  = 0x0000001F,
+};
 
-const int   OUT_CSP_YUV420 = 0;
-const int   OUT_CSP_YUV422 = 1;
-const int   OUT_CSP_YUV444 = 2;
-const int   OUT_CSP_RGB    = 3;
+enum {
+	OUT_CSP_YUV420,
+	OUT_CSP_YUV422,
+	OUT_CSP_YUV444,
+	OUT_CSP_RGB,
+};
 
-const int YC48_COLMAT_CONV_AUTO  = 0;
-const int YC48_COLMAT_CONV_NONE  = 1;
-const int YC48_COLMAT_CONV_BT709 = 2;
+enum {
+	YC48_COLMAT_CONV_AUTO,
+	YC48_COLMAT_CONV_NONE,
+	YC48_COLMAT_CONV_BT709,
+};
 
 //x264のinput-cspとして使用するもの
 //OUT_CSP_YUV420, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
@@ -195,10 +203,12 @@ const X264_OPTION_STR list_nal_hrd[] = {
 
 //色についてのオプション設定(0がデフォルトとなるよう、x264とは並び順が異なる)
 //まあGUIで順番なんてどうでも…
-const int COLOR_MATRIX_DEFAULT   = 0;
-const int COLOR_MATRIX_AUTO      = 1;
-const int COLOR_MATRIX_HD        = 2;
-const int COLOR_MATRIX_SD        = 3;
+enum {
+	COLOR_MATRIX_DEFAULT   = 0,
+	COLOR_MATRIX_AUTO      = 1,
+	COLOR_MATRIX_HD        = 2,
+	COLOR_MATRIX_SD        = 3,
+};
 const int COLOR_MATRIX_THRESHOLD = 720;
 
 typedef struct {
@@ -303,8 +313,11 @@ typedef struct {
 	size_t p_offset;
 } X264_OPTIONS;
 
-const int ARG_TYPE_LONG  = 1;
-const int ARG_TYPE_SHORT = 2;
+enum {
+	ARG_TYPE_UNKNOWN = 0,
+	ARG_TYPE_LONG    = 1,
+	ARG_TYPE_SHORT   = 2,
+};
 
 typedef struct {
 	int arg_type;       //LONGかSHORTか

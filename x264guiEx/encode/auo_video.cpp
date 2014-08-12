@@ -71,8 +71,8 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, B
 	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED)
 		return TRUE;
 
-	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp);
-	int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
+	const int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp);
+	const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
 	//Aviutl(自動フィールドシフト)からの映像入力
 	if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, COLORFORMATS[color_format].FOURCC)) {
 		pe->afs_init = TRUE;
@@ -105,7 +105,7 @@ void close_afsvideo(PRM_ENC *pe) {
 
 static AUO_RESULT check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
-	int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
+	const int color_format = get_aviutl_color_format(conf->x264.use_10bit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
 		get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
 	//cmdexを適用
@@ -128,10 +128,10 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 
 	if (afs)
 		fps *= 4; //afsなら4倍精度
-	double tm_multi = 1000.0 / fps;
+	const double tm_multi = 1000.0 / fps;
 
 	//ファイル名作成
-	apply_appendix(auotcfile, sizeof(auotcfile), pe->temp_filename, pe->append.tc);
+	apply_appendix(auotcfile, _countof(auotcfile), pe->temp_filename, pe->append.tc);
 
 	if (fopen_s(&tcfile, auotcfile, "wb") == NULL) {
 		fprintf(tcfile, "# timecode format v2\r\n");
@@ -155,11 +155,11 @@ static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe)
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char auoqpfile[MAX_PATH_LEN] = { 0 };
 	DWORD tm = 0, tm_prev = 0;
-	const char *mes_head = "Aviutl キーフレーム検出中…";
+	const char * const mes_head = "Aviutl キーフレーム検出中…";
 	std::vector<int> keyframe_list;
 
 	//ファイル名作成
-	apply_appendix(auoqpfile, sizeof(auoqpfile), pe->temp_filename, pe->append.qp);
+	apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
 	if (PathFileExists(auoqpfile))
 		remove(auoqpfile);
 
@@ -217,8 +217,8 @@ static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
 
 //cmdexのうち、guiから発行されるオプションとの衝突をチェックして、読み取られなかったコマンドを追加する
 static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble_guicmd, const CONF_X264GUIEX *conf) {
-	size_t cmd_len = strlen(cmd);
-	size_t cmdex_len = strlen(cmdex);
+	const size_t cmd_len = strlen(cmd);
+	const size_t cmdex_len = strlen(cmdex);
 
 	//CLIモードなら常にチェックをスキップ
 	BOOL skip_check_if_imported = disble_guicmd;
@@ -263,7 +263,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		write_log_auo_line(LOG_INFO, "自動フィールドシフト使用時はvbv設定は正確に反映されません。");
 	//AviUtlのkeyframe指定があれば、それをqpfileで読み込む
 	char auoqpfile[MAX_PATH_LEN];
-	apply_appendix(auoqpfile, sizeof(auoqpfile), pe->temp_filename, pe->append.qp);
+	apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
 	if (prm.vid.check_keyframe && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
 	//1pass目でafsでない、--framesがなければ--framesを指定
@@ -280,14 +280,14 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
 	}
 	//出力ファイル
-	char *outfile = (prm.x264.nul_out) ? "nul" : pe->temp_filename;
+	const char * const outfile = (prm.x264.nul_out) ? "nul" : pe->temp_filename;
 	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -o \"%s\"", outfile);
 	//入力
 	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " \"%s\"", input);
 }
 
 static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *conf, int w, int h) {
-	int byte_per_pixel = (conf->x264.use_10bit_depth) ? sizeof(short) : sizeof(BYTE);
+	const int byte_per_pixel = (conf->x264.use_10bit_depth) ? sizeof(short) : sizeof(BYTE);
 	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
 		case OUT_CSP_YUV422: //nv16 (YUV422)
@@ -348,7 +348,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		ret |= AUO_RESULT_ERROR; error_no_exe_file("x264", x264fullpath);
 		return ret;
 	}
-	PathGetDirectory(x264dir, sizeof(x264dir), x264fullpath);
+	PathGetDirectory(x264dir, _countof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
 	const func_convert_frame convert_frame = get_convert_func(oip->w, oip->h, conf->x264.use_10bit_depth, conf->x264.interlaced, conf->x264.output_csp, conf->x264.input_range, conf->vid.yc48_colormatrix_conv);
@@ -368,10 +368,10 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	pipes.stdIn.bufferSize = pixel_data.total_size * 2;
 
 	//コマンドライン生成
-	build_full_cmd(x264cmd, sizeof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
+	build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
 	write_log_auo_line(LOG_INFO, "arguments passed...");
 	write_args(x264cmd);
-	sprintf_s(x264args, sizeof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
+	sprintf_s(x264args, _countof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
 	
 	//jitter用領域確保
 	if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
@@ -498,9 +498,9 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 
 static void set_window_title_x264(PRM_ENC *pe) {
 	char mes[256];
-	strcpy_s(mes, sizeof(mes), "x264エンコード");
+	strcpy_s(mes, _countof(mes), "x264エンコード");
 	if (pe->total_x264_pass > 1)
-		sprintf_s(mes + strlen(mes), sizeof(mes) - strlen(mes), "   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
+		sprintf_s(mes + strlen(mes), _countof(mes) - strlen(mes), "   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
 	set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
@@ -509,7 +509,7 @@ static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_EN
 		return AUO_RESULT_SUCCESS;
 	//音声ファイルサイズ取得
 	double aud_bitrate = 0.0;
-	double duration = get_duration(conf, sys_dat, pe, oip);
+	const double duration = get_duration(conf, sys_dat, pe, oip);
 	UINT64 aud_filesize = 0;
 	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
 		if (!str_has_char(pe->append.aud)) { //音声エンコがまだ終了していない
@@ -517,7 +517,7 @@ static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_EN
 			return AUO_RESULT_ABORT; //音声エンコを先にやるべく、動画エンコを終了する
 		}
 		char aud_file[MAX_PATH_LEN];
-		apply_appendix(aud_file, sizeof(aud_file), pe->temp_filename, pe->append.aud);
+		apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud);
 		if (!PathFileExists(aud_file)) {
 			error_no_aud_file();
 			return AUO_RESULT_ERROR;

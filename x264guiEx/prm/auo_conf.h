@@ -16,23 +16,31 @@
 
 const int CONF_INITIALIZED = 1;
 
-const int TMP_DIR_OUTPUT = 0;
-const int TMP_DIR_SYSTEM = 1;
-const int TMP_DIR_CUSTOM = 2;
+enum {
+	TMP_DIR_OUTPUT = 0,
+	TMP_DIR_SYSTEM = 1,
+	TMP_DIR_CUSTOM = 2,
+};
 
-static const char *CONF_NAME          = "x264guiEx ConfigFile";
+static const char *const CONF_NAME    = "x264guiEx ConfigFile";
 const int CONF_NAME_BLOCK_LEN         = 32;
 const int CONF_BLOCK_MAX              = 32;
 const int CONF_BLOCK_COUNT            = 5; //最大 CONF_BLOCK_MAXまで
 const int CONF_HEAD_SIZE              = (3 + CONF_BLOCK_MAX) * sizeof(int) + CONF_BLOCK_MAX * sizeof(size_t) + CONF_NAME_BLOCK_LEN;
-const int CONF_ERROR_FILE_OPEN        = 1;
-const int CONF_ERROR_BLOCK_SIZE       = 2;
-const int CONF_ERROR_INVALID_FILENAME = 3;
+
+enum {
+	CONF_ERROR_NONE = 0,
+	CONF_ERROR_FILE_OPEN,
+	CONF_ERROR_BLOCK_SIZE,
+	CONF_ERROR_INVALID_FILENAME,
+};
 
 const int CMDEX_MAX_LEN = 2048;    //追加コマンドラインの最大長
 
-const DWORD AMPLIMIT_FILE_SIZE = 0x01; //自動マルチパス時、ファイルサイズのチェックを行う
-const DWORD AMPLIMIT_BITRATE   = 0x02; //自動マルチパス時、ビットレートのチェックを行う
+enum {
+	AMPLIMIT_FILE_SIZE = 0x01, //自動マルチパス時、ファイルサイズのチェックを行う
+	AMPLIMIT_BITRATE   = 0x02, //自動マルチパス時、ビットレートのチェックを行う
+};
 
 typedef struct {
 	BOOL   afs;                      //自動フィールドシフトの使用
