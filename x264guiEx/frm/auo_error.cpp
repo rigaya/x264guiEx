@@ -266,9 +266,9 @@ void info_amp_result(DWORD status, BOOL retry, UINT64 filesize, double file_bitr
 	int log_index = (status) ? ((retry) ? LOG_WARNING : LOG_ERROR) : LOG_INFO;
 	write_log_auo_line_fmt(    log_index, "出力ファイルサイズ %.2f MB, ファイルビットレート %.2f kbps", filesize / (double)(1024*1024), file_bitrate);
 	if (status & AMPLIMIT_FILE_SIZE)
-		write_log_auo_line_fmt(log_index, "上限ファイルサイズ %.2f MB を上回ってしまいました。%s", limit_filesize);
+		write_log_auo_line_fmt(log_index, "上限ファイルサイズ %.2f MB を上回ってしまいました。", limit_filesize);
 	if (status & AMPLIMIT_BITRATE)
-		write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。%s", limit_filebitrate);
+		write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。", limit_filebitrate);
 	if (status && retry)
 		write_log_auo_line_fmt(log_index, "目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
 
