@@ -1201,9 +1201,9 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		SetCXIndex(fcgCXMP4CmdEx,            cnf->mux.mp4_mode);
 		SetCXIndex(fcgCXMP4BoxTempDir,       cnf->mux.mp4_temp_dir);
 		fcgCBMKVMuxerExt->Checked          = cnf->mux.disable_mkvext == 0;
-		SetCXIndex(fcgCXMPGCmdEx,            cnf->mux.mkv_mode);
+		SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mkv_mode);
 		fcgCBMPGMuxerExt->Checked          = cnf->mux.disable_mpgext == 0;
-		SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mpg_mode);
+		SetCXIndex(fcgCXMPGCmdEx,            cnf->mux.mpg_mode);
 		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
