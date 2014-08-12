@@ -620,6 +620,72 @@ System::Void frmConfig::fcgTSTSettingsNotes_TextChanged(System::Object^  sender,
 	SetfcgTSLSettingsNotes(fcgTSTSettingsNotes->Text);
 	CheckOtherChanges(nullptr, nullptr);
 }
+System::Void frmConfig::fcgCXCmdExInsert_FontChanged(System::Object^  sender, System::EventArgs^  e) {
+	InitCXCmdExInsert();
+}
+System::Void frmConfig::fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+	String^ insertStr;
+	if (       0 == fcgCXCmdExInsert->SelectedIndex) {
+		//何もしない
+	} else if (1 == fcgCXCmdExInsert->SelectedIndex) {			
+		//WinXPにおいて、OpenFileDialogはCurrentDirctoryを勝手に変更しやがるので、
+		//一度保存し、あとから再適用する
+		String^ CurrentDir = Directory::GetCurrentDirectory();
+		OpenFileDialog^ ofd = gcnew OpenFileDialog();
+		ofd->FileName = L"";
+		ofd->Multiselect = false;
+		ofd->Filter = L"(*.*)|*.*";
+		bool ret = (ofd->ShowDialog() == Windows::Forms::DialogResult::OK);
+		if (ret) {
+			if (sys_dat->exstg->s_local.get_relative_path)
+				ofd->FileName = GetRelativePath(ofd->FileName, CurrentDir);
+			insertStr = ofd->FileName;
+		}
+		Directory::SetCurrentDirectory(CurrentDir);
+	} else {
+		insertStr = String(REPLACE_STRINGS_LIST[fcgCXCmdExInsert->SelectedIndex-2].string).ToString();
+	}
+	if (insertStr != nullptr && insertStr->Length > 0) {
+		int current_selection = fcgTXCmdEx->SelectionStart;
+		fcgTXCmdEx->Text = fcgTXCmdEx->Text->Insert(fcgTXCmdEx->SelectionStart, insertStr);
+		fcgTXCmdEx->SelectionStart = current_selection + insertStr->Length; //たまに変なところへ行くので念のため必要
+		fcgTXCmdEx->Focus();
+	}
+	fcgCXCmdExInsert->SelectedIndex = 0;
+}
+
+System::Void frmConfig::AdjustCXDropDownWidth(ComboBox^ CX) {
+	System::Drawing::Graphics^ ds = CX->CreateGraphics();
+	float maxwidth = 0.0;
+	for (int i = 0; i < CX->Items->Count; i++)
+		maxwidth = max(maxwidth, ds->MeasureString(CX->Items[i]->ToString(), CX->Font).Width);
+	CX->DropDownWidth = (int)(maxwidth + 0.5);
+	delete ds;
+}
+
+System::Void frmConfig::InitCXCmdExInsert() {
+	fcgCXCmdExInsert->BeginUpdate();
+	fcgCXCmdExInsert->Items->Clear();
+	fcgCXCmdExInsert->Items->Add(L"文字列を挿入...");
+	fcgCXCmdExInsert->Items->Add(L"ファイル フルパス...");
+	System::Drawing::Graphics^ ds = fcgCXCmdExInsert->CreateGraphics();
+	float max_width_of_string = 0;
+	for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++)
+		max_width_of_string = max(max_width_of_string, ds->MeasureString(String(REPLACE_STRINGS_LIST[i].string).ToString() + L" … ", fcgCXCmdExInsert->Font).Width);
+	for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++) {
+		String^ AppenStr = String(REPLACE_STRINGS_LIST[i].string).ToString();
+		const int length_of_string = AppenStr->Length;
+		AppenStr += L" … ";
+		for (float current_width = 0.0; current_width < max_width_of_string; AppenStr = AppenStr->Insert(length_of_string, L" "))
+			current_width = ds->MeasureString(AppenStr, fcgCXCmdExInsert->Font).Width;
+		AppenStr += String(REPLACE_STRINGS_LIST[i].desc).ToString();
+		fcgCXCmdExInsert->Items->Add(AppenStr);
+	}
+	delete ds;
+	fcgCXCmdExInsert->SelectedIndex = 0;
+	AdjustCXDropDownWidth(fcgCXCmdExInsert);
+	fcgCXCmdExInsert->EndUpdate();
+}
 
 /////////////    音声設定関連の関数    ///////////////
 System::Void frmConfig::fcgCBAudio2pass_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -899,6 +965,8 @@ System::Void frmConfig::InitComboBox() {
 	setComboBox(fcgCXInterlaced,     interlaced_desc);
 
 	setComboBox(fcgCXAudioEncTiming, audio_enc_timing_desc);
+
+	InitCXCmdExInsert();
 
 	setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
 	setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);

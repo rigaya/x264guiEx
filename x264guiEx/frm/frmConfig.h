@@ -596,6 +596,8 @@ private: System::Windows::Forms::ContextMenuStrip^  fcgCSExeFiles;
 private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 private: System::Windows::Forms::Label^  fcgCBAudioEncTiming;
 private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
+private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
+
 
 
 
@@ -835,6 +837,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgLBTempDir = (gcnew System::Windows::Forms::Label());
 			this->fcgBTCustomTempDir = (gcnew System::Windows::Forms::Button());
 			this->fcggroupBoxCmdEx = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCXCmdExInsert = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCBNulOutCLI = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgBTCmdEx = (gcnew System::Windows::Forms::Button());
 			this->fcgTXCmdEx = (gcnew System::Windows::Forms::TextBox());
@@ -864,6 +867,8 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
 			this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->fcggroupBoxAudio = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCBAudioEncTiming = (gcnew System::Windows::Forms::Label());
+			this->fcgCXAudioEncTiming = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXAudioTempDir = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgTXCustomAudioTempDir = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTCustomAudioTempDir = (gcnew System::Windows::Forms::Button());
@@ -944,8 +949,6 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgTTEx = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
-			this->fcgCXAudioEncTiming = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgCBAudioEncTiming = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -3060,6 +3063,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			// 
 			// fcggroupBoxCmdEx
 			// 
+			this->fcggroupBoxCmdEx->Controls->Add(this->fcgCXCmdExInsert);
 			this->fcggroupBoxCmdEx->Controls->Add(this->fcgCBNulOutCLI);
 			this->fcggroupBoxCmdEx->Controls->Add(this->fcgBTCmdEx);
 			this->fcggroupBoxCmdEx->Controls->Add(this->fcgTXCmdEx);
@@ -3069,6 +3073,17 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcggroupBoxCmdEx->TabIndex = 7;
 			this->fcggroupBoxCmdEx->TabStop = false;
 			this->fcggroupBoxCmdEx->Text = L"追加コマンド";
+			// 
+			// fcgCXCmdExInsert
+			// 
+			this->fcgCXCmdExInsert->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXCmdExInsert->FormattingEnabled = true;
+			this->fcgCXCmdExInsert->Location = System::Drawing::Point(197, 204);
+			this->fcgCXCmdExInsert->Name = L"fcgCXCmdExInsert";
+			this->fcgCXCmdExInsert->Size = System::Drawing::Size(168, 22);
+			this->fcgCXCmdExInsert->TabIndex = 4;
+			this->fcgCXCmdExInsert->SelectedIndexChanged += gcnew System::EventHandler(this, &frmConfig::fcgCXCmdExInsert_SelectedIndexChanged);
+			this->fcgCXCmdExInsert->FontChanged += gcnew System::EventHandler(this, &frmConfig::fcgCXCmdExInsert_FontChanged);
 			// 
 			// fcgCBNulOutCLI
 			// 
@@ -3093,6 +3108,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			// 
 			// fcgTXCmdEx
 			// 
+			this->fcgTXCmdEx->AllowDrop = true;
 			this->fcgTXCmdEx->Font = (gcnew System::Drawing::Font(L"ＭＳ ゴシック", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fcgTXCmdEx->Location = System::Drawing::Point(6, 20);
@@ -3101,6 +3117,9 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgTXCmdEx->Size = System::Drawing::Size(577, 180);
 			this->fcgTXCmdEx->TabIndex = 0;
 			this->fcgTXCmdEx->Tag = L"chValue";
+			this->fcgTXCmdEx->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgInsertDragDropFilename_DragDrop);
+			this->fcgTXCmdEx->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgInsertDragDropFilename_Enter);
+			this->fcgTXCmdEx->DragOver += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgInsertDragDropFilename_DragOver);
 			// 
 			// fcgTXCustomTempDir
 			// 
@@ -3379,6 +3398,25 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcggroupBoxAudio->TabIndex = 2;
 			this->fcggroupBoxAudio->TabStop = false;
 			this->fcggroupBoxAudio->Text = L"音声";
+			// 
+			// fcgCBAudioEncTiming
+			// 
+			this->fcgCBAudioEncTiming->AutoSize = true;
+			this->fcgCBAudioEncTiming->Location = System::Drawing::Point(247, 83);
+			this->fcgCBAudioEncTiming->Name = L"fcgCBAudioEncTiming";
+			this->fcgCBAudioEncTiming->Size = System::Drawing::Size(40, 14);
+			this->fcgCBAudioEncTiming->TabIndex = 28;
+			this->fcgCBAudioEncTiming->Text = L"処理順";
+			// 
+			// fcgCXAudioEncTiming
+			// 
+			this->fcgCXAudioEncTiming->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXAudioEncTiming->FormattingEnabled = true;
+			this->fcgCXAudioEncTiming->Location = System::Drawing::Point(292, 80);
+			this->fcgCXAudioEncTiming->Name = L"fcgCXAudioEncTiming";
+			this->fcgCXAudioEncTiming->Size = System::Drawing::Size(68, 22);
+			this->fcgCXAudioEncTiming->TabIndex = 27;
+			this->fcgCXAudioEncTiming->Tag = L"chValue";
 			// 
 			// fcgCXAudioTempDir
 			// 
@@ -3826,6 +3864,8 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgTXMKVMuxerPath->Size = System::Drawing::Size(207, 21);
 			this->fcgTXMKVMuxerPath->TabIndex = 2;
 			this->fcgTXMKVMuxerPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMKVMuxerPath_TextChanged);
+			this->fcgTXMKVMuxerPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXMKVMuxerPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
 			// 
 			// fcgLBMKVMuxerPath
 			// 
@@ -3898,6 +3938,8 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgTXMPGMuxerPath->Size = System::Drawing::Size(207, 21);
 			this->fcgTXMPGMuxerPath->TabIndex = 22;
 			this->fcgTXMPGMuxerPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMPGMuxerPath_TextChanged);
+			this->fcgTXMPGMuxerPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXMPGMuxerPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
 			// 
 			// fcgLBMPGMuxerPath
 			// 
@@ -4202,25 +4244,6 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			this->fcgCSReplaceStrings->Name = L"fcgCSReplaceStrings";
 			this->fcgCSReplaceStrings->Size = System::Drawing::Size(61, 4);
 			// 
-			// fcgCXAudioEncTiming
-			// 
-			this->fcgCXAudioEncTiming->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXAudioEncTiming->FormattingEnabled = true;
-			this->fcgCXAudioEncTiming->Location = System::Drawing::Point(292, 80);
-			this->fcgCXAudioEncTiming->Name = L"fcgCXAudioEncTiming";
-			this->fcgCXAudioEncTiming->Size = System::Drawing::Size(68, 22);
-			this->fcgCXAudioEncTiming->TabIndex = 27;
-			this->fcgCXAudioEncTiming->Tag = L"chValue";
-			// 
-			// fcgCBAudioEncTiming
-			// 
-			this->fcgCBAudioEncTiming->AutoSize = true;
-			this->fcgCBAudioEncTiming->Location = System::Drawing::Point(247, 83);
-			this->fcgCBAudioEncTiming->Name = L"fcgCBAudioEncTiming";
-			this->fcgCBAudioEncTiming->Size = System::Drawing::Size(40, 14);
-			this->fcgCBAudioEncTiming->TabIndex = 28;
-			this->fcgCBAudioEncTiming->Text = L"処理順";
-			// 
 			// frmConfig
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
@@ -4433,6 +4456,10 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 		System::Void SetStgEscKey(bool Enable);
 		System::Void fcgArrangeForAutoMultiPass(bool enable);
 		System::Boolean fcgLastX264ModeAsAMP;
+		System::Void AdjustCXDropDownWidth(ComboBox^ CX);
+		System::Void InitCXCmdExInsert();
+		System::Void fcgCXCmdExInsert_FontChanged(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
 	public:
 		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);
@@ -4962,6 +4989,55 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 			if (sys_dat->exstg->s_local.get_relative_path)
 				filePath = GetRelativePath(filePath);
 			TX->Text = filePath;
+		}
+	private:
+		System::Void fcgInsertDragDropFilename_Enter(System::Object^  sender, DragEventArgs^  e) {
+			e->Effect = (   e->Data->GetDataPresent(DataFormats::FileDrop)
+				         || e->Data->GetDataPresent(DataFormats::Text)
+				         || e->Data->GetDataPresent(DataFormats::UnicodeText)
+						 || e->Data->GetDataPresent(DataFormats::Rtf)
+						 || e->Data->GetDataPresent(DataFormats::Html)) ? DragDropEffects::Copy : DragDropEffects::None;
+		}
+	private:
+		System::Void fcgInsertDragDropFilename_DragOver(System::Object^  sender, DragEventArgs^  e) {
+			TextBox^ TX = dynamic_cast<TextBox^>(sender);
+			if (TX == nullptr)
+				return;
+			TX->Focus();
+			this->Activate();
+			//文字列がない部分の座標を指定した時に文字列の長さを返さない(一つ前の文字)になるため厄介
+			//int index = TX->GetCharIndexFromPosition(TX->PointToClient(Point(e->X, e->Y)));
+			//そこでEM_CHARFROMPOSメッセージを送る方法を使用する
+			Point pint = TX->PointToClient(Point(e->X, e->Y));
+			int p = ((pint.X & 0xffff) | (pint.Y << 16));
+			int index = ::SendMessage((HWND)TX->Handle.ToPointer(), EM_CHARFROMPOS, 0, p) & 0xffff;
+			TX->SelectionStart = index;
+			//行・桁位置を求めるには以下の方法があるが、まあ今回は使わない
+			//int line = TX->GetLineFromCharIndex(index);
+			//int column = index - TX->GetFirstCharIndexFromLine(line);
+		}
+	private:
+		System::Void fcgInsertDragDropFilename_DragDrop(System::Object^  sender, DragEventArgs^  e) {
+			TextBox^ TX = dynamic_cast<TextBox^>(sender);
+			if (TX == nullptr)
+				return;
+			String^ insertStr;
+			if (e->Data->GetDataPresent(DataFormats::FileDrop)) {
+				array<System::String ^>^ filelist = dynamic_cast<array<System::String ^>^>(e->Data->GetData(DataFormats::FileDrop, false));
+				if (filelist == nullptr)
+					return;
+				for (int i = 0; i < filelist->Length; i++) {
+					if (i) insertStr += L" ";
+					insertStr += L"\"" + ((sys_dat->exstg->s_local.get_relative_path) ? GetRelativePath(filelist[i]) : filelist[i]) + L"\"";
+				}
+			} else {
+				insertStr = dynamic_cast<System::String^>(e->Data->GetData(DataFormats::Text));
+				if (insertStr == nullptr)
+					return;
+			}
+			int current_selection = TX->SelectionStart;
+			TX->Text = TX->Text->Insert(TX->SelectionStart, insertStr);
+			TX->SelectionStart = current_selection + insertStr->Length; //たまに変なところへ行くので念のため必要
 		}
 	private:
 		System::Void fcgTSExeFileshelp_Click(System::Object^  sender, System::EventArgs^  e) {
