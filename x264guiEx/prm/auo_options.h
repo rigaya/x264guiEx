@@ -308,12 +308,15 @@ const int ARG_TYPE_SHORT = 2;
 
 typedef struct {
 	int arg_type;       //LONGかSHORTか
-	char *option_name;
-	char *value;
+	char *option_name;  //オプション名(最初の"--"なし)
+	char *value;        //オプションの値
+	BOOL value_had_dQB; //前後に'"'があったか
+	BOOL ret;           //構造体に読み込まれたかどうか
 } CMD_ARG;
 
 //コマンドラインの解析・生成
 void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set);
+void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
 void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_10bit);
 //void set_preset_to_conf(CONF_X264 *conf_set, int preset_index);
 //void set_tune_to_conf(CONF_X264 *conf_set, int tune_index);

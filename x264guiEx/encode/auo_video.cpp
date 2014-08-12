@@ -215,6 +215,17 @@ static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
 	return pipe_read;
 }
 
+//cmdexのうち、読み取られなかったコマンドを追加する
+static void append_cmdex_without_imported(char *cmd, size_t nSize, const char *cmdex) {
+	size_t cmd_len = strlen(cmd);
+	size_t cmdex_len = strlen(cmdex);
+	sprintf_s(cmd + cmd_len, nSize - cmd_len, " %s", cmdex);
+	//set_cmd_to_confで必要なのでダミーとして用意する
+	CONF_X264 cnf_x264 = { 0 };
+	//confに読み込ませ、読み取られなかった部分のみを得る
+	set_cmd_to_conf(cmd + cmd_len + 1, &cnf_x264, cmdex_len, TRUE);
+}
+
 static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
 	CONF_X264GUIEX prm;
 	//パラメータをコピー
@@ -231,12 +242,9 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 		//GUI部のコマンドライン生成
 		build_cmd_from_conf(cmd, nSize, &prm.x264, &prm.vid, FALSE);
 	}
-	//cmdex追加
-	if (str_has_char(prm.vid.cmdex)) {
-		//改行文字削除
-		replace_cmd_CRLF_to_Space(prm.vid.cmdex, sizeof(prm.vid.cmdex));
-		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " %s", prm.vid.cmdex);
-	}
+	//cmdexのうち、読み取られなかったコマンドを追加する
+	if (str_has_char(prm.vid.cmdex))
+		append_cmdex_without_imported(cmd, nSize, prm.vid.cmdex);
 	//メッセージの発行
 	if ((conf->x264.vbv_bufsize != 0 || conf->x264.vbv_maxrate != 0) && prm.vid.afs)
 		write_log_auo_line(LOG_INFO, "自動フィールドシフト使用時はvbv設定は正確に反映されません。");

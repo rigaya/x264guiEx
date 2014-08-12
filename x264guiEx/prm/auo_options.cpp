@@ -150,84 +150,82 @@ static X264_OPTIONS x264_options_table[] = {
 	{ NULL,               NULL, NULL,                      NULL,                 NULL                                 }
 };
 
-static BOOL x264guiEx_strtol(int *i, char *str) {
+static BOOL x264guiEx_strtol(int *i, const char *str, DWORD len) {
 	char *eptr = NULL;
 	int v;
+	BOOL ret = TRUE;
+	if (len == NULL) len = ULONG_MAX;
 	if (*str != '{') {
 		v = strtol(str, &eptr, 0);
-		if (*eptr == '\0') {*i = v; return TRUE;} else return FALSE;
-	}
-	str++;
-	if (*str != '*') {
-		v = strtol(str, &eptr, 0);
-		if (*eptr == '}') {*i += v; return TRUE;}
+		if (*eptr == '\0' || (DWORD)(eptr - str) == len) { *i = v; } else { ret = FALSE; }
 	} else {
 		str++;
-		v = strtol(str, &eptr, 0);
-		if (*eptr == '}') {*i *= v; return TRUE;}
+		BOOL multi = (*str == '*');
+		v = strtol(str + multi, &eptr, 0);
+		if (*eptr == '}') { (multi) ? *i *= v : *i += v; } else { ret = FALSE; }
 	}
-	return FALSE;
+	return ret;
 }
 
-static BOOL x264guiEx_strtof(float *f, char *str) {
+static BOOL x264guiEx_strtof(float *f, const char *str, DWORD len) {
 	char *eptr = NULL;
 	float v;
+	BOOL ret = TRUE;
+	if (len == NULL) len = ULONG_MAX;
 	if (*str != '{') {
 		v = (float)strtod(str, &eptr);
-		if (*eptr == '\0') {*f = v; return TRUE;} else return FALSE;
-	}
-	str++;
-	if (*str != '*') {
-		v = (float)strtod(str, &eptr);
-		if (*eptr == '}') {*f += v; return TRUE;}
+		if (*eptr == '\0' || (DWORD)(eptr - str) == len) { *f = v; } else { ret = FALSE; }
 	} else {
 		str++;
-		v = (float)strtod(str, &eptr);
-		if (*eptr == '}') {*f *= v; return TRUE;}
+		BOOL multi = (*str == '*');
+		v = (float)strtod(str + multi, &eptr);
+		if (*eptr == '}') { (multi) ? *f *= v : *f += v; } else { ret = FALSE; }
 	}
-	return FALSE;
+	return ret;
 }
 
-static void x264guiEx_parse_int(int *i, char *value) {
-	int v;
-	size_t len;
-	if (!x264guiEx_strtol(i, value)) {
-		char *a, *b, *tmp = value;
-		len = strlen(value);
+static BOOL x264guiEx_parse_int(int *i, const char *value, DWORD len) {
+	BOOL ret;
+	if ((ret = x264guiEx_strtol(i, value, len)) == FALSE) {
+		size_t len = strlen(value);
 		if (*value == '[' && value[len-1] == ']') {
-			tmp[len-1] = '\0';
-			if ((a = strstr(tmp, "if>")) != NULL && (b = strstr(tmp, "else")) != NULL) {
-				*a = '\0';
-				a += strlen("if>");
-				*b = '\0';
+			const char *a, *b, *c;
+			if ((a = strstr(value, "if>")) != NULL && (b = strstr(value, "else")) != NULL) {
+				int v;
+				c = a + strlen("if>");
+				ret |= x264guiEx_strtol(&v, c, b-c);
 				b += strlen("else");
-				v = atoi(a);
-				a = (*i > v) ? tmp+1 : b;
-				x264guiEx_strtol(i, a);
+				if (*i > v)
+					c = value+1, len = a - c;
+				else
+					c = b, len = (value + len - 1) - c;
+				ret &= x264guiEx_strtol(i, c, len);
 			}
 		}
 	}
+	return ret;
 }
 
-static void x264guiEx_parse_float(float *f, char *value) {
-	float v;
-	size_t len;
-	if (!x264guiEx_strtof(f, value)) {
-		char *a, *b, *tmp = value;
-		len = strlen(value);
+static BOOL x264guiEx_parse_float(float *f, const char *value, DWORD len) {
+	BOOL ret;
+	if ((ret = x264guiEx_strtof(f, value, len)) == FALSE) {
+		size_t len = strlen(value);
 		if (*value == '[' && value[len-1] == ']') {
-			tmp[len-1] = '\0';
-			if ((a = strstr(tmp, "if>")) != NULL && (b = strstr(tmp, "else")) != NULL) {
-				*a = '\0';
-				a += strlen("if>");
-				*b = '\0';
+			const char *a, *b, *c;
+			if ((a = strstr(value, "if>")) != NULL && (b = strstr(value, "else")) != NULL) {
+				float v;
+				c = a + strlen("if>");
+				ret |= x264guiEx_strtof(&v, c, b-c);
 				b += strlen("else");
-				v = (float)atof(a);
-				a = (*f > v) ? tmp+1 : b;
-				x264guiEx_strtof(f, a);
+				if (*f > v)
+					c = value+1, len = a - c;
+				else
+					c = b, len = (value + len - 1) - c;
+				ret &= x264guiEx_strtof(f, c, len);
 			}
 		}
 	}
+	return ret;
 }
 
 //以下部分的にwarning C4100を黙らせる
@@ -235,62 +233,69 @@ static void x264guiEx_parse_float(float *f, char *value) {
 #pragma warning( push )
 #pragma warning( disable: 4100 )
 
-static void set_bool(void *b, char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool(void *b, const char *value, const X264_OPTION_STR *list) {
 	*(BOOL*)b = TRUE;
+	return TRUE;
 }
 
-static void set_bool_reverse(void *b, char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
 	*(BOOL*)b = FALSE;
+	return TRUE;
 }
 
-static void set_bool2_reverse(void *b, char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool2_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
 	((INT2*)b)->x = FALSE;
 	((INT2*)b)->y = FALSE;
+	return TRUE;
 }
 
-static void set_int(void *i, char *value, const X264_OPTION_STR *list) {
-	x264guiEx_parse_int((int *)i, value);
+static BOOL set_int(void *i, const char *value, const X264_OPTION_STR *list) {
+	return x264guiEx_parse_int((int *)i, value, NULL);
 }
 
-static void set_float(void *f, char *value, const X264_OPTION_STR *list) {
-	x264guiEx_parse_float((float *)f, value);
+static BOOL set_float(void *f, const char *value, const X264_OPTION_STR *list) {
+	return x264guiEx_parse_float((float *)f, value, NULL);
 }
 
-static void set_int2(void *i, char *value, const X264_OPTION_STR *list) {
-	size_t j;
+static BOOL set_int2(void *i, const char *value, const X264_OPTION_STR *list) {
 	const size_t len = strlen(value);
-	for (j = 0; j < len; j++) {
+	//一度値をコピーして分析
+	BOOL ret = FALSE;
+	for (size_t j = 0; j < len; j++) {
 		if (value[j] == ':' || value[j] == '|' || value[j] == ',' || value[j] == '/') {
-			value[j] = '\0';
-			if (_stricmp(value,      "<unset>") != NULL)
-				x264guiEx_parse_int(&((INT2 *)i)->x, value);
+			ret = TRUE;
+			if (!(j == strlen("<unset>") && _strnicmp(value, "<unset>", strlen("<unset>")) == NULL))
+				ret &= x264guiEx_parse_int(&((INT2 *)i)->x, value, j);
 			if (_stricmp(&value[j+1], "<unset>") != NULL)
-				x264guiEx_parse_int(&((INT2 *)i)->y, &value[j+1]);
+				ret &= x264guiEx_parse_int(&((INT2 *)i)->y, &value[j+1], 0);
 			break;
 		}
 	}
+	return ret;
 }
 
-static void set_float2(void *f, char *value, const X264_OPTION_STR *list) {
-	size_t j;
+static BOOL set_float2(void *f, const char *value, const X264_OPTION_STR *list) {
 	const size_t len = strlen(value);
-	for (j = 0; j < len; j++) {
+	BOOL ret = FALSE;
+	for (size_t j = 0; j < len; j++) {
 		if (value[j] == ':' || value[j] == '|' || value[j] == ',' || value[j] == '/') {
-			value[j] = '\0';
-			if (_stricmp(value,       "<unset>") != NULL)
-				x264guiEx_parse_float(&((FLOAT2 *)f)->x, value);
+			ret = TRUE;
+			if (!(j == strlen("<unset>") && _strnicmp(value, "<unset>", strlen("<unset>")) == NULL))
+				ret &= x264guiEx_parse_float(&((FLOAT2 *)f)->x, value, j);
 			if (_stricmp(&value[j+1], "<unset>") != NULL)
-				x264guiEx_parse_float(&((FLOAT2 *)f)->y, &value[j+1]);
+				ret &= x264guiEx_parse_float(&((FLOAT2 *)f)->y, &value[j+1], 0);
 			break;
 		}
 	}
+	return ret;
 }
 
-static void set_list(void *i, char *value, const X264_OPTION_STR *list) {
-	int j;
-	for (j = 0; list[j].name; j++)
+static BOOL set_list(void *i, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = FALSE;
+	for (int j = 0; list[j].name; j++)
 		if (_stricmp(value, list[j].name) == NULL) {
 			*(int*)i = j;
+			ret = TRUE;
 			break;
 		}
 	//数値での指定に対応
@@ -298,74 +303,104 @@ static void set_list(void *i, char *value, const X264_OPTION_STR *list) {
 	//x264guiEx_parse_int(&k, value);
 	//if (-1 < k && k < j)
 	//	*(int*)i = k;
+	return ret; 
 }
 
-static void set_crf(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_crf(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
-	float f = 23;
-	x264guiEx_strtof(&f, value);
+	float f = 23.0f;
+	x264guiEx_strtof(&f, value, NULL);
 	((CONF_X264 *)cx)->crf = (int)(f * 100 + 0.5);
+	return TRUE;
 }
-static void set_bitrate(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_bitrate(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
-	x264guiEx_strtol(&((CONF_X264 *)cx)->bitrate, value);
+	return x264guiEx_strtol(&((CONF_X264 *)cx)->bitrate, value, NULL);
 }
-static void set_qp(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_qp(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->rc_mode = X264_RC_QP;
-	x264guiEx_strtol(&((CONF_X264 *)cx)->qp, value);
+	return x264guiEx_strtol(&((CONF_X264 *)cx)->qp, value, NULL);
 }
-static void set_keyint(void *i, char *value, const X264_OPTION_STR *list) {
+static BOOL set_keyint(void *i, const char *value, const X264_OPTION_STR *list) {
 	if ((*(int*)i = _stricmp(value, "infinite")) != NULL)
-		x264guiEx_parse_int((int *)i, value);
+		return x264guiEx_parse_int((int *)i, value, NULL);
+	return TRUE;
 }
-static void set_deblock(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_deblock(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->use_deblock = TRUE;
-	set_int2(&((CONF_X264 *)cx)->deblock, value, list);
+	return set_int2(&((CONF_X264 *)cx)->deblock, value, list);
 }
-static void set_input_depth(void *b, char *value, const X264_OPTION_STR *list) {
+static BOOL set_input_depth(void *b, const char *value, const X264_OPTION_STR *list) {
 	*(BOOL*)b = (atoi(value) == 10) ? TRUE : FALSE;
+	return TRUE;
 }
-static void set_mb_partiotions(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_mb_partitions(void *cx, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = TRUE;
 	*(DWORD*)cx = MB_PARTITION_NONE;
 	if (stristr(value, "all")) {
 		*(DWORD*)cx = MB_PARTITION_ALL;
 	} else if (stristr(value, "none")) {
 		;//なにもしない
 	} else {
-		if (stristr(value, "p8x8"))
-			*(DWORD*)cx |= MB_PARTITION_P8x8;
-		if (stristr(value, "b8x8"))
-			*(DWORD*)cx |= MB_PARTITION_B8x8;
-		if (stristr(value, "p4x4"))
-			*(DWORD*)cx |= MB_PARTITION_P4x4;
-		if (stristr(value, "i8x8"))
-			*(DWORD*)cx |= MB_PARTITION_I8x8;
-		if (stristr(value, "i4x4"))
-			*(DWORD*)cx |= MB_PARTITION_I4x4;
+		BOOL fin = FALSE;
+		for (const char *p = value, *q = value; !fin; p++) {
+			if (*p == '\0') fin = TRUE;
+			if (fin || *p == ',' || *p == '/' || *p == ';' || *p == ':') {
+				int len = p - q;
+				if (     !_strnicmp(q, "p8x8", len))
+					*(DWORD*)cx |= MB_PARTITION_P8x8;
+				else if (!_strnicmp(q, "b8x8", len))
+					*(DWORD*)cx |= MB_PARTITION_B8x8;
+				else if (!_strnicmp(q, "p4x4", len))
+					*(DWORD*)cx |= MB_PARTITION_P4x4;
+				else if (!_strnicmp(q, "i8x8", len))
+					*(DWORD*)cx |= MB_PARTITION_I8x8;
+				else if (!_strnicmp(q, "i4x4", len))
+					*(DWORD*)cx |= MB_PARTITION_I4x4;
+				else
+					ret = FALSE;
+				q = p + 1;
+			}
+		}
 	}
+	return ret;
 }
-static void set_tff(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_tff(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->interlaced = TRUE;
 	((CONF_X264 *)cx)->tff = TRUE;
+	return TRUE;
 }
-static void set_bff(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_bff(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->interlaced = TRUE;
 	((CONF_X264 *)cx)->tff = FALSE;
+	return TRUE;
 }
-static void set_timebase(void *cx, char *value, const X264_OPTION_STR *list) {
+static BOOL set_timebase(void *cx, const char *value, const X264_OPTION_STR *list) {
 	((CONF_X264 *)cx)->use_timebase = TRUE;
-	set_int2(&((CONF_X264 *)cx)->timebase, value, list);
+	return set_int2(&((CONF_X264 *)cx)->timebase, value, list);
 }
-static void set_level(void *cx, char *value, const X264_OPTION_STR *list) {
-	char *p = value + strlen(value) - 1;
-	while (*p == '0' && p >= value)
-		p--;
-	if (*p == '.') p--; //最後に'.'が残ったら消す
-	*(p + 1) = '\0';
-	set_list(cx, value, list);
+static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) {
+	BOOL ret = FALSE;
+	size_t len = strlen(value);
+	const char *tmp = value + len - 1;
+	if (*tmp != '0') {
+		ret = set_list(cx, value, list);
+	} else {
+		//"5.0"とかを"5"に整形
+		char *copy = (char *)malloc((len + 1) * sizeof(copy[0]));
+		memcpy(copy, value, (len + 1) * sizeof(copy[0]));
+		char *p = copy + len - 1;
+		while (*p == '0' && p >= copy)
+			p--;
+		if (*p == '.') p--; //最後に'.'が残ったら消す
+		*(p + 1) = '\0';
+		ret = set_list(cx, copy, list);
+		free(copy);
+	}
+	return ret;
 }
-static void set_do_nothing(void *cx, char *value, const X264_OPTION_STR *list) {
-	return;
+static BOOL set_do_nothing(void *cx, const char *value, const X264_OPTION_STR *list) {
+	return FALSE;
 }
 
 
@@ -495,19 +530,19 @@ static void write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *opt
 	if (write_all || *dwptr != *defptr) {
 		char tmp[64] = { 0 };
 		if (*dwptr == MB_PARTITION_ALL)
-			strcpy_s(tmp, sizeof(tmp), "all");
+			strcpy_s(tmp, _countof(tmp), "all");
 		else if (*dwptr == MB_PARTITION_NONE)
-			strcpy_s(tmp, sizeof(tmp), "none");
+			strcpy_s(tmp, _countof(tmp), "none");
 		else {
-			if (*dwptr & MB_PARTITION_P8x8) strcpy_s(tmp, sizeof(tmp), "p8x8,");
-			if (*dwptr & MB_PARTITION_B8x8) strcat_s(tmp, sizeof(tmp), "b8x8,");
-			if (*dwptr & MB_PARTITION_P4x4) strcat_s(tmp, sizeof(tmp), "p4x4,");
-			if (*dwptr & MB_PARTITION_I8x8) strcat_s(tmp, sizeof(tmp), "i8x8,");
-			if (*dwptr & MB_PARTITION_I4x4) strcat_s(tmp, sizeof(tmp), "i4x4,");
+			if (*dwptr & MB_PARTITION_P8x8) strcpy_s(tmp, _countof(tmp), "p8x8,");
+			if (*dwptr & MB_PARTITION_B8x8) strcat_s(tmp, _countof(tmp), "b8x8,");
+			if (*dwptr & MB_PARTITION_P4x4) strcat_s(tmp, _countof(tmp), "p4x4,");
+			if (*dwptr & MB_PARTITION_I8x8) strcat_s(tmp, _countof(tmp), "i8x8,");
+			if (*dwptr & MB_PARTITION_I4x4) strcat_s(tmp, _countof(tmp), "i4x4,");
 			if (strlen(tmp)) {
 				tmp[strlen(tmp)-1] = '\0'; //最後の","を取る
 			} else {
-				strcpy_s(tmp, sizeof(tmp), "none"); //そんなはずないけどね
+				strcpy_s(tmp, _countof(tmp), "none"); //そんなはずないけどね
 			}
 		}
 		sprintf_s(cmd, nSize, " --partitions %s", tmp);
@@ -532,7 +567,7 @@ static void write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *option
 #pragma warning( pop ) //( disable: 4100 ) 終了
 
 //この配列に従って各関数に飛ばされる
-typedef void (*SET_VALUE) (void *cx, char *value, const X264_OPTION_STR *list);
+typedef BOOL (*SET_VALUE) (void *cx, const char *value, const X264_OPTION_STR *list);
 const SET_VALUE set_value[] = {
 	NULL,
 	set_bool,
@@ -552,7 +587,7 @@ const SET_VALUE set_value[] = {
 	set_do_nothing,
 	set_input_depth,
 	set_int,
-	set_mb_partiotions,
+	set_mb_partitions,
 	set_tff,
 	set_bff,
 	set_timebase,
@@ -641,6 +676,7 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 		if (it_arg->value[0] == '"' && it_arg->value[value_len-1] == '"') {
 			it_arg->value[value_len-1] = '\0';
 			it_arg->value++;
+			it_arg->value_had_dQB = TRUE; //落としたことを記憶
 		}
 	}
 }
@@ -666,32 +702,56 @@ static inline BOOL option_has_no_value(DWORD type) {
 	return FALSE;
 }
 
-static void set_conf(const std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
-	BOOL ret;
+static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
 	int i;
-	const_foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
-		ret = FALSE;
+	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
 		for (i = 0; x264_options_table[i].long_name; i++) {
 			if (strcmp(it_arg->option_name, ((it_arg->arg_type == ARG_TYPE_LONG) ? x264_options_table[i].long_name : x264_options_table[i].short_name)) == NULL) {
-				ret = (option_has_no_value(x264_options_table[i].type) == FALSE && it_arg->value == NULL) ? FALSE : TRUE;
+				it_arg->ret = (option_has_no_value(x264_options_table[i].type) == FALSE && it_arg->value == NULL) ? FALSE : TRUE;
 				break;
 			}
 		}
-		if (ret)
-			set_value[x264_options_table[i].type]((void *)((BYTE *)conf_set + x264_options_table[i].p_offset), it_arg->value, x264_options_table[i].list);
+		if (it_arg->ret)
+			it_arg->ret = set_value[x264_options_table[i].type]((void *)((BYTE *)conf_set + x264_options_table[i].p_offset), it_arg->value, x264_options_table[i].list);
+	}
+}
+
+void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
+	std::vector<CMD_ARG> cmd_arg_list;
+	//parse_argでコマンドラインは書き変えられるので、
+	//一度コピーしておく
+	set_setting_list();
+	parse_arg(cmd, cmd_len, &cmd_arg_list);
+	set_conf(&cmd_arg_list, conf_set);
+	if (build_not_imported_cmd) {
+		//コマンドラインの再構築
+		//it_arg->option_name のポインタが指すのはcmd上の文字列なので、
+		//直接cmdに書き込むとおかしなことになる。
+		//そこで一時領域を確保する
+		char * const tmp = (char *)calloc((cmd_len + 1) * sizeof(tmp[0]), 1);
+		size_t new_len = 0;
+		const_foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {
+			if (!it_arg->ret) {
+				new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, "%s%s%s",
+					(new_len) ? " " : "", (it_arg->arg_type == ARG_TYPE_LONG) ? "--" : "-", it_arg->option_name);
+				if (it_arg->value) {
+					const char * const dqb = (it_arg->value_had_dQB) ? "\"" : "";
+					new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, " %s%s%s", dqb, it_arg->value, dqb);
+				}
+			}
+		}
+		memcpy(cmd, tmp, (new_len + 1) * sizeof(cmd[0]));
+		free(tmp);
 	}
 }
 
 void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set) {
-	std::vector<CMD_ARG> cmd_arg_list;
 	//parse_argでコマンドラインは書き変えられるので、
 	//一度コピーしておく
 	size_t cmd_len = strlen(cmd_src) + 1;
-	char *cmd = (char *)malloc(cmd_len + 1);
-	memcpy(cmd, cmd_src, cmd_len + 1);
-	set_setting_list();
-	parse_arg(cmd, cmd_len, &cmd_arg_list);
-	set_conf(&cmd_arg_list, conf_set);
+	char * const cmd = (char *)malloc((cmd_len + 1) * sizeof(cmd[0]));
+	memcpy(cmd, cmd_src, (cmd_len + 1) * sizeof(cmd[0]));
+	set_cmd_to_conf(cmd, conf_set, cmd_len, FALSE); //parse_arg
 	free(cmd);
 }
 
