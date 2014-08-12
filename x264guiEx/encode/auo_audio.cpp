@@ -33,7 +33,7 @@ const int WAVE_SIZE_POS    = WAVE_HEADER_SIZE - 4;
 
 static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, const guiEx_settings *ex_stg) {
 	if (ex_stg->s_aud_faw_index == FAW_INDEX_ERROR) {
-		write_log_auo_line(LOG_WARNING, "FAWCheck : x264guiEx.iniからのFAWの情報取得に失敗したため、判定を中止しました。");
+		write_log_auo_line(LOG_WARNING, "FAWCheck : "AUO_NAME_WITHOUT_EXT".iniからのFAWの情報取得に失敗したため、判定を中止しました。");
 		return;
 	}
 	int n = 0;
@@ -116,7 +116,7 @@ static void make_wavfilename(char *wavfile, size_t nSize, BOOL use_pipe, const c
 		apply_appendix(wavfile, nSize, tempfilename, append_wav);
 }
 
-static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const AUDIO_SETTINGS *aud_stg, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *wavfile, const char *savefile) {
+static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const AUDIO_SETTINGS *aud_stg, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *wavfile, const OUTPUT_INFO *oip) {
 	strcpy_s(cmd, nSize, aud_stg->cmd_base);
 	//%{2pass_cmd}
 	replace(cmd, nSize, "%{2pass_cmd}",  (conf->aud.use_2pass) ? aud_stg->cmd_2pass : "");
@@ -129,7 +129,7 @@ static void build_audcmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, co
 	sprintf_s(tmp, _countof(tmp), "%d", conf->aud.bitrate);
 	replace(cmd, nSize, "%{rate}", tmp);
 
-	cmd_replace(cmd, nSize, pe, sys_dat, conf, savefile);
+	cmd_replace(cmd, nSize, pe, sys_dat, conf, oip);
 }
 
 static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_mode) {
@@ -263,7 +263,7 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	PathGetDirectory(auddir, _countof(auddir), aud_stg->fullpath);
 
 	//コマンドライン作成
-	build_audcmd(audcmd, _countof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip->savefile);
+	build_audcmd(audcmd, _countof(audcmd), conf, aud_stg, pe, sys_dat, wavfile, oip);
 	sprintf_s(audargs, _countof(audargs), "\"%s\" %s", aud_stg->fullpath, audcmd);
 
 	//wav出力

@@ -166,21 +166,6 @@ static AUO_RESULT check_muxout_filesize(const char *muxout, UINT64 expected_file
 	return AUO_RESULT_WARNING;
 }
 
-//%{par_x}と%{par_y}の置換を行う
-static void replace_par(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {	
-	CONF_X264 conf_tmp;
-	memcpy(&conf_tmp, &conf->x264, sizeof(CONF_X264));
-	apply_guiEx_auto_settings(&conf_tmp, oip->w, oip->h, oip->rate, oip->scale);
-	if (conf_tmp.sar.x <= 0 || conf_tmp.sar.y <= 0)
-		conf_tmp.sar.x = conf_tmp.sar.y = 1;
-
-	char buf[32];
-	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.x);
-	replace(cmd, nSize, "%{par_x}", buf);
-	sprintf_s(buf, _countof(buf), "%d", conf_tmp.sar.y);
-	replace(cmd, nSize, "%{par_y}", buf);
-}
-
 //不必要なチャプターコマンドを削除する
 static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 	if (!apple_type_only)
@@ -241,7 +226,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 	char chap_file[MAX_PATH_LEN];
 	char chap_apple[MAX_PATH_LEN];
 	set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), 
-		muxer_mode->chap_file, pe, sys_dat, conf, oip->savefile);
+		muxer_mode->chap_file, pe, sys_dat, conf, oip);
 	replace(cmd, nSize, "%{ex_cmd}", exstr);
 	if (!enable_chap_mux) {
 		del_chap_cmd(cmd, FALSE); //チャプター用コマンドとパラメータを削除
@@ -270,10 +255,8 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *c
 			}
 		}
 	}
-	//アスペクト比
-	replace_par(cmd, nSize, conf, oip);
 	//その他の置換を実行
-	cmd_replace(cmd, nSize, pe, sys_dat, conf, oip->savefile);
+	cmd_replace(cmd, nSize, pe, sys_dat, conf, oip);
 	//情報表示
 	show_mux_info(mux_stg->dispname, enable_vid_mux, enable_aud_mux, enable_tc_mux, muxer_mode->name);
 	return AUO_RESULT_SUCCESS;
@@ -360,7 +343,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 	}
 
 	//mux処理の開始
-	MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
+	const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
 
 	if (!PathFileExists(mux_stg->fullpath)) {
 		ret |= AUO_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
@@ -405,7 +388,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 		if (ret == AUO_RESULT_SUCCESS) {
 			if (enable_vid_mux) {
 				remove(pe->temp_filename);
-				change_ext(pe->temp_filename, _countof(pe->temp_filename), mux_stg->out_ext);
+				change_ext(pe->temp_filename, _countof(pe->temp_filename), mux_stg->out_ext); //拡張子を変更
 				if (PathFileExists(pe->temp_filename)) remove(pe->temp_filename);
 				rename(muxout, pe->temp_filename);
 			} else {
@@ -413,7 +396,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 				char aud_file[MAX_PATH_LEN] = { 0 };
 				get_aud_filename(aud_file, _countof(aud_file), pe);
 				remove(aud_file);
-				change_ext(pe->append.aud, _countof(pe->append.aud), mux_stg->out_ext);
+				change_ext(pe->append.aud, _countof(pe->append.aud), mux_stg->out_ext); //拡張子を変更
 				get_aud_filename(aud_file, _countof(aud_file), pe);
 				if (PathFileExists(aud_file)) remove(aud_file);
 				rename(muxout, aud_file);
@@ -433,7 +416,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 
 	//さらにmuxの必要があれば、それを行う(L-SMASH系 timelineeditor のあとの remuxer を想定)
-	if (mux_stg->post_mux >= MUXER_MP4) {
+	if (!ret && mux_stg->post_mux >= MUXER_MP4) {
 		if (AUO_RESULT_SUCCESS != (ret |= run_mux_as(conf, oip, pe, sys_dat, mux_stg->post_mux)))
 			return ret;
 	}

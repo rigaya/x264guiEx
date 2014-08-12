@@ -168,7 +168,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 			if (!ret) ret |= mux(&conf, oip, &pe, &sys_dat);
 		} while (!ret && AUO_RESULT_WARNING == amp_check_file(&conf, &sys_dat, &pe, oip)); //再エンコードの必要があるかをチェック
 
-		ret |= move_temporary_files(&conf, &pe, &sys_dat, oip->savefile, ret);
+		ret |= move_temporary_files(&conf, &pe, &sys_dat, oip, ret);
 
 		write_log_auo_enc_time("総エンコード時間  ", timeGetTime() - tm_start_enc);
 
@@ -467,7 +467,7 @@ static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	if (!ex_stg.s_log.auto_save_log)
 		return;
 	char log_file_path[MAX_PATH_LEN];
-	if (AUO_RESULT_SUCCESS != getLogFilePath(log_file_path, _countof(log_file_path), pe, oip->savefile, &sys_dat, &conf))
+	if (AUO_RESULT_SUCCESS != getLogFilePath(log_file_path, _countof(log_file_path), pe, &sys_dat, &conf, oip))
 		warning_no_auto_save_log_dir();
 	auto_save_log_file(log_file_path);
 	return;

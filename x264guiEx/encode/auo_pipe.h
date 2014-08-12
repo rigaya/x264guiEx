@@ -20,7 +20,7 @@ const int RP_ERROR_OPEN_PIPE = 1;
 const int RP_ERROR_GET_STDIN_FILE_HANDLE = 2;
 const int RP_ERROR_CREATE_PROCESS = 3;
 
-const int PIPE_READ_BUF = 512;
+const int PIPE_READ_BUF = 2048;
 
 typedef struct {
 	HANDLE h_read;

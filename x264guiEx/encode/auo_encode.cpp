@@ -21,6 +21,7 @@
 #include "auo_system.h"
 #include "auo_pipe.h"
 
+#include "auo_frm.h"
 #include "auo_encode.h"
 #include "auo_error.h"
 
@@ -45,14 +46,57 @@ void get_muxout_filename(char *filename, size_t nSize, const SYSTEM_DATA *sys_da
 
 //チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
-					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savfile) {
+					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
 	strcpy_s(chap_file, cf_nSize, chap_base);
-	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, savfile);
+	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, oip);
 	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
 	sys_dat->exstg->apply_fn_replace(PathFindFileName(chap_apple), ca_nSize - (PathFindFileName(chap_apple) - chap_apple));
 }
 
-void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const char *savefile) {
+static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+	const int w = oip->w;
+	const int h = oip->h;
+ 
+	int sar_x = conf->x264.sar.x;
+	int sar_y = conf->x264.sar.y;
+	int dar_x = 0;
+	int dar_y = 0;
+	if (sar_x * sar_y > 0) {
+		if (sar_x < 0) {
+			dar_x = -1 * sar_x;
+			dar_y = -1 * sar_y;
+			set_guiEx_auto_sar(&sar_x, &sar_y, w, h);
+		} else {
+			dar_x = sar_x * w;
+			dar_y = sar_y * h;
+			const int gcd = get_gcd(dar_x, dar_y);
+			dar_x /= gcd;
+			dar_y /= gcd;
+		}
+	}
+	if (sar_x * sar_y <= 0)
+		sar_x = sar_y = 1;
+	if (dar_x * dar_y <= 0)
+		dar_x = dar_y = 1;
+
+	char buf[32];
+	//%{sar_x} / %{par_x}
+	sprintf_s(buf, _countof(buf), "%d", sar_x);
+	replace(cmd, nSize, "%{sar_x}", buf);
+	replace(cmd, nSize, "%{par_x}", buf);
+	//%{sar_x} / %{sar_y}
+	sprintf_s(buf, _countof(buf), "%d", sar_y);
+	replace(cmd, nSize, "%{sar_y}", buf);
+	replace(cmd, nSize, "%{par_y}", buf);
+	//%{dar_x}
+	sprintf_s(buf, _countof(buf), "%d", dar_x);
+	replace(cmd, nSize, "%{dar_x}", buf);
+	//%{dar_y}
+	sprintf_s(buf, _countof(buf), "%d", dar_y);
+	replace(cmd, nSize, "%{dar_y}", buf);
+}
+
+void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
 	char tmp[MAX_PATH_LEN] = { 0 };
 	//置換操作の実行
 	//%{vidpath}
@@ -76,17 +120,17 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{tmpname}", tmp);
 	//%{savpath}
-	replace(cmd, nSize, "%{savpath}", savefile);
+	replace(cmd, nSize, "%{savpath}", oip->savefile);
 	//%{savfile}
-	strcpy_s(tmp, _countof(tmp), savefile);
+	strcpy_s(tmp, _countof(tmp), oip->savefile);
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{savfile}", tmp);
 	//%{savname}
-	strcpy_s(tmp, _countof(tmp), PathFindFileName(savefile));
+	strcpy_s(tmp, _countof(tmp), PathFindFileName(oip->savefile));
 	PathRemoveExtension(tmp);
 	replace(cmd, nSize, "%{savname}", tmp);
 	//%{savdir}
-	strcpy_s(tmp, _countof(tmp), savefile);
+	strcpy_s(tmp, _countof(tmp), oip->savefile);
 	PathRemoveFileSpecFixed(tmp);
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{savdir}", tmp);
@@ -95,7 +139,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	PathForceRemoveBackSlash(tmp);
 	replace(cmd, nSize, "%{aviutldir}", tmp);
 	//%{chpath}
-	apply_appendix(tmp, _countof(tmp), savefile, pe->append.chap);
+	apply_appendix(tmp, _countof(tmp), oip->savefile, pe->append.chap);
 	replace(cmd, nSize, "%{chpath}", tmp);
 	//%{tcpath}
 	apply_appendix(tmp, _countof(tmp), pe->temp_filename, pe->append.tc);
@@ -103,6 +147,27 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	//%{muxout}
 	get_muxout_filename(tmp, _countof(tmp), sys_dat, pe);
 	replace(cmd, nSize, "%{muxout}", tmp);
+	//%{fps_rate}
+	int fps_rate = oip->rate;
+	int fps_scale = oip->scale;
+#ifdef MSDK_SAMPLE_VERSION
+	if (conf->qsv.vpp.nDeinterlace == MFX_DEINTERLACE_IT)
+		fps_rate = (fps_rate * 4) / 5;
+#endif
+	const int fps_gcd = get_gcd(fps_rate, fps_scale);
+	fps_rate /= fps_gcd;
+	fps_scale /= fps_gcd;
+	sprintf_s(tmp, sizeof(tmp), "%d", fps_rate);
+	replace(cmd, nSize, "%{fps_rate}", tmp);
+	//%{fps_rate_times_4}
+	fps_rate *= 4;
+	sprintf_s(tmp, sizeof(tmp), "%d", fps_rate);
+	replace(cmd, nSize, "%{fps_rate_times_4}", tmp);
+	//%{fps_scale}
+	sprintf_s(tmp, sizeof(tmp), "%d", fps_scale);
+	replace(cmd, nSize, "%{fps_scale}", tmp);
+	//アスペクト比
+	replace_aspect_ratio(cmd, nSize, conf, oip);
 
 	char fullpath[MAX_PATH_LEN];
 	replace(cmd, nSize, "%{x264path}",     GetFullPath(sys_dat->exstg->s_x264.fullpath,                   fullpath, _countof(fullpath)));
@@ -150,28 +215,28 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	return TRUE;
 }
 
-AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *savefile, DWORD ret) {
+AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const OUTPUT_INFO *oip, DWORD ret) {
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
-		if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? savefile : pe->temp_filename), pe->temp_filename, savefile, ret, FALSE, "出力", !ret))
+		if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? oip->savefile : pe->temp_filename), pe->temp_filename, oip->savefile, ret, FALSE, "出力", !ret))
 			ret |= AUO_RESULT_ERROR;
 	//mux後ファイル
 	if (pe->muxer_to_be_used >= 0) {
 		char muxout_appendix[MAX_APPENDIX_LEN];
 		get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), sys_dat, pe);
-		move_temp_file(muxout_appendix, pe->temp_filename, savefile, ret, FALSE, "mux後ファイル", FALSE);
+		move_temp_file(muxout_appendix, pe->temp_filename, oip->savefile, ret, FALSE, "mux後ファイル", FALSE);
 	}
 	//qpファイル
-	move_temp_file(pe->append.qp,   pe->temp_filename, savefile, ret, TRUE, "qp", FALSE);
+	move_temp_file(pe->append.qp,   pe->temp_filename, oip->savefile, ret, TRUE, "qp", FALSE);
 	//tcファイル
 	BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
-	move_temp_file(pe->append.tc,   pe->temp_filename, savefile, ret, erase_tc, "タイムコード", FALSE);
+	move_temp_file(pe->append.tc,   pe->temp_filename, oip->savefile, ret, erase_tc, "タイムコード", FALSE);
 	//チャプターファイル
 	if (pe->muxer_to_be_used >= 0 && sys_dat->exstg->s_local.auto_del_chap) {
 		char chap_file[MAX_PATH_LEN];
 		char chap_apple[MAX_PATH_LEN];
 		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[(pe->muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
-		set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, savefile);
+		set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, oip);
 		move_temp_file(NULL, chap_file,  NULL, ret, TRUE, "チャプター",        FALSE);
 		move_temp_file(NULL, chap_apple, NULL, ret, TRUE, "チャプター(Apple)", FALSE);
 	}
@@ -179,18 +244,18 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 	if (conf->x264.use_auto_npass && sys_dat->exstg->s_local.auto_del_stats) {
 		char stats[MAX_PATH_LEN];
 		strcpy_s(stats, sizeof(stats), conf->vid.stats);
-		cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, savefile);
+		cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "ステータス", FALSE);
 		strcat_s(stats, sizeof(stats), ".mbtree");
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
 	}
 	//音声ファイル(wav)
 	if (strcmp(pe->append.aud, pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
-		move_temp_file(pe->append.wav,  pe->temp_filename, savefile, ret, TRUE, "wav", FALSE);
+		move_temp_file(pe->append.wav,  pe->temp_filename, oip->savefile, ret, TRUE, "wav", FALSE);
 	//音声ファイル(エンコード後ファイル)
 	char aud_tempfile[MAX_PATH_LEN];
 	PathCombineLong(aud_tempfile, _countof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
-	if (!move_temp_file(pe->append.aud, aud_tempfile, savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
+	if (!move_temp_file(pe->append.aud, aud_tempfile, oip->savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
 		ret |= AUO_RESULT_ERROR;
 	return ret;
 }
@@ -231,7 +296,7 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 		return MUXER_DISABLED;
 }
 
-AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf) {
+AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	guiEx_settings stg(TRUE); //ログウィンドウの保存先設定は最新のものを使用する
 	stg.load_log_win();
@@ -239,7 +304,7 @@ AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, 
 		case AUTO_SAVE_LOG_CUSTOM:
 			char log_file_dir[MAX_PATH_LEN];
 			strcpy_s(log_file_path, nSize, stg.s_log.auto_save_log_path);
-			cmd_replace(log_file_path, nSize, pe, sys_dat, conf, savefile);
+			cmd_replace(log_file_path, nSize, pe, sys_dat, conf, oip);
 			PathGetDirectory(log_file_dir, _countof(log_file_dir), log_file_path);
 			if (DirectoryExistsOrCreate(log_file_dir))
 				break;
@@ -247,7 +312,7 @@ AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, 
 			//下へフォールスルー
 		case AUTO_SAVE_LOG_OUTPUT_DIR:
 		default:
-			apply_appendix(log_file_path, nSize, savefile, "_log.txt"); 
+			apply_appendix(log_file_path, nSize, oip->savefile, "_log.txt"); 
 			break;
 	}
 	return ret;
@@ -308,7 +373,7 @@ double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, cons
 		double duration_tmp = 0.0;
 		if (conf->x264.use_tcfilein)
 			strcpy_s(buffer, sizeof(buffer), conf->vid.tcfile_in);
-		cmd_replace(buffer, sizeof(buffer), pe, sys_dat, conf, oip->savefile);
+		cmd_replace(buffer, sizeof(buffer), pe, sys_dat, conf, oip);
 		if (AUO_RESULT_SUCCESS == get_duration_from_timecode(&duration_tmp, buffer, oip->rate / (double)oip->scale))
 			duration = duration_tmp;
 		else

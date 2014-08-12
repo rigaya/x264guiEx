@@ -10,14 +10,15 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION      0,1,49,0
-#define AUO_VERSION_STR  "1.49"
-#define AUO_NAME         "x264guiEx.auo"
-#define AUO_NAME_W      L"x264guiEx.auo"
-#define AUO_FULL_NAME    "拡張 x264 出力(GUI) Ex"
-#define AUO_VERSION_NAME "拡張 x264 出力(GUI) Ex "AUO_VERSION_STR
-#define AUO_VERSION_INFO "拡張 x264 出力(GUI) Ex (x264guiEx) "AUO_VERSION_STR" by rigaya"
-#define AUO_EXT_FILTER   "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
+#define AUO_VERSION          0,1,50,1
+#define AUO_VERSION_STR      "1.50"
+#define AUO_NAME_WITHOUT_EXT "x264guiEx"
+#define AUO_NAME             "x264guiEx.auo"
+#define AUO_NAME_W          L"x264guiEx.auo"
+#define AUO_FULL_NAME        "拡張 x264 出力(GUI) Ex"
+#define AUO_VERSION_NAME     "拡張 x264 出力(GUI) Ex "AUO_VERSION_STR
+#define AUO_VERSION_INFO     "拡張 x264 出力(GUI) Ex (x264guiEx) "AUO_VERSION_STR" by rigaya"
+#define AUO_EXT_FILTER       "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
 
 #ifdef DEBUG
 #define VER_DEBUG   VS_FF_DEBUG
@@ -35,7 +36,7 @@
 #define VER_STR_INTERNALNAME     AUO_FULL_NAME
 #define VER_STR_ORIGINALFILENAME AUO_NAME
 #define VER_STR_LEGALCOPYRIGHT   "拡張 x264 出力(GUI) Ex by rigaya"
-#define VER_STR_PRODUCTNAME      "x264guiEx"
+#define VER_STR_PRODUCTNAME      AUO_NAME_WITHOUT_EXT
 #define VER_PRODUCTVERSION       VER_FILEVERSION
 #define VER_STR_PRODUCTVERSION   VER_STR_FILEVERSION
 

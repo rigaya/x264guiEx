@@ -244,10 +244,10 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	//パラメータをコピー
 	memcpy(&prm, conf, sizeof(CONF_X264GUIEX));
 	//共通置換を実行
-	cmd_replace(prm.vid.cmdex,     sizeof(prm.vid.cmdex),     pe, sys_dat, conf, oip->savefile);
-	cmd_replace(prm.vid.stats,     sizeof(prm.vid.stats),     pe, sys_dat, conf, oip->savefile);
-	cmd_replace(prm.vid.tcfile_in, sizeof(prm.vid.tcfile_in), pe, sys_dat, conf, oip->savefile);
-	cmd_replace(prm.vid.cqmfile,   sizeof(prm.vid.cqmfile),   pe, sys_dat, conf, oip->savefile);
+	cmd_replace(prm.vid.cmdex,     sizeof(prm.vid.cmdex),     pe, sys_dat, conf, oip);
+	cmd_replace(prm.vid.stats,     sizeof(prm.vid.stats),     pe, sys_dat, conf, oip);
+	cmd_replace(prm.vid.tcfile_in, sizeof(prm.vid.tcfile_in), pe, sys_dat, conf, oip);
+	cmd_replace(prm.vid.cqmfile,   sizeof(prm.vid.cqmfile),   pe, sys_dat, conf, oip);
 	if (!prm.oth.disable_guicmd) {
 		//cliモードでない
 		//自動設定の適用
