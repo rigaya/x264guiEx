@@ -13,6 +13,7 @@
 #include <process.h>
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "user32.lib") //WaitforInputIdle
+#include <vector>
 
 #include "output.h"
 #include "auo.h"
@@ -174,7 +175,7 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip, PRM_ENC *pe, const char *wa
 	FILE *f_out = NULL;
 	const func_audio_16to8 audio_16to8 = get_audio_16to8_func();
 	const BOOL use_pipe = (strcmp(wavfile, PIPE_FN) == NULL); 
-	int rp_ret;
+	int rp_ret = 0;
 	
 	//並列時は8フレーム分
 	if (pe->aud_parallel.th_aud) {
@@ -274,9 +275,16 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	char audargs[MAX_CMD_LEN]  = { 0 };
 	char auddir[MAX_PATH_LEN]  = { 0 };
 
+	PIPE_SET pipes = { 0 };
 	PROCESS_INFORMATION pi_aud = { 0 };
+	LOG_CACHE log_line_cache = { 0 };
 	const BOOL use_pipe = (!conf->aud.use_wav && !conf->aud.use_2pass) ? TRUE : FALSE;
 	DWORD encoder_priority = GetExePriority(conf->aud.priority, pe->h_p_aviutl);
+	//ログキャッシュの初期化
+	if (init_log_cache(&log_line_cache)) {
+		error_log_line_cache();
+		return AUO_RESULT_ERROR;
+	}
 
 	//実行ファイルチェック(filenameが空文字列なら実行しない)
 	if (str_has_char(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
@@ -312,23 +320,31 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	
 	//音声エンコード(filenameが空文字列なら実行しない)
 	if (!ret && !use_pipe && str_has_char(aud_stg->filename)) {
-		show_progressbar(use_pipe, aud_stg->dispname, PROGRESSBAR_MARQUEE);
+		//パイプの設定
+		pipes.stdOut.mode = AUO_PIPE_ENABLE;
+		pipes.stdErr.mode = AUO_PIPE_MUXED;
+		show_progressbar(TRUE, aud_stg->dispname, PROGRESSBAR_MARQUEE);
 		int rp_ret;
-		if ((rp_ret = RunProcess(audargs, auddir, &pi_aud, NULL, encoder_priority, FALSE, conf->aud.minimized)) != RP_SUCCESS) {
+		if ((rp_ret = RunProcess(audargs, auddir, &pi_aud, &pipes, encoder_priority, TRUE, conf->aud.minimized)) != RP_SUCCESS) {
 			ret |= AUO_RESULT_ERROR; error_run_process(aud_stg->dispname, rp_ret);
 		}
 	}
 
 	//終了待機、メッセージ取得(filenameが空文字列なら実行しない)
 	if (!ret && str_has_char(aud_stg->filename)) {
-		while (WaitForSingleObject(pi_aud.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
-			log_process_events();
+		while (WaitForSingleObject(pi_aud.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT) {
+			if (use_pipe || 0 == ReadLogExe(&pipes, aud_stg->dispname, &log_line_cache))
+				log_process_events();
+		}
+		//最後のメッセージを回収
+		while (!use_pipe && ReadLogExe(&pipes, aud_stg->dispname, &log_line_cache) > 0);
 
-		UINT64 audfilesize = 0; 
+		UINT64 audfilesize = 0;
 		if (!PathFileExists(audfile) || 
 			(GetFileSizeUInt64(audfile, &audfilesize) && audfilesize == 0)) {
 			//エラーが発生した場合
 			ret |= AUO_RESULT_ERROR; error_audenc_failed(aud_stg->dispname, audargs);
+			write_cached_lines(LOG_ERROR, aud_stg->dispname, &log_line_cache);
 		} else {
 			if (FileExistsAndHasSize(audfile))
 				remove(wavfile); //ゴミ掃除
@@ -337,6 +353,7 @@ AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 
 	CloseHandle(pi_aud.hProcess);
 	CloseHandle(pi_aud.hThread);
+	release_log_cache(&log_line_cache);
 
 	set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 

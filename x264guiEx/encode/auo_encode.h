@@ -12,10 +12,12 @@
 
 #include <Windows.h>
 #include <stdio.h>
+#include <vector>
 
 #include "auo.h"
 #include "output.h"
 #include "auo_conf.h"
+#include "auo_pipe.h"
 #include "auo_settings.h"
 #include "auo_system.h"
 #include "auo_frm.h"
@@ -42,5 +44,8 @@ double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, cons
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi);
 
 AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip);
+
+int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache);
+void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_cache);
 
 #endif //_AUO_ENCODE_H_

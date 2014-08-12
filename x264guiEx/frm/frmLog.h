@@ -419,6 +419,11 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			toolStripMenuItemSaveLogSize->Checked    = exstg.s_log.save_log_size != 0;
 		}
 	public:
+		System::Void SetWindowTitle(const char *chr) {
+			LogTitle = String(chr).ToString();
+			this->Text = LogTitle;
+		}
+	public:
 		System::Void SetWindowTitle(const char *chr, int progress_mode) {
 			LogTitle = String(chr).ToString();
 			this->Text = LogTitle;

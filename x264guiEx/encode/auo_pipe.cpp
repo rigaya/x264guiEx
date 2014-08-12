@@ -74,7 +74,7 @@ int RunProcess(char *args, const char *exe_dir, PROCESS_INFORMATION *pi, PIPE_SE
 			si.hStdInput = pipes->stdIn.h_read;
 		si.dwFlags |= STARTF_USESTDHANDLES;
 		Inherit = TRUE;
-		flag |= DETACHED_PROCESS;
+		//flag |= DETACHED_PROCESS; //このフラグによるコンソール抑制よりCREATE_NO_WINDOWの抑制を使用する
 	}
 	if (minimized) {
 		si.dwFlags |= STARTF_USESHOWWINDOW;

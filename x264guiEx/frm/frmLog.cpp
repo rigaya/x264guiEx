@@ -27,6 +27,10 @@ void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles) {
 }
 //ログウィンドウのタイトルを設定
 [STAThreadAttribute]
+void set_window_title(const char *chr) {
+	if (!frmLog::Instance::get()->InvokeRequired)
+		frmLog::Instance::get()->SetWindowTitle(chr);
+}
 void set_window_title(const char *chr, int progress_mode) {
 	if (!frmLog::Instance::get()->InvokeRequired)
 		frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);

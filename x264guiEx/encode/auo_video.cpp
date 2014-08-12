@@ -411,11 +411,11 @@ static AUO_RESULT finish_aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe, 
 	//エラーが発生していたら音声出力ループをとめる
 	pe->aud_parallel.abort |= (vid_ret != AUO_RESULT_SUCCESS);
 	if (pe->aud_parallel.th_aud) {
-		write_log_auo_line(LOG_INFO, "音声処理の終了を待機しています...");
-		set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
-		while (pe->aud_parallel.he_vid_start)
+		for (int wait_for_audio_count = 0; pe->aud_parallel.he_vid_start; wait_for_audio_count++) {
 			vid_ret |= aud_parallel_task(oip, pe);
-		set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+			if (wait_for_audio_count == 5)
+				write_log_auo_line(LOG_INFO, "音声処理の終了を待機しています...");
+		}
 	}
 	return vid_ret;
 }
@@ -428,17 +428,16 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 	if (pe->aud_parallel.th_aud) {
 		//音声エンコードを完了させる
 		//2passエンコードとかだと音声エンコーダの終了を待機する必要あり
-		BOOL wait_for_audio = FALSE;
+		int wait_for_audio_count = 0;
 		while (WaitForSingleObject(pe->aud_parallel.th_aud, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT) {
-			if (!wait_for_audio) {
+			if (wait_for_audio_count == 10)
 				set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
-				wait_for_audio = !wait_for_audio;
-			}
 			pe->aud_parallel.abort |= oip->func_is_abort();
 			flush_audio_log();
 			log_process_events();
+			wait_for_audio_count++;
 		}
-		if (wait_for_audio)
+		if (wait_for_audio_count > 10)
 			set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 
 		DWORD exit_code = 0;

@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
+#include <vector>
+#include <string>
 
 #include "auo.h"
 #include "auo_version.h"
@@ -449,4 +451,40 @@ AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_
 	info_amp_result(status, retry, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate, pe->current_x264_pass - conf->x264.auto_npass, conf->x264.bitrate);
 
 	return (retry) ? AUO_RESULT_WARNING : AUO_RESULT_SUCCESS;
+}
+
+
+int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache) {
+	DWORD pipe_read = 0;
+	if (!PeekNamedPipe(pipes->stdOut.h_read, NULL, 0, NULL, &pipe_read, NULL))
+		return -1;
+	if (pipe_read) {
+		ReadFile(pipes->stdOut.h_read, pipes->read_buf + pipes->buf_len, sizeof(pipes->read_buf) - pipes->buf_len - 1, &pipe_read, NULL);
+		pipes->buf_len += pipe_read;
+		pipes->read_buf[pipes->buf_len] = '\0';
+		write_log_exe_mes(pipes->read_buf, &pipes->buf_len, exename, log_line_cache);
+	}
+	return (int)pipe_read;
+}
+
+void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_cache) {
+	static const char *const LOG_LEVEL_STR[] = { "info", "warning", "error" };
+	static const char *MESSAGE_FORMAT = "%s [%s]: %s";
+	char *buffer = NULL;
+	int buffer_len = 0;
+	log_level = clamp(log_level, LOG_INFO, LOG_ERROR);
+	const int additional_length = strlen(exename) + strlen(LOG_LEVEL_STR[log_level]) + strlen(MESSAGE_FORMAT) - strlen("%s") * 3 + 1;
+	for (int i = 0; i < log_line_cache->idx; i++) {
+		const int required_buffer_len = strlen(log_line_cache->lines[i]) + additional_length;
+		if (buffer_len < required_buffer_len) {
+			if (buffer) free(buffer);
+			buffer = (char *)malloc(required_buffer_len * sizeof(buffer[0]));
+			buffer_len = required_buffer_len;
+		}
+		if (buffer) {
+			sprintf_s(buffer, buffer_len, MESSAGE_FORMAT, exename, LOG_LEVEL_STR[log_level], log_line_cache->lines[i]);
+			write_log_line(log_level, buffer);
+		}
+	}
+	if (buffer) free(buffer);
 }

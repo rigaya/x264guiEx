@@ -79,6 +79,10 @@ void error_invalid_resolution(BOOL width, int mul, int w, int h) {
 		(width) ? "横" : "縦", mul, w, h);
 }
 
+void error_log_line_cache() {
+	write_log_auo_line(LOG_ERROR, "ログ保存キャッシュ用メモリ確保に失敗しました。");
+}
+
 void error_no_exe_file(const char *name, const char *path) {
 	if (strlen(path))
 		write_log_auo_line_fmt(LOG_ERROR, "指定された %s が %s にありません。", name, path);

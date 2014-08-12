@@ -35,11 +35,18 @@ enum {
 	PROGRESSBAR_MARQUEE    = 2,
 };
 
+typedef struct {
+	int max_line; //格納できる最大の行数
+	int idx;      //現在の行数
+	char **lines; //格納している一行
+} LOG_CACHE;
+
 //設定ウィンドウ
 void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat);
 
 //ログウィンドウ制御
 void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles);
+void set_window_title(const char *chr);
 void set_window_title(const char *chr, int progress_mode);
 void set_window_title_enc_mes(const char *chr, int total_drop, int frame_n);
 void set_task_name(const char *chr);
@@ -55,7 +62,11 @@ void log_process_events();
 int  get_current_log_len(int current_pass);
 void log_reload_settings();
 
+int init_log_cache(LOG_CACHE *log_cache); //LOG_CACHEの初期化、linesのメモリ確保、成功->0, 失敗->1
+void release_log_cache(LOG_CACHE *log_cache); //LOG_CACHEで使用しているメモリの開放
+
 void write_log_enc_mes(char * const mes, DWORD *log_len, int total_drop, int current_frames);
+void write_log_exe_mes(char *const msg, DWORD *log_len, const char *exename, LOG_CACHE *cache_line);
 void write_args(const char *args);
 
 #endif //_AUO_FRM_H_

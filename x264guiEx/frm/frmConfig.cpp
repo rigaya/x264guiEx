@@ -1296,7 +1296,6 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		SetCXIndex(fcgCXAudioPriority,       cnf->aud.priority);
 		SetCXIndex(fcgCXAudioTempDir,        cnf->aud.aud_temp_dir);
 		SetCXIndex(fcgCXAudioEncTiming,      cnf->aud.audio_encode_timing);
-		fcgCBAudioMinimized->Checked       = cnf->aud.minimized != 0;
 
 		//mux
 		fcgCBMP4MuxerExt->Checked          = cnf->mux.disable_mp4ext == 0;
@@ -1307,7 +1306,6 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mkv_mode);
 		fcgCBMPGMuxerExt->Checked          = cnf->mux.disable_mpgext == 0;
 		SetCXIndex(fcgCXMPGCmdEx,            cnf->mux.mpg_mode);
-		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
 		fcgCBRunBatBefore->Checked         =(cnf->oth.run_bat & RUN_BAT_BEFORE) != 0;
@@ -1450,7 +1448,6 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->aud.use_wav                = !fcgCBAudioUsePipe->Checked;
 	cnf->aud.priority               = fcgCXAudioPriority->SelectedIndex;
 	cnf->aud.audio_encode_timing    = fcgCXAudioEncTiming->SelectedIndex;
-	cnf->aud.minimized              = fcgCBAudioMinimized->Checked;
 	cnf->aud.aud_temp_dir           = fcgCXAudioTempDir->SelectedIndex;
 
 	//mux部
@@ -1462,7 +1459,6 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->mux.mkv_mode               = fcgCXMKVCmdEx->SelectedIndex;
 	cnf->mux.disable_mpgext         = !fcgCBMPGMuxerExt->Checked;
 	cnf->mux.mpg_mode               = fcgCXMPGCmdEx->SelectedIndex;
-	cnf->mux.minimized              = fcgCBMuxMinimize->Checked;
 	cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
 
 	cnf->oth.run_bat                = RUN_BAT_NONE;
@@ -1918,9 +1914,6 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L" 前　 … 音声→映像の順で処理します。\n"
 		+ L" 同時 … 映像と音声を同時に処理します。"
 		);
-	fcgTTEx->SetToolTip(fcgCBAudioMinimized, L""
-		+ L"音声エンコードのウィンドウを最小化で開始します。"
-		);
 	fcgTTEx->SetToolTip(fcgCXAudioTempDir, L""
 		+ L"音声一時ファイル(エンコード後のファイル)\n"
 		+ L"の出力先を変更します。"
@@ -1997,9 +1990,6 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"\n"
 		+ L"この設定はx264guiEx.confに保存され、\n"
 		+ L"バッチ処理ごとの変更はできません。"
-		);
-	fcgTTEx->SetToolTip(fcgCBMuxMinimize, L""
-		+ L"mux時のウィンドウを最小化で開始します。"
 		);
 	fcgTTEx->SetToolTip(fcgCXMuxPriority, L""
 		+ L"muxerのCPU優先度を指定します。\n"

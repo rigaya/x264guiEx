@@ -361,8 +361,16 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 	DWORD mux_priority = GetExePriority(conf->mux.priority, pe->h_p_aviutl);
 	get_muxout_filename(muxout, _countof(muxout), sys_dat, pe);
 
-	PROCESS_INFORMATION pi_mux;
+	PIPE_SET pipes = { 0 };
+	LOG_CACHE log_line_cache = { 0 };
+	PROCESS_INFORMATION pi_mux = { 0 };
 	int rp_ret;
+
+	//ログキャッシュの初期化
+	if (init_log_cache(&log_line_cache)) {
+		error_log_line_cache();
+		return AUO_RESULT_ERROR;
+	}
 
 	PathGetDirectory(muxdir, _countof(muxdir), mux_stg->fullpath);
 
@@ -376,13 +384,20 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 	if (ret & AUO_RESULT_ERROR)
 		return AUO_RESULT_ERROR; //エラーメッセージはbuild_mux_cmd関数内で吐かれる
 	sprintf_s(muxargs, _countof(muxargs), "\"%s\" %s", mux_stg->fullpath, muxcmd);
+	//パイプの設定
+	pipes.stdOut.mode = AUO_PIPE_ENABLE;
+	pipes.stdErr.mode = AUO_PIPE_MUXED;
 
-	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, NULL, mux_priority, FALSE, conf->mux.minimized)) != RP_SUCCESS) {
+	if ((rp_ret = RunProcess(muxargs, muxdir, &pi_mux, &pipes, mux_priority, TRUE, conf->mux.minimized)) != RP_SUCCESS) {
 		//エラー
 		ret |= AUO_RESULT_ERROR; error_run_process(mux_stg->dispname, rp_ret);
 	} else {
-		while (WaitForSingleObject(pi_mux.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
-			log_process_events();
+		while (WaitForSingleObject(pi_mux.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT) {
+			if (0 == ReadLogExe(&pipes, mux_stg->dispname, &log_line_cache))
+				log_process_events();
+		}
+		//最後のメッセージを回収
+		while (ReadLogExe(&pipes, mux_stg->dispname, &log_line_cache) > 0);
 
 		ret |= check_muxout_filesize(muxout, expected_filesize);
 		if (ret == AUO_RESULT_SUCCESS) {
@@ -405,6 +420,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 			error_mux_failed(mux_stg->dispname, muxargs);
 			if (PathFileExists(muxout))
 				remove(muxout);
+			write_cached_lines(LOG_ERROR, mux_stg->dispname, &log_line_cache);
 		} else {
 			//AUO_RESULT_WARNING
 			change_mux_vid_filename(muxout, pe);
