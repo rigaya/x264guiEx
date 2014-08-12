@@ -58,6 +58,8 @@ namespace x264guiEx {
 			//設定から情報を取得
 			guiEx_settings exstg;
 			exstg.load_log_win();
+			if (exstg.s_log.minimized)
+				this->WindowState = FormWindowState::Minimized;
 			_x264_priority = NULL;
 			_enc_pause = NULL;
 			LogTitle = String(AUO_FULL_NAME).ToString();
@@ -94,8 +96,6 @@ namespace x264guiEx {
 			//ウィンドウサイズ調整等(サイズ設定->最小化の設定の順に行うこと)
 			if (exstg.s_log.save_log_size)
 				SetWindowSize(exstg.s_log.log_width, exstg.s_log.log_height);
-			if (exstg.s_log.minimized)
-				this->WindowState = FormWindowState::Minimized;
 			lastWindowState = this->WindowState;
 			//プログレスバーの初期化
 			taskbar_progress_enable(exstg.s_log.taskbar_progress);
