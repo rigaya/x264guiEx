@@ -31,12 +31,12 @@ void set_window_title(const char *chr, int progress_mode) {
 	if (!frmLog::Instance::get()->InvokeRequired)
 		frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);
 }
-//x264からのメッセージをログウィンドウのタイトルに
+//メッセージをログウィンドウのタイトルに
 [STAThreadAttribute]
-void set_window_title_x264_mes(const char *chr, int total_drop, int frame_n) {
+void set_window_title_enc_mes(const char *chr, int total_drop, int frame_n) {
 	frmLog::Instance::get()->SetWindowTitleX264Mes(chr, total_drop, frame_n);
 }
-//x264guiExからのメッセージとして、ログウィンドウに表示
+//メッセージをログウィンドウに表示
 delegate void write_log_auo_line_delegate(int log_type_index, const char *chr);
 [STAThreadAttribute]
 void write_log_auo_line(int log_type_index, const char *chr) {

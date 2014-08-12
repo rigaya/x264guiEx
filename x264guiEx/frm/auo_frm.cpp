@@ -22,7 +22,7 @@ static inline int check_log_type(char *mes) {
 }
 
 //長すぎたら適当に折り返す
-static int write_log_x264_mes_line(char *const mes) {
+static int write_log_enc_mes_line(char *const mes) {
 	const int mes_len = strlen(mes);
 	const int mes_type = check_log_type(mes);
 	char *const fin = mes + mes_len;
@@ -45,7 +45,7 @@ static int write_log_x264_mes_line(char *const mes) {
 	return mes_len;
 }
 
-void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames) {
+void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames) {
 	char *a, *b, *mes = msg;
 	char * const fin = mes + *log_len; //null文字の位置
 	*fin = '\0';
@@ -53,7 +53,7 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 		if ((b = strrchr(mes, '\r', a - mes - 2)) != NULL)
 			mes = b + 1;
 		*a = '\0';
-		write_log_x264_mes_line(mes);
+		write_log_enc_mes_line(mes);
 		mes = a + 1;
 	}
 	if ((a = strrchr(mes, '\r', fin - mes - 1)) != NULL) {
@@ -63,11 +63,11 @@ void write_log_x264_mes(char *const msg, DWORD *log_len, int total_drop, int cur
 		*(b+1) = '\0';
 		if ((b = strrchr(mes, '\r', b - mes - 2)) != NULL)
 			mes = b + 1;
-		set_window_title_x264_mes(mes, total_drop, current_frames);
+		set_window_title_enc_mes(mes, total_drop, current_frames);
 		mes = a + 1;
 	}
 	if (mes == msg && *log_len)
-		mes += write_log_x264_mes_line(mes);
+		mes += write_log_enc_mes_line(mes);
 	memmove(msg, mes, ((*log_len = fin - mes) + 1) * sizeof(msg[0]));
 }
 
