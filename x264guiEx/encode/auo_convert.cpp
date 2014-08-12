@@ -306,40 +306,34 @@ func_convert_frame get_convert_func(int width, int height, BOOL use10bit, BOOL i
 
 BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, BOOL use10bit) {
 	BOOL ret = TRUE;
-	int pixel_size = (use10bit) ? sizeof(short) : sizeof(BYTE);
-	int frame_size = width * height * pixel_size;
-#if (_MSC_VER >= 1600)
-	DWORD simd_check = get_availableSIMD();
-	DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 32 : 16) : 1;
-	if (width & (align_size - 1))
-		frame_size = (frame_size + align_size * 2 - 1) & ~(align_size - 1);
-#else
-	if ((width & 15) && check_sse2())
-		frame_size = ((frame_size + 31) & ~15);
-#endif
+	const DWORD pixel_size = (use10bit) ? sizeof(short) : sizeof(BYTE);
+	const DWORD simd_check = get_availableSIMD();
+	const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 32 : 16) : 1;
+#define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
+	const DWORD frame_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
+#undef ALIGN_NEXT
+
 	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
 	switch (output_csp) {
 		case OUT_CSP_YUV422:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, 16)) == NULL)
+			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
 				ret = FALSE;
 			pixel_data->data[1] = pixel_data->data[0] + frame_size;
 			break;
 		case OUT_CSP_YUV444:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, 16)) == NULL)
+			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
 				ret = FALSE;
 			pixel_data->data[1] = pixel_data->data[0] + frame_size;
 			pixel_data->data[2] = pixel_data->data[1] + frame_size;
 			break;
 		case OUT_CSP_RGB:
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, 16)) == NULL)
+			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
 				ret = FALSE;
 			break;
 		case OUT_CSP_YUV420:
 		default:
-			//YUV一気に確保
-			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, 16)) == NULL)
+			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
 				ret = FALSE;
-			//割り振り
 			pixel_data->data[1] = pixel_data->data[0] + frame_size;
 			break;
 	}
