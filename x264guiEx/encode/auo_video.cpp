@@ -396,8 +396,8 @@ static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
 				//自前のバッファにコピーしてdata_ptrが破棄されても良いようにする
 				memcpy(aud_p->buffer, data_ptr, aud_p->get_length * oip->audio_size);
 			}
-			if (!aud_p->abort) //すでにTRUEなら変更しないようにする
-				aud_p->abort = oip->func_is_abort();
+			//すでにTRUEなら変更しないようにする
+			aud_p->abort |= oip->func_is_abort();
 		}
 		flush_audio_log();
 		if_valid_set_event(aud_p->he_aud_start);
@@ -407,22 +407,22 @@ static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
 }
 
 //音声処理をどんどん回して終了させる
-static AUO_RESULT finish_aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
-	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+static AUO_RESULT finish_aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe, AUO_RESULT vid_ret) {
+	//エラーが発生していたら音声出力ループをとめる
+	pe->aud_parallel.abort |= (vid_ret != AUO_RESULT_SUCCESS);
 	if (pe->aud_parallel.th_aud) {
 		write_log_auo_line(LOG_INFO, "音声処理の終了を待機しています...");
 		set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
 		while (pe->aud_parallel.he_vid_start)
-			ret |= aud_parallel_task(oip, pe);
+			vid_ret |= aud_parallel_task(oip, pe);
 		set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 	}
-	return ret;
+	return vid_ret;
 }
 
 //並列処理スレッドの終了を待ち、終了コードを回収する
-static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *pe) {
-	AUO_RESULT ret = AUO_RESULT_SUCCESS;
-	ret |= finish_aud_parallel_task(oip, pe); //wav出力を完了させる
+static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *pe, AUO_RESULT vid_ret) {
+	vid_ret |= finish_aud_parallel_task(oip, pe, vid_ret); //wav出力を完了させる
 	release_audio_parallel_events(pe);
 	if (pe->aud_parallel.buffer) free(pe->aud_parallel.buffer);
 	if (pe->aud_parallel.th_aud) {
@@ -434,8 +434,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 				set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
 				wait_for_audio = !wait_for_audio;
 			}
-			if (!pe->aud_parallel.abort)
-				pe->aud_parallel.abort = oip->func_is_abort();
+			pe->aud_parallel.abort |= oip->func_is_abort();
 			flush_audio_log();
 			log_process_events();
 		}
@@ -444,12 +443,12 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 
 		DWORD exit_code = 0;
 		//GetExitCodeThreadの返り値がNULLならエラー
-		ret |= (NULL == GetExitCodeThread(pe->aud_parallel.th_aud, &exit_code)) ? AUO_RESULT_ERROR : exit_code;
+		vid_ret |= (NULL == GetExitCodeThread(pe->aud_parallel.th_aud, &exit_code)) ? AUO_RESULT_ERROR : exit_code;
 		CloseHandle(pe->aud_parallel.th_aud);
 	}
 	//初期化 (重要!!!)
 	ZeroMemory(&pe->aud_parallel, sizeof(pe->aud_parallel));
-	return ret;
+	return vid_ret;
 }
 
 static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
@@ -535,7 +534,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		//------------メインループ------------
 		for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
 			//中断を確認
-			if (FALSE != (pe->aud_parallel.abort = oip->func_is_abort())) {
+			if (FALSE != oip->func_is_abort()) {
 				ret |= AUO_RESULT_ABORT;
 				break;
 			}
@@ -600,7 +599,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		if (!ret) oip->func_rest_time_disp(oip->n * pe->current_x264_pass, oip->n * pe->total_x264_pass);
 
 		//音声の同時処理を終了させる
-		ret |= finish_aud_parallel_task(oip, pe);
+		ret |= finish_aud_parallel_task(oip, pe, ret);
 		//音声との同時処理が終了
 		release_audio_parallel_events(pe);
 
@@ -632,7 +631,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	free_pixel_data(&pixel_data);
 	if (jitter) free(jitter);
 
-	ret |= exit_audio_parallel_control(oip, pe);
+	ret |= exit_audio_parallel_control(oip, pe, ret);
 
 	return ret;
 }
@@ -757,5 +756,5 @@ static AUO_RESULT video_output_inside(CONF_X264GUIEX *conf, const OUTPUT_INFO *o
 }
 
 AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	return (video_output_inside(conf, oip, pe, sys_dat) | exit_audio_parallel_control(oip, pe));
+	return exit_audio_parallel_control(oip, pe, video_output_inside(conf, oip, pe, sys_dat));
 }
