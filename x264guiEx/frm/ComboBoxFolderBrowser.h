@@ -21,6 +21,7 @@ using namespace System::Windows::Forms;
 namespace x264guiEx 
 {
 	//ComboBoxにRootDirからのサブフォルダ一覧を表示する
+	//リンクオプションの「埋め込みマネージリソースファイル」に"folder_open.ico"を追加する
 	public ref class ComboBoxFolderBrowser : public System::Windows::Forms::ComboBox
 	{
 	public:
