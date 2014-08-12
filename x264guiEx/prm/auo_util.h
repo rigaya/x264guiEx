@@ -712,13 +712,13 @@ static void GetRelativePathTo(char *buf, size_t nSize, const char *path, DWORD a
 		// ".\dir" となるべきものが、"\dir"と返ってしまう
 		if (buf[0] == '\\') {
 			//先頭に'.'を追加して、フルパスに変換後、もとのパスと比較してみる
-			char check_buffer[MAX_PATH_LEN];
-			check_buffer[0] = '.';
-			strcpy_s(check_buffer + 1, _countof(check_buffer) - 1, buf);
 			char check_fullpath[MAX_PATH_LEN];
-			_fullpath(check_fullpath, check_buffer, _countof(check_fullpath));
-			if (0 == strcmp(check_fullpath, path))
-				strcpy_s(buf, nSize, check_buffer);
+			PathRemoveBackslashA(baseDirPath);
+			PathCombineA(check_fullpath, baseDirPath, buf + 1);
+			if (0 == strcmp(check_fullpath, path)) {
+				memmove(buf + 1, buf, sizeof(buf[0]) * (strlen(buf) + 1));
+				buf[0] = '.';
+			}
 		}
 	}
 }
@@ -756,13 +756,13 @@ static void GetRelativePathTo(WCHAR *buf, size_t nSize, const WCHAR *path, DWORD
 		// ".\dir" となるべきものが、"\dir"と返ってしまう
 		if (buf[0] == L'\\') {
 			//先頭に'.'を追加して、フルパスに変換後、もとのパスと比較してみる
-			WCHAR check_buffer[MAX_PATH_LEN];
-			check_buffer[0] = L'.';
-			wcscpy_s(check_buffer + 1, _countof(check_buffer) - 1, buf);
 			WCHAR check_fullpath[MAX_PATH_LEN];
-			_wfullpath(check_fullpath, check_buffer, _countof(check_fullpath));
-			if (0 == wcscmp(check_fullpath, path))
-				wcscpy_s(buf, nSize, check_buffer);
+			PathRemoveBackslashW(baseDirPath);
+			PathCombineW(check_fullpath, baseDirPath, buf + 1);
+			if (0 == wcscmp(check_fullpath, path)) {
+				memmove(buf + 1, buf, sizeof(buf[0]) * (wcslen(buf) + 1));
+				buf[0] = L'.';
+			}
 		}
 	}
 }
