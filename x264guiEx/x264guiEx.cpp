@@ -160,6 +160,8 @@ BOOL func_output( OUTPUT_INFO *oip )
 	//チェックを行い、エンコード可能ならエンコードを開始する
 	if (check_output(oip, &pe) && setup_afsvideo(oip, &conf, &pe, sys_dat.exstg->s_local.auto_afs_disable)) { //※3 start
 
+		ret |= run_bat_file(&conf, oip, &pe, &sys_dat, RUN_BAT_BEFORE);
+
 		for (int i = 0; !ret && i < 2; i++)
 			ret |= task[conf.aud.audio_encode_timing][i](&conf, oip, &pe, &sys_dat);
 
@@ -185,7 +187,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 	auto_save_log(oip, &pe); //※1 end のあとで行うこと
 
 	if (!(ret & (AUO_RESULT_ERROR | AUO_RESULT_ABORT)))
-		ret |= run_bat_file(&conf, oip, &pe, &sys_dat);
+		ret |= run_bat_file(&conf, oip, &pe, &sys_dat, RUN_BAT_AFTER);
 
 	return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
 }

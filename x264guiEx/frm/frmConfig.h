@@ -554,12 +554,17 @@ private: System::Windows::Forms::CheckBox^  fcgCBMP4MuxApple;
 
 
 private: System::Windows::Forms::TabPage^  fcgtabPageBat;
-private: System::Windows::Forms::CheckBox^  fcgCBRunBat;
+private: System::Windows::Forms::CheckBox^  fcgCBRunBatBefore;
+private: System::Windows::Forms::Label^  fcgLBBatBeforePath;
 
-private: System::Windows::Forms::Label^  fcgLBBatPath;
-private: System::Windows::Forms::CheckBox^  fcgCBWaitForBat;
-private: System::Windows::Forms::Button^  fcgBTBatPath;
-private: System::Windows::Forms::TextBox^  fcgTXBatPath;
+
+
+private: System::Windows::Forms::CheckBox^  fcgCBWaitForBatBefore;
+private: System::Windows::Forms::Button^  fcgBTBatBeforePath;
+
+
+private: System::Windows::Forms::TextBox^  fcgTXBatBeforePath;
+
 private: System::Windows::Forms::ComboBox^  fcgCXInputRange;
 
 private: System::Windows::Forms::Label^  fcgLBInputRange;
@@ -597,6 +602,23 @@ private: System::Windows::Forms::ToolStripMenuItem^  fcgTSExeFileshelp;
 private: System::Windows::Forms::Label^  fcgCBAudioEncTiming;
 private: System::Windows::Forms::ComboBox^  fcgCXAudioEncTiming;
 private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
+private: System::Windows::Forms::LinkLabel^  fcgLBguiExBlog;
+private: System::Windows::Forms::Panel^  fcgPNSeparator;
+private: System::Windows::Forms::Button^  fcgBTBatAfterPath;
+
+
+private: System::Windows::Forms::TextBox^  fcgTXBatAfterPath;
+
+private: System::Windows::Forms::Label^  fcgLBBatAfterPath;
+
+private: System::Windows::Forms::CheckBox^  fcgCBWaitForBatAfter;
+
+private: System::Windows::Forms::CheckBox^  fcgCBRunBatAfter;
+private: System::Windows::Forms::Label^  fcgLBBatAfterString;
+
+private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
+
+
 
 
 
@@ -927,11 +949,19 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			this->fcgLBMuxPriority = (gcnew System::Windows::Forms::Label());
 			this->fcgCBMuxMinimize = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgtabPageBat = (gcnew System::Windows::Forms::TabPage());
-			this->fcgBTBatPath = (gcnew System::Windows::Forms::Button());
-			this->fcgTXBatPath = (gcnew System::Windows::Forms::TextBox());
-			this->fcgLBBatPath = (gcnew System::Windows::Forms::Label());
-			this->fcgCBWaitForBat = (gcnew System::Windows::Forms::CheckBox());
-			this->fcgCBRunBat = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgLBBatAfterString = (gcnew System::Windows::Forms::Label());
+			this->fcgLBBatBeforeString = (gcnew System::Windows::Forms::Label());
+			this->fcgBTBatAfterPath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXBatAfterPath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgLBBatAfterPath = (gcnew System::Windows::Forms::Label());
+			this->fcgCBWaitForBatAfter = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCBRunBatAfter = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgPNSeparator = (gcnew System::Windows::Forms::Panel());
+			this->fcgBTBatBeforePath = (gcnew System::Windows::Forms::Button());
+			this->fcgTXBatBeforePath = (gcnew System::Windows::Forms::TextBox());
+			this->fcgLBBatBeforePath = (gcnew System::Windows::Forms::Label());
+			this->fcgCBWaitForBatBefore = (gcnew System::Windows::Forms::CheckBox());
+			this->fcgCBRunBatBefore = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgTXCmd = (gcnew System::Windows::Forms::TextBox());
 			this->fcgBTCancel = (gcnew System::Windows::Forms::Button());
 			this->fcgBTOK = (gcnew System::Windows::Forms::Button());
@@ -4025,70 +4055,165 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			// 
 			// fcgtabPageBat
 			// 
-			this->fcgtabPageBat->Controls->Add(this->fcgBTBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgTXBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgLBBatPath);
-			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBat);
-			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBat);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatAfterString);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatBeforeString);
+			this->fcgtabPageBat->Controls->Add(this->fcgBTBatAfterPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgTXBatAfterPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatAfterPath);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBatAfter);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBatAfter);
+			this->fcgtabPageBat->Controls->Add(this->fcgPNSeparator);
+			this->fcgtabPageBat->Controls->Add(this->fcgBTBatBeforePath);
+			this->fcgtabPageBat->Controls->Add(this->fcgTXBatBeforePath);
+			this->fcgtabPageBat->Controls->Add(this->fcgLBBatBeforePath);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBatBefore);
+			this->fcgtabPageBat->Controls->Add(this->fcgCBRunBatBefore);
 			this->fcgtabPageBat->Location = System::Drawing::Point(4, 23);
 			this->fcgtabPageBat->Name = L"fcgtabPageBat";
 			this->fcgtabPageBat->Size = System::Drawing::Size(376, 187);
 			this->fcgtabPageBat->TabIndex = 3;
-			this->fcgtabPageBat->Text = L"エンコ後バッチ処理";
+			this->fcgtabPageBat->Text = L"エンコ前後バッチ処理";
 			this->fcgtabPageBat->UseVisualStyleBackColor = true;
 			// 
-			// fcgBTBatPath
+			// fcgLBBatAfterString
 			// 
-			this->fcgBTBatPath->Location = System::Drawing::Point(330, 85);
-			this->fcgBTBatPath->Name = L"fcgBTBatPath";
-			this->fcgBTBatPath->Size = System::Drawing::Size(30, 23);
-			this->fcgBTBatPath->TabIndex = 5;
-			this->fcgBTBatPath->Tag = L"chValue";
-			this->fcgBTBatPath->Text = L"...";
-			this->fcgBTBatPath->UseVisualStyleBackColor = true;
-			this->fcgBTBatPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatPath_Click);
+			this->fcgLBBatAfterString->AutoSize = true;
+			this->fcgLBBatAfterString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+			this->fcgLBBatAfterString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
+			this->fcgLBBatAfterString->Location = System::Drawing::Point(304, 113);
+			this->fcgLBBatAfterString->Name = L"fcgLBBatAfterString";
+			this->fcgLBBatAfterString->Size = System::Drawing::Size(27, 15);
+			this->fcgLBBatAfterString->TabIndex = 13;
+			this->fcgLBBatAfterString->Text = L" 後& ";
+			this->fcgLBBatAfterString->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
-			// fcgTXBatPath
+			// fcgLBBatBeforeString
 			// 
-			this->fcgTXBatPath->AllowDrop = true;
-			this->fcgTXBatPath->Location = System::Drawing::Point(126, 86);
-			this->fcgTXBatPath->Name = L"fcgTXBatPath";
-			this->fcgTXBatPath->Size = System::Drawing::Size(202, 21);
-			this->fcgTXBatPath->TabIndex = 4;
-			this->fcgTXBatPath->Tag = L"chValue";
-			this->fcgTXBatPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
-			this->fcgTXBatPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
+			this->fcgLBBatBeforeString->AutoSize = true;
+			this->fcgLBBatBeforeString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+			this->fcgLBBatBeforeString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
+			this->fcgLBBatBeforeString->Location = System::Drawing::Point(304, 20);
+			this->fcgLBBatBeforeString->Name = L"fcgLBBatBeforeString";
+			this->fcgLBBatBeforeString->Size = System::Drawing::Size(27, 15);
+			this->fcgLBBatBeforeString->TabIndex = 12;
+			this->fcgLBBatBeforeString->Text = L" 前& ";
+			this->fcgLBBatBeforeString->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
-			// fcgLBBatPath
+			// fcgBTBatAfterPath
 			// 
-			this->fcgLBBatPath->AutoSize = true;
-			this->fcgLBBatPath->Location = System::Drawing::Point(18, 89);
-			this->fcgLBBatPath->Name = L"fcgLBBatPath";
-			this->fcgLBBatPath->Size = System::Drawing::Size(61, 14);
-			this->fcgLBBatPath->TabIndex = 2;
-			this->fcgLBBatPath->Text = L"バッチファイル";
+			this->fcgBTBatAfterPath->Location = System::Drawing::Point(330, 154);
+			this->fcgBTBatAfterPath->Name = L"fcgBTBatAfterPath";
+			this->fcgBTBatAfterPath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTBatAfterPath->TabIndex = 11;
+			this->fcgBTBatAfterPath->Tag = L"chValue";
+			this->fcgBTBatAfterPath->Text = L"...";
+			this->fcgBTBatAfterPath->UseVisualStyleBackColor = true;
+			this->fcgBTBatAfterPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatAfterPath_Click);
 			// 
-			// fcgCBWaitForBat
+			// fcgTXBatAfterPath
 			// 
-			this->fcgCBWaitForBat->AutoSize = true;
-			this->fcgCBWaitForBat->Location = System::Drawing::Point(18, 47);
-			this->fcgCBWaitForBat->Name = L"fcgCBWaitForBat";
-			this->fcgCBWaitForBat->Size = System::Drawing::Size(150, 18);
-			this->fcgCBWaitForBat->TabIndex = 1;
-			this->fcgCBWaitForBat->Tag = L"chValue";
-			this->fcgCBWaitForBat->Text = L"バッチ処理の終了を待機する";
-			this->fcgCBWaitForBat->UseVisualStyleBackColor = true;
+			this->fcgTXBatAfterPath->AllowDrop = true;
+			this->fcgTXBatAfterPath->Location = System::Drawing::Point(126, 155);
+			this->fcgTXBatAfterPath->Name = L"fcgTXBatAfterPath";
+			this->fcgTXBatAfterPath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXBatAfterPath->TabIndex = 10;
+			this->fcgTXBatAfterPath->Tag = L"chValue";
+			this->fcgTXBatAfterPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXBatAfterPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
 			// 
-			// fcgCBRunBat
+			// fcgLBBatAfterPath
 			// 
-			this->fcgCBRunBat->AutoSize = true;
-			this->fcgCBRunBat->Location = System::Drawing::Point(18, 23);
-			this->fcgCBRunBat->Name = L"fcgCBRunBat";
-			this->fcgCBRunBat->Size = System::Drawing::Size(179, 18);
-			this->fcgCBRunBat->TabIndex = 0;
-			this->fcgCBRunBat->Tag = L"chValue";
-			this->fcgCBRunBat->Text = L"エンコード終了後、バッチ処理を行う";
-			this->fcgCBRunBat->UseVisualStyleBackColor = true;
+			this->fcgLBBatAfterPath->AutoSize = true;
+			this->fcgLBBatAfterPath->Location = System::Drawing::Point(40, 158);
+			this->fcgLBBatAfterPath->Name = L"fcgLBBatAfterPath";
+			this->fcgLBBatAfterPath->Size = System::Drawing::Size(61, 14);
+			this->fcgLBBatAfterPath->TabIndex = 9;
+			this->fcgLBBatAfterPath->Text = L"バッチファイル";
+			// 
+			// fcgCBWaitForBatAfter
+			// 
+			this->fcgCBWaitForBatAfter->AutoSize = true;
+			this->fcgCBWaitForBatAfter->Location = System::Drawing::Point(40, 129);
+			this->fcgCBWaitForBatAfter->Name = L"fcgCBWaitForBatAfter";
+			this->fcgCBWaitForBatAfter->Size = System::Drawing::Size(150, 18);
+			this->fcgCBWaitForBatAfter->TabIndex = 8;
+			this->fcgCBWaitForBatAfter->Tag = L"chValue";
+			this->fcgCBWaitForBatAfter->Text = L"バッチ処理の終了を待機する";
+			this->fcgCBWaitForBatAfter->UseVisualStyleBackColor = true;
+			// 
+			// fcgCBRunBatAfter
+			// 
+			this->fcgCBRunBatAfter->AutoSize = true;
+			this->fcgCBRunBatAfter->Location = System::Drawing::Point(18, 105);
+			this->fcgCBRunBatAfter->Name = L"fcgCBRunBatAfter";
+			this->fcgCBRunBatAfter->Size = System::Drawing::Size(179, 18);
+			this->fcgCBRunBatAfter->TabIndex = 7;
+			this->fcgCBRunBatAfter->Tag = L"chValue";
+			this->fcgCBRunBatAfter->Text = L"エンコード終了後、バッチ処理を行う";
+			this->fcgCBRunBatAfter->UseVisualStyleBackColor = true;
+			// 
+			// fcgPNSeparator
+			// 
+			this->fcgPNSeparator->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->fcgPNSeparator->Location = System::Drawing::Point(18, 94);
+			this->fcgPNSeparator->Name = L"fcgPNSeparator";
+			this->fcgPNSeparator->Size = System::Drawing::Size(342, 1);
+			this->fcgPNSeparator->TabIndex = 6;
+			// 
+			// fcgBTBatBeforePath
+			// 
+			this->fcgBTBatBeforePath->Location = System::Drawing::Point(330, 61);
+			this->fcgBTBatBeforePath->Name = L"fcgBTBatBeforePath";
+			this->fcgBTBatBeforePath->Size = System::Drawing::Size(30, 23);
+			this->fcgBTBatBeforePath->TabIndex = 5;
+			this->fcgBTBatBeforePath->Tag = L"chValue";
+			this->fcgBTBatBeforePath->Text = L"...";
+			this->fcgBTBatBeforePath->UseVisualStyleBackColor = true;
+			this->fcgBTBatBeforePath->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTBatBeforePath_Click);
+			// 
+			// fcgTXBatBeforePath
+			// 
+			this->fcgTXBatBeforePath->AllowDrop = true;
+			this->fcgTXBatBeforePath->Location = System::Drawing::Point(126, 62);
+			this->fcgTXBatBeforePath->Name = L"fcgTXBatBeforePath";
+			this->fcgTXBatBeforePath->Size = System::Drawing::Size(202, 21);
+			this->fcgTXBatBeforePath->TabIndex = 4;
+			this->fcgTXBatBeforePath->Tag = L"chValue";
+			this->fcgTXBatBeforePath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
+			this->fcgTXBatBeforePath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
+			// 
+			// fcgLBBatBeforePath
+			// 
+			this->fcgLBBatBeforePath->AutoSize = true;
+			this->fcgLBBatBeforePath->Location = System::Drawing::Point(40, 65);
+			this->fcgLBBatBeforePath->Name = L"fcgLBBatBeforePath";
+			this->fcgLBBatBeforePath->Size = System::Drawing::Size(61, 14);
+			this->fcgLBBatBeforePath->TabIndex = 2;
+			this->fcgLBBatBeforePath->Text = L"バッチファイル";
+			// 
+			// fcgCBWaitForBatBefore
+			// 
+			this->fcgCBWaitForBatBefore->AutoSize = true;
+			this->fcgCBWaitForBatBefore->Location = System::Drawing::Point(40, 36);
+			this->fcgCBWaitForBatBefore->Name = L"fcgCBWaitForBatBefore";
+			this->fcgCBWaitForBatBefore->Size = System::Drawing::Size(150, 18);
+			this->fcgCBWaitForBatBefore->TabIndex = 1;
+			this->fcgCBWaitForBatBefore->Tag = L"chValue";
+			this->fcgCBWaitForBatBefore->Text = L"バッチ処理の終了を待機する";
+			this->fcgCBWaitForBatBefore->UseVisualStyleBackColor = true;
+			// 
+			// fcgCBRunBatBefore
+			// 
+			this->fcgCBRunBatBefore->AutoSize = true;
+			this->fcgCBRunBatBefore->Location = System::Drawing::Point(18, 12);
+			this->fcgCBRunBatBefore->Name = L"fcgCBRunBatBefore";
+			this->fcgCBRunBatBefore->Size = System::Drawing::Size(179, 18);
+			this->fcgCBRunBatBefore->TabIndex = 0;
+			this->fcgCBRunBatBefore->Tag = L"chValue";
+			this->fcgCBRunBatBefore->Text = L"エンコード開始前、バッチ処理を行う";
+			this->fcgCBRunBatBefore->UseVisualStyleBackColor = true;
 			// 
 			// fcgTXCmd
 			// 
@@ -4144,7 +4269,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			this->fcgLBVersionDate->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fcgLBVersionDate->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
-			this->fcgLBVersionDate->Location = System::Drawing::Point(478, 580);
+			this->fcgLBVersionDate->Location = System::Drawing::Point(416, 580);
 			this->fcgLBVersionDate->Name = L"fcgLBVersionDate";
 			this->fcgLBVersionDate->Size = System::Drawing::Size(49, 15);
 			this->fcgLBVersionDate->TabIndex = 8;
@@ -4157,7 +4282,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			this->fcgLBVersion->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(128)));
 			this->fcgLBVersion->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
-			this->fcgLBVersion->Location = System::Drawing::Point(204, 580);
+			this->fcgLBVersion->Location = System::Drawing::Point(180, 580);
 			this->fcgLBVersion->Name = L"fcgLBVersion";
 			this->fcgLBVersion->Size = System::Drawing::Size(49, 15);
 			this->fcgLBVersion->TabIndex = 9;
@@ -4705,9 +4830,14 @@ private: System::Windows::Forms::ComboBox^  fcgCXCmdExInsert;
 			openAndSetFilePath(fcgTXTCIN, L"タイムコードファイル");
 		}
 	private:
-		System::Void fcgBTBatPath_Click(System::Object^  sender, System::EventArgs^  e) {
-			if (openAndSetFilePath(fcgTXBatPath, L"バッチファイル", ".bat", LocalStg.LastBatDir))
-				LocalStg.LastBatDir = Path::GetDirectoryName(fcgTXBatPath->Text);
+		System::Void fcgBTBatBeforePath_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (openAndSetFilePath(fcgTXBatBeforePath, L"バッチファイル", ".bat", LocalStg.LastBatDir))
+				LocalStg.LastBatDir = Path::GetDirectoryName(fcgTXBatBeforePath->Text);
+		}
+	private:
+		System::Void fcgBTBatAfterPath_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (openAndSetFilePath(fcgTXBatAfterPath, L"バッチファイル", ".bat", LocalStg.LastBatDir))
+				LocalStg.LastBatDir = Path::GetDirectoryName(fcgTXBatAfterPath->Text);
 		}
 	private:
 		System::Void SetCXIndex(ComboBox^ CX, int index) {

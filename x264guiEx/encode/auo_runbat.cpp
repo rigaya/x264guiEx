@@ -40,22 +40,23 @@ static void bat_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM
 	replace(cmd, nSize, "%{chap_apple}", chap_apple);
 }
 
-AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	if (!conf->oth.run_bat)
+AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, DWORD run_bat_mode) {
+	if (!(conf->oth.run_bat & run_bat_mode))
 		return AUO_RESULT_SUCCESS;
 
-	if (!PathFileExists(conf->oth.batfile)) {
-		warning_no_batfile(conf->oth.batfile); return AUO_RESULT_ERROR;
+	const char *batfile = (run_bat_mode & RUN_BAT_BEFORE) ? conf->oth.batfile_before : conf->oth.batfile_after;
+	if (!PathFileExists(batfile)) {
+		warning_no_batfile(batfile); return AUO_RESULT_ERROR;
 	}
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	char bat_tmp[MAX_PATH_LEN];
-	apply_appendix(bat_tmp, _countof(bat_tmp), conf->oth.batfile, "_tmp.bat");
+	apply_appendix(bat_tmp, _countof(bat_tmp), batfile, "_tmp.bat");
 
 	const int BAT_REPLACE_MARGIN = 4096;
 	int buf_len = BAT_REPLACE_MARGIN * 2;
 	FILE *fp_orig = NULL, *fp_tmp = NULL;
 	char *line_buf = NULL;
-	if        (fopen_s(&fp_orig, conf->oth.batfile, "r" ) != NULL) {
+	if        (fopen_s(&fp_orig, batfile, "r" ) != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_orig();
 	} else if (fopen_s(&fp_tmp,  bat_tmp,           "wb") != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_new();
@@ -104,7 +105,7 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 	if (RP_SUCCESS != (rp_ret = RunProcess(bat_args, sys_dat->aviutl_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, FALSE))) {
 		ret |= AUO_RESULT_ERROR; error_run_process("バッチファイル処理", rp_ret);
 	}
-	if (!ret && !conf->oth.dont_wait_bat_fin)
+	if (!ret && !(conf->oth.dont_wait_bat_fin & run_bat_mode))
 		while (WaitForSingleObject(pi_bat.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
 

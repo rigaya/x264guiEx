@@ -22,6 +22,12 @@ enum {
 	TMP_DIR_CUSTOM = 2,
 };
 
+enum {
+	RUN_BAT_NONE   = 0x00,
+	RUN_BAT_AFTER  = 0x01,
+	RUN_BAT_BEFORE = 0x02,
+};
+
 static const char *const CONF_NAME    = "x264guiEx ConfigFile";
 const int CONF_NAME_BLOCK_LEN         = 32;
 const int CONF_BLOCK_MAX              = 32;
@@ -85,13 +91,14 @@ typedef struct {
 } CONF_MUX; //muxer用設定
 
 typedef struct {
-	BOOL disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
-	int  temp_dir;               //一時ディレクトリ
-	BOOL out_audio_only;         //音声のみ出力
-	char notes[128];             //メモ
-	BOOL run_bat;                //バッチファイルを実行するかどうか
-	BOOL dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか
-	char batfile[MAX_PATH_LEN];  //バッチファイルのパス
+	BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
+	int   temp_dir;               //一時ディレクトリ
+	BOOL  out_audio_only;         //音声のみ出力
+	char  notes[128];             //メモ
+	DWORD run_bat;                //バッチファイルを実行するかどうか
+	DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか
+	char  batfile_after[MAX_PATH_LEN];   //エンコ後バッチファイルのパス
+	char  batfile_before[MAX_PATH_LEN];  //エンコ前バッチファイルのパス
 } CONF_OTHER;
 
 typedef struct {

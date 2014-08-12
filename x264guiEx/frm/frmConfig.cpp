@@ -1002,7 +1002,8 @@ System::Void frmConfig::SetTXMaxLenAll() {
 	SetTXMaxLen(fcgTXStatusFile,           sizeof(conf->vid.stats) - 1);
 	SetTXMaxLen(fcgTXTCIN,                 sizeof(conf->vid.tcfile_in) - 1);
 	SetTXMaxLen(fcgTXCQM,                  sizeof(conf->vid.cqmfile) - 1);
-	SetTXMaxLen(fcgTXBatPath,              sizeof(conf->oth.batfile) - 1);
+	SetTXMaxLen(fcgTXBatBeforePath,        sizeof(conf->oth.batfile_before) - 1);
+	SetTXMaxLen(fcgTXBatAfterPath,         sizeof(conf->oth.batfile_after) - 1);
 
 	fcgTSTSettingsNotes->MaxLength     =   sizeof(conf->oth.notes) - 1;
 }
@@ -1309,9 +1310,12 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 		fcgCBMuxMinimize->Checked          = cnf->mux.minimized != 0;
 		SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
-		fcgCBRunBat->Checked               = cnf->oth.run_bat != 0;
-		fcgCBWaitForBat->Checked           = cnf->oth.dont_wait_bat_fin == 0;
-		fcgTXBatPath->Text                 = String(cnf->oth.batfile).ToString();
+		fcgCBRunBatBefore->Checked         =(cnf->oth.run_bat & RUN_BAT_BEFORE) != 0;
+		fcgCBRunBatAfter->Checked          =(cnf->oth.run_bat & RUN_BAT_AFTER) != 0;
+		fcgCBWaitForBatBefore->Checked     =(cnf->oth.dont_wait_bat_fin & RUN_BAT_BEFORE) == 0;
+		fcgCBWaitForBatAfter->Checked      =(cnf->oth.dont_wait_bat_fin & RUN_BAT_AFTER) == 0;
+		fcgTXBatBeforePath->Text           = String(cnf->oth.batfile_before).ToString();
+		fcgTXBatAfterPath->Text            = String(cnf->oth.batfile_after).ToString();
 
 		SetfcgTSLSettingsNotes(cnf->oth.notes);
 
@@ -1461,9 +1465,14 @@ System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
 	cnf->mux.minimized              = fcgCBMuxMinimize->Checked;
 	cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
 
-	cnf->oth.run_bat                = fcgCBRunBat->Checked;
-	cnf->oth.dont_wait_bat_fin      = !fcgCBWaitForBat->Checked;
-	GetCHARfromString(cnf->oth.batfile, sizeof(cnf->oth.batfile), fcgTXBatPath->Text);
+	cnf->oth.run_bat                = RUN_BAT_NONE;
+	cnf->oth.run_bat               |= (fcgCBRunBatBefore->Checked) ? RUN_BAT_BEFORE : NULL;
+	cnf->oth.run_bat               |= (fcgCBRunBatAfter->Checked) ? RUN_BAT_AFTER : NULL;
+	cnf->oth.dont_wait_bat_fin      = RUN_BAT_NONE;
+	cnf->oth.dont_wait_bat_fin     |= (!fcgCBWaitForBatBefore->Checked) ? RUN_BAT_BEFORE : NULL;
+	cnf->oth.dont_wait_bat_fin     |= (!fcgCBWaitForBatAfter->Checked) ? RUN_BAT_AFTER : NULL;
+	GetCHARfromString(cnf->oth.batfile_before, sizeof(cnf->oth.batfile_before), fcgTXBatBeforePath->Text);
+	GetCHARfromString(cnf->oth.batfile_after,  sizeof(cnf->oth.batfile_after),  fcgTXBatAfterPath->Text);
 
 	GetfcgTSLSettingsNotes(cnf->oth.notes, sizeof(cnf->oth.notes));
 
@@ -1997,13 +2006,26 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"AviutlSync で Aviutlの優先度と同じになります。"
 		);
 	//バッチファイル実行
-	fcgTTEx->SetToolTip(fcgCBRunBat, L""
-		+ L"エンコード終了後バッチファイルを実行します。"
+	fcgTTEx->SetToolTip(fcgCBRunBatBefore, L""
+		+ L"エンコード開始前にバッチファイルを実行します。"
 		);
-	fcgTTEx->SetToolTip(fcgCBWaitForBat, L""
+	fcgTTEx->SetToolTip(fcgCBRunBatAfter, L""
+		+ L"エンコード終了後、バッチファイルを実行します。"
+		);
+	fcgTTEx->SetToolTip(fcgCBWaitForBatBefore, L""
 		+ L"バッチ処理開始後、バッチ処理が終了するまで待機します。"
 		);
-	fcgTTEx->SetToolTip(fcgBTBatPath, L""
+	fcgTTEx->SetToolTip(fcgCBWaitForBatAfter, L""
+		+ L"バッチ処理開始後、バッチ処理が終了するまで待機します。"
+		);
+	fcgTTEx->SetToolTip(fcgBTBatBeforePath, L""
+		+ L"エンコード終了後実行するバッチファイルを指定します。\n"
+		+ L"実際のバッチ実行時には新たに\"<バッチファイル名>_tmp.bat\"を作成、\n"
+		+ L"指定したバッチファイルの内容をコピーし、\n"
+		+ L"さらに特定文字列を置換して実行します。\n"
+		+ L"使用できる置換文字列はreadmeをご覧下さい。"
+		);
+	fcgTTEx->SetToolTip(fcgBTBatAfterPath, L""
 		+ L"エンコード終了後実行するバッチファイルを指定します。\n"
 		+ L"実際のバッチ実行時には新たに\"<バッチファイル名>_tmp.bat\"を作成、\n"
 		+ L"指定したバッチファイルの内容をコピーし、\n"
