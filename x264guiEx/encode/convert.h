@@ -38,6 +38,9 @@ void convert_audio_16to8_sse2(BYTE *dst, short *src, int n);
 //動画変換
 typedef void (*func_convert_frame) (void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+void copy_yuy2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void copy_yuy2_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
 void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 

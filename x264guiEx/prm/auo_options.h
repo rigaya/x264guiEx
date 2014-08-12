@@ -46,6 +46,7 @@ enum {
 	OUT_CSP_NV16,
 	OUT_CSP_YUV444,
 	OUT_CSP_RGB,
+	OUT_CSP_YUY2,
 };
 
 enum {

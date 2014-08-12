@@ -24,7 +24,7 @@
 #include "convert_const.h"
 
 //AVXはVC++2010から
-#ifdef (_MSC_VER >= 1600)
+#if (_MSC_VER >= 1600)
 void convert_yuy2_to_nv12_avx_mod16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	int x, y;
 	BYTE *p, *pw, *Y, *C;

@@ -95,6 +95,30 @@ void convert_audio_16to8_sse2(BYTE *dst, short *src, int n) {
 	}
 }
 
+void copy_yuy2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	memcpy(pixel_data->data[0], frame, width * height * 2);
+}
+
+void copy_yuy2_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	BYTE *src = (BYTE *)frame;
+	BYTE *dst = pixel_data->data[0];
+	BYTE *dst_fin = pixel_data->data[0] + ((width * height * 2) & ~63);
+	__m128i x0, x1, x2, x3;
+	for (; dst < dst_fin; src += 64, dst += 64) {
+		x0    = _mm_loadu_si128((const __m128i *)(src +  0));
+		x1    = _mm_loadu_si128((const __m128i *)(src + 16));
+		x2    = _mm_loadu_si128((const __m128i *)(src + 32));
+		x3    = _mm_loadu_si128((const __m128i *)(src + 48));
+		_mm_stream_si128((__m128i *)(dst +  0), x0);
+		_mm_stream_si128((__m128i *)(dst + 16), x1);
+		_mm_stream_si128((__m128i *)(dst + 32), x2);
+		_mm_stream_si128((__m128i *)(dst + 48), x3);
+	}
+	dst_fin = dst + ((width * height * 2) & 63);
+	for (; dst < dst_fin; src += 4, dst += 4)
+		*(int*)dst = *(int*)src;
+}
+
 void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	BYTE *ptr = pixel_data->data[0];
 	BYTE *dst, *src;
@@ -113,7 +137,8 @@ void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, co
 	__m128i x0, x1, x2, x3;
 	int y0 = 0, y1 = height - 1;
 	const int step = (width*3 + 3) & ~3;
-	for (; y0 < height; y0++, y1--) {
+	const int y_fin = height - 1;
+	for (; y0 < y_fin; y0++, y1--) {
 		dst = ptr          + y0*width*3;
 		src = (BYTE*)frame + y1*step;
 		src_fin = src + width*3;
@@ -128,6 +153,22 @@ void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, co
 			_mm_storeu_si128((__m128i *)(dst + 48), x3);
 		}
 	}
+	dst = ptr          + y0*width*3;
+	src = (BYTE*)frame + y1*step;
+	src_fin = src + ((width*3) & ~63);
+	for (; src < src_fin; src += 64, dst += 64) {
+		x0    = _mm_loadu_si128((const __m128i *)(src +  0));
+		x1    = _mm_loadu_si128((const __m128i *)(src + 16));
+		x2    = _mm_loadu_si128((const __m128i *)(src + 32));
+		x3    = _mm_loadu_si128((const __m128i *)(src + 48));
+		_mm_storeu_si128((__m128i *)(dst +  0), x0);
+		_mm_storeu_si128((__m128i *)(dst + 16), x1);
+		_mm_storeu_si128((__m128i *)(dst + 32), x2);
+		_mm_storeu_si128((__m128i *)(dst + 48), x3);
+	}
+	src_fin = src + ((width*3) & 63);
+	for (; src < src_fin; src++, dst++)
+		*dst = *src;
 }
 //適当。
 void convert_yuy2_to_nv12(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {

@@ -44,7 +44,7 @@
 
 const int DROP_FRAME_FLAG = INT_MAX;
 
-static const char * specify_x264_input_csp(int output_csp) {
+static const char * specify_input_csp(int output_csp) {
 	return specify_csp[output_csp];
 }
 
@@ -57,6 +57,7 @@ int get_aviutl_color_format(int use_highbit, int output_csp) {
 			return CF_RGB;
 		case OUT_CSP_NV12:
 		case OUT_CSP_NV16:
+		case OUT_CSP_YUY2:
 		default:
 			return (use_highbit) ? CF_YC48 : CF_YUY2;
 	}
@@ -244,15 +245,15 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 	return ret;
 }
 
-//auo_pipe.cppのread_from_pipeのx264用特別版
-static int ReadLogX264(PIPE_SET *pipes, int total_drop, int current_frames) {
+//auo_pipe.cppのread_from_pipeの特別版
+static int ReadLogEnc(PIPE_SET *pipes, int total_drop, int current_frames) {
 	DWORD pipe_read = 0;
 	if (!PeekNamedPipe(pipes->stdErr.h_read, NULL, 0, NULL, &pipe_read, NULL))
 		return -1;
 	if (pipe_read) {
 		ReadFile(pipes->stdErr.h_read, pipes->read_buf + pipes->buf_len, sizeof(pipes->read_buf) - pipes->buf_len - 1, &pipe_read, NULL);
 		pipes->buf_len += pipe_read;
-		write_log_x264_mes(pipes->read_buf, &pipes->buf_len, total_drop, current_frames);
+		write_log_enc_mes(pipes->read_buf, &pipes->buf_len, total_drop, current_frames);
 	} else {
 		log_process_events();
 	}
@@ -317,7 +318,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	if (strcmp(input, PIPE_FN) == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-res %dx%d", oip->w, oip->h);
 	//rawの形式情報追加
-	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_x264_input_csp(prm.x264.output_csp));
+	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_input_csp(prm.x264.output_csp));
 	//fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
 	if (!prm.x264.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
 		int gcd = get_gcd(oip->rate, oip->scale);
@@ -338,6 +339,10 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 			pixel_data->count = 2;
 			pixel_data->size[0] = w * h * byte_per_pixel;
 			pixel_data->size[1] = pixel_data->size[0];
+			break;
+		case OUT_CSP_YUY2: //yuy2 (YUV422)
+			pixel_data->count = 1;
+			pixel_data->size[0] = w * h * byte_per_pixel * 2;
 			break;
 		case OUT_CSP_YUV444: //i444 (YUV444 planar)
 			pixel_data->count = 3;
@@ -361,7 +366,7 @@ static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *co
 		pixel_data->total_size += pixel_data->size[i];
 }
 
-static inline void check_x264_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) {
+static inline void check_enc_priority(HANDLE h_aviutl, HANDLE h_x264, DWORD priority) {
 	if (priority == AVIUTLSYNC_PRIORITY_CLASS)
 		priority = GetPriorityClass(h_aviutl);
 	SetPriorityClass(h_x264, priority);
@@ -450,7 +455,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
-	PROCESS_INFORMATION pi_x264 = { 0 };
+	PROCESS_INFORMATION pi_enc = { 0 };
 
 	char x264cmd[MAX_CMD_LEN]  = { 0 };
 	char x264args[MAX_CMD_LEN] = { 0 };
@@ -510,7 +515,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	} else if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
 		ret |= AUO_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
 	//x264プロセス開始
-	} else if ((rp_ret = RunProcess(x264args, x264dir, &pi_x264, &pipes, (set_priority == AVIUTLSYNC_PRIORITY_CLASS) ? GetPriorityClass(pe->h_p_aviutl) : set_priority, TRUE, FALSE)) != RP_SUCCESS) {
+	} else if ((rp_ret = RunProcess(x264args, x264dir, &pi_enc, &pipes, (set_priority == AVIUTLSYNC_PRIORITY_CLASS) ? GetPriorityClass(pe->h_p_aviutl) : set_priority, TRUE, FALSE)) != RP_SUCCESS) {
 		ret |= AUO_RESULT_ERROR; error_run_process("x264", rp_ret);
 	} else {
 		//全て正常
@@ -520,12 +525,12 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
 
 		//x264が待機に入るまでこちらも待機
-		while (WaitForInputIdle(pi_x264.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
+		while (WaitForInputIdle(pi_enc.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
 
 		//ログウィンドウ側から制御を可能に
-		DWORD tm_x264enc_start = timeGetTime();
-		enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_x264_pass == 1, tm_x264enc_start, oip->n);
+		DWORD tm_vid_enc_start = timeGetTime();
+		enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_x264_pass == 1, tm_vid_enc_start, oip->n);
 
 		//------------メインループ------------
 		for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
@@ -535,7 +540,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 				break;
 			}
 			//x264が実行中なら、メッセージを取得・ログウィンドウに表示
-			if (ReadLogX264(&pipes, pe->drop_count, i) < 0) {
+			if (ReadLogEnc(&pipes, pe->drop_count, i) < 0) {
 				//勝手に死んだ...
 				ret |= AUO_RESULT_ERROR; error_x264_dead();
 				break;
@@ -552,7 +557,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 				oip->func_rest_time_disp(i + oip->n * (pe->current_x264_pass - 1), oip->n * pe->total_x264_pass);
 
 				//x264優先度
-				check_x264_priority(pe->h_p_aviutl, pi_x264.hProcess, set_priority);
+				check_enc_priority(pe->h_p_aviutl, pi_enc.hProcess, set_priority);
 
 				//音声同時処理
 				ret |= aud_parallel_task(oip, pe);
@@ -603,26 +608,26 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		if (!ret && (afs || conf->vid.auo_tcfile_out))
 			tcfile_out(jitter, oip->n, (double)oip->rate / (double)oip->scale, afs, pe);
 
-		//x264終了待機
-		while (WaitForSingleObject(pi_x264.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
-			ReadLogX264(&pipes, pe->drop_count, i);
+		//エンコーダ終了待機
+		while (WaitForSingleObject(pi_enc.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
+			ReadLogEnc(&pipes, pe->drop_count, i);
 
-		DWORD tm_x264enc_fin = timeGetTime();
+		DWORD tm_vid_enc_fin = timeGetTime();
 
-		//最後にx264のメッセージを取得
-		while (ReadLogX264(&pipes, pe->drop_count, i) > 0);
+		//最後にメッセージを取得
+		while (ReadLogEnc(&pipes, pe->drop_count, i) > 0);
 
 		if (!(ret & AUO_RESULT_ERROR) && afs)
 			write_log_auo_line_fmt(LOG_INFO, "drop %d / %d frames", pe->drop_count, i);
 
-		write_log_auo_enc_time("x264エンコード時間", tm_x264enc_fin - tm_x264enc_start);
+		write_log_auo_enc_time("x264エンコード時間", tm_vid_enc_fin - tm_vid_enc_start);
 	}
 
 	//解放処理
 	if (pipes.stdErr.mode)
 		CloseHandle(pipes.stdErr.h_read);
-	CloseHandle(pi_x264.hProcess);
-	CloseHandle(pi_x264.hThread);
+	CloseHandle(pi_enc.hProcess);
+	CloseHandle(pi_enc.hThread);
 
 	free_pixel_data(&pixel_data);
 	if (jitter) free(jitter);

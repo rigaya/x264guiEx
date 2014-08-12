@@ -54,6 +54,9 @@ static const BOOL BIT16 = 1;  //16bit用
 //変換関数のテーブル
 //上からチェックするので、より厳しい条件で速い関数を上に書くこと
 static const COVERT_FUNC_INFO FUNC_TABLE[] = {
+	//YUY2をそのまま渡す
+	{ CF_YUY2, OUT_CSP_YUY2,   BIT_8, A,  1,  SSE2,                  copy_yuy2_sse2 },
+	{ CF_YUY2, OUT_CSP_YUY2,   BIT_8, A,  1,  NONE,                  copy_yuy2 },
 	//YUY2 -> nv16(8bit)
 #if (_MSC_VER >= 1700)
 	{ CF_YUY2, OUT_CSP_NV16,   BIT_8, A,  1,  AVX2,                 convert_yuy2_to_nv16_avx2 },
@@ -165,6 +168,11 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 	char simd_buf[128];
 	build_simd_info(func_info->SIMD, simd_buf, _countof(simd_buf));
 
+	if (func_info->output_csp == OUT_CSP_YUY2) {
+		write_log_auo_line_fmt(LOG_INFO, "Passing YUY2", simd_buf);
+		return;
+	}
+
 	if (func_info->output_csp == OUT_CSP_RGB) {
 		write_log_auo_line_fmt(LOG_INFO, "Copying RGB%s", simd_buf);
 		return;
@@ -231,6 +239,10 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
 
 	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
 	switch (output_csp) {
+		case OUT_CSP_YUY2: //YUY2であってもコピーフレーム機能をサポートするためにはコピーが必要となる
+			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
+				ret = FALSE;
+			break;
 		case OUT_CSP_NV16:
 			if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
 				ret = FALSE;
