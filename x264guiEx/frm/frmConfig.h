@@ -4345,6 +4345,8 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 				ofd.InitialDirectory = String(sys_dat->aviutl_dir).ToString();
 			bool ret = (ofd.ShowDialog() == Windows::Forms::DialogResult::OK);
 			if (ret) {
+				if (sys_dat->exstg->s_local.get_relative_path)
+					ofd.FileName = GetRelativePath(ofd.FileName, CurrentDir);
 				LocalStg.LastAppDir = Path::GetDirectoryName(ofd.FileName);
 				TX->Text = ofd.FileName;
 				TX->SelectionStart = TX->Text->Length;
@@ -4402,6 +4404,8 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 			if (Directory::Exists(TX->Text))
 				fbd->SelectedPath = TX->Text;
 			if (fbd->ShowDialog() == Windows::Forms::DialogResult::OK) {
+				if (sys_dat->exstg->s_local.get_relative_path)
+					fbd->SelectedPath = GetRelativePath(fbd->SelectedPath);
 				TX->Text = fbd->SelectedPath;
 				TX->SelectionStart = TX->Text->Length;
 			}
@@ -4452,6 +4456,8 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 			ofd->Filter = fileTypeName + L"(*" + ext + L")|*" + ext;
 			bool ret = (ofd->ShowDialog() == Windows::Forms::DialogResult::OK);
 			if (ret) {
+				if (sys_dat->exstg->s_local.get_relative_path)
+					ofd->FileName = GetRelativePath(ofd->FileName, CurrentDir);
 				TX->Text = ofd->FileName;
 				TX->SelectionStart = TX->Text->Length;
 			}
@@ -4748,7 +4754,10 @@ private: System::Windows::Forms::Panel^  fcgPNStatusFile;
 			array<System::String ^>^ filelist = dynamic_cast<array<System::String ^>^>(e->Data->GetData(DataFormats::FileDrop, false));
 			if (filelist == nullptr || TX == nullptr)
 				return;
-			TX->Text = filelist[0]; //複数だった場合は先頭のものを使用
+			String^ filePath = filelist[0]; //複数だった場合は先頭のものを使用
+			if (sys_dat->exstg->s_local.get_relative_path)
+				filePath = GetRelativePath(filePath);
+			TX->Text = filePath;
 		}
 };
 }

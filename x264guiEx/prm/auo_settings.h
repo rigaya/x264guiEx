@@ -23,6 +23,7 @@ static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
 static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
 static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
+static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
 static const double DEFAULT_AMP_MARGIN            = 0.100;
 static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
@@ -226,6 +227,7 @@ typedef struct {
 	int    amp_retry_limit;                     //自動マルチパス試行回数制限
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
 	BOOL   amp_keep_old_file;                   //自動マルチパスで、上限を超えてしまったファイルを削除しない
+	BOOL   get_relative_path;                  //相対パスで保存する
 	char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ

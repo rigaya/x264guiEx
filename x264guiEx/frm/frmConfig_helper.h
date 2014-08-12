@@ -257,6 +257,8 @@ const WCHAR * const yc48_colmat_conv_desc[] = {
 };
 
 const WCHAR * const DefaultStgNotes = L"メモ...";
+const WCHAR * const DefaultStatusFilePath = L"%{savfile}.stats";
+const WCHAR * const DefaultTcFilePath = L"%{savfile}_tc.txt";
 
 typedef struct {
 	WCHAR *string;

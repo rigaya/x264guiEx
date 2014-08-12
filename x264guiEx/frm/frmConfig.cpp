@@ -336,6 +336,7 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 	guiEx_settings stg;
 	stg.load_encode_stg();
 	log_reload_settings();
+	sys_dat->exstg->s_local.get_relative_path = stg.s_local.get_relative_path;
 	SetStgEscKey(stg.s_local.enable_stg_esc_key != 0);
 	ActivateToolTip(stg.s_local.disable_tooltip_help == FALSE);
 	if (str_has_char(stg.s_local.conf_font.name))
@@ -1155,8 +1156,8 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 
 	if (all) {
 		//動画部
-		fcgTXStatusFile->Text = (str_has_char(cnf->vid.stats))     ? String(cnf->vid.stats).ToString()     : L"%{savfile}.stats";
-		fcgTXTCIN->Text       = (str_has_char(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : L"%{savfile}_tc.txt";
+		fcgTXStatusFile->Text = (str_has_char(cnf->vid.stats))     ? String(cnf->vid.stats).ToString() : String(DefaultStatusFilePath).ToString();
+		fcgTXTCIN->Text       = (str_has_char(cnf->vid.tcfile_in)) ? String(cnf->vid.tcfile_in).ToString() : String(DefaultTcFilePath).ToString();
 
 		fcgCBAFS->Checked                  = cnf->vid.afs != 0;
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;

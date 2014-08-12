@@ -434,9 +434,13 @@ void guiEx_settings::load_x264() {
 }
 
 void guiEx_settings::make_default_stg_dir(char *default_stg_dir, DWORD nSize) {
-	strcpy_s(default_stg_dir, nSize, auo_path);
-	DWORD buf_space = nSize - (DWORD)(strlen(default_stg_dir) - strlen(PathFindFileName(default_stg_dir)));
-	strcpy_s(PathFindFileName(default_stg_dir), buf_space, STG_DEFAULT_DIRECTORY_NAME);
+	//絶対パスで作成
+	//strcpy_s(default_stg_dir, nSize, auo_path);
+	//相対パスで作成
+	GetRelativePathTo(default_stg_dir, nSize, auo_path, NULL);
+
+	char *filename_ptr = PathFindFileName(default_stg_dir);
+	strcpy_s(filename_ptr, nSize - (filename_ptr - default_stg_dir), STG_DEFAULT_DIRECTORY_NAME);
 }
 
 void guiEx_settings::load_local() {
@@ -452,6 +456,7 @@ void guiEx_settings::load_local() {
 	s_local.disable_tooltip_help      = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
 	s_local.disable_visual_styles     = GetPrivateProfileInt(   INI_SECTION_MAIN, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   INI_SECTION_MAIN, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	s_local.get_relative_path         = GetPrivateProfileInt(   INI_SECTION_MAIN, "get_relative_path",        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
 
 	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
@@ -466,6 +471,9 @@ void guiEx_settings::load_local() {
 	GetPrivateProfileString(INI_SECTION_MAIN, "stg_dir",  default_stg_dir, s_local.stg_dir,               _countof(s_local.stg_dir),               conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          "", s_local.app_dir,               _countof(s_local.app_dir),               conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          "", s_local.bat_dir,               _countof(s_local.bat_dir),               conf_fileName);
+
+	if (!str_has_char(s_local.stg_dir))
+		strcpy_s(s_local.stg_dir, _countof(s_local.stg_dir), default_stg_dir);
 
 	s_local.audio_buffer_size   = min(GetPrivateProfileInt(INI_SECTION_MAIN, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
 
@@ -519,6 +527,7 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
 	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   INI_SECTION_MAIN, "get_relative_path",         s_local.get_relative_path,        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
 
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);
