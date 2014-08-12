@@ -401,6 +401,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 			if (enable_vid_mux) {
 				remove(pe->temp_filename);
 				change_ext(pe->temp_filename, _countof(pe->temp_filename), mux_stg->out_ext);
+				if (PathFileExists(pe->temp_filename)) remove(pe->temp_filename);
 				rename(muxout, pe->temp_filename);
 			} else {
 				char aud_file[MAX_PATH_LEN] = { 0 };
@@ -408,6 +409,7 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 				remove(aud_file);
 				change_ext(pe->append.aud, _countof(pe->append.aud), mux_stg->out_ext);
 				get_aud_filename(aud_file, _countof(aud_file), pe);
+				if (PathFileExists(aud_file)) remove(aud_file);
 				rename(muxout, aud_file);
 			}
 		} else if (ret & AUO_RESULT_ERROR) {
