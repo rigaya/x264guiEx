@@ -223,10 +223,12 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 
 AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const char *savefile, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
-	switch (sys_dat->exstg->s_log.auto_save_log_mode) {
+	guiEx_settings stg(TRUE); //ログウィンドウの保存先設定は最新のものを使用する
+	stg.load_log_win();
+	switch (stg.s_log.auto_save_log_mode) {
 		case AUTO_SAVE_LOG_CUSTOM:
 			char log_file_dir[MAX_PATH_LEN];
-			strcpy_s(log_file_path, nSize, sys_dat->exstg->s_log.auto_save_log_path);
+			strcpy_s(log_file_path, nSize, stg.s_log.auto_save_log_path);
 			cmd_replace(log_file_path, nSize, pe, sys_dat, conf, savefile);
 			PathGetDirectory(log_file_dir, _countof(log_file_dir), log_file_path);
 			if (DirectoryExistsOrCreate(log_file_dir))
