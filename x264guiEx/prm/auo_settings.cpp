@@ -472,7 +472,8 @@ void guiEx_settings::load_local() {
 	GetPrivateProfileString(INI_SECTION_MAIN, "last_app_dir",          "", s_local.app_dir,               _countof(s_local.app_dir),               conf_fileName);
 	GetPrivateProfileString(INI_SECTION_MAIN, "last_bat_dir",          "", s_local.bat_dir,               _countof(s_local.bat_dir),               conf_fileName);
 
-	if (!str_has_char(s_local.stg_dir))
+	//設定ファイル保存場所をチェックする
+	if (!str_has_char(s_local.stg_dir) || !PathRootExists(s_local.stg_dir))
 		strcpy_s(s_local.stg_dir, _countof(s_local.stg_dir), default_stg_dir);
 
 	s_local.audio_buffer_size   = min(GetPrivateProfileInt(INI_SECTION_MAIN, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
