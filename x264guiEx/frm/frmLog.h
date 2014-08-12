@@ -81,13 +81,13 @@ namespace x264guiEx {
 					this->ToolStripMenuItemx264Priority->DropDownItems->Add(gcnew System::Windows::Forms::ToolStripSeparator());
 				}
 			}
-			this->ToolStripMenuItemx264Priority->Enabled = false;
-			this->ToolStripMenuItemEncPause->Enabled = false;
-			this->ToolStripMenuItemTransparent->Checked = exstg.s_log.transparent != 0;
-			this->toolStripMenuItemAutoSave->Checked = exstg.s_log.auto_save_log != 0;
-			this->toolStripMenuItemShowStatus->Checked = exstg.s_log.show_status_bar != 0;
-			this->ToolStripMenuItemStartMinimized->Checked = exstg.s_log.minimized != 0;
-			this->toolStripMenuItemSaveLogSize->Checked = exstg.s_log.save_log_size != 0;
+			this->ToolStripMenuItemx264Priority->Enabled    = false;
+			this->ToolStripMenuItemEncPause->Enabled        = false;
+			this->ToolStripMenuItemTransparent->Checked     = exstg.s_log.transparent != 0;
+			this->toolStripMenuItemAutoSave->Checked        = exstg.s_log.auto_save_log != 0;
+			this->toolStripMenuItemShowStatus->Checked      = exstg.s_log.show_status_bar != 0;
+			this->ToolStripMenuItemStartMinimized->Checked  = exstg.s_log.minimized != 0;
+			this->toolStripMenuItemSaveLogSize->Checked     = exstg.s_log.save_log_size != 0;
 			bool check_win7later = check_OS_Win7orLater() != 0;
 			this->toolStripMenuItemTaskBarProgress->Enabled = check_win7later;
 			this->toolStripMenuItemTaskBarProgress->Checked = (exstg.s_log.taskbar_progress != 0 && check_win7later);
