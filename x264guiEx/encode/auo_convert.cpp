@@ -308,8 +308,15 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
 	BOOL ret = TRUE;
 	int pixel_size = (use10bit) ? sizeof(short) : sizeof(BYTE);
 	int frame_size = width * height * pixel_size;
-	if (check_sse2())
-		frame_size = (frame_size + 63) & ~63;
+#if (_MSC_VER >= 1600)
+	DWORD simd_check = get_availableSIMD();
+	DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 32 : 16) : 1;
+	if (width & (align_size - 1))
+		frame_size = (frame_size + align_size * 2 - 1) & ~(align_size - 1);
+#else
+	if ((width & 15) && check_sse2())
+		frame_size = ((frame_size + 31) & ~15);
+#endif
 	ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
 	switch (output_csp) {
 		case OUT_CSP_YUV422:
