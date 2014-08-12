@@ -453,7 +453,6 @@ AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_
 	return (retry) ? AUO_RESULT_WARNING : AUO_RESULT_SUCCESS;
 }
 
-
 int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache) {
 	DWORD pipe_read = 0;
 	if (!PeekNamedPipe(pipes->stdOut.h_read, NULL, 0, NULL, &pipe_read, NULL))

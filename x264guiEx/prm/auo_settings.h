@@ -37,6 +37,7 @@ static const BOOL   DEFAULT_LOG_TASKBAR_PROGRESS = 1;
 static const BOOL   DEFAULT_LOG_SAVE_SIZE        = 0;
 static const int    DEFAULT_LOG_WIDTH            = 0;
 static const int    DEFAULT_LOG_HEIGHT           = 0;
+static const int    DEFAULT_LOG_TRANSPARENCY     = 28;
 
 static const BOOL   DEFAULT_FBC_CALC_BITRATE         = 1;
 static const BOOL   DEFAULT_FBC_CALC_TIME_FROM_FRAME = 0;
@@ -199,6 +200,7 @@ typedef struct {
 typedef struct {
 	BOOL minimized;                        //最小化で起動
 	BOOL transparent;                      //半透明で表示
+	int  transparency;                     //透過度
 	BOOL auto_save_log;                    //ログ自動保存を行うかどうか
 	int  auto_save_log_mode;               //ログ自動保存のモード
 	char auto_save_log_path[MAX_PATH_LEN]; //ログ自動保存ファイル名

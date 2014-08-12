@@ -31,6 +31,7 @@ void set_window_title(const char *chr) {
 	if (!frmLog::Instance::get()->InvokeRequired)
 		frmLog::Instance::get()->SetWindowTitle(chr);
 }
+[STAThreadAttribute]
 void set_window_title(const char *chr, int progress_mode) {
 	if (!frmLog::Instance::get()->InvokeRequired)
 		frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);
@@ -41,7 +42,6 @@ void set_window_title_enc_mes(const char *chr, int total_drop, int frame_n) {
 	frmLog::Instance::get()->SetWindowTitleX264Mes(chr, total_drop, frame_n);
 }
 //メッセージをログウィンドウに表示
-delegate void write_log_auo_line_delegate(int log_type_index, const char *chr);
 [STAThreadAttribute]
 void write_log_auo_line(int log_type_index, const char *chr) {
 	frmLog::Instance::get()->WriteLogAuoLine(String(chr).ToString(), log_type_index);
@@ -103,4 +103,29 @@ void log_process_events() {
 [STAThreadAttribute]
 int get_current_log_len(int current_pass) {
 	return frmLog::Instance::get()->GetLogStringLen(current_pass);
+}
+
+////////////////////////////////////////////////////
+
+System::Void frmSetTransparency::setTransparency(int value) {
+	value = Convert::ToInt32(clamp(value, fstNUTransparency->Minimum, fstNUTransparency->Maximum));
+	fstNUTransparency->Value = clamp(value, fstNUTransparency->Minimum, fstNUTransparency->Maximum);
+	fstTBTransparency->Value = clamp(value, fstTBTransparency->Minimum, fstTBTransparency->Maximum);
+	frmLog^ log = dynamic_cast<frmLog^>(this->Owner);
+	if (log != nullptr) {
+		log->frmTransparency = value;
+		log->Opacity = (100 - value) * 0.01f;
+	}
+}
+
+System::Void frmSetTransparency::frmSetTransparency_FormClosed(System::Object^  sender, System::Windows::Forms::FormClosedEventArgs^  e) {
+	frmLog^ log = dynamic_cast<frmLog^>(this->Owner);
+	if (log != nullptr)
+		log->EnableToolStripMenuItemTransparent();
+}
+
+System::Void frmSetTransparency::fstSetLastTransparency() {
+	frmLog^ log = dynamic_cast<frmLog^>(this->Owner);
+	if (log != nullptr)
+		last_transparency = 100 - (int)(log->Opacity * 100 + 0.5);
 }

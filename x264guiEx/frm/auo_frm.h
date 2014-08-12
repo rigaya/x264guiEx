@@ -27,8 +27,6 @@ const int LOG_COLOR[3][3] = { { 198, 253, 226 },   //LOG_INFO
                               { 245, 218,  90 },   //LOG_WARNING
 							  { 253,  83, 121 } }; //LOG_ERROR
 
-const float LOG_TRANSPARENT_RATIO[2] = { 1.000f, 0.725f };
-
 enum {
 	PROGRESSBAR_DISABLED   = 0,
 	PROGRESSBAR_CONTINUOUS = 1,

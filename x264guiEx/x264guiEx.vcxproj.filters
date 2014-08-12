@@ -230,6 +230,9 @@
     <ClInclude Include="frm\frmSaveNewStg.h">
       <Filter>フォーム</Filter>
     </ClInclude>
+    <ClInclude Include="frm\frmSetTransparency.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="auo_version.rc">

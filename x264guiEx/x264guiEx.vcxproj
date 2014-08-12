@@ -238,6 +238,9 @@
   <ItemGroup>
     <ClInclude Include="auo.h" />
     <ClInclude Include="auo_version.h" />
+    <ClInclude Include="frm\frmSetTransparency.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="output.h" />
     <ClInclude Include="encode\afs_client.h" />
     <ClInclude Include="encode\auo_audio.h" />
@@ -328,6 +331,11 @@
       <DependentUpon>frmSaveNewStg.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">x264guiEx.frmSaveNewStg.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">x264guiEx.frmSaveNewStg.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm\frmSetTransparency.resx">
+      <DependentUpon>frmSetTransparency.h</DependentUpon>
+      <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">x264guiEx.frmSetTransparency.resources</LogicalName>
+      <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">x264guiEx.frmSetTransparency.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

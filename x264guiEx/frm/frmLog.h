@@ -26,6 +26,7 @@
 #pragma warning( disable: 4100 )
 
 #include "frmAutoSaveLogSettings.h"
+#include "frmSetTransparency.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -85,6 +86,7 @@ namespace x264guiEx {
 			}
 			this->ToolStripMenuItemx264Priority->Enabled    = false;
 			this->ToolStripMenuItemEncPause->Enabled        = false;
+			frmTransparency = exstg.s_log.transparency;
 			this->ToolStripMenuItemTransparent->Checked     = exstg.s_log.transparent != 0;
 			this->toolStripMenuItemAutoSave->Checked        = exstg.s_log.auto_save_log != 0;
 			this->toolStripMenuItemShowStatus->Checked      = exstg.s_log.show_status_bar != 0;
@@ -146,6 +148,8 @@ namespace x264guiEx {
 		DWORD pause_start; //一時停止を開始した時間
 		String^ LogTitle; //ログウィンドウのタイトル表示
 		FormWindowState lastWindowState; //最終ウィンドウステータス(normal/最大化/最小化)
+	public:
+		int frmTransparency; //透過率
 
 	private: System::Windows::Forms::RichTextBox^  richTextLog;
 	private: System::Windows::Forms::ContextMenuStrip^  contextMenuStripLog;
@@ -166,6 +170,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSaveLogSize;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemWindowFont;
 private: System::Windows::Forms::FontDialog^  fontDialogLog;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparentValue;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -190,6 +195,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			this->ToolStripMenuItemx264Priority = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemEncPause = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemTransparent = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemTransparentValue = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemStartMinimized = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemSaveLogSize = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAutoSave = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -226,12 +232,12 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {this->ToolStripMenuItemx264Priority, 
-				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, 
-				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, 
-				this->toolStripMenuItemWindowFont});
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {this->ToolStripMenuItemx264Priority, 
+				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->toolStripMenuItemTransparentValue, this->ToolStripMenuItemStartMinimized, 
+				this->toolStripMenuItemSaveLogSize, this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, 
+				this->toolStripMenuItemTaskBarProgress, this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(248, 224);
+			this->contextMenuStripLog->Size = System::Drawing::Size(248, 246);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
@@ -255,6 +261,13 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 			this->ToolStripMenuItemTransparent->Size = System::Drawing::Size(247, 22);
 			this->ToolStripMenuItemTransparent->Text = L"ちょっと透過";
 			this->ToolStripMenuItemTransparent->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripMenuItemTransparent_CheckedChanged);
+			// 
+			// toolStripMenuItemTransparentValue
+			// 
+			this->toolStripMenuItemTransparentValue->Name = L"toolStripMenuItemTransparentValue";
+			this->toolStripMenuItemTransparentValue->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemTransparentValue->Text = L"透過率の指定...";
+			this->toolStripMenuItemTransparentValue->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemTransparentValue_Click);
 			// 
 			// ToolStripMenuItemStartMinimized
 			// 
@@ -412,6 +425,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 		System::Void ReloadLogWindowSettings() {
 			guiEx_settings exstg;
 			exstg.load_log_win();
+			frmTransparency                          = exstg.s_log.transparency;
 			ToolStripMenuItemTransparent->Checked    = exstg.s_log.transparent != 0;
 			toolStripMenuItemAutoSave->Checked       = exstg.s_log.auto_save_log != 0;
 			toolStripMenuItemShowStatus->Checked     = exstg.s_log.show_status_bar != 0;
@@ -652,6 +666,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 		System::Void SaveLogSettings() {
 			guiEx_settings exstg(true);
 			exstg.load_log_win();
+			exstg.s_log.transparency     = frmTransparency;
 			exstg.s_log.transparent      = ToolStripMenuItemTransparent->Checked;
 			exstg.s_log.minimized        = ToolStripMenuItemStartMinimized->Checked;
 			exstg.s_log.auto_save_log    = toolStripMenuItemAutoSave->Checked;
@@ -678,7 +693,8 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 		}
 	private: 
 		System::Void ToolStripMenuItemTransparent_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			this->Opacity = LOG_TRANSPARENT_RATIO[Convert::ToInt32(ToolStripMenuItemTransparent->Checked)];
+			this->Opacity = ((ToolStripMenuItemTransparent->Checked) ? 100 - frmTransparency : 100) * 0.01f;
+			toolStripMenuItemTransparentValue->Enabled = ToolStripMenuItemTransparent->Checked;
 			ToolStripCheckItem_CheckedChanged(sender, e);
 		}
 	private: 
@@ -800,6 +816,16 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 				Set_AUO_FONT_INFO(&exstg.s_log.log_font, fontDialogLog->Font, LastFont);
 				exstg.save_log_win();
 			}
+		}
+	private:
+		System::Void toolStripMenuItemTransparentValue_Click(System::Object^  sender, System::EventArgs^  e) {
+			ToolStripMenuItemTransparent->Enabled = false;
+			frmSetTransparency::Instance::get()->Owner = this;
+			frmSetTransparency::Instance::get()->Show();
+		}
+	public:
+		System::Void EnableToolStripMenuItemTransparent() {
+			ToolStripMenuItemTransparent->Enabled = true;
 		}
 };
 }
