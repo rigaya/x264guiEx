@@ -358,7 +358,7 @@ static size_t calc_replace_mem_required(WCHAR *str, const WCHAR *old_str, const 
 	return size;
 }
 //文字列の置換 str内で置き換える 置換を実行した回数を返す
-static int replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
+static inline int replace(char *str, size_t nSize, const char *old_str, const char *new_str) {
 	char *c = str;
 	char *p = NULL;
 	char *fin = str + strlen(str) + 1;//null文字まで
@@ -381,7 +381,7 @@ static int replace(char *str, size_t nSize, const char *old_str, const char *new
 	}
 	return count;
 }
-static int replace(WCHAR *str, size_t nSize, const WCHAR *old_str, const WCHAR *new_str) {
+static inline int replace(WCHAR *str, size_t nSize, const WCHAR *old_str, const WCHAR *new_str) {
 	WCHAR *c = str;
 	WCHAR *p = NULL;
 	WCHAR *fin = str + wcslen(str) + 1;//null文字まで
