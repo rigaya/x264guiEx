@@ -369,7 +369,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 
 	//コマンドライン生成
 	build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
-	write_log_auo_line(LOG_INFO, "x264 オプション...");
+	write_log_auo_line(LOG_INFO, "x264 options...");
 	write_args(x264cmd);
 	sprintf_s(x264args, _countof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
 	

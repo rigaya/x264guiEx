@@ -465,7 +465,7 @@ private: System::Windows::Forms::FontDialog^  fontDialogLog;
 					SB->Insert(0, L"[" + ProgressPercent + "] ");
 
 					t = (int)(time_remain / 3600);
-					SB->Append(", remain ");
+					SB->Append(", eta ");
 					SB->Append(t.ToString("D2"));
 					SB->Append(L":");
 					time_remain -= t * 3600;
