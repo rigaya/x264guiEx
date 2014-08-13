@@ -22,11 +22,6 @@ enum {
 	LOG_ERROR   = 2,
 };
 
-///ログ表示で使う色              R    G    B
-const int LOG_COLOR[3][3] = { { 198, 253, 226 },   //LOG_INFO
-                              { 245, 218,  90 },   //LOG_WARNING
-							  { 253,  83, 121 } }; //LOG_ERROR
-
 enum {
 	PROGRESSBAR_DISABLED   = 0,
 	PROGRESSBAR_CONTINUOUS = 1,

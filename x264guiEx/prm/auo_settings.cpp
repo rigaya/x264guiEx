@@ -71,6 +71,16 @@ static inline void GetFontInfo(const char *section, const char *keyname_base, AU
 	font_info->style = GetPrivateProfileInt(section, key, 0, ini_file);
 }
 
+static inline void GetColorInfo(const char *section, const char *keyname, int *color_rgb, const int *default_color_rgb, const char *ini_file) {
+	char buf[INI_KEY_MAX_LEN], str_default[64];
+	sprintf_s(str_default, _countof(str_default), "%d,%d,%d", default_color_rgb[0], default_color_rgb[1], default_color_rgb[2]);
+	GetPrivateProfileString(section, keyname, str_default, buf, _countof(buf), ini_file);
+	if (3 != sscanf_s(buf, "%d,%d,%d", &color_rgb[0], &color_rgb[1], &color_rgb[2]))
+		memcpy(color_rgb, default_color_rgb, sizeof(color_rgb[0]) * 3);
+	for (int i = 0; i < 3; i++)
+		color_rgb[i] = clamp(color_rgb[i], 0, 255);
+}
+
 static inline void WritePrivateProfileInt(const char *section, const char *keyname, int value, const char *ini_file) {
 	char tmp[22];
 	sprintf_s(tmp, _countof(tmp), "%d", value);
@@ -113,6 +123,15 @@ static inline void WriteFontInfo(const char *section, const char *keyname_base, 
 	}
 }
 
+static inline void WriteColorInfo(const char *section, const char *keyname, int *color_rgb, const int *default_color_rgb, const char *ini_file) {
+	int current_color[3] = { 0 };
+	GetColorInfo(section, keyname, current_color, default_color_rgb, ini_file);
+	if (0 != memcmp(color_rgb, current_color, sizeof(color_rgb[0]) * 3)) {
+		char buf[256];
+		sprintf_s(buf, _countof(buf), "%d,%d,%d", color_rgb[0], color_rgb[1], color_rgb[2]);
+		WritePrivateProfileString(section, keyname, buf, ini_file);
+	}
+}
 
 BOOL  guiEx_settings::init = FALSE;
 char  guiEx_settings::ini_section_main[256] = { 0 };
@@ -523,7 +542,11 @@ void guiEx_settings::load_log_win() {
 	s_log.save_log_size      = GetPrivateProfileInt(   ini_section_main, "save_log_size",        DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
 	s_log.log_width          = GetPrivateProfileInt(   ini_section_main, "log_width",            DEFAULT_LOG_WIDTH,            conf_fileName);
 	s_log.log_height         = GetPrivateProfileInt(   ini_section_main, "log_height",           DEFAULT_LOG_HEIGHT,           conf_fileName);
-	GetFontInfo(ini_section_main, "log_font", &s_log.log_font, conf_fileName);
+	GetColorInfo(ini_section_main, "log_color_background",   s_log.log_color_background, DEFAULT_LOG_COLOR_BACKGROUND, conf_fileName);
+	GetColorInfo(ini_section_main, "log_color_text_info",    s_log.log_color_text[0],    DEFAULT_LOG_COLOR_TEXT[0],    conf_fileName);
+	GetColorInfo(ini_section_main, "log_color_text_warning", s_log.log_color_text[1],    DEFAULT_LOG_COLOR_TEXT[1],    conf_fileName);
+	GetColorInfo(ini_section_main, "log_color_text_error",   s_log.log_color_text[2],    DEFAULT_LOG_COLOR_TEXT[2],    conf_fileName);
+	GetFontInfo(ini_section_main,  "log_font", &s_log.log_font, conf_fileName);
 }
 
 void guiEx_settings::load_append() {
@@ -611,6 +634,10 @@ void guiEx_settings::save_log_win() {
 	WritePrivateProfileIntWithDefault(   ini_section_main, "save_log_size",         s_log.save_log_size,      DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "log_width",             s_log.log_width,          DEFAULT_LOG_WIDTH,            conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "log_height",            s_log.log_height,         DEFAULT_LOG_HEIGHT,           conf_fileName);
+	WriteColorInfo(ini_section_main, "log_color_background",   s_log.log_color_background, DEFAULT_LOG_COLOR_BACKGROUND, conf_fileName);
+	WriteColorInfo(ini_section_main, "log_color_text_info",    s_log.log_color_text[0],    DEFAULT_LOG_COLOR_TEXT[0],    conf_fileName);
+	WriteColorInfo(ini_section_main, "log_color_text_warning", s_log.log_color_text[1],    DEFAULT_LOG_COLOR_TEXT[1],    conf_fileName);
+	WriteColorInfo(ini_section_main, "log_color_text_error",   s_log.log_color_text[2],    DEFAULT_LOG_COLOR_TEXT[2],    conf_fileName);
 	WriteFontInfo(ini_section_main, "log_font", &s_log.log_font, conf_fileName);
 }
 

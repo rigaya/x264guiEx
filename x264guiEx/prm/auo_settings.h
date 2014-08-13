@@ -39,6 +39,12 @@ static const int    DEFAULT_LOG_WIDTH            = 0;
 static const int    DEFAULT_LOG_HEIGHT           = 0;
 static const int    DEFAULT_LOG_TRANSPARENCY     = 28;
 
+///ログ表示で使う色                                        R    G    B
+static const int    DEFAULT_LOG_COLOR_BACKGROUND[3] =   {   0,   0,   0 };
+static const int    DEFAULT_LOG_COLOR_TEXT[3][3]    = { { 198, 253, 226 },   //LOG_INFO
+                                                        { 245, 218,  90 },   //LOG_WARNING
+                                                        { 253,  83, 121 } }; //LOG_ERROR
+
 static const BOOL   DEFAULT_FBC_CALC_BITRATE         = 1;
 static const BOOL   DEFAULT_FBC_CALC_TIME_FROM_FRAME = 0;
 static const int    DEFAULT_FBC_LAST_FRAME_NUM       = 0;
@@ -209,6 +215,8 @@ typedef struct {
 	BOOL save_log_size;                    //ログの大きさを保存する
 	int  log_width;                        //ログ幅
 	int  log_height;                       //ログ高さ
+	int  log_color_background[3];          //ログ背景色
+	int  log_color_text[3][3];             //ログ文字色
 	AUO_FONT_INFO log_font;                //ログフォント
 } LOG_WINDOW_SETTINGS;
 

@@ -106,7 +106,8 @@ int get_current_log_len(int current_pass) {
 }
 
 ////////////////////////////////////////////////////
-
+//       frmSetTransparency 関連
+////////////////////////////////////////////////////
 System::Void frmSetTransparency::setTransparency(int value) {
 	value = Convert::ToInt32(clamp(value, fstNUTransparency->Minimum, fstNUTransparency->Maximum));
 	fstNUTransparency->Value = clamp(value, fstNUTransparency->Minimum, fstNUTransparency->Maximum);
@@ -115,6 +116,7 @@ System::Void frmSetTransparency::setTransparency(int value) {
 	if (log != nullptr) {
 		log->frmTransparency = value;
 		log->Opacity = (100 - value) * 0.01f;
+		//frmSetLogColor::Instance::get()->SetOpacity(log->Opacity);
 	}
 }
 
@@ -129,3 +131,13 @@ System::Void frmSetTransparency::fstSetLastTransparency() {
 	if (log != nullptr)
 		last_transparency = 100 - (int)(log->Opacity * 100 + 0.5);
 }
+////////////////////////////////////////////////////
+//       frmSetLogColor 関連
+////////////////////////////////////////////////////
+System::Void frmSetLogColor::fscBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
+	frmLog^ log = dynamic_cast<frmLog^>(this->Owner);
+	if (log != nullptr)
+		log->SetNewLogColor();
+	this->Close();
+}
+

@@ -25,8 +25,10 @@
 #pragma warning( push )
 #pragma warning( disable: 4100 )
 
+#include "auo_clrutil.h"
 #include "frmAutoSaveLogSettings.h"
 #include "frmSetTransparency.h"
+#include "frmSetLogColor.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -69,6 +71,8 @@ namespace x264guiEx {
 			//
 			//TODO: ここにコンストラクタ コードを追加します
 			//
+			this->log_color_text = gcnew array<Color>(3) { ColorfromInt(exstg.s_log.log_color_text[0]), ColorfromInt(exstg.s_log.log_color_text[1]), ColorfromInt(exstg.s_log.log_color_text[2]) };
+			this->richTextLog->BackColor = ColorfromInt(exstg.s_log.log_color_background);
 			this->log_type = gcnew array<String^>(3) { L"info", L"warning", L"error" };
 			this->richTextLog->LanguageOption = System::Windows::Forms::RichTextBoxLanguageOptions::UIFonts;
 
@@ -142,6 +146,7 @@ namespace x264guiEx {
 		bool prevent_log_closing; //ログウィンドウを閉じるを無効化するか・設定保存イベントのフラグでもある
 		bool add_progress;
 		array<String^>^ log_type;
+		array<Color>^ log_color_text;
 		int LastLogLen;  //ひとつ前のエンコードブロックの終わり
 		bool using_afs; //afs使用時にオン
 		int total_frame; //エンコ総フレーム数
@@ -171,6 +176,7 @@ namespace x264guiEx {
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemWindowFont;
 private: System::Windows::Forms::FontDialog^  fontDialogLog;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparentValue;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColor;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -196,6 +202,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			this->ToolStripMenuItemEncPause = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemTransparent = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemTransparentValue = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemSetLogColor = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemStartMinimized = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemSaveLogSize = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripMenuItemAutoSave = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -232,17 +239,17 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {this->ToolStripMenuItemx264Priority, 
-				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->toolStripMenuItemTransparentValue, this->ToolStripMenuItemStartMinimized, 
-				this->toolStripMenuItemSaveLogSize, this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, 
-				this->toolStripMenuItemTaskBarProgress, this->toolStripMenuItemWindowFont});
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(12) {this->ToolStripMenuItemx264Priority, 
+				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->toolStripMenuItemTransparentValue, this->toolStripMenuItemSetLogColor, 
+				this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, 
+				this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(248, 246);
+			this->contextMenuStripLog->Size = System::Drawing::Size(245, 268);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
 			this->ToolStripMenuItemx264Priority->Name = L"ToolStripMenuItemx264Priority";
-			this->ToolStripMenuItemx264Priority->Size = System::Drawing::Size(247, 22);
+			this->ToolStripMenuItemx264Priority->Size = System::Drawing::Size(244, 22);
 			this->ToolStripMenuItemx264Priority->Text = L"x264優先度";
 			this->ToolStripMenuItemx264Priority->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmLog::ToolStripMenuItemx264Priority_DropDownItemClicked);
 			// 
@@ -250,7 +257,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			this->ToolStripMenuItemEncPause->CheckOnClick = true;
 			this->ToolStripMenuItemEncPause->Name = L"ToolStripMenuItemEncPause";
-			this->ToolStripMenuItemEncPause->Size = System::Drawing::Size(247, 22);
+			this->ToolStripMenuItemEncPause->Size = System::Drawing::Size(244, 22);
 			this->ToolStripMenuItemEncPause->Text = L"エンコード一時停止";
 			this->ToolStripMenuItemEncPause->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripMenuItemEncPause_CheckedChanged);
 			// 
@@ -258,22 +265,29 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			this->ToolStripMenuItemTransparent->CheckOnClick = true;
 			this->ToolStripMenuItemTransparent->Name = L"ToolStripMenuItemTransparent";
-			this->ToolStripMenuItemTransparent->Size = System::Drawing::Size(247, 22);
+			this->ToolStripMenuItemTransparent->Size = System::Drawing::Size(244, 22);
 			this->ToolStripMenuItemTransparent->Text = L"ちょっと透過";
 			this->ToolStripMenuItemTransparent->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripMenuItemTransparent_CheckedChanged);
 			// 
 			// toolStripMenuItemTransparentValue
 			// 
 			this->toolStripMenuItemTransparentValue->Name = L"toolStripMenuItemTransparentValue";
-			this->toolStripMenuItemTransparentValue->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemTransparentValue->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemTransparentValue->Text = L"透過率の指定...";
 			this->toolStripMenuItemTransparentValue->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemTransparentValue_Click);
+			// 
+			// toolStripMenuItemSetLogColor
+			// 
+			this->toolStripMenuItemSetLogColor->Name = L"toolStripMenuItemSetLogColor";
+			this->toolStripMenuItemSetLogColor->Size = System::Drawing::Size(244, 22);
+			this->toolStripMenuItemSetLogColor->Text = L"ログの色の指定...";
+			this->toolStripMenuItemSetLogColor->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemSetLogColor_Click);
 			// 
 			// ToolStripMenuItemStartMinimized
 			// 
 			this->ToolStripMenuItemStartMinimized->CheckOnClick = true;
 			this->ToolStripMenuItemStartMinimized->Name = L"ToolStripMenuItemStartMinimized";
-			this->ToolStripMenuItemStartMinimized->Size = System::Drawing::Size(247, 22);
+			this->ToolStripMenuItemStartMinimized->Size = System::Drawing::Size(244, 22);
 			this->ToolStripMenuItemStartMinimized->Text = L"このウィンドウを最小化で開始";
 			this->ToolStripMenuItemStartMinimized->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripCheckItem_CheckedChanged);
 			// 
@@ -281,7 +295,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			this->toolStripMenuItemSaveLogSize->CheckOnClick = true;
 			this->toolStripMenuItemSaveLogSize->Name = L"toolStripMenuItemSaveLogSize";
-			this->toolStripMenuItemSaveLogSize->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemSaveLogSize->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemSaveLogSize->Text = L"このウィンドウのサイズを保存";
 			this->toolStripMenuItemSaveLogSize->CheckedChanged += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemSaveLogSize_CheckedChanged);
 			// 
@@ -289,14 +303,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			this->toolStripMenuItemAutoSave->CheckOnClick = true;
 			this->toolStripMenuItemAutoSave->Name = L"toolStripMenuItemAutoSave";
-			this->toolStripMenuItemAutoSave->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemAutoSave->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemAutoSave->Text = L"ログ自動保存を行う";
 			this->toolStripMenuItemAutoSave->CheckedChanged += gcnew System::EventHandler(this, &frmLog::ToolStripCheckItem_CheckedChanged);
 			// 
 			// toolStripMenuItemAutoSaveSettings
 			// 
 			this->toolStripMenuItemAutoSaveSettings->Name = L"toolStripMenuItemAutoSaveSettings";
-			this->toolStripMenuItemAutoSaveSettings->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemAutoSaveSettings->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemAutoSaveSettings->Text = L"ログ自動保存の設定...";
 			this->toolStripMenuItemAutoSaveSettings->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemAutoSaveSettings_Click);
 			// 
@@ -306,7 +320,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			this->toolStripMenuItemShowStatus->CheckOnClick = true;
 			this->toolStripMenuItemShowStatus->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->toolStripMenuItemShowStatus->Name = L"toolStripMenuItemShowStatus";
-			this->toolStripMenuItemShowStatus->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemShowStatus->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemShowStatus->Text = L"ステータスバーの表示";
 			this->toolStripMenuItemShowStatus->CheckedChanged += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemShowStatus_CheckedChanged);
 			// 
@@ -314,14 +328,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			// 
 			this->toolStripMenuItemTaskBarProgress->CheckOnClick = true;
 			this->toolStripMenuItemTaskBarProgress->Name = L"toolStripMenuItemTaskBarProgress";
-			this->toolStripMenuItemTaskBarProgress->Size = System::Drawing::Size(247, 22);
-			this->toolStripMenuItemTaskBarProgress->Text = L"タスクバーに進捗を表示(Win7)";
+			this->toolStripMenuItemTaskBarProgress->Size = System::Drawing::Size(244, 22);
+			this->toolStripMenuItemTaskBarProgress->Text = L"タスクバーに進捗を表示";
 			this->toolStripMenuItemTaskBarProgress->CheckedChanged += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemTaskBarProgress_CheckedChanged);
 			// 
 			// toolStripMenuItemWindowFont
 			// 
 			this->toolStripMenuItemWindowFont->Name = L"toolStripMenuItemWindowFont";
-			this->toolStripMenuItemWindowFont->Size = System::Drawing::Size(247, 22);
+			this->toolStripMenuItemWindowFont->Size = System::Drawing::Size(244, 22);
 			this->toolStripMenuItemWindowFont->Text = L"表示フォント...";
 			this->toolStripMenuItemWindowFont->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemWindowFont_Click);
 			// 
@@ -549,7 +563,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 				richTextLog->SuspendLayout();
 				richTextLog->SelectionStart = richTextLog->Text->Length;
 				richTextLog->SelectionLength = richTextLog->Text->Length;
-				richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
+				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(L"auo [" + log_type[log_type_index] + L"]: " + str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
 				richTextLog->ScrollToCaret();
@@ -572,7 +586,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 				richTextLog->SuspendLayout();
 				richTextLog->SelectionStart = richTextLog->Text->Length;
 				richTextLog->SelectionLength = richTextLog->Text->Length;
-				richTextLog->SelectionColor = Color::FromArgb(LOG_COLOR[log_type_index][0], LOG_COLOR[log_type_index][1], LOG_COLOR[log_type_index][2]);
+				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
 				richTextLog->ScrollToCaret();
@@ -774,42 +788,54 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
 		}
+	public:
+		System::Void RewriteLogTextWithNewSettings(System::Drawing::Font^ newFont, cli::array<Color>^ newColorArray) {
+			//フォントを変更するだけでは何故かうまく行かないので、
+			//一度文字列を保存→テキストボックスクリア→フォント変更→文字列を一行ずつ追加
+			//という力技を行う
+			::SendMessage(hWnd, WM_SETREDRAW, false, 0); //描画を停止
+			array<int>^ LogLineColorIndex = gcnew array<int>(richTextLog->Lines->Length); //各行の色のインデックス
+			for (int i = 0, position = 0; i < richTextLog->Lines->Length; i++) {
+				LogLineColorIndex[i] = 0;
+				if (richTextLog->Lines[i]->Length) {
+					richTextLog->Select(position, 1);
+					for (int i_col_idx = 0; i_col_idx < 3; i_col_idx++) {
+						if (richTextLog->SelectionColor.Equals(log_color_text[i_col_idx])) {
+							LogLineColorIndex[i] = i_col_idx;
+							break;
+						}
+					}
+				}
+				position += richTextLog->Lines[i]->Length + 1; //改行コード分追加
+			}
+			array<String^>^ LogLines = richTextLog->Lines; //各行の文字列
+			//テキストボックスをクリア
+			richTextLog->Clear();
+			richTextLog->Text = String::Empty;
+			//ここでフォントを変更
+			if (newFont != nullptr)
+				richTextLog->Font = newFont;
+			//ここで色を変更
+			if (newColorArray != nullptr)
+				log_color_text = newColorArray;
+			//文字を再登録
+			for (int i = 0; i < LogLines->Length - 1; i++) {
+				richTextLog->SelectionStart = richTextLog->Text->Length;
+				richTextLog->SelectionLength = richTextLog->Text->Length;
+				richTextLog->SelectionColor = log_color_text[LogLineColorIndex[i]];
+				richTextLog->AppendText(LogLines[i] + L"\n");
+			}
+			richTextLog->SelectionStart = richTextLog->Text->Length;
+			richTextLog->ScrollToCaret();
+			::SendMessage(hWnd, WM_SETREDRAW, true, 0); //描画再開
+			this->Refresh(); //強制再描画
+		}
 	private: 
 		System::Void toolStripMenuItemWindowFont_Click(System::Object^  sender, System::EventArgs^  e) {
 			System::Drawing::Font^ LastFont = richTextLog->Font;
 			fontDialogLog->Font = richTextLog->Font;
 			if (fontDialogLog->ShowDialog() != System::Windows::Forms::DialogResult::Cancel && LastFont != fontDialogLog->Font) {
-				//フォントを変更するだけでは何故かうまく行かないので、
-				//一度文字列を保存→テキストボックスクリア→フォント変更→文字列を一行ずつ追加
-				//という力技を行う
-				::SendMessage(hWnd, WM_SETREDRAW, false, 0); //描画を停止
-				array<Color>^ LogLineColor = gcnew array<Color>(richTextLog->Lines->Length); //各行の色
-				for (int i = 0, position = 0; i < richTextLog->Lines->Length; i++) {
-					if (richTextLog->Lines[i]->Length) {
-						richTextLog->Select(position, 1);
-						LogLineColor[i] = richTextLog->SelectionColor;
-					} else {
-						LogLineColor[i] = Color::FromArgb(LOG_COLOR[0][0], LOG_COLOR[0][1], LOG_COLOR[0][2]);
-					}
-					position += richTextLog->Lines[i]->Length + 1; //改行コード分追加
-				}
-				array<String^>^ LogLines = richTextLog->Lines; //各行の文字列
-				//テキストボックスをクリア
-				richTextLog->Clear();
-				richTextLog->Text = String::Empty;
-				//ここでフォントを変更
-				richTextLog->Font = fontDialogLog->Font;
-				//文字を再登録
-				for (int i = 0; i < LogLines->Length; i++) {
-					richTextLog->SelectionStart = richTextLog->Text->Length;
-					richTextLog->SelectionLength = richTextLog->Text->Length;
-					richTextLog->SelectionColor = LogLineColor[i];
-					richTextLog->AppendText(LogLines[i] + L"\n");
-				}
-				richTextLog->SelectionStart = richTextLog->Text->Length;
-				richTextLog->ScrollToCaret();
-				::SendMessage(hWnd, WM_SETREDRAW, true, 0); //描画再開
-				this->Refresh(); //強制再描画
+				RewriteLogTextWithNewSettings(fontDialogLog->Font, nullptr);
 				//設定を保存
 				guiEx_settings exstg(true);
 				exstg.load_log_win();
@@ -826,6 +852,33 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparen
 	public:
 		System::Void EnableToolStripMenuItemTransparent() {
 			ToolStripMenuItemTransparent->Enabled = true;
+		}
+	private:
+		System::Void toolStripMenuItemSetLogColor_Click(System::Object^  sender, System::EventArgs^  e) {
+			frmSetLogColor::Instance::get()->Owner = this;
+			frmSetLogColor::Instance::get()->colorBackGround = this->richTextLog->BackColor;
+			frmSetLogColor::Instance::get()->colorInfo       = log_color_text[0];
+			frmSetLogColor::Instance::get()->colorWarning    = log_color_text[1];
+			frmSetLogColor::Instance::get()->colorError      = log_color_text[2];
+			//frmSetLogColor::Instance::get()->SetOpacity(this->Opacity);
+			frmSetLogColor::Instance::get()->Show();
+		}
+	public:
+		System::Void SetNewLogColor() {
+			cli::array<Color>^ newColor = gcnew array<Color>(3) {
+				frmSetLogColor::Instance::get()->colorInfo,
+				frmSetLogColor::Instance::get()->colorWarning,
+				frmSetLogColor::Instance::get()->colorError
+			};
+			this->richTextLog->BackColor = frmSetLogColor::Instance::get()->colorBackGround;
+			RewriteLogTextWithNewSettings(nullptr, newColor);
+			//設定を保存
+			guiEx_settings exstg(true);
+			exstg.load_log_win();
+			ColortoInt(exstg.s_log.log_color_background, this->richTextLog->BackColor);
+			for (int i = 0; i < 3; i++)
+				ColortoInt(exstg.s_log.log_color_text[i], log_color_text[i]);
+			exstg.save_log_win();
 		}
 };
 }

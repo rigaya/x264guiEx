@@ -154,4 +154,14 @@ static String^ GetRelativePath(String^ path) {
 	return GetRelativePath(path, Directory::GetCurrentDirectory());
 }
 
+static System::Void ColortoInt(int *color_dst, Color color_src) {
+	color_dst[0] = color_src.R;
+	color_dst[1] = color_src.G;
+	color_dst[2] = color_src.B;
+}
+
+static Color ColorfromInt(int *color_src) {
+	return Color::FromArgb(color_src[0], color_src[1], color_src[2]);
+}
+
 #endif //_AUO_CLRUTIL_H_

@@ -910,6 +910,15 @@
 				</File>
 			</File>
 			<File
+				RelativePath=".\frm\frmSetLogColor.h"
+				FileType="3"
+				>
+				<File
+					RelativePath=".\frm\frmSetLogColor.resx"
+					>
+				</File>
+			</File>
+			<File
 				RelativePath=".\frm\frmSetTransparency.h"
 				FileType="3"
 				>
