@@ -145,8 +145,8 @@ namespace x264guiEx {
 			// frmSetTransparency
 			// 
 			this->AcceptButton = this->fstBTOK;
-			this->AutoScaleDimensions = System::Drawing::SizeF(7, 14);
-			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fstBTCancel;
 			this->ClientSize = System::Drawing::Size(332, 115);
 			this->ControlBox = false;

@@ -156,6 +156,8 @@ namespace x264guiEx {
 			// 
 			// frmSaveNewStg
 			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->AcceptButton = this->fsnBTOK;
 			this->CancelButton = this->fsnBTCancel;
 			this->ClientSize = System::Drawing::Size(369, 112);

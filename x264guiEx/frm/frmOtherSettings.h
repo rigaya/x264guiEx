@@ -604,7 +604,8 @@ namespace x264guiEx {
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
-			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
+			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fosCBCancel;
 			this->ClientSize = System::Drawing::Size(392, 450);
 			this->Controls->Add(this->fosTabControl);

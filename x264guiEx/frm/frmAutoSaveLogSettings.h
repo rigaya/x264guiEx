@@ -167,6 +167,8 @@ namespace x264guiEx {
 			// frmAutoSaveLogSettings
 			// 
 			this->AcceptButton = this->fasBTOK;
+			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fasBTCancel;
 			this->ClientSize = System::Drawing::Size(393, 137);
 			this->Controls->Add(this->fasBTOK);

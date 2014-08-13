@@ -97,6 +97,8 @@ namespace x264guiEx {
 			// frmNewFolderName
 			// 
 			this->AcceptButton = this->fnfBTOK;
+			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fnfBTCancel;
 			this->ClientSize = System::Drawing::Size(327, 105);
 			this->Controls->Add(this->fnfTXNewFolderName);
