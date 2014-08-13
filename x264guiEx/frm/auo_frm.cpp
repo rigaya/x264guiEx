@@ -23,7 +23,7 @@ static inline int check_log_type(char *mes) {
 }
 
 static inline void add_line_to_cache(LOG_CACHE *cache_line, const char *mes) {
-	if (cache_line->idx > cache_line->max_line) {
+	if (cache_line->idx >= cache_line->max_line) {
 		//メモリ不足なら再確保
 		if (NULL != (cache_line->lines = (char **)realloc(cache_line->lines, sizeof(cache_line->lines[0]) * cache_line->max_line * 2))) {
 			memset(&cache_line->lines[cache_line->max_line], 0, sizeof(cache_line->lines[0]) * cache_line->max_line);
