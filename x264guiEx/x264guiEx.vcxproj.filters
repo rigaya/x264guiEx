@@ -233,6 +233,9 @@
     <ClInclude Include="frm\frmSetTransparency.h">
       <Filter>フォーム</Filter>
     </ClInclude>
+    <ClInclude Include="frm\frmSetLogColor.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="auo_version.rc">
@@ -259,6 +262,9 @@
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
     <EmbeddedResource Include="frm\frmSaveNewStg.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm\frmSetTransparency.resx">
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
   </ItemGroup>

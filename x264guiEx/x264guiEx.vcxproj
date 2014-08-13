@@ -238,6 +238,9 @@
   <ItemGroup>
     <ClInclude Include="auo.h" />
     <ClInclude Include="auo_version.h" />
+    <ClInclude Include="frm\frmSetLogColor.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="frm\frmSetTransparency.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -331,6 +334,11 @@
       <DependentUpon>frmSaveNewStg.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">x264guiEx.frmSaveNewStg.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">x264guiEx.frmSaveNewStg.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm\frmSetLogColor.resx">
+      <DependentUpon>frmSetLogColor.h</DependentUpon>
+      <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">x264guiEx.frmSetLogColor.resources</LogicalName>
+      <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">x264guiEx.frmSetLogColor.resources</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="frm\frmSetTransparency.resx">
       <DependentUpon>frmSetTransparency.h</DependentUpon>

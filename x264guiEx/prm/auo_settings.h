@@ -38,6 +38,7 @@ static const BOOL   DEFAULT_LOG_SAVE_SIZE        = 0;
 static const int    DEFAULT_LOG_WIDTH            = 0;
 static const int    DEFAULT_LOG_HEIGHT           = 0;
 static const int    DEFAULT_LOG_TRANSPARENCY     = 28;
+static const int    DEFAULT_LOG_POS[2]           = { 100, 100 };
 
 ///ログ表示で使う色                                        R    G    B
 static const int    DEFAULT_LOG_COLOR_BACKGROUND[3] =   {   0,   0,   0 };
@@ -215,6 +216,7 @@ typedef struct {
 	BOOL save_log_size;                    //ログの大きさを保存する
 	int  log_width;                        //ログ幅
 	int  log_height;                       //ログ高さ
+	int  log_pos[2];                       //ログ位置
 	int  log_color_background[3];          //ログ背景色
 	int  log_color_text[3][3];             //ログ文字色
 	AUO_FONT_INFO log_font;                //ログフォント

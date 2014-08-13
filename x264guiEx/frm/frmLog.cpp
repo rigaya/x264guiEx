@@ -140,4 +140,3 @@ System::Void frmSetLogColor::fscBTOK_Click(System::Object^  sender, System::Even
 		log->SetNewLogColor();
 	this->Close();
 }
-

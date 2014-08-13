@@ -55,6 +55,7 @@ namespace x264guiEx {
 	public:
 		frmLog(void)
 		{
+			timerReiszeOrPosEnabled = false;
 			//これがfalseだとイベントで設定保存をするので、とりあえずtrue
 			prevent_log_closing = true;
 
@@ -75,6 +76,11 @@ namespace x264guiEx {
 			this->richTextLog->BackColor = ColorfromInt(exstg.s_log.log_color_background);
 			this->log_type = gcnew array<String^>(3) { L"info", L"warning", L"error" };
 			this->richTextLog->LanguageOption = System::Windows::Forms::RichTextBoxLanguageOptions::UIFonts;
+
+			//timerの初期化
+			timerResizeOrPos = gcnew System::Threading::Timer(
+				gcnew System::Threading::TimerCallback(this, &frmLog::timerResizeOrPosChange),
+				nullptr, System::Threading::Timeout::Infinite, timerResizeOrPosPeriod);
 
 			//x264優先度メニューを動的生成
 			for (int i = 0; priority_table[i].text; i++) {
@@ -99,6 +105,7 @@ namespace x264guiEx {
 			bool check_win7later = check_OS_Win7orLater() != 0;
 			this->toolStripMenuItemTaskBarProgress->Enabled = check_win7later;
 			this->toolStripMenuItemTaskBarProgress->Checked = (exstg.s_log.taskbar_progress != 0 && check_win7later);
+			SetWindowPos(exstg.s_log.log_pos[0], exstg.s_log.log_pos[1]);
 			//ウィンドウサイズ調整等(サイズ設定->最小化の設定の順に行うこと)
 			if (exstg.s_log.save_log_size)
 				SetWindowSize(exstg.s_log.log_width, exstg.s_log.log_height);
@@ -124,6 +131,7 @@ namespace x264guiEx {
 				delete components;
 			}
 			delete log_type;
+			delete timerResizeOrPos;
 			frmAutoSaveLogSettings::Instance::get()->Close();
 		}
 	//Instanceを介し、ひとつだけ生成
@@ -153,6 +161,10 @@ namespace x264guiEx {
 		DWORD pause_start; //一時停止を開始した時間
 		String^ LogTitle; //ログウィンドウのタイトル表示
 		FormWindowState lastWindowState; //最終ウィンドウステータス(normal/最大化/最小化)
+		System::Threading::Timer^ timerResizeOrPos; //ログウィンドウの位置・大きさ保存のイベントチェック用
+		bool timerReiszeOrPosEnabled;
+		static const int timerResizeOrPosPeriod = 500;
+		delegate System::Void timerResizeOrPosChangeDelegate();
 	public:
 		int frmTransparency; //透過率
 
@@ -410,6 +422,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 			this->Load += gcnew System::EventHandler(this, &frmLog::frmLog_Load);
 			this->ClientSizeChanged += gcnew System::EventHandler(this, &frmLog::frmLog_ClientSizeChanged);
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
+			this->LocationChanged += gcnew System::EventHandler(this, &frmLog::frmLog_LocationChanged);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
 			this->contextMenuStripLog->ResumeLayout(false);
 			this->statusStripLog->ResumeLayout(false);
@@ -421,9 +434,34 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 #pragma endregion
 	private: 
 		System::Void frmLog_Load(System::Object^  sender, System::EventArgs^  e) {
+			timerReiszeOrPosEnabled = false;
 			closed = false;
 			pause_start = NULL;
 			taskbar_progress_init();
+			
+			guiEx_settings exstg(true);
+			exstg.load_log_win();
+			SetWindowPos(exstg.s_log.log_pos[0], exstg.s_log.log_pos[1]);
+			timerReiszeOrPosEnabled = true;
+		}
+	private:
+		System::Void SetWindowPos(int x, int y) {
+			//デフォルトのままにする
+			if (x <= 0 || y <= 0)
+				return;
+
+			//有効な位置かどうかを確認
+			array<System::Windows::Forms::Screen^>^ allScreens = System::Windows::Forms::Screen::AllScreens;
+			for (int i = 0; i < allScreens->Length; i++) {
+				if (   check_range(x, allScreens[i]->Bounds.X, allScreens[i]->Bounds.X + allScreens[i]->Bounds.Width)
+					&& check_range(y, allScreens[i]->Bounds.Y, allScreens[i]->Bounds.Y + allScreens[i]->Bounds.Height)) {
+					Point point;
+					point.X = min(x, allScreens[i]->Bounds.X + allScreens[i]->Bounds.Width - 120);
+					point.Y = min(y, allScreens[i]->Bounds.Y + allScreens[i]->Bounds.Height - 120);
+					this->Location = point;
+					return;
+				}
+			}
 		}
 	private:
 		System::Void SetWindowSize(int width, int height) {
@@ -687,6 +725,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 			exstg.s_log.show_status_bar  = toolStripMenuItemShowStatus->Checked;
 			exstg.s_log.taskbar_progress = toolStripMenuItemTaskBarProgress->Checked;
 			exstg.s_log.save_log_size    = toolStripMenuItemSaveLogSize->Checked;
+			exstg.s_log.log_pos[0]       = this->Location.X;
+			exstg.s_log.log_pos[1]       = this->Location.Y;
 			//最大化・最小化中なら保存しない
 			if (this->WindowState == FormWindowState::Normal) {
 				if (exstg.s_log.save_log_size) {
@@ -704,6 +744,33 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 		System::Void ToolStripCheckItem_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			if (!prevent_log_closing)
 				SaveLogSettings();
+		}
+	private:
+		System::Void timerResizeOrPosChange(Object^ state) {
+			if (timerReiszeOrPosEnabled)
+				this->Invoke(gcnew timerResizeOrPosChangeDelegate(this, &frmLog::timerSaveSettings));
+		}
+	private:
+		System::Void timerSaveSettings() {
+			timerResizeOrPos->Change(System::Threading::Timeout::Infinite, timerResizeOrPosPeriod);
+			SaveLogSettings();
+		}
+	private:
+		System::Void frmLog_ClientSizeChanged(System::Object^  sender, System::EventArgs^  e) {
+			//通常->通常でのサイズ変更以外、保存しないようにする
+			//最小化/最大化->通常とか通常->最小化/最大化には興味がない
+			if (this->WindowState == FormWindowState::Normal &&
+				  lastWindowState == FormWindowState::Normal) {
+				timerResizeOrPos->Change(0, timerResizeOrPosPeriod);
+			}
+			lastWindowState = this->WindowState;
+		}
+	private:
+		System::Void frmLog_LocationChanged(System::Object^  sender, System::EventArgs^  e) {
+			//通常のウィンドウモード以外は気にしない
+			if (this->WindowState == FormWindowState::Normal) {
+				timerResizeOrPos->Change(0, timerResizeOrPosPeriod);
+			}
 		}
 	private: 
 		System::Void ToolStripMenuItemTransparent_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -740,15 +807,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 			taskbar_progress_enable(Convert::ToInt32(toolStripMenuItemTaskBarProgress->Checked));
 			ToolStripCheckItem_CheckedChanged(sender, e);
 		 }
-	private:
-		System::Void frmLog_ClientSizeChanged(System::Object^  sender, System::EventArgs^  e) {
-			//通常->通常でのサイズ変更以外、保存しないようにする
-			//最小化/最大化->通常とか通常->最小化/最大化には興味がない
-			if (this->WindowState == FormWindowState::Normal &&
-				  lastWindowState == FormWindowState::Normal)
-				SaveLogSettings();
-			lastWindowState = this->WindowState;
-		}
 	private:
 		System::Void toolStripMenuItemSaveLogSize_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			ToolStripCheckItem_CheckedChanged(sender, e);
