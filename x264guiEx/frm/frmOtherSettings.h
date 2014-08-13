@@ -390,10 +390,10 @@ namespace x264guiEx {
 			this->fostabPageAMP->Controls->Add(this->fosCBAutoDelStats);
 			this->fostabPageAMP->Controls->Add(this->fosGroupBoxAMPLimit);
 			this->fostabPageAMP->Controls->Add(this->fosCBAmpKeepOldFile);
-			this->fostabPageAMP->Location = System::Drawing::Point(4, 23);
+			this->fostabPageAMP->Location = System::Drawing::Point(4, 24);
 			this->fostabPageAMP->Name = L"fostabPageAMP";
 			this->fostabPageAMP->Padding = System::Windows::Forms::Padding(3);
-			this->fostabPageAMP->Size = System::Drawing::Size(384, 371);
+			this->fostabPageAMP->Size = System::Drawing::Size(384, 370);
 			this->fostabPageAMP->TabIndex = 1;
 			this->fostabPageAMP->Text = L"自動マルチパス";
 			this->fostabPageAMP->UseVisualStyleBackColor = true;
@@ -699,7 +699,7 @@ namespace x264guiEx {
 		System::Void frmOtherSettings_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
-			}
+		}
 	private:
 		System::Void fosBTSetFont_Click(System::Object^  sender, System::EventArgs^  e) {
 			fosfontDialog->Font = fosBTSetFont->Font;

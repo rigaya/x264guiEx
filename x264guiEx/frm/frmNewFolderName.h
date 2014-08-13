@@ -107,12 +107,14 @@ namespace x264guiEx {
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->KeyPreview = true;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"frmNewFolderName";
 			this->ShowIcon = false;
 			this->Text = L"新しいフォルダ...";
 			this->Load += gcnew System::EventHandler(this, &frmNewFolderName::frmNewFolderName_Load);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmNewFolderName::frmNewFolderName_KeyDown);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -143,6 +145,11 @@ namespace x264guiEx {
 	private:
 		System::Void fnfBTCancel_Click(System::Object^  sender, System::EventArgs^  e) {
 			this->Close();
+		}
+	private:
+		System::Void frmNewFolderName_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 };
 }

@@ -157,10 +157,12 @@ namespace x264guiEx {
 			this->Controls->Add(this->fstBTOK);
 			this->Controls->Add(this->fstBTDefault);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->KeyPreview = true;
 			this->Name = L"frmSetTransparency";
 			this->Text = L"透過率の指定 (上限 90%)";
 			this->Load += gcnew System::EventHandler(this, &frmSetTransparency::frmSetTransparency_Load);
 			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &frmSetTransparency::frmSetTransparency_FormClosed);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmSetTransparency::frmSetTransparency_KeyDown);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fstTBTransparency))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->fstNUTransparency))->EndInit();
 			this->ResumeLayout(false);
@@ -214,6 +216,11 @@ namespace x264guiEx {
 	private:
 		System::Void fstTBTransparency_Scroll(System::Object^  sender, System::EventArgs^  e) {
 			setTransparency(fstTBTransparency->Value);
+		}
+	private:
+		System::Void frmSetTransparency_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			 if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 };
 }

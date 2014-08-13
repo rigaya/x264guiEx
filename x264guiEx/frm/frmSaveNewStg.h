@@ -169,10 +169,12 @@ namespace x264guiEx {
 			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->KeyPreview = true;
 			this->MaximizeBox = false;
 			this->Name = L"frmSaveNewStg";
 			this->Text = L"新しいプリセット";
 			this->Load += gcnew System::EventHandler(this, &frmSaveNewStg::frmSaveNewStg_Load);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmSaveNewStg::frmSaveNewStg_KeyDown);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -214,6 +216,11 @@ namespace x264guiEx {
 			Directory::CreateDirectory(NewDir);
 			fsnCXFolderBrowser->ReLoad();
 			fsnCXFolderBrowser->SelectDirectory(NewDir);
+		}
+	private:
+		System::Void frmSaveNewStg_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+			if (e->KeyCode == Keys::Escape)
+				this->Close();
 		}
 };
 }
