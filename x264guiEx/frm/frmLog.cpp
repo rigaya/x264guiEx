@@ -105,6 +105,8 @@ int get_current_log_len(int current_pass) {
 	return frmLog::Instance::get()->GetLogStringLen(current_pass);
 }
 
+#pragma warning( push )
+#pragma warning( disable: 4100 )
 ////////////////////////////////////////////////////
 //       frmSetTransparency 関連
 ////////////////////////////////////////////////////
@@ -140,3 +142,4 @@ System::Void frmSetLogColor::fscBTOK_Click(System::Object^  sender, System::Even
 		log->SetNewLogColor();
 	this->Close();
 }
+#pragma warning( pop )
