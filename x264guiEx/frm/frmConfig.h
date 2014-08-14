@@ -4994,8 +4994,9 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		}
 	private: 
 		System::Void fcgBTDefault_Click(System::Object^  sender, System::EventArgs^  e) {
-			init_CONF_GUIEX(conf, FALSE);
-			ConfToFrm(conf, true);
+			CONF_GUIEX confDefault;
+			init_CONF_GUIEX(&confDefault, FALSE);
+			ConfToFrm(&confDefault, true);
 		}
 	private:
 		System::Void ChangePresetNameDisplay(bool changed) {
