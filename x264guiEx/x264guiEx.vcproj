@@ -928,6 +928,10 @@
 					>
 				</File>
 			</File>
+			<File
+				RelativePath=".\frm\transparentLabel.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

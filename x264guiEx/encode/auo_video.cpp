@@ -703,7 +703,9 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 		return AUO_RESULT_ERROR;
 	}
 	//計算されたビットレートが目標ビットレートを上回っていたら、目標ビットレートを変更する
-	if (required_vid_bitrate < conf->x264.bitrate) {
+	//conf->x264.bitrate = -1は自動であるが、
+	//これをDWORDとして扱うことでUINT_MAX扱いとし、自動的に反映する
+	if (required_vid_bitrate < (double)((DWORD)conf->x264.bitrate)) {
 		warning_amp_change_bitrate(conf->x264.bitrate, (int)(required_vid_bitrate + 0.5), target_limit);
 		conf->x264.bitrate = (int)(required_vid_bitrate + 0.5);
 	}

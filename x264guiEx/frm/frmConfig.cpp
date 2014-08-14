@@ -233,7 +233,7 @@ System::Boolean frmConfig::CheckLocalStg() {
 			    || !check_if_faw2aac_exists()) ) {
 			//音声実行ファイルがない かつ
 			//選択された音声がfawでない または fawであってもfaw2aacがない
-			if (!error) err += L"\n\n";
+			if (error) err += L"\n\n";
 			error = true;
 			err += L"指定された 音声エンコーダ は存在しません。\n [ " + AudioEncoderPath + L" ]\n";
 		}
@@ -241,7 +241,7 @@ System::Boolean frmConfig::CheckLocalStg() {
 	//FAWのチェック
 	if (fcgCBFAWCheck->Checked) {
 		if (sys_dat->exstg->s_aud_faw_index == FAW_INDEX_ERROR) {
-			if (!error) err += L"\n\n";
+			if (error) err += L"\n\n";
 			error = true;
 			err += L"FAWCheckが選択されましたが、x264guiEx.ini から\n"
 				+ L"FAW の設定を読み込めませんでした。\n"
@@ -249,11 +249,20 @@ System::Boolean frmConfig::CheckLocalStg() {
 		} else if (!File::Exists(LocalStg.audEncPath[sys_dat->exstg->s_aud_faw_index])
 			       && !check_if_faw2aac_exists()) {
 			//fawの実行ファイルが存在しない かつ faw2aacも存在しない
-			if (!error) err += L"\n\n";
+			if (error) err += L"\n\n";
 			error = true;
 			err += L"FAWCheckが選択されましたが、FAW(fawcl)へのパスが正しく指定されていません。\n"
 				+  L"一度設定画面でFAW(fawcl)へのパスを指定してください。\n";
 		}
+	}
+	//自動マルチパスの自動ビットレート設定のチェック
+	if (fcgLBAMPAutoBitrate != nullptr && fcgLBAMPAutoBitrate->Visible) {
+		if (error) err += L"\n\n";
+		error = true;
+		err += L"目標映像ビットレートを自動に設定するには、\n"
+			+ L"上限ビットレート、上限ファイルサイズの少なくとも片方を\n"
+			+ L"適切に設定する必要があります。\n"
+			+ L"上限ビットレート、上限ファイルサイズの設定を見なおしてください。";
 	}
 	if (error) 
 		MessageBox::Show(this, err, L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
@@ -440,13 +449,35 @@ System::Void frmConfig::fcgArrangeForAutoMultiPass(bool enable) {
 	fcgNUAMPLimitFileSize->Visible = enable;
 }
 
+System::Void frmConfig::fcgCheckAMPAutoBitrateEvent(System::Object^  sender, System::EventArgs^  e) {
+	if (fcgLBAMPAutoBitrate == nullptr)
+		return;
+	if (fcgCXX264Mode->SelectedIndex == 5) {
+		if (   0 == String::Compare(fcgTXQuality->Text, STR_BITRATE_AUTO)
+			|| 0 == String::Compare(fcgTXQuality->Text, L"-1")) {
+				if (!fcgCBAMPLimitBitrate->Checked && !fcgCBAMPLimitFileSize->Checked) {
+				fcgLBAMPAutoBitrate->Visible = true;
+				return;
+				}
+		}
+	}
+	fcgLBAMPAutoBitrate->Visible = false;
+}
+
+System::Void frmConfig::AddCheckAMPAutoBitrateEvent() {
+	fcgCBAMPLimitBitrate->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+	fcgCBAMPLimitFileSize->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+	fcgCXX264Mode->SelectedIndexChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+	fcgTXQuality->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+}
+
 System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 	int index = fcgCXX264Mode->SelectedIndex;
 	cnf_fcgTemp->rc_mode = x264_encmode_to_RCint[index];
 	cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5 || fcgCXX264Mode->SelectedIndex == 6);
 	switch (cnf_fcgTemp->rc_mode) {
 		case X264_RC_BITRATE:
-			fcgLBQuality->Text = (fcgCXX264Mode->SelectedIndex == 5) ? L"目標映像ビットレート(kbps)" : L"ビットレート(kbps)";
+			fcgLBQuality->Text = (fcgCXX264Mode->SelectedIndex == 5) ? L"目標映像ビットレート(kbps, \"-1\"で自動)" : L"ビットレート(kbps)";
 			fcgLBQualityLeft->Text = L"低品質";
 			fcgLBQualityRight->Text = L"高品質";
 			fcgTBQuality->Minimum = 0;
@@ -468,7 +499,14 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 				fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 				fcgCBFastFirstPass->Checked = false;
 			}
-			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
+			//自動(-1)から変更されたときの処置 → 1000に戻す
+			if ((cnf_fcgTemp->bitrate == -1) && (fcgCXX264Mode->SelectedIndex != 5))
+				cnf_fcgTemp->bitrate = 1000;
+			//文字列を更新
+			if ((cnf_fcgTemp->bitrate == -1) && (fcgCXX264Mode->SelectedIndex == 5))
+				fcgTXQuality->Text = STR_BITRATE_AUTO; //-1の特例処置(-1: 自動)
+			else
+				fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
 			SetfbcBTVBEnable(true);
 			break;
 		case X264_RC_QP:
@@ -503,9 +541,26 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 	fcgArrangeForAutoMultiPass(cnf_fcgTemp->use_auto_npass != 0);
 }
 
+System::Void frmConfig::fcgTXQuality_Enter(System::Object^  sender, System::EventArgs^  e) {
+	if (0 == String::Compare(fcgTXQuality->Text, STR_BITRATE_AUTO)) {
+		fcgTXQuality->Text = L"-1";
+		fcgTXQuality->Select(0, fcgTXQuality->Text->Length);
+	}
+}
+
 System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 	if (fcgTXQuality->Text->Length == 0 || String::Compare(fcgTXQuality->Text, L"-") == 0)
 		return;
+	//自動モードの文字列に変更されたときの処理
+	if (0 == String::Compare(fcgTXQuality->Text, STR_BITRATE_AUTO)) {
+		fcgTXQuality->Text = STR_BITRATE_AUTO;
+		cnf_fcgTemp->bitrate = -1;
+		fcgTBQuality->Value = TBBConvert.BitrateToTB(cnf_fcgTemp->bitrate);
+		lastQualityStr = fcgTXQuality->Text;
+		fcgTXQuality->SelectionStart = fcgTXQuality->Text->Length;
+		fcgTXQuality->SelectionLength = 0;
+		return;
+	}
 	int c = fcgTXQuality->SelectionStart;
 	int index = fcgCXX264Mode->SelectedIndex;
 	bool restore = false;
@@ -517,7 +572,8 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
 	} else {
 		switch (x264_encmode_to_RCint[index]) {
 		case X264_RC_BITRATE:
-			if (Int32::TryParse(fcgTXQuality->Text, i) && i >= 0) {
+			//自動マルチパス時は-1(自動)もあり得る
+			if (Int32::TryParse(fcgTXQuality->Text, i) && i >= ((fcgCXX264Mode->SelectedIndex == 5) ? -1 : 0)) {
 				cnf_fcgTemp->bitrate = i;
 				fcgTXQuality->Text = i.ToString();
 				fcgTBQuality->Value = TBBConvert.BitrateToTB(cnf_fcgTemp->bitrate);
@@ -557,7 +613,11 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
 System::Void frmConfig::fcgTXQuality_Validating(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
 	switch (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex]) {
 		case X264_RC_BITRATE:
-			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
+			//自動モードの場合は除く
+			if (fcgCXX264Mode->SelectedIndex == 5 && cnf_fcgTemp->bitrate == -1) {
+				fcgTXQuality->Text = STR_BITRATE_AUTO;
+			} else
+				fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
 			break;
 		case X264_RC_QP:
 			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->qp);
@@ -1140,6 +1200,8 @@ System::Void frmConfig::InitForm() {
 	fcgRebuildCmd(nullptr, nullptr);
 	//表示位置の調整
 	AdjustLocation();
+	AddfcgLBAMPAutoBitrate();
+	AddCheckAMPAutoBitrateEvent();
 	//キー設定
 	SetStgEscKey(sys_dat->exstg->s_local.enable_stg_esc_key != 0);
 	//フォントの設定
@@ -1607,7 +1669,7 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"\n"
 		+ L"【" + String(x264_encodemode_desc[5]).ToString() + L"】\n"
 		+ L"    マルチパス出力(1pass → npass)を自動で行います。\n"
-		+ L"    --pass 1/3 --bitrate"
+		+ L"    --pass 1/3 --bitrate\n"
 		+ L"\n"
 		+ L"【" + String(x264_encodemode_desc[6]).ToString() + L"】\n"
 		+ L"    品質基準VBR (crf)でのエンコード後、ファイルサイズ・ビットレートを確認します。\n"

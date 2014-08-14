@@ -20,6 +20,7 @@
 #include "auo_clrutil.h"
 
 #include "h264_level.h"
+#include "transparentLabel.h"
 
 #include "frmConfig_helper.h"
 
@@ -74,6 +75,9 @@ namespace x264guiEx {
 			if (qualityTimer != nullptr)
 				delete qualityTimer;
 		}
+private: System::Windows::Forms::Label^  fcgLBAMPAutoBitrate;
+
+
 	private: System::Windows::Forms::TabControl^  fcgtabControlVideo;
 	private: System::Windows::Forms::TabPage^  fcgtabPageX264Main;
 	private: System::Windows::Forms::TabPage^  fcgtabPageX264RC;
@@ -1191,6 +1195,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgTXQuality->Tag = L"reCmd";
 			this->fcgTXQuality->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
 			this->fcgTXQuality->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXQuality_TextChanged);
+			this->fcgTXQuality->Enter += gcnew System::EventHandler(this, &frmConfig::fcgTXQuality_Enter);
 			this->fcgTXQuality->Validating += gcnew System::ComponentModel::CancelEventHandler(this, &frmConfig::fcgTXQuality_Validating);
 			// 
 			// fcgBTTBQualitySubtract
@@ -1227,6 +1232,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgTBQuality->Size = System::Drawing::Size(339, 25);
 			this->fcgTBQuality->TabIndex = 10;
 			this->fcgTBQuality->TickStyle = System::Windows::Forms::TickStyle::None;
+			this->fcgTBQuality->ValueChanged += gcnew System::EventHandler(this, &frmConfig::fcgTBQuality_ValueChanged);
 			this->fcgTBQuality->Scroll += gcnew System::EventHandler(this, &frmConfig::fcgTBQuality_Scroll);
 			// 
 			// fcgPNX264Mode
@@ -2085,7 +2091,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			// 
 			// fcgLBVBVafsWarning
 			// 
-			this->fcgLBVBVafsWarning->ForeColor = System::Drawing::Color::Red;
+			this->fcgLBVBVafsWarning->ForeColor = System::Drawing::Color::OrangeRed;
 			this->fcgLBVBVafsWarning->Location = System::Drawing::Point(25, 91);
 			this->fcgLBVBVafsWarning->Name = L"fcgLBVBVafsWarning";
 			this->fcgLBVBVafsWarning->Size = System::Drawing::Size(155, 28);
@@ -4581,11 +4587,29 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		System::Void InitCXCmdExInsert();
 		System::Void fcgCXCmdExInsert_FontChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgTXQuality_Enter(System::Object^  sender, System::EventArgs^  e);
+		System::Void fcgCheckAMPAutoBitrateEvent(System::Object^  sender, System::EventArgs^  e);
+		System::Void AddCheckAMPAutoBitrateEvent();
 	public:
 		System::Void InitData(CONF_GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);
 		System::Void SetAudioBitrate(int bitrate);
 		System::Void InformfbcClosed();
+	private:
+		System::Void AddfcgLBAMPAutoBitrate() {
+			//fcgLBAMPAutoBitrateには拡張した簡易透過ラベルを使用する(背景透過&マウスイベント透過)
+			//普通に作成しておくと、フォームデザイナが使用できなくなり厄介なので、ここで作っておく
+			fcgLBAMPAutoBitrate = gcnew TransparentLabel();
+			fcgPNBitrate->Controls->Add(fcgLBAMPAutoBitrate);
+			fcgLBAMPAutoBitrate->ForeColor = System::Drawing::Color::OrangeRed;
+			fcgLBAMPAutoBitrate->Location = System::Drawing::Point(90, 30);
+			fcgLBAMPAutoBitrate->Name = L"fcgLBAMPAutoBitrate";
+			fcgLBAMPAutoBitrate->Size = System::Drawing::Size(181, 30);
+			fcgLBAMPAutoBitrate->TabIndex = 15;
+			fcgLBAMPAutoBitrate->Visible = false;
+			fcgLBAMPAutoBitrate->Text = L"※目標ビットレートを自動にするには\n　　上限設定が必要です。";
+			fcgLBAMPAutoBitrate->BringToFront();
+		}
 	private:
 		System::Void fcgTSItem_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 			EnableSettingsNoteChange(false);
@@ -4900,6 +4924,11 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 	private:
 		System::Void fcgTBQuality_Scroll(System::Object^  sender, System::EventArgs^  e) {
 			SetTBValueToTextBox();
+		}
+	private:
+		System::Void fcgTBQuality_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+			if (fcgLBAMPAutoBitrate != nullptr)
+				fcgLBAMPAutoBitrate->Invalidate(); //上に乗っかっているので再描画をかける
 		}
 	private: 
 		System::Void fcgBTTBQualitySubtract_Click(System::Object^  sender, System::EventArgs^  e) {
