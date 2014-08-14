@@ -27,15 +27,16 @@
 #include "auo_mux.h"
 #include "auo_encode.h"
 
-static void show_mux_info(const char *mux_stg_name, BOOL vidmux, BOOL audmux, BOOL tcmux, const char *muxer_mode_name) {
+static void show_mux_info(const char *mux_stg_name, BOOL vidmux, BOOL audmux, BOOL tcmux, BOOL chapmux, const char *muxer_mode_name) {
 	char mes[1024];
 	static const char * const ON_OFF_INFO[] = { "off", " on" };
 
-	sprintf_s(mes, _countof(mes), "%s でmuxを行います。映像:%s, 音声:%s, tc:%s, 拡張モード:%s", 
+	sprintf_s(mes, _countof(mes), "%s でmuxを行います。映像:%s, 音声:%s, tc:%s, chap:%s, 拡張モード:%s", 
 		mux_stg_name,
 		ON_OFF_INFO[vidmux != 0],
 		ON_OFF_INFO[audmux != 0],
 		ON_OFF_INFO[tcmux != 0],
+		ON_OFF_INFO[chapmux != 0],
 		muxer_mode_name);
 	write_log_auo_line_fmt(LOG_INFO, mes);
 
@@ -256,6 +257,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
 			//チャプターファイルが存在しない
 			warning_mux_no_chapter_file();
 			del_chap_cmd(cmd, FALSE);
+			enable_chap_mux = FALSE;
 		} else {
 			replace(cmd, nSize, "%{chapter}", chap_file);
 			//オーディオディレイのカットを映像追加で行ったら、チャプター位置の修正も必要
@@ -288,11 +290,13 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
 				}
 			}
 		}
+	} else {
+		enable_chap_mux = FALSE;
 	}
 	//その他の置換を実行
 	cmd_replace(cmd, nSize, pe, sys_dat, conf, oip);
 	//情報表示
-	show_mux_info(mux_stg->dispname, enable_vid_mux, enable_aud_mux, enable_tc_mux, muxer_mode->name);
+	show_mux_info(mux_stg->dispname, enable_vid_mux, enable_aud_mux, enable_tc_mux, enable_chap_mux, muxer_mode->name);
 	return AUO_RESULT_SUCCESS;
 }
 
