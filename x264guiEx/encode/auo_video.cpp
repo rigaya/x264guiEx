@@ -449,7 +449,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
 	if (!prm.oth.disable_guicmd) {
 		//cliモードでない
 		//自動設定の適用
-		apply_guiEx_auto_settings(&prm.x264, oip->w, oip->h, oip->rate, oip->scale);
+		apply_guiEx_auto_settings(&prm.x264, oip->w, oip->h, oip->rate, oip->scale, sys_dat->exstg->s_local.auto_ref_limit_by_level);
 		//GUI部のコマンドライン生成
 		build_cmd_from_conf(cmd, nSize, &prm.x264, &prm.vid, FALSE);
 	}

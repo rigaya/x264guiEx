@@ -347,7 +347,7 @@ void apply_presets(CONF_X264 *conf_set);
 int check_profile(const CONF_X264 *conf_set);
 void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const void *_vid, BOOL write_all);
 void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height);
-void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den);
+void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level);
 const X264_OPTION_STR * get_option_list(const char *option_name);
 void set_ex_stg_ptr(guiEx_settings *_ex_stg);
 int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize);

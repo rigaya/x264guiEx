@@ -88,3 +88,13 @@ void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int
 	}
 	return;
 }
+
+int get_ref_limit(int level, int width, int height, BOOL interlaced) {
+	if (level <= 0)
+		return 16;
+
+	const int j = (interlaced) ? INTERLACED : PROGRESSIVE;
+	const int MB_frame = ceil_div_int(width, 16) * (j * ceil_div_int(height, 16*j));
+
+	return min(H264_LEVEL_LIMITS[level][3] / MB_frame, MAX_REF_FRAMES);
+}
