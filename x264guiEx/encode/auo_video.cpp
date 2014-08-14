@@ -652,19 +652,23 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
 	const double duration = get_duration(conf, sys_dat, pe, oip);
 	UINT64 aud_filesize = 0;
 	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
-		if (!str_has_char(pe->append.aud)) { //音声エンコがまだ終了していない
+		if (!str_has_char(pe->append.aud[0])) { //音声エンコがまだ終了していない
 			info_amp_do_aud_enc_first(conf->vid.amp_check);
 			return AUO_RESULT_ABORT; //音声エンコを先にやるべく、動画エンコを終了する
 		}
-		char aud_file[MAX_PATH_LEN];
-		apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud);
-		if (!PathFileExists(aud_file)) {
-			error_no_aud_file();
-			return AUO_RESULT_ERROR;
-		}
-		if (!GetFileSizeUInt64(aud_file, &aud_filesize)) {
-			warning_failed_get_aud_size(); warning_amp_failed();
-			return AUO_RESULT_ERROR;
+		for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+			char aud_file[MAX_PATH_LEN];
+			apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud[i_aud]);
+			if (!PathFileExists(aud_file)) {
+				error_no_aud_file();
+				return AUO_RESULT_ERROR;
+			}
+			UINT64 filesize_tmp = 0;
+			if (!GetFileSizeUInt64(aud_file, &filesize_tmp)) {
+				warning_failed_get_aud_size(); warning_amp_failed();
+				return AUO_RESULT_ERROR;
+			}
+			aud_filesize += filesize_tmp;
 		}
 		if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) && 
 			aud_filesize >= conf->vid.amp_limit_file_size * 1024 * 1024) {

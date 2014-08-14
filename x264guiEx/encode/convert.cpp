@@ -95,6 +95,46 @@ void convert_audio_16to8_sse2(BYTE *dst, short *src, int n) {
 	}
 }
 
+void split_audio_16to8x2(BYTE *dst, short *src, int n) {
+	BYTE *byte0 = dst;
+	BYTE *byte1 = dst + n;
+	short *sh = src;
+	short *sh_fin = src + n;
+	for ( ; sh < sh_fin; sh++, byte0++, byte1++) {
+		*byte0 = (*sh >> 8)   + 128;
+		*byte1 = (*sh & 0xff) + 128;
+	}
+}
+
+void split_audio_16to8x2_sse2(BYTE *dst, short *src, int n) {
+	BYTE *byte0 = dst;
+	BYTE *byte1 = dst + n;
+	short *sh = src;
+	short *sh_fin = src + (n & ~15);
+	__m128i x0, x1, x2, x3;
+	__m128i xMask = _mm_srli_epi16(_mm_cmpeq_epi8(_mm_setzero_si128(), _mm_setzero_si128()), 8);
+	__m128i xConst = _mm_set1_epi8(-128);
+	for ( ; sh < sh_fin; sh += 16, byte0 += 16, byte1 += 16) {
+		x0 = _mm_loadu_si128((__m128i*)(sh + 0));
+		x1 = _mm_loadu_si128((__m128i*)(sh + 8));
+		x2 = _mm_and_si128(x0, xMask); //Lower8bit
+		x3 = _mm_and_si128(x1, xMask); //Lower8bit
+		x0 = _mm_srli_epi16(x0, 8);    //Upper8bit
+		x1 = _mm_srli_epi16(x1, 8);    //Upper8bit
+		x2 = _mm_packus_epi16(x2, x3);
+		x0 = _mm_packus_epi16(x0, x1);
+		x2 = _mm_add_epi8(x2, xConst);
+		x0 = _mm_add_epi8(x0, xConst);
+		_mm_storeu_si128((__m128i*)byte0, x0);
+		_mm_storeu_si128((__m128i*)byte1, x2);
+	}
+	sh_fin = sh + (n & 15);
+	for ( ; sh < sh_fin; sh++, byte0++, byte1++) {
+		*byte0 = (*sh >> 8)   + 128;
+		*byte1 = (*sh & 0xff) + 128;
+	}
+}
+
 void copy_yuy2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	memcpy(pixel_data->data[0], frame, width * height * 2);
 }

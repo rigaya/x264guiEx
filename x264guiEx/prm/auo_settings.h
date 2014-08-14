@@ -262,7 +262,7 @@ typedef struct {
 } LOCAL_SETTINGS;
 
 typedef struct {
-	char aud[MAX_APPENDIX_LEN];        //音声ファイル名に追加する文字列
+	char aud[2][MAX_APPENDIX_LEN];     //音声ファイル名に追加する文字列...音声エンコード段階で設定する
 	char tc[MAX_APPENDIX_LEN];         //タイムコードファイル名に追加する文字列
 	char qp[MAX_APPENDIX_LEN];         //qpファイル名に追加する文字列
 	char chap[MAX_APPENDIX_LEN];       //チャプターファイル名に追加する文字列

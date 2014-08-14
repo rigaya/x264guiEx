@@ -201,8 +201,10 @@ void warning_audio_length() {
 
 void error_audenc_failed(const char *name, const char *args) {
 	write_log_auo_line_fmt(LOG_ERROR, "出力音声ファイルがみつかりません。%s での音声のエンコードに失敗しました。", name);
-	write_log_auo_line(    LOG_ERROR, "音声エンコードのコマンドラインは…");
-	write_log_auo_line(    LOG_ERROR, args);
+	if (args) {
+		write_log_auo_line(    LOG_ERROR, "音声エンコードのコマンドラインは…");
+		write_log_auo_line(    LOG_ERROR, args);
+	}
 }
 
 void error_mux_failed(const char *name, const char *args) {
@@ -243,6 +245,14 @@ void error_no_aud_file() {
 
 void error_no_vid_file() {
 	write_log_auo_line(LOG_ERROR, "映像一時ファイルが見つかりません。muxを行えません。");
+}
+
+void error_aud_file_zero_byte() {
+	write_log_auo_line(LOG_ERROR, "音声一時ファイルが 0 byteです。muxを行えません。");
+}
+
+void error_vid_file_zero_byte() {
+	write_log_auo_line(LOG_ERROR, "映像一時ファイルが 0 byteです。muxを行えません。");
 }
 
 void warning_mux_tmp_not_enough_space() {

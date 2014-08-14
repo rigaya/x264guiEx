@@ -18,8 +18,20 @@
 #include "convert.h"
 
 //音声の16bit->8bit変換の選択
-func_audio_16to8 get_audio_16to8_func() {
-	return (check_sse2()) ? convert_audio_16to8_sse2 : convert_audio_16to8;
+func_audio_16to8 get_audio_16to8_func(BOOL split) {
+	static const func_audio_16to8 FUNC_CONVERT_AUDIO[][2] = {
+		{ convert_audio_16to8,      split_audio_16to8x2      },
+		{ convert_audio_16to8_sse2, split_audio_16to8x2_sse2 },
+#if (_MSC_VER >= 1700)
+		{ convert_audio_16to8_avx2, split_audio_16to8x2_avx2 },
+#endif
+	};
+	int simd = 0;
+#if (_MSC_VER >= 1700)
+	if (0 == (simd = (!!check_avx2() * 2)))
+#endif
+		simd = check_sse2();
+	return FUNC_CONVERT_AUDIO[simd][!!split];
 }
 
 enum eInterlace {

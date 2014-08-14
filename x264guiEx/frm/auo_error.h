@@ -52,6 +52,8 @@ void warning_failed_get_aud_size();
 void warning_failed_get_vid_size();
 void error_no_vid_file();
 void error_no_aud_file();
+void error_vid_file_zero_byte();
+void error_aud_file_zero_byte();
 void warning_mux_tmp_not_enough_space();
 void error_muxer_drive_not_enough_space();
 void error_out_drive_not_enough_space();

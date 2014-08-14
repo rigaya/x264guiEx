@@ -28,9 +28,9 @@
 #include "auo_encode.h"
 #include "auo_error.h"
 
-void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe) {
+void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe, int i_aud) {
 	PathCombineLong(audfile, nSize, pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
-	apply_appendix(audfile, nSize, audfile, pe->append.aud);
+	apply_appendix(audfile, nSize, audfile, pe->append.aud[i_aud]);
 }
 
 static void get_muxout_appendix(char *muxout_appendix, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe) {
@@ -54,6 +54,14 @@ void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_
 	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, oip);
 	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
 	sys_dat->exstg->apply_fn_replace(PathFindFileName(chap_apple), ca_nSize - (PathFindFileName(chap_apple) - chap_apple));
+}
+
+void insert_num_to_replace_key(char *key, size_t nSize, int num) {
+	char tmp[128];
+	int key_len = strlen(key);
+	sprintf_s(tmp, _countof(tmp), "%d%s", num, &key[key_len-1]);
+	key[key_len-1] = '\0';
+	strcat_s(key, nSize, tmp);
 }
 
 static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -105,9 +113,14 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 	//%{vidpath}
 	replace(cmd, nSize, "%{vidpath}", pe->temp_filename);
 	//%{audpath}
-	if (pe->append.aud && str_has_char(pe->append.aud)) {
-		get_aud_filename(tmp, _countof(tmp), pe);
-		replace(cmd, nSize, "%{audpath}", tmp);
+	for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+		if (str_has_char(pe->append.aud[i_aud])) {
+			get_aud_filename(tmp, _countof(tmp), pe, i_aud);
+			char aud_key[128] = "%{audpath}";
+			if (i_aud)
+				insert_num_to_replace_key(aud_key, _countof(aud_key), i_aud);
+			replace(cmd, nSize, aud_key, tmp);
+		}
 	}
 	//%{tmpdir}
 	strcpy_s(tmp, _countof(tmp), pe->temp_filename);
@@ -256,13 +269,14 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
 		move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
 	}
 	//音声ファイル(wav)
-	if (strcmp(pe->append.aud, pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
+	if (strcmp(pe->append.aud[0], pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
 		move_temp_file(pe->append.wav,  pe->temp_filename, oip->savefile, ret, TRUE, "wav", FALSE);
 	//音声ファイル(エンコード後ファイル)
 	char aud_tempfile[MAX_PATH_LEN];
 	PathCombineLong(aud_tempfile, _countof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
-	if (!move_temp_file(pe->append.aud, aud_tempfile, oip->savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
-		ret |= AUO_RESULT_ERROR;
+	for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
+		if (!move_temp_file(pe->append.aud[i_aud], aud_tempfile, oip->savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
+			ret |= AUO_RESULT_ERROR;
 	return ret;
 }
 

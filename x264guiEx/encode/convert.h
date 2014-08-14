@@ -34,6 +34,13 @@ typedef void (*func_audio_16to8) (BYTE *dst, short *src, int n);
 void convert_audio_16to8(BYTE *dst, short *src, int n);
 void convert_audio_16to8_sse2(BYTE *dst, short *src, int n);
 
+void split_audio_16to8x2(BYTE *dst, short *src, int n);
+void split_audio_16to8x2_sse2(BYTE *dst, short *src, int n);
+
+#if (_MSC_VER >= 1700)
+void convert_audio_16to8_avx2(BYTE *dst, short *src, int n);
+void split_audio_16to8x2_avx2(BYTE *dst, short *src, int n);
+#endif
 
 //動画変換
 typedef void (*func_convert_frame) (void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);

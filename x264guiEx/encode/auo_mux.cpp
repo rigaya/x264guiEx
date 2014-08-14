@@ -113,7 +113,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
 }
 
 //muxする動画ファイルと音声ファイルからmux後ファイルの推定サイズを取得する
-static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_vid_mux, BOOL enable_aud_mux, UINT64 *_expected_filesize) {
+static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_vid_mux, DWORD enable_aud_mux, UINT64 *_expected_filesize) {
 	*_expected_filesize = 0;
 	//動画ファイルのサイズ
 	if (enable_vid_mux) {
@@ -124,20 +124,30 @@ static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_vid_mux, 
 		if (!GetFileSizeUInt64(pe->temp_filename, &vid_size)) {
 			warning_failed_get_vid_size(); return AUO_RESULT_WARNING;
 		}
+		if (vid_size == 0) {
+			error_vid_file_zero_byte(); return AUO_RESULT_ERROR;
+		}
 		*_expected_filesize += vid_size;
 	}
 	//音声ファイルのサイズ
 	if (enable_aud_mux) {
 		UINT64 aud_size = 0;
-		char audfile[MAX_PATH_LEN] = { 0 };
-		get_aud_filename(audfile, _countof(audfile), pe);
-		if (!PathFileExists(audfile)) {
-			error_no_aud_file(); return AUO_RESULT_ERROR;
+		for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+			if (enable_aud_mux & (0x01<<i_aud)) {
+				char audfile[MAX_PATH_LEN] = { 0 };
+				get_aud_filename(audfile, _countof(audfile), pe, i_aud);
+				if (!PathFileExists(audfile)) {
+					error_no_aud_file(); return AUO_RESULT_ERROR;
+				}
+				if (!GetFileSizeUInt64(audfile, &aud_size)) {
+					warning_failed_get_aud_size(); return AUO_RESULT_WARNING;
+				}
+				if (aud_size == 0) {
+					error_aud_file_zero_byte(); return AUO_RESULT_ERROR;
+				}
+				*_expected_filesize += aud_size;
+			}
 		}
-		if (!GetFileSizeUInt64(audfile, &aud_size)) {
-			warning_failed_get_aud_size(); return AUO_RESULT_WARNING;
-		}
-		*_expected_filesize += aud_size;
 	}
 	return AUO_RESULT_SUCCESS;
 }
@@ -184,16 +194,37 @@ static int get_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
 	return mode;
 }
 
-static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
+static void build_aud_mux_cmd(char *audstr, size_t nSize, const char *aud_cmd, DWORD enable_aud_mux, const PRM_ENC *pe) {
+	*audstr = '\0';
+	if (enable_aud_mux == 0x00)
+		return;
+
+	for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+		if (enable_aud_mux & (0x01 << i_aud)) {
+			char audcmd_tmp[1024];
+			strcpy_s(audcmd_tmp, _countof(audcmd_tmp), aud_cmd);
+			if (i_aud) {
+				char audkey[128] = "%{audpath}";
+				insert_num_to_replace_key(audkey, _countof(audkey), i_aud);
+				replace(audcmd_tmp, _countof(audcmd_tmp), "%{audpath}", audkey);
+			}
+			strcat_s(audstr, nSize, audcmd_tmp);
+			strcat_s(audstr, nSize, " ");
+		}
+	}
+}
+
+static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, 
 						  const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, UINT64 expected_filesize,
-						  BOOL enable_vid_mux, BOOL enable_aud_mux, BOOL enable_chap_mux) {
+						  BOOL enable_vid_mux, DWORD enable_aud_mux, BOOL enable_chap_mux) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
 	const BOOL enable_tc_mux = ((conf->vid.afs) != 0) && str_has_char(mux_stg->tc_cmd);
 	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_excmd_mode(conf, pe)];
 	const char *vidstr = (enable_vid_mux) ? mux_stg->vid_cmd : "";
-	const char *audstr = (enable_aud_mux) ? mux_stg->aud_cmd : "";
 	const char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
 	const char *exstr  = (conf->mux.apple_mode && str_has_char(muxer_mode->cmd_apple)) ? muxer_mode->cmd_apple : muxer_mode->cmd;
+	char audstr[MAX_CMD_LEN];
+	build_aud_mux_cmd(audstr, _countof(audstr), mux_stg->aud_cmd, enable_aud_mux, pe);
 	//映像用コマンド
 	replace(cmd, nSize, "%{vd_cmd}",  vidstr);
 	//音声用コマンド
@@ -277,10 +308,27 @@ static inline BOOL video_to_mux_is_raw(const PRM_ENC *pe, const SYSTEM_DATA *sys
 	return !check_ext(pe->temp_filename, sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext);
 }
 
+//audio_to_mux_is_rawのモード決定用
+enum {
+	MODE_ONE = 0,                
+	MODE_ALL = 0x80000000,
+	MASK_ALL = ~MODE_ALL,
+	ONE = MODE_ONE | MASK_ALL,  //ひとつでもrawならTRUEを返す
+	ALL = MODE_ALL | MASK_ALL,  //すべてrawならTRUEを返す
+};
+
 //rawなのかmp4なのか (拡張子による判定)
-static inline BOOL audio_to_mux_is_raw(const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-	return !check_ext(pe->append.aud, ".m4a") 
-		&& !check_ext(pe->append.aud, sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext);
+static inline BOOL audio_to_mux_is_raw(const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, int target) {
+	const DWORD mask = (DWORD)target & MASK_ALL;
+	BOOL result = !!((DWORD)target & MODE_ALL);
+	for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+		if (mask & (0x01 << i_aud)) {
+			BOOL is_raw = (!check_ext(pe->append.aud[i_aud], ".m4a")
+				        && !check_ext(pe->append.aud[i_aud], sys_dat->exstg->s_mux[pe->muxer_to_be_used].out_ext));
+			(((DWORD)target & MODE_ALL)) ? result &= is_raw : result |= is_raw;
+		}
+	}
+	return result;
 }
 
 //mp4同士のmux専用のmuxerかどうか
@@ -308,6 +356,14 @@ static AUO_RESULT run_mux_as(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM
 	return ret;
 }
 
+static DWORD check_for_aud_mux(int oip_flag, const char *aud_cmd, const PRM_ENC *pe) {
+	BOOL check = ((oip_flag != 0) && str_has_char(aud_cmd));
+	DWORD flag = 0x00;
+	for (int i = 0; i < pe->aud_count; i++)
+		flag |= check << i;
+	return flag;
+}
+
 AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//muxの必要がなければ終了
@@ -315,9 +371,9 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
 		return ret;
 
 	//映像・音声のmux判定
-	BOOL enable_vid_mux = TRUE;
-	BOOL enable_aud_mux = ((oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0) && str_has_char(sys_dat->exstg->s_mux[pe->muxer_to_be_used].aud_cmd);
-	BOOL enable_chap_mux = TRUE;
+	BOOL  enable_vid_mux = TRUE;
+	DWORD enable_aud_mux = check_for_aud_mux(oip->flag, sys_dat->exstg->s_mux[pe->muxer_to_be_used].aud_cmd, pe);
+	BOOL  enable_chap_mux = TRUE;
 	//事前muxが必要なら実行 (L-SMASH remuxerの前のmuxer)
 	if (pe->muxer_to_be_used == MUXER_TC2MP4 && video_to_mux_is_raw(pe, sys_dat)) {
 		//mp4に格納された動画が必要
@@ -325,20 +381,31 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
 			return ret;
 	} else if (muxer_is_for_raw_only(pe, sys_dat)) {
 		//raw用muxerに切り替えられていたら、コンテナへの格納が必要なものを処理する
+		//必ずひとつひとつ格納するようにする
 		//チャプターは(remuxerに戻ってから)後で処理するので、ここでは無効化しておく
-		enable_vid_mux = (enable_vid_mux && video_to_mux_is_raw(pe, sys_dat));
-		enable_aud_mux = (enable_aud_mux && audio_to_mux_is_raw(pe, sys_dat) && !(conf->vid.afs && enable_vid_mux)); //afs時はmuxerではmuxしない
 		enable_chap_mux = FALSE;
+		enable_vid_mux = (enable_vid_mux && video_to_mux_is_raw(pe, sys_dat));
+		//raw用muxerに切り替えられていたら、muxerでは音声と映像は同時にmuxしない
+		//特に、afs時はmuxerではmuxしない)
+		enable_aud_mux = 0x00;
+		if (!enable_vid_mux)
+			for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
+				if (0 != (enable_aud_mux = audio_to_mux_is_raw(pe, sys_dat, MODE_ONE | (0x01 << i_aud)) << i_aud))
+					break;
 	} else if (muxer_is_remux_only(pe, sys_dat)) {
 		//mp4用muxer(初期状態)で、動画・音声ともrawなら、raw用muxerに完全に切り替える
 		if ((enable_vid_mux && video_to_mux_is_raw(pe, sys_dat)) && 
-			(enable_aud_mux && audio_to_mux_is_raw(pe, sys_dat))) {
+			(enable_aud_mux && audio_to_mux_is_raw(pe, sys_dat, ALL))) {
 			pe->muxer_to_be_used = MUXER_MP4_RAW;
-		} else if ((enable_vid_mux && video_to_mux_is_raw(pe, sys_dat)) || 
-			       (enable_aud_mux && audio_to_mux_is_raw(pe, sys_dat))) {
+		} else {
 			//mp4用muxer(初期状態)で、動画・音声のどちらかがrawなら、rawのものを事前にmuxerでmp4に格納する。
-			if (AUO_RESULT_SUCCESS != (ret |= run_mux_as(conf, oip, pe, sys_dat, MUXER_MP4_RAW)))
-				return ret;
+			if (enable_vid_mux && video_to_mux_is_raw(pe, sys_dat))
+				if (AUO_RESULT_SUCCESS != (ret |= run_mux_as(conf, oip, pe, sys_dat, MUXER_MP4_RAW)))
+					return ret;
+			for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
+				if ((enable_aud_mux & (0x01 << i_aud)) && audio_to_mux_is_raw(pe, sys_dat, MODE_ONE | (0x01 << i_aud)))
+					if (AUO_RESULT_SUCCESS != (ret |= run_mux_as(conf, oip, pe, sys_dat, MUXER_MP4_RAW)))
+						return ret;
 		}
 	}
 
@@ -412,12 +479,16 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
 			} else {
 				//音声のみmuxなら、一時音声ファイルの情報を変更する
 				char aud_file[MAX_PATH_LEN] = { 0 };
-				get_aud_filename(aud_file, _countof(aud_file), pe);
-				remove(aud_file);
-				change_ext(pe->append.aud, _countof(pe->append.aud), mux_stg->out_ext); //拡張子を変更
-				get_aud_filename(aud_file, _countof(aud_file), pe);
-				if (PathFileExists(aud_file)) remove(aud_file);
-				rename(muxout, aud_file);
+				for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+					if (enable_aud_mux & (0x01 << i_aud)) {
+						get_aud_filename(aud_file, _countof(aud_file), pe, i_aud);
+						remove(aud_file);
+						change_ext(pe->append.aud[i_aud], _countof(pe->append.aud[i_aud]), mux_stg->out_ext); //拡張子を変更
+						get_aud_filename(aud_file, _countof(aud_file), pe, i_aud);
+						if (PathFileExists(aud_file)) remove(aud_file);
+						rename(muxout, aud_file);
+					}
+				}
 			}
 		} else if (ret & AUO_RESULT_ERROR) {
 			error_mux_failed(mux_stg->dispname, muxargs);

@@ -10,11 +10,16 @@
 #ifndef _FAWCHECK_H_
 #define _FAWCHECK_H_
 
-const int NON_FAW  = 0;
-const int FAW_FULL = 1;
-const int FAW_HALF = 2;
-const int FAWCHECK_ERROR_TOO_SHORT = -1;
-const int FAWCHECK_ERROR_OTHER     = -2;
+enum {
+	NON_FAW  = 0,
+	FAW_FULL = 1,
+	FAW_HALF = 2,
+	FAW_MIX  = 3,
+	FAWCHECK_ERROR_OTHER     = -1,
+	FAWCHECK_ERROR_TOO_SHORT = -2,
+};
+
+static const char *const FAW_TYPE_NAME[] = { "non-FAW", "full size", "half size", "half size mix" };
 
 int FAWCheck(short *audio_dat, int audio_n, int audio_rate, int audio_size); //FAWCheckを行い、判定結果を返す
 

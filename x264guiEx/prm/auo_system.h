@@ -45,6 +45,8 @@ typedef struct {
 	HANDLE h_p_aviutl;                     //優先度取得用のAviutlのハンドル
 	char temp_filename[MAX_PATH_LEN];      //一時ファイル名
 	char muxed_vid_filename[MAX_PATH_LEN]; //mux後に退避された動画のみファイル
+	int  aud_count;                        //音声ファイル数...音声エンコード段階で設定する
+	                                       //auo_mux.cppのenable_aud_muxの制限から31以下
 	char aud_temp_dir[MAX_PATH_LEN];       //音声一時ディレクトリ
 	FILE_APPENDIX append;                  //ファイル名に追加する文字列のリスト
 } PRM_ENC;

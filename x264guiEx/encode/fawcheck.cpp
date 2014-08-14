@@ -20,7 +20,7 @@ const int    FAW_ZERO_HALF              = SHRT_MIN;
 const double ZERO_BLOCK_THRESHOLD_RATIO = 0.005;
 const double FAW_ERROR_TOO_SHORT_RATIO  = 0.2; //音声サンプリングレートに対する割合
 const int    ZERO_BLOCK_COUNT_THRESHOLD = 16; //ゼロブロックが最低秒間いくつあるか
-const double ZERO_SUM_RATIO_MIN[2]      = { 768.0 / 1536.0, 256.0 / 1536.0 }; //全体に対するゼロの数下限(フルサイズ, ハーフサイズ)
+const double ZERO_SUM_RATIO_MIN[3]      = { 768.0 / 1536.0, 256.0 / 1536.0, 256.0 / 1536.0 }; //全体に対するゼロの数下限(フルサイズ, ハーフサイズ)
 const double ZERO_SUM_RATIO_MAX         = 0.99479; //全体に対するゼロの数上限
 const double ZERO_SD_RATIO              = 0.25; //ゼロブロック内のゼロの平均数に対する標準偏差
 
@@ -31,9 +31,8 @@ const double ZERO_SD_RATIO              = 0.25; //ゼロブロック内のゼロ
 
 //音声データは16bitのみということで
 int FAWCheck(short *audio_dat, int audio_n, int audio_rate, int audio_size) {
-	std::vector<int> zero_blocks[2];
-	int current_zero_blocks[2] = { 0, 0 };
-	int ret = NON_FAW;
+	std::vector<int> zero_blocks[3];
+	int current_zero_blocks[3] = { 0, 0, 0 };
 	int i;
 
 	short *data = NULL;
@@ -48,25 +47,22 @@ int FAWCheck(short *audio_dat, int audio_n, int audio_rate, int audio_size) {
 
 	//ゼロブロックを数える
 	for (data = audio_dat; data < fin; data += step) {
-		switch (*data) {
-			case FAW_ZERO_FULL:
-				current_zero_blocks[0]++;
-				break;
-			case FAW_ZERO_HALF:
-				current_zero_blocks[1]++;
-				break;
-			default:
-				for (i = 0; i < 2; i++) {
-					if (current_zero_blocks[i] >= zero_block_threshold)
-						zero_blocks[i].push_back(current_zero_blocks[i]);
-					current_zero_blocks[i] = 0;
-				}
-				break;
+		short check[3] = { *data, (BYTE)((*data >> 8) + 128), (BYTE)((*data & 0xff) + 128) };
+
+		for (int i = 0; i < 3; i++) {
+			if (check[i] == 0) {
+				current_zero_blocks[i]++;
+			} else {
+				if (current_zero_blocks[i] >= zero_block_threshold)
+					zero_blocks[i].push_back(current_zero_blocks[i]);
+				current_zero_blocks[i] = 0;
+			}
 		}
 	}
 
 	//ゼロブロックをチェック
-	for (i = 0; (i < 2 && ret == NON_FAW); i++) {
+	BOOL check_result[3] = { FALSE, FALSE, FALSE };
+	for (i = 0; i < 3; i++) {
 		if (zero_blocks[i].size() < (size_t)(audio_n * ZERO_BLOCK_COUNT_THRESHOLD / audio_rate))
 			continue;
 		int zero_sum = 0;
@@ -82,7 +78,11 @@ int FAWCheck(short *audio_dat, int audio_n, int audio_rate, int audio_size) {
 		if (zero_sd > zero_avg * ZERO_SD_RATIO)
 			continue;
 		//ここまで来たらFAW
-		ret = FAW_FULL + i;
+		check_result[i] = TRUE;
 	}
-	return ret;
+	check_result[2] &= check_result[1];
+	for (i = 2; i >= 0; i--)
+		if (check_result[i])
+			break;
+	return i + FAW_FULL;
 }
