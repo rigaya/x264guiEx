@@ -69,8 +69,8 @@ static int calc_input_frame_size(int width, int height, int color_format) {
 }
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable) {
-	//すでに初期化してある
-	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED)
+	//すでに初期化してある または 必要ない
+	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED || !conf->vid.afs)
 		return TRUE;
 
 	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp);
@@ -81,15 +81,11 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, B
 		return TRUE;
 	} else if (conf->vid.afs && auto_afs_disable) {
 		afs_vbuf_release(); //一度解放
-		//afs無効で再初期化
-		if (afs_vbuf_setup((OUTPUT_INFO *)oip, FALSE, frame_size, COLORFORMATS[color_format].FOURCC)) {
-			warning_auto_afs_disable();
-			conf->vid.afs = FALSE;
-			//再度使用するmuxerをチェックする
-			pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
-			pe->afs_init = TRUE;
-			return TRUE;
-		}
+		warning_auto_afs_disable();
+		conf->vid.afs = FALSE;
+		//再度使用するmuxerをチェックする
+		pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+		return TRUE;
 	}
 	//エラー
 	error_afs_setup(conf->vid.afs, auto_afs_disable);
@@ -521,6 +517,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 		void *frame = NULL;
 		int *next_jitter = NULL;
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
+		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp)].FOURCC;
 
 		//x264が待機に入るまでこちらも待機
 		while (WaitForInputIdle(pi_enc.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
@@ -561,7 +558,7 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 				ret |= aud_parallel_task(oip, pe);
 			}
 			//Aviutl(afs)からフレームをもらう
-			if ((frame = afs_get_video((OUTPUT_INFO *)oip, i, &drop, next_jitter)) == NULL) {
+			if (NULL == (frame = ((afs) ? afs_get_video((OUTPUT_INFO *)oip, i, &drop, next_jitter) : oip->func_get_video_ex(i, aviutl_color_fmt)))) {
 				ret |= AUO_RESULT_ERROR; error_afs_get_frame();
 				break;
 			}
