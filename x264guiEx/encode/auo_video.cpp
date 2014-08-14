@@ -429,10 +429,10 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 			if (wait_for_audio_count == 10)
 				set_window_title("音声処理の終了を待機しています...", PROGRESSBAR_MARQUEE);
 			pe->aud_parallel.abort |= oip->func_is_abort();
-			flush_audio_log();
 			log_process_events();
 			wait_for_audio_count++;
 		}
+		flush_audio_log();
 		if (wait_for_audio_count > 10)
 			set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
 
