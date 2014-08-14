@@ -877,6 +877,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
 			this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAuoTcfileout = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAFSBitrateCorrection = (gcnew System::Windows::Forms::CheckBox());
@@ -987,7 +988,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->fcgLBguiExBlog = (gcnew System::Windows::Forms::LinkLabel());
-			this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -3214,6 +3214,17 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcggroupBoxExSettings->TabStop = false;
 			this->fcggroupBoxExSettings->Text = L"拡張設定";
 			// 
+			// fcgCBInputAsLW48
+			// 
+			this->fcgCBInputAsLW48->AutoSize = true;
+			this->fcgCBInputAsLW48->Location = System::Drawing::Point(18, 151);
+			this->fcgCBInputAsLW48->Name = L"fcgCBInputAsLW48";
+			this->fcgCBInputAsLW48->Size = System::Drawing::Size(81, 18);
+			this->fcgCBInputAsLW48->TabIndex = 4;
+			this->fcgCBInputAsLW48->Tag = L"chValue";
+			this->fcgCBInputAsLW48->Text = L"LW48モード";
+			this->fcgCBInputAsLW48->UseVisualStyleBackColor = true;
+			// 
 			// fcgCBCheckKeyframes
 			// 
 			this->fcgCBCheckKeyframes->AutoSize = true;
@@ -4372,16 +4383,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcgLBguiExBlog->Text = L"x264guiExについて";
 			this->fcgLBguiExBlog->VisitedLinkColor = System::Drawing::Color::Gray;
 			this->fcgLBguiExBlog->LinkClicked += gcnew System::Windows::Forms::LinkLabelLinkClickedEventHandler(this, &frmConfig::fcgLBguiExBlog_LinkClicked);
-			// 
-			// fcgCBInputAsLW48
-			// 
-			this->fcgCBInputAsLW48->AutoSize = true;
-			this->fcgCBInputAsLW48->Location = System::Drawing::Point(18, 151);
-			this->fcgCBInputAsLW48->Name = L"fcgCBInputAsLW48";
-			this->fcgCBInputAsLW48->Size = System::Drawing::Size(81, 18);
-			this->fcgCBInputAsLW48->TabIndex = 4;
-			this->fcgCBInputAsLW48->Text = L"LW48モード";
-			this->fcgCBInputAsLW48->UseVisualStyleBackColor = true;
 			// 
 			// frmConfig
 			// 
