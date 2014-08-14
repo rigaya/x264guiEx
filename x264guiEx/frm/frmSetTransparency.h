@@ -99,7 +99,8 @@ namespace x264guiEx {
 			this->SuspendLayout();
 			// 
 			// fstBTDefault
-			// 
+			//
+			this->fstBTDefault->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->fstBTDefault->Location = System::Drawing::Point(12, 74);
 			this->fstBTDefault->Name = L"fstBTDefault";
 			this->fstBTDefault->Size = System::Drawing::Size(80, 31);
@@ -110,6 +111,7 @@ namespace x264guiEx {
 			// 
 			// fstBTOK
 			// 
+			this->fstBTOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fstBTOK->Location = System::Drawing::Point(154, 74);
 			this->fstBTOK->Name = L"fstBTOK";
 			this->fstBTOK->Size = System::Drawing::Size(80, 31);
@@ -120,6 +122,7 @@ namespace x264guiEx {
 			// 
 			// fstBTCancel
 			// 
+			this->fstBTCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fstBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
 			this->fstBTCancel->Location = System::Drawing::Point(240, 74);
 			this->fstBTCancel->Name = L"fstBTCancel";
@@ -161,9 +164,9 @@ namespace x264guiEx {
 			// 
 			// frmSetTransparency
 			// 
-			this->AcceptButton = this->fstBTOK;
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
+			this->AcceptButton = this->fstBTOK;
 			this->CancelButton = this->fstBTCancel;
 			this->ClientSize = System::Drawing::Size(332, 115);
 			this->Controls->Add(this->fstLBTransparency);

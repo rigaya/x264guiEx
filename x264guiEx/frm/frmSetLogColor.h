@@ -108,6 +108,7 @@ namespace x264guiEx {
 			// 
 			// fscBTOK
 			// 
+			this->fscBTOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fscBTOK->Location = System::Drawing::Point(166, 178);
 			this->fscBTOK->Name = L"fscBTOK";
 			this->fscBTOK->Size = System::Drawing::Size(79, 34);
@@ -118,6 +119,7 @@ namespace x264guiEx {
 			// 
 			// fscBTCancel
 			// 
+			this->fscBTCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fscBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
 			this->fscBTCancel->Location = System::Drawing::Point(261, 178);
 			this->fscBTCancel->Name = L"fscBTCancel";
@@ -129,6 +131,7 @@ namespace x264guiEx {
 			// 
 			// fscBTDefault
 			// 
+			this->fscBTDefault->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->fscBTDefault->Location = System::Drawing::Point(12, 178);
 			this->fscBTDefault->Name = L"fscBTDefault";
 			this->fscBTDefault->Size = System::Drawing::Size(79, 34);

@@ -9,7 +9,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <vector>
 #include "auo_frm.h"
 #include "auo_util.h"
 

@@ -4830,6 +4830,10 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			NU->Value = clamp(Convert::ToDecimal(i), NU->Minimum, NU->Maximum);
 		}
 	private:
+		System::Void SetNUValue(NumericUpDown^ NU, unsigned int i) {
+			NU->Value = clamp(Convert::ToDecimal(i), NU->Minimum, NU->Maximum);
+		}
+	private:
 		System::Void SetNUValue(NumericUpDown^ NU, float f) {
 			NU->Value = clamp(Convert::ToDecimal(f), NU->Minimum, NU->Maximum);
 		}

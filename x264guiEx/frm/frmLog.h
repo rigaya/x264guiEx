@@ -604,8 +604,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 				richTextLog->ResumeLayout();
 			}
 		}
-	private:
-		//delegate System::Void WriteLogLineDelegate(String^ str, int log_type_index);
 	public:
 		System::Void WriteLogLine(String^ str, int log_type_index) {
 			if (this->InvokeRequired) {
@@ -716,8 +714,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 		System::Void SaveLogSettings() {
 			guiEx_settings exstg(true);
 			exstg.load_log_win();
-			exstg.s_log.transparency     = frmTransparency;
 			exstg.s_log.transparent      = ToolStripMenuItemTransparent->Checked;
+			exstg.s_log.transparency     = frmTransparency;
 			exstg.s_log.minimized        = ToolStripMenuItemStartMinimized->Checked;
 			exstg.s_log.auto_save_log    = toolStripMenuItemAutoSave->Checked;
 			exstg.s_log.show_status_bar  = toolStripMenuItemShowStatus->Checked;

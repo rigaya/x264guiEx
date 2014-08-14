@@ -13,7 +13,6 @@
 #include <process.h>
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "user32.lib") //WaitforInputIdle
-#include <vector>
 
 #include "output.h"
 #include "auo.h"
