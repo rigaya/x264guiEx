@@ -501,6 +501,7 @@ void guiEx_settings::load_local() {
 	s_local.disable_visual_styles     = GetPrivateProfileInt(   ini_section_main, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   ini_section_main, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
 	s_local.get_relative_path         = GetPrivateProfileInt(   ini_section_main, "get_relative_path",        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	s_local.run_bat_minimized         = GetPrivateProfileInt(   ini_section_main, "run_bat_minimized",        DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
 
 	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
@@ -581,6 +582,7 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "get_relative_path",         s_local.get_relative_path,        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "run_bat_minimized",         s_local.run_bat_minimized,        DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
 
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);

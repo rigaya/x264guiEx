@@ -58,7 +58,7 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 	char *line_buf = NULL;
 	if        (fopen_s(&fp_orig, batfile, "r" ) != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_orig();
-	} else if (fopen_s(&fp_tmp,  bat_tmp,           "wb") != NULL) {
+	} else if (fopen_s(&fp_tmp,  bat_tmp, "wb") != NULL) {
 		ret = AUO_RESULT_ERROR; warning_failed_open_bat_new();
 	} else if ((line_buf = (char *)calloc(buf_len, sizeof(line_buf[0]))) == NULL) {
 		ret = AUO_RESULT_ERROR; warning_malloc_batfile_tmp();
@@ -102,7 +102,7 @@ AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, cons
 	sprintf_s(bat_args, _countof(bat_args), "\"%s\"", bat_tmp);
 	sprintf_s(bat_dir, _countof(bat_dir), "\"%s\"", sys_dat->aviutl_dir);
 	set_window_title("バッチファイル処理", PROGRESSBAR_MARQUEE);
-	if (RP_SUCCESS != (rp_ret = RunProcess(bat_args, sys_dat->aviutl_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, FALSE))) {
+	if (RP_SUCCESS != (rp_ret = RunProcess(bat_args, sys_dat->aviutl_dir, &pi_bat, NULL, NORMAL_PRIORITY_CLASS, FALSE, sys_dat->exstg->s_local.run_bat_minimized))) {
 		ret |= AUO_RESULT_ERROR; error_run_process("バッチファイル処理", rp_ret);
 	}
 	if (!ret && !(conf->oth.dont_wait_bat_fin & run_bat_mode))

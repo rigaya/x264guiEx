@@ -649,6 +649,10 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 
 
 
+
+
+
+
 	private: System::ComponentModel::IContainer^  components;
 
 

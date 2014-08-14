@@ -115,6 +115,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Label^  fosLBDefaultOutExt;
 	private: System::Windows::Forms::Label^  fosLBDefaultOutExt2;
 	private: System::Windows::Forms::ComboBox^  fosCXDefaultOutExt;
+	private: System::Windows::Forms::CheckBox^  fosCBRunBatMinimized;
 
 
 
@@ -190,6 +191,7 @@ namespace x264guiEx {
 			this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
 			this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
 			this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBRunBatMinimized = (gcnew System::Windows::Forms::CheckBox());
 			this->fosTabControl->SuspendLayout();
 			this->fostabPageGeneral->SuspendLayout();
 			this->fostabPageAMP->SuspendLayout();
@@ -203,7 +205,7 @@ namespace x264guiEx {
 			// 
 			this->fosCBCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fosCBCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-			this->fosCBCancel->Location = System::Drawing::Point(171, 467);
+			this->fosCBCancel->Location = System::Drawing::Point(171, 496);
 			this->fosCBCancel->Name = L"fosCBCancel";
 			this->fosCBCancel->Size = System::Drawing::Size(84, 29);
 			this->fosCBCancel->TabIndex = 1;
@@ -214,7 +216,7 @@ namespace x264guiEx {
 			// fosCBOK
 			// 
 			this->fosCBOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->fosCBOK->Location = System::Drawing::Point(283, 467);
+			this->fosCBOK->Location = System::Drawing::Point(283, 496);
 			this->fosCBOK->Name = L"fosCBOK";
 			this->fosCBOK->Size = System::Drawing::Size(84, 29);
 			this->fosCBOK->TabIndex = 2;
@@ -356,11 +358,12 @@ namespace x264guiEx {
 			this->fosTabControl->Location = System::Drawing::Point(1, 1);
 			this->fosTabControl->Name = L"fosTabControl";
 			this->fosTabControl->SelectedIndex = 0;
-			this->fosTabControl->Size = System::Drawing::Size(392, 460);
+			this->fosTabControl->Size = System::Drawing::Size(392, 489);
 			this->fosTabControl->TabIndex = 17;
 			// 
 			// fostabPageGeneral
 			// 
+			this->fostabPageGeneral->Controls->Add(this->fosCBRunBatMinimized);
 			this->fostabPageGeneral->Controls->Add(this->fosLBDefaultOutExt2);
 			this->fostabPageGeneral->Controls->Add(this->fosCXDefaultOutExt);
 			this->fostabPageGeneral->Controls->Add(this->fosLBDefaultOutExt);
@@ -380,7 +383,7 @@ namespace x264guiEx {
 			this->fostabPageGeneral->Location = System::Drawing::Point(4, 24);
 			this->fostabPageGeneral->Name = L"fostabPageGeneral";
 			this->fostabPageGeneral->Padding = System::Windows::Forms::Padding(3);
-			this->fostabPageGeneral->Size = System::Drawing::Size(384, 432);
+			this->fostabPageGeneral->Size = System::Drawing::Size(384, 461);
 			this->fostabPageGeneral->TabIndex = 0;
 			this->fostabPageGeneral->Text = L"一般設定";
 			this->fostabPageGeneral->UseVisualStyleBackColor = true;
@@ -433,7 +436,7 @@ namespace x264guiEx {
 			this->fostabPageAMP->Location = System::Drawing::Point(4, 24);
 			this->fostabPageAMP->Name = L"fostabPageAMP";
 			this->fostabPageAMP->Padding = System::Windows::Forms::Padding(3);
-			this->fostabPageAMP->Size = System::Drawing::Size(384, 432);
+			this->fostabPageAMP->Size = System::Drawing::Size(384, 461);
 			this->fostabPageAMP->TabIndex = 1;
 			this->fostabPageAMP->Text = L"自動マルチパス";
 			this->fostabPageAMP->UseVisualStyleBackColor = true;
@@ -641,13 +644,23 @@ namespace x264guiEx {
 			this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
 			this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
 			// 
+			// fosCBRunBatMinimized
+			// 
+			this->fosCBRunBatMinimized->AutoSize = true;
+			this->fosCBRunBatMinimized->Location = System::Drawing::Point(17, 424);
+			this->fosCBRunBatMinimized->Name = L"fosCBRunBatMinimized";
+			this->fosCBRunBatMinimized->Size = System::Drawing::Size(205, 19);
+			this->fosCBRunBatMinimized->TabIndex = 20;
+			this->fosCBRunBatMinimized->Text = L"エンコ前後バッチ処理を最小化で実行";
+			this->fosCBRunBatMinimized->UseVisualStyleBackColor = true;
+			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
 			this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fosCBCancel;
-			this->ClientSize = System::Drawing::Size(392, 506);
+			this->ClientSize = System::Drawing::Size(392, 535);
 			this->Controls->Add(this->fosTabControl);
 			this->Controls->Add(this->fosCBOK);
 			this->Controls->Add(this->fosCBCancel);
@@ -697,6 +710,7 @@ namespace x264guiEx {
 			fos_ex_stg->s_log.transparent                = !fosCBLogDisableTransparency->Checked;
 			fos_ex_stg->s_local.get_relative_path        = fosCBGetRelativePath->Checked;
 			fos_ex_stg->s_local.default_output_ext       = fosCXDefaultOutExt->SelectedIndex;
+			fos_ex_stg->s_local.run_bat_minimized        = fosCBRunBatMinimized->Checked;
 			fos_ex_stg->save_local();
 			fos_ex_stg->save_log_win();
 			this->Close();
@@ -730,6 +744,7 @@ namespace x264guiEx {
 			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
 			fosCBGetRelativePath->Checked        = fos_ex_stg->s_local.get_relative_path != 0;
 			fosCXDefaultOutExt->SelectedIndex    = fos_ex_stg->s_local.default_output_ext;
+			fosCBRunBatMinimized->Checked        = fos_ex_stg->s_local.run_bat_minimized != 0;
 			if (str_has_char(fos_ex_stg->s_local.conf_font.name))
 				SetFontFamilyToForm(this, gcnew FontFamily(String(fos_ex_stg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
 			fosNUAMPLimitMargin_ValueChanged(nullptr, nullptr);

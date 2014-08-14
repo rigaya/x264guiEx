@@ -28,6 +28,7 @@ static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
 static const double DEFAULT_AMP_MARGIN            = 0.100;
 static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
+static const BOOL   DEFAULT_RUN_BAT_MINIMIZED     = 0;
 
 static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
 static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
@@ -247,6 +248,7 @@ typedef struct {
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
 	BOOL   amp_keep_old_file;                   //自動マルチパスで、上限を超えてしまったファイルを削除しない
 	BOOL   get_relative_path;                   //相対パスで保存する
+	BOOL   run_bat_minimized;                   //エンコ前後バッチ処理を最小化で実行
 	char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
 	char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
 	char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
