@@ -359,6 +359,11 @@ void warning_mux_chapter(int sts) {
 	return;
 }
 
+void warning_chapter_convert_to_utf8(int sts) {
+	write_log_auo_line_fmt(LOG_WARNING, "チャプターファイルのUTF-8への変換に失敗しました。");
+	warning_mux_chapter(sts);
+}
+
 void error_select_convert_func(int width, int height, BOOL use16bit, BOOL interlaced, int output_csp) {
 	write_log_auo_line(    LOG_ERROR, "色形式変換関数の取得に失敗しました。");
 	write_log_auo_line_fmt(LOG_ERROR, "%dx%d%s, output-csp %s%s%s",

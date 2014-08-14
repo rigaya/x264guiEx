@@ -11,6 +11,7 @@
 #define _AUO_UTIL_H_
 
 #include <Windows.h>
+#include <VersionHelpers.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -27,15 +28,17 @@
 #endif
 
 //日本語環境の一般的なコードページ一覧
-#define CODE_PAGE_SJIS        932 //Shift-JIS
-#define CODE_PAGE_JIS         50220
-#define CODE_PAGE_EUC_JP      51932
-#define CODE_PAGE_UTF8        CP_UTF8
-#define CODE_PAGE_UTF16_LE    CP_WINUNICODE //WindowsのUnicode WCHAR のコードページ
-#define CODE_PAGE_UTF16_BE    1201
-#define CODE_PAGE_US_ASCII    20127
-#define CODE_PAGE_WEST_EUROPE 1252  //厄介な西ヨーロッパ言語
-#define CODE_PAGE_UNSET       0xffffffff
+enum : DWORD {
+	CODE_PAGE_SJIS        = 932, //Shift-JIS
+	CODE_PAGE_JIS         = 50220,
+	CODE_PAGE_EUC_JP      = 51932,
+	CODE_PAGE_UTF8        = CP_UTF8,
+	CODE_PAGE_UTF16_LE    = CP_WINUNICODE, //WindowsのUnicode WCHAR のコードページ
+	CODE_PAGE_UTF16_BE    = 1201,
+	CODE_PAGE_US_ASCII    = 20127,
+	CODE_PAGE_WEST_EUROPE = 1252,  //厄介な西ヨーロッパ言語
+	CODE_PAGE_UNSET       = 0xffffffff,
+};
 
 //BOM文字リスト
 static const BYTE UTF8_BOM[]     = { 0xEF, 0xBB, 0xBF };
@@ -352,10 +355,7 @@ static DWORD get_availableSIMD() {
 }
 
 static BOOL check_OS_Win7orLater() {
-	OSVERSIONINFO osvi = { 0 };
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&osvi);
-	return ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && ((osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 1) || osvi.dwMajorVersion > 6));
+	return IsWindowsVersionOrGreater(6, 1, 0);
 }
 
 static inline const char *GetFullPath(const char *path, char *buffer, size_t nSize) {
