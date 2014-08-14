@@ -21,6 +21,7 @@ static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
 static const int    DEFAULT_OUTPUT_EXT            = 0;
 static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
 static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
+static const BOOL   DEFAULT_KEEP_QP_FILE          = 0;
 static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
 static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
@@ -240,6 +241,7 @@ typedef struct {
 	int    default_output_ext;                  //デフォルトで使用する拡張子
 	BOOL   auto_del_stats;                      //自動マルチパス時、ステータスファイルを自動的に削除
 	BOOL   auto_del_chap;                       //チャプターファイルの自動削除
+	BOOL   keep_qp_file;                        //キーフレーム検出で作成したqpファイルを削除しない
 	BOOL   disable_tooltip_help;                //ポップアップヘルプを抑制する
 	BOOL   disable_visual_styles;               //視覚効果をオフにする
 	BOOL   enable_stg_esc_key;                  //設定画面でEscキーを有効化する

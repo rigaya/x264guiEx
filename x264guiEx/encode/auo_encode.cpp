@@ -229,7 +229,7 @@ AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, c
 		move_temp_file(muxout_appendix, pe->temp_filename, oip->savefile, ret, FALSE, "mux後ファイル", FALSE);
 	}
 	//qpファイル
-	move_temp_file(pe->append.qp,   pe->temp_filename, oip->savefile, ret, TRUE, "qp", FALSE);
+	move_temp_file(pe->append.qp,   pe->temp_filename, oip->savefile, ret, !sys_dat->exstg->s_local.keep_qp_file, "qp", FALSE);
 	//tcファイル
 	BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
 	move_temp_file(pe->append.tc,   pe->temp_filename, oip->savefile, ret, erase_tc, "タイムコード", FALSE);

@@ -497,6 +497,7 @@ void guiEx_settings::load_local() {
 	s_local.default_output_ext        = GetPrivateProfileInt(   ini_section_main, "default_output_ext",       DEFAULT_OUTPUT_EXT,            conf_fileName);
 	s_local.auto_del_stats            = GetPrivateProfileInt(   ini_section_main, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
 	s_local.auto_del_chap             = GetPrivateProfileInt(   ini_section_main, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	s_local.keep_qp_file              = GetPrivateProfileInt(   ini_section_main, "keep_qp_file",             DEFAULT_KEEP_QP_FILE,          conf_fileName);
 	s_local.disable_tooltip_help      = GetPrivateProfileInt(   ini_section_main, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
 	s_local.disable_visual_styles     = GetPrivateProfileInt(   ini_section_main, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   ini_section_main, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
@@ -578,6 +579,7 @@ void guiEx_settings::save_local() {
 	WritePrivateProfileIntWithDefault(   ini_section_main, "default_output_ext",        s_local.default_output_ext,       DEFAULT_OUTPUT_EXT,            conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "keep_qp_file",              s_local.keep_qp_file,             DEFAULT_KEEP_QP_FILE,          conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
