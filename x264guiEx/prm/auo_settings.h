@@ -27,7 +27,7 @@ static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
 static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
-static const double DEFAULT_AMP_MARGIN            = 0.100;
+static const double DEFAULT_AMP_MARGIN            = 0.05;
 static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
 static const BOOL   DEFAULT_RUN_BAT_MINIMIZED     = 0;
 

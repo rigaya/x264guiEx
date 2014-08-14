@@ -817,15 +817,15 @@ namespace x264guiEx {
 		System::Void fosNUAMPLimitMargin_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 			fosTBAMPLimitMarginMulti->Value = Convert::ToInt32(fosNUAMPLimitMargin->Value);
 			fosAMPLimitMarginRecalcExample();
-			if (fosNUAMPLimitMargin->Value > 12) {
+			if (fosNUAMPLimitMargin->Value > 9) {
 				fosLBAMPLimitMarginInfo->ForeColor = Color::Green; 
 				fosLBAMPLimitMarginInfo->Text = L"余裕";
 				fosLBAMPLimitMarginWarning->Visible = false;
-			} else if (fosNUAMPLimitMargin->Value > 8) {
+			} else if (fosNUAMPLimitMargin->Value > 4) {
 				fosLBAMPLimitMarginInfo->ForeColor = Color::Green; 
 				fosLBAMPLimitMarginInfo->Text = L"普通";
 				fosLBAMPLimitMarginWarning->Visible = false;
-			} else if (fosNUAMPLimitMargin->Value > 5) {
+			} else if (fosNUAMPLimitMargin->Value > 2) {
 				fosLBAMPLimitMarginInfo->ForeColor = Color::OrangeRed; 
 				fosLBAMPLimitMarginInfo->Text = L"ややぎりぎり";
 				fosLBAMPLimitMarginWarning->Visible = true;
