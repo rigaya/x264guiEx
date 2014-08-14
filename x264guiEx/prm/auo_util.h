@@ -307,6 +307,21 @@ static BOOL check_avx() {
 	return FALSE;
 }
 #endif
+#if (_MSC_VER >= 1700)
+static BOOL check_avx2() {
+	int CPUInfo[4];
+	__cpuid(CPUInfo, 1);
+	if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
+		UINT64 XGETBV = _xgetbv(0);
+		if ((XGETBV & 0x06) == 0x06) {
+			__cpuid(CPUInfo, 7);
+			if ((CPUInfo[1] & 0x00000020))
+				return TRUE;
+		}
+	}
+	return FALSE;
+}
+#endif
 
 static DWORD get_availableSIMD() {
 	int CPUInfo[4];
