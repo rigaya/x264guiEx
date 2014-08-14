@@ -1,4 +1,13 @@
-﻿#pragma once
+﻿//  -----------------------------------------------------------------------------------------
+//    拡張 x264 出力(GUI) Ex  v1.xx by rigaya
+//  -----------------------------------------------------------------------------------------
+//   ソースコードについて
+//   ・無保証です。
+//   ・本ソースコードを使用したことによるいかなる損害・トラブルについてrigayaは責任を負いません。
+//   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
+//  -----------------------------------------------------------------------------------------
+
+#pragma once
 
 #include "auo_settings.h"
 
@@ -99,7 +108,6 @@ namespace x264guiEx {
 			// 
 			// fscBTOK
 			// 
-			this->fscBTOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fscBTOK->Location = System::Drawing::Point(166, 178);
 			this->fscBTOK->Name = L"fscBTOK";
 			this->fscBTOK->Size = System::Drawing::Size(79, 34);
@@ -110,7 +118,6 @@ namespace x264guiEx {
 			// 
 			// fscBTCancel
 			// 
-			this->fscBTCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fscBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
 			this->fscBTCancel->Location = System::Drawing::Point(261, 178);
 			this->fscBTCancel->Name = L"fscBTCancel";
@@ -122,7 +129,6 @@ namespace x264guiEx {
 			// 
 			// fscBTDefault
 			// 
-			this->fscBTDefault->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->fscBTDefault->Location = System::Drawing::Point(12, 178);
 			this->fscBTDefault->Name = L"fscBTDefault";
 			this->fscBTDefault->Size = System::Drawing::Size(79, 34);

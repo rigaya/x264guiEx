@@ -1,4 +1,13 @@
-﻿#pragma once
+﻿//  -----------------------------------------------------------------------------------------
+//    拡張 x264 出力(GUI) Ex  v1.xx by rigaya
+//  -----------------------------------------------------------------------------------------
+//   ソースコードについて
+//   ・無保証です。
+//   ・本ソースコードを使用したことによるいかなる損害・トラブルについてrigayaは責任を負いません。
+//   以上に了解して頂ける場合、本ソースコードの使用、複製、改変、再頒布を行って頂いて構いません。
+//  -----------------------------------------------------------------------------------------
+
+#pragma once
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -91,7 +100,6 @@ namespace x264guiEx {
 			// 
 			// fstBTDefault
 			// 
-			this->fstBTDefault->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->fstBTDefault->Location = System::Drawing::Point(12, 74);
 			this->fstBTDefault->Name = L"fstBTDefault";
 			this->fstBTDefault->Size = System::Drawing::Size(80, 31);
@@ -102,7 +110,6 @@ namespace x264guiEx {
 			// 
 			// fstBTOK
 			// 
-			this->fstBTOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fstBTOK->Location = System::Drawing::Point(154, 74);
 			this->fstBTOK->Name = L"fstBTOK";
 			this->fstBTOK->Size = System::Drawing::Size(80, 31);
@@ -113,7 +120,6 @@ namespace x264guiEx {
 			// 
 			// fstBTCancel
 			// 
-			this->fstBTCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
 			this->fstBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
 			this->fstBTCancel->Location = System::Drawing::Point(240, 74);
 			this->fstBTCancel->Name = L"fstBTCancel";
