@@ -376,6 +376,8 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 	//CLIモードとの切り替え
+	//一度ウィンドウの再描画を完全に抑止する
+	SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
 	//なぜか知らんが、Visibleプロパティをfalseにするだけでは非表示にできない
 	//しょうがないので参照の削除と挿入を行う
 	if (fcgTSBCMDOnly->Checked) {
@@ -391,6 +393,10 @@ System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, Sy
 		fcgtabPageExSettings->Text = L"拡張";
 		fcggroupBoxCmdEx->Text = L"追加コマンド";
 	}
+	//一度ウィンドウの再描画を再開し、強制的に再描画させる
+	SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 1, 0);
+	this->Refresh();
+
 	fcgChangeEnabled(sender, e);
 	fcgRebuildCmd(sender, e);
 }
