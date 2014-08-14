@@ -28,6 +28,10 @@ enum {
 	VIDEO_OUTPUT_MPEG2    = 3,
 };
 
+static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264" };
+static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
+static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
+
 enum {
 	MUXER_DISABLED = VIDEO_OUTPUT_DISABLED,
 	MUXER_MP4      = VIDEO_OUTPUT_MP4,
@@ -36,10 +40,6 @@ enum {
 	MUXER_MPG      = VIDEO_OUTPUT_MPEG2,
 	MUXER_MP4_RAW  = VIDEO_OUTPUT_MP4 + 4,
 };
-
-static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264" };
-static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
-static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
 
 enum {
 	AUO_RESULT_SUCCESS    = 0x0000,
