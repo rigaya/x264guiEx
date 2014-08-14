@@ -434,6 +434,10 @@ System::Void frmConfig::fcgArrangeForAutoMultiPass(bool enable) {
 	NewPoint.Y += PNStatusFileOffset * ((enable) ? -1 : 1);
 	fcgPNStatusFile->Location = NewPoint;
 	fcgLastX264ModeAsAMP = enable;
+	fcgCBAMPLimitBitrate->Visible = enable;
+	fcgCBAMPLimitFileSize->Visible = enable;
+	fcgNUAMPLimitBitrate->Visible = enable;
+	fcgNUAMPLimitFileSize->Visible = enable;
 }
 
 System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
