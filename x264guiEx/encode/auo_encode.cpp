@@ -393,8 +393,8 @@ static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
 		return AUO_RESULT_ERROR;
 	char filename[MAX_PATH_LEN];
 	char appendix[MAX_APPENDIX_LEN];
-	for (int i = 0; i && PathFileExists(filename); i++) {
-		sprintf_s(appendix, _countof(appendix), "_try%d%s", PathFindExtension(savefile));
+	for (int i = 0; !i || PathFileExists(filename); i++) {
+		sprintf_s(appendix, _countof(appendix), "_try%d%s", i, PathFindExtension(savefile));
 		apply_appendix(filename, _countof(filename), savefile, appendix);
 	}
 	return (rename(muxout, filename) == 0) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
