@@ -158,6 +158,15 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2_mod8 },
 	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  SSE2,                 convert_yc48_to_nv12_i_16bit_sse2 },
 	{ CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  NONE,                 convert_yc48_to_nv12_i_16bit },
+	
+	{ CF_LW48, OUT_CSP_NV12,   BIT_8, P,  1,  NONE,                 convert_lw48_to_nv12 },
+	{ CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  NONE,                 convert_lw48_to_nv12_16bit },
+	{ CF_LW48, OUT_CSP_NV12,   BIT_8, I,  1,  NONE,                 convert_lw48_to_nv12_i },
+	{ CF_LW48, OUT_CSP_NV12,   BIT16, I,  1,  NONE,                 convert_lw48_to_nv12_i_16bit },
+	{ CF_LW48, OUT_CSP_NV16,   BIT_8, A,  1,  NONE,                 convert_lw48_to_nv16 },
+	{ CF_LW48, OUT_CSP_NV16,   BIT16, A,  1,  NONE,                 convert_lw48_to_nv16_16bit },
+	{ CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  NONE,                 convert_lw48_to_yuv444 },
+	{ CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  NONE,                 convert_lw48_to_yuv444_16bit },
 
 	{ 0, 0, 0, A, 0, 0, NULL }
 };
@@ -211,11 +220,13 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 #pragma warning( push )
 #pragma warning( disable: 4189 )
 //使用する関数を選択する
-func_convert_frame get_convert_func(int width, BOOL use16bit, BOOL interlaced, int output_csp) {
+func_convert_frame get_convert_func(int width, int input_csp, BOOL use16bit, BOOL interlaced, int output_csp) {
 	const DWORD availableSIMD = get_availableSIMD();
 
 	const COVERT_FUNC_INFO *func_info = NULL;
 	for (int i = 0; FUNC_TABLE[i].func; i++) {
+		if (FUNC_TABLE[i].input_from_aviutl != input_csp)
+			continue;
 		if (FUNC_TABLE[i].output_csp != output_csp)
 			continue;
 		if (FUNC_TABLE[i].for_16bit != use16bit)

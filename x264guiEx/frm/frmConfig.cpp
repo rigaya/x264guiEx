@@ -1345,6 +1345,7 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
 		fcgCBAuoTcfileout->Checked         = cnf->vid.auo_tcfile_out != 0;
 		fcgCBCheckKeyframes->Checked       = cnf->vid.check_keyframe != 0;
+		fcgCBInputAsLW48->Checked          = cnf->vid.input_as_lw48 != 0;
 
 		SetCXIndex(fcgCXX264Priority,        cnf->vid.priority);
 		SetCXIndex(fcgCXTempDir,             cnf->oth.temp_dir);
@@ -1503,6 +1504,7 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
 	cnf->vid.auo_tcfile_out         = fcgCBAuoTcfileout->Checked;
 	cnf->vid.check_keyframe         = fcgCBCheckKeyframes->Checked;
 	cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
+	cnf->vid.input_as_lw48          = fcgCBInputAsLW48->Checked;
 	cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
 	GetCHARfromString(cnf->vid.cmdex, sizeof(cnf->vid.cmdex), fcgTXCmdEx->Text);
 

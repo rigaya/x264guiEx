@@ -21,6 +21,10 @@ typedef	struct {
 } PIXEL_YC;
 
 typedef struct {
+	USHORT y, cb, cr;
+} PIXEL_LW48;
+
+typedef struct {
 	int   count;       //planarの枚数。packedなら1
 	BYTE *data[3];     //planarの先頭へのポインタ
 	int   size[3];     //planarのサイズ
@@ -142,5 +146,14 @@ void convert_yc48_to_yuv444_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, 
 #if (_MSC_VER >= 1700)
 void convert_yc48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 #endif
+
+void convert_lw48_to_nv12(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_i(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_i_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv16(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv16_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 #endif //_CONVERT_H_

@@ -48,18 +48,20 @@ static const char * specify_input_csp(int output_csp) {
 	return specify_csp[output_csp];
 }
 
-int get_aviutl_color_format(int use_highbit, int output_csp) {
+int get_aviutl_color_format(int use_highbit, int output_csp, int input_as_lw48) {
 	//Aviutlからの入力に使用するフォーマット
+
+	const int cf_aviutl_pixel48 = (input_as_lw48) ? CF_LW48 : CF_YC48;
 	switch (output_csp) {
 		case OUT_CSP_YUV444:
-			return CF_YC48;
+			return cf_aviutl_pixel48;
 		case OUT_CSP_RGB:
 			return CF_RGB;
 		case OUT_CSP_NV12:
 		case OUT_CSP_NV16:
 		case OUT_CSP_YUY2:
 		default:
-			return (use_highbit) ? CF_YC48 : CF_YUY2;
+			return (use_highbit) ? cf_aviutl_pixel48 : CF_YUY2;
 	}
 }
 
@@ -73,7 +75,7 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_GUIEX *conf, PRM_ENC *pe, BOOL 
 	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED || !conf->vid.afs)
 		return TRUE;
 
-	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp);
+	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
 	const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
 	//Aviutl(自動フィールドシフト)からの映像入力
 	if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, COLORFORMATS[color_format].FOURCC)) {
@@ -103,13 +105,13 @@ void close_afsvideo(PRM_ENC *pe) {
 
 static AUO_RESULT check_cmdex(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
-	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp); //現在の色形式を保存
+	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
 		get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
 	//cmdexを適用
 	set_cmd_to_conf(conf->vid.cmdex, &conf->x264);
 
-	if (color_format != get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp)) {
+	if (color_format != get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)) {
 		//cmdexで入力色形式が変更になる場合、再初期化
 		close_afsvideo(pe);
 		if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
@@ -474,7 +476,8 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	PathGetDirectory(x264dir, _countof(x264dir), x264fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
-	const func_convert_frame convert_frame = get_convert_func(oip->w, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
+	const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
+	const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
 	if (convert_frame == NULL) {
 		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
 		return ret;
@@ -519,7 +522,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 		void *frame = NULL;
 		int *next_jitter = NULL;
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
-		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp)].FOURCC;
+		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)].FOURCC;
 
 		//x264が待機に入るまでこちらも待機
 		while (WaitForInputIdle(pi_enc.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)

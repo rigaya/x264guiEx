@@ -621,6 +621,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRunBatAfter;
 private: System::Windows::Forms::Label^  fcgLBBatAfterString;
 
 private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
+private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 
 
 
@@ -986,6 +987,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->fcgLBguiExBlog = (gcnew System::Windows::Forms::LinkLabel());
+			this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -1232,8 +1234,8 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgTBQuality->Size = System::Drawing::Size(339, 25);
 			this->fcgTBQuality->TabIndex = 10;
 			this->fcgTBQuality->TickStyle = System::Windows::Forms::TickStyle::None;
-			this->fcgTBQuality->ValueChanged += gcnew System::EventHandler(this, &frmConfig::fcgTBQuality_ValueChanged);
 			this->fcgTBQuality->Scroll += gcnew System::EventHandler(this, &frmConfig::fcgTBQuality_Scroll);
+			this->fcgTBQuality->ValueChanged += gcnew System::EventHandler(this, &frmConfig::fcgTBQuality_ValueChanged);
 			// 
 			// fcgPNX264Mode
 			// 
@@ -1768,8 +1770,8 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgTXX264Path->TabIndex = 2;
 			this->fcgTXX264Path->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXX264Path_TextChanged);
 			this->fcgTXX264Path->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
-			this->fcgTXX264Path->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264Path_Leave);
 			this->fcgTXX264Path->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
+			this->fcgTXX264Path->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTXX264Path_Leave);
 			// 
 			// fcgLBX264Path
 			// 
@@ -3200,6 +3202,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			// 
 			// fcggroupBoxExSettings
 			// 
+			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBInputAsLW48);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAuoTcfileout);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFSBitrateCorrection);
@@ -4369,6 +4372,16 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 			this->fcgLBguiExBlog->Text = L"x264guiExについて";
 			this->fcgLBguiExBlog->VisitedLinkColor = System::Drawing::Color::Gray;
 			this->fcgLBguiExBlog->LinkClicked += gcnew System::Windows::Forms::LinkLabelLinkClickedEventHandler(this, &frmConfig::fcgLBguiExBlog_LinkClicked);
+			// 
+			// fcgCBInputAsLW48
+			// 
+			this->fcgCBInputAsLW48->AutoSize = true;
+			this->fcgCBInputAsLW48->Location = System::Drawing::Point(18, 151);
+			this->fcgCBInputAsLW48->Name = L"fcgCBInputAsLW48";
+			this->fcgCBInputAsLW48->Size = System::Drawing::Size(81, 18);
+			this->fcgCBInputAsLW48->TabIndex = 4;
+			this->fcgCBInputAsLW48->Text = L"LW48モード";
+			this->fcgCBInputAsLW48->UseVisualStyleBackColor = true;
 			// 
 			// frmConfig
 			// 

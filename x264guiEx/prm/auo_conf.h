@@ -62,6 +62,7 @@ typedef struct {
 	DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
 	double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
 	double amp_limit_bitrate;        //自動マルチパス時のビットレート制限(kbps)
+	BOOL   input_as_lw48;            //LW48モード
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {
