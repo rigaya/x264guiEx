@@ -936,7 +936,7 @@ void convert_yc48_to_nv16_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, co
 //AVX2のインチキくさい_mm256_alignr_epi8の代わりの本来の256bit alignr
 //iは定数を使用すること
 //iの値により自動的に最適化される...はず (分岐はなくなるはず)
-//#define _mm256_alignr256_epi8(a, b, i) ((i<=16) ? _mm256_alignr_epi8(_mm256_permute2x128_si256(a, b, (0x02<<4) + 0x01), a, i) : _mm256_alignr_epi8(b, _mm256_permute2x128_si256(a, b, (0x02<<4) + 0x01), 32-i))
+//#define _mm256_alignr256_epi8(a, b, i) ((i<=16) ? _mm256_alignr_epi8(_mm256_permute2x128_si256(a, b, (0x02<<4) + 0x01), a, i) : _mm256_alignr_epi8(b, _mm256_permute2x128_si256(a, b, (0x02<<4) + 0x01), 16-(32-i)))
 
 void convert_audio_16to8_avx2(BYTE *dst, short *src, int n) {
 	BYTE *byte = dst;
