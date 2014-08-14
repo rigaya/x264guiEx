@@ -891,6 +891,85 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	return ret;
 }
 
+BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename) {
+	BOOL ret = FALSE;
+	std::string exe_message;
+	PROCESS_INFORMATION pi = { 0 };
+
+	const int TEST_WIDTH = 160;
+	const int TEST_HEIGHT = 120;
+	std::vector<char> test_buffer(TEST_WIDTH * TEST_HEIGHT * 3 / 2, 0);
+
+	PIPE_SET pipes = { 0 };
+	InitPipes(&pipes);
+	pipes.stdIn.mode  = AUO_PIPE_ENABLE;
+	pipes.stdOut.mode = AUO_PIPE_DISABLE;
+	pipes.stdErr.mode = AUO_PIPE_ENABLE;
+	pipes.stdIn.bufferSize = test_buffer.size();
+
+	char test_path[1024] = { 0 };
+	for (int i = 0; !i || PathFileExists(test_path); i++) {
+		char test_filename[32] = { 0 };
+		sprintf_s(test_filename, _countof(test_filename), "_test_%d.mp4", i);
+		PathCombineLong(test_path, _countof(test_path), temp_filename, test_filename);
+	}
+
+	char exe_dir[1024] = { 0 };
+	strcpy_s(exe_dir, _countof(exe_dir), exe_path);
+	PathRemoveFileSpecFixed(exe_dir);
+
+	char fullargs[8192] = { 0 };
+	sprintf_s(fullargs, _countof(fullargs), "\"%s\" --fps 1 --frames 1 --input-depth 8 --input-res %dx%d -o \"%s\" --input-csp nv12 -", exe_path, TEST_WIDTH, TEST_HEIGHT, test_path);
+	if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
+
+		while (WAIT_TIMEOUT == WaitForInputIdle(pi.hProcess, LOG_UPDATE_INTERVAL))
+			log_process_events();
+
+		_fwrite_nolock(&test_buffer[0], 1, test_buffer.size(), pipes.f_stdin);
+
+		auto read_stderr = [](PIPE_SET *pipes) {
+			DWORD pipe_read = 0;
+			if (!PeekNamedPipe(pipes->stdErr.h_read, NULL, 0, NULL, &pipe_read, NULL))
+				return -1;
+			if (pipe_read) {
+				ReadFile(pipes->stdErr.h_read, pipes->read_buf + pipes->buf_len, sizeof(pipes->read_buf) - pipes->buf_len - 1, &pipe_read, NULL);
+				pipes->buf_len += pipe_read;
+				pipes->read_buf[pipes->buf_len] = '\0';
+			}
+			return (int)pipe_read;
+		};
+
+		while (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 10)) {
+			if (read_stderr(&pipes)) {
+				exe_message += pipes.read_buf;
+				pipes.buf_len = 0;
+			} else {
+				log_process_events();
+			}
+		}
+
+		CloseStdIn(&pipes);
+
+		while (read_stderr(&pipes) > 0) {
+			exe_message += pipes.read_buf;
+			pipes.buf_len = 0;
+		}
+		log_process_events();
+
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		if (std::string::npos == exe_message.find("not compiled with MP4 output"))
+			ret = TRUE;
+	}
+
+	if (pipes.stdIn.mode)  CloseHandle(pipes.stdIn.h_read);
+	if (pipes.stdOut.mode) CloseHandle(pipes.stdOut.h_read);
+	if (pipes.stdErr.mode) CloseHandle(pipes.stdErr.h_read);
+	if (PathFileExists(test_path)) remove(test_path);
+	return ret;
+}
+
 static void set_window_title_x264(const PRM_ENC *pe) {
 	char mes[256] = { 0 };
 	strcpy_s(mes, _countof(mes), "x264エンコード");
@@ -987,6 +1066,13 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
 		//キーフレーム検出 (cmdexのほうに--qpfileの指定があればそれを優先する)
 		if (!ret && conf->vid.check_keyframe && strstr(conf->vid.cmdex, "--qpfile") == NULL)
 			set_keyframe(conf, oip, pe, sys_dat);
+		
+		char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
+		if (!check_x264_mp4_output(x264fullpath, pe->temp_filename)) {
+			//一時ファイルの拡張子を変更
+			change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
+			warning_x264_mp4_output_not_supported();
+		}
 	}
 
 	for (; !ret && pe->current_x264_pass <= pe->total_x264_pass; pe->current_x264_pass++) {

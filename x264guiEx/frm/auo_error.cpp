@@ -194,6 +194,13 @@ void error_afs_interlace_stg() {
 		"             設定を見なおしてください。");
 }
 
+void warning_x264_mp4_output_not_supported() {
+	write_log_line(LOG_WARNING, 
+		"auo [warning]: 指定されたx264.exeはmp4出力に対応していません。\n"
+		"               出力拡張子を\".264\"に変更して出力を行うため、muxが余分に発生し、時間がかかる可能性があります。\n"
+		"               mp4出力に対応したx264.exeを使用することを推奨します。\n");
+}
+
 void error_x264_dead() {
 	write_log_auo_line(LOG_ERROR, "x264が予期せず途中終了しました。x264に不正なパラメータ(オプション)が渡された可能性があります。");
 }
