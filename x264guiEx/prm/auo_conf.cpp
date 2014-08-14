@@ -80,6 +80,9 @@ BOOL guiEx_config::adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int ol
 		}
 		if (data_table == NULL)
 			return ret;
+		if (6 == ((CONF_GUIEX *)data_table)->block_count) {
+			convert_x265stg_to_x264stg(conf_buf, (const BYTE *)old_data);
+		}
 		BYTE *dst = (BYTE *)conf_buf;
 		BYTE *block = NULL;
 		dst += CONF_HEAD_SIZE;
@@ -97,6 +100,8 @@ BOOL guiEx_config::adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int ol
 int guiEx_config::load_x264guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
 	size_t conf_size = 0;
 	BYTE *dst, *filedat;
+	static const char *const CONF_NAME_OLD_X265 = "x265guiEx ConfigFile";
+	static const char *const CONF_NAME_X265     = "x264/x265guiEx ConfigFile";
 	//初期化
 	ZeroMemory(conf, sizeof(CONF_GUIEX));
 	//ファイルからロード
@@ -106,7 +111,9 @@ int guiEx_config::load_x264guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
 	//設定ファイルチェック
 	char conf_name[CONF_NAME_BLOCK_LEN + 32];
 	fread(&conf_name, sizeof(char), CONF_NAME_BLOCK_LEN, fp);
-	if (strcmp(CONF_NAME, conf_name)) {
+	if (   strcmp(CONF_NAME,          conf_name)
+		&& strcmp(CONF_NAME_X265,     conf_name)
+		&& strcmp(CONF_NAME_OLD_X265, conf_name)) {
 		fclose(fp);
 		return CONF_ERROR_FILE_OPEN;
 	}
@@ -117,11 +124,16 @@ int guiEx_config::load_x264guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
 	fread(dat, conf_size, 1, fp);
 	fclose(fp);
 
+	write_conf_header(conf);
+
+	//x265guiExのstgファイル読み込み
+	if (0 == strcmp(CONF_NAME_X265, conf_name) || 0 == strcmp(CONF_NAME_OLD_X265, conf_name)) {
+		convert_x265stg_to_x264stg(conf, dat);
+	}
+
 	//ブロックサイズチェック
 	if (((CONF_GUIEX *)dat)->block_count > CONF_BLOCK_COUNT)
 		return CONF_ERROR_BLOCK_SIZE;
-
-	write_conf_header(conf);
 
 	dst = (BYTE *)conf;
 	//filedat = (BYTE *)data;
@@ -129,7 +141,7 @@ int guiEx_config::load_x264guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
 	dst += CONF_HEAD_SIZE;
 
 	//ブロック部分のコピー
-	for (int i = 0; i < ((CONF_GUIEX *)dat)->block_count; ++i) {
+	for (int i = 0; i < ((CONF_GUIEX *)dat)->block_count; i++) {
 		filedat = dat + ((CONF_GUIEX *)dat)->block_head_p[i];
 		dst = (BYTE *)conf + conf_block_pointer[i];
 		memcpy(dst, filedat, min(((CONF_GUIEX *)dat)->block_size[i], conf_block_data[i]));
