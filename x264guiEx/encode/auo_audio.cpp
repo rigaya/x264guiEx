@@ -48,7 +48,9 @@ inline void *get_audio_data(const OUTPUT_INFO *oip, PRM_ENC *pe, int start, int 
 	return oip->func_get_audio(start, length, readed);
 }
 
-static void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const guiEx_settings *ex_stg) {
+void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const guiEx_settings *ex_stg) {
+	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
+		return;
 	if (ex_stg->s_aud_faw_index == FAW_INDEX_ERROR) {
 		write_log_auo_line(LOG_WARNING, "FAWCheck : "AUO_NAME_WITHOUT_EXT".iniからのFAWの情報取得に失敗したため、判定を中止しました。");
 		return;
@@ -191,6 +193,51 @@ static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_m
 	set_window_title(mes, progress_mode);
 }
 
+static void show_audio_delay_cut_info(const PRM_ENC *pe) {
+	if (0 != pe->delay_cut_additional_aframe || 0 != pe->delay_cut_additional_vframe) {
+		char message[1024] = { 0 };
+		int mes_len = 0;
+		mes_len += sprintf_s(message, _countof(message), "音声エンコードディレイカット - ");
+		if (pe->delay_cut_additional_vframe) {
+			mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "映像: %s%dframe%s",
+				(0  < pe->delay_cut_additional_vframe) ? "+" : "",
+				pe->delay_cut_additional_vframe,
+				(1 < abs(pe->delay_cut_additional_vframe)) ? "s" : "");
+		}
+		if (pe->delay_cut_additional_vframe && pe->delay_cut_additional_aframe) {
+			mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, ", ");
+		}
+		if (pe->delay_cut_additional_aframe) {
+			mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "音声: %s%dsample%s",
+				(0  < pe->delay_cut_additional_aframe) ? "+" : "",
+				pe->delay_cut_additional_aframe,
+				(1 < abs(pe->delay_cut_additional_aframe)) ? "s" : "");
+		}
+		write_log_auo_line(LOG_INFO, message);
+	}
+}
+
+static AUO_RESULT silent_wav_output(FILE *fp, int samples, int wav_8bit, int audio_ch) {
+	if (NULL == fp)
+		return AUO_RESULT_ERROR;
+
+	if (0 >= samples)
+		return AUO_RESULT_SUCCESS;
+
+	int silent_bytes = samples * (2 - !!wav_8bit) * audio_ch;
+	BYTE *buffer = (BYTE *)calloc(silent_bytes, 1);
+	if (NULL == buffer)
+		return AUO_RESULT_ERROR;
+
+	if (wav_8bit)
+		for (int i = 0; i < silent_bytes; i++)
+			buffer[i] = 128;
+
+	fwrite(buffer, silent_bytes, 1, fp);
+	free(buffer);
+	return AUO_RESULT_SUCCESS;
+}
+
 static AUO_RESULT wav_file_open(aud_data_t *aud_dat, const OUTPUT_INFO *oip, BOOL use_pipe, BOOL wav_8bit, int bufsize,
 								const char *auddispname, const char *auddir, DWORD encoder_priority) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
@@ -265,9 +312,14 @@ static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_EN
 		show_progressbar(use_pipe, auddispname, PROGRESSBAR_CONTINUOUS);
 
 		//wav出力
+		show_audio_delay_cut_info(pe);
+		for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
+			silent_wav_output(aud_dat[i_aud].fp_out, pe->delay_cut_additional_aframe, wav_8bit, oip->audio_ch);
+
 		const int wav_sample_size = oip->audio_ch * ((wav_8bit) ? sizeof(BYTE) : sizeof(short));
 		void *audio_dat = NULL;
-		int samples_read = 0, samples_get = bufsize;
+		int samples_read = (pe->delay_cut_additional_aframe < 0) ? -1 * pe->delay_cut_additional_aframe : 0;
+		int samples_get = bufsize;
 		//wav出力ループ
 		while (oip->audio_n - samples_read > 0 && samples_get) {
 			//中断
@@ -370,9 +422,6 @@ AUO_RESULT audio_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, c
 	//音声エンコードの必要がなければ終了
 	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
 		return ret;
-	//FAWCheck
-	if (conf->aud.faw_check)
-		auo_faw_check(&conf->aud, oip, pe, sys_dat->exstg);
 
 	//使用するエンコーダの設定を選択
 	AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud[conf->aud.encoder];

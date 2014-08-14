@@ -448,7 +448,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
 	//1pass目でafsでない、--framesがなければ--framesを指定
 	if ((!prm.vid.afs || pe->current_x264_pass > 1) && strstr(cmd, "--frames") == NULL)
-		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --frames %d", oip->n - pe->drop_count);
+		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --frames %d", oip->n - pe->drop_count + pe->delay_cut_additional_vframe);
 	//解像度情報追加(--input-res)
 	if (strcmp(input, PIPE_FN) == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-res %dx%d", oip->w, oip->h);
@@ -658,6 +658,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 		int i = 0;
 		void *frame = NULL;
 		int *next_jitter = NULL;
+		int repeat = pe->delay_cut_additional_vframe;
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
 		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)].FOURCC;
 
@@ -714,8 +715,10 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 				if (!copy_frame)
 					convert_frame(frame, &pixel_data, oip->w, oip->h);  /// YUY2/YC48->NV12/YUV444変換, RGBコピー
 				//映像データをパイプに
-				for (int j = 0; j < pixel_data.count; j++)
-					_fwrite_nolock((void *)pixel_data.data[j], 1, pixel_data.size[j], pipes.f_stdin);
+				for (int i = 0; i < 1 + repeat; i++)
+					for (int j = 0; j < pixel_data.count; j++)
+						_fwrite_nolock((void *)pixel_data.data[j], 1, pixel_data.size[j], pipes.f_stdin);
+				repeat = 0;
 			} else {
 				*(next_jitter - 1) = DROP_FRAME_FLAG;
 				pe->drop_count++;

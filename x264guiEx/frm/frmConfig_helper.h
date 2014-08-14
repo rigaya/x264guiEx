@@ -267,6 +267,14 @@ const WCHAR * const audio_enc_timing_desc[] = {
 	NULL
 };
 
+const WCHAR * const audio_delay_cut_desc[] = {
+	L"補正なし",
+	L"音声カット",
+	L"映像追加",
+	NULL
+};
+
+
 //メモ表示用 RGB
 const int StgNotesColor[][3] = {
 	{  80,  72,  92 },
