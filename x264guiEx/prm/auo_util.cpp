@@ -393,13 +393,14 @@ BOOL getProcessorCount(DWORD *physical_processor_core, DWORD *logical_processor_
     return TRUE;
 }
 
-int getCPUName(char *buf, size_t nSize) {
+int getCPUName(char *buffer, size_t nSize) {
     int CPUInfo[4] = {-1};
     __cpuid(CPUInfo, 0x80000000);
     unsigned int nExIds = CPUInfo[0];
 	if (nSize < 0x40)
 		return 1;
-	memset(buf, 0, 0x40);
+
+	memset(buffer, 0, 0x40);
     for (unsigned int i = 0x80000000; i <= nExIds; i++) {
         __cpuid(CPUInfo, i);
 		int offset = 0;
@@ -407,16 +408,43 @@ int getCPUName(char *buf, size_t nSize) {
 			case 0x80000002: offset =  0; break;
 			case 0x80000003: offset = 16; break;
 			case 0x80000004: offset = 32; break;
+			default:
+				continue;
 		}
-		memcpy(buf + offset, CPUInfo, sizeof(CPUInfo)); 
+		memcpy(buffer + offset, CPUInfo, sizeof(CPUInfo)); 
 	}
-	const int str_len = strlen(buf);
-	for (int i = 0; i < str_len; i++) {
-		if (buf[i] != ' ') {
+	auto remove_string =[](char *target_str, const char *remove_str) {
+		char *ptr = strstr(target_str, remove_str);
+		if (nullptr != ptr) {
+			memmove(ptr, ptr + strlen(remove_str), (strlen(ptr) - strlen(remove_str) + 1) *  sizeof(target_str[0]));
+		}
+	};
+	remove_string(buffer, "(R)");
+	remove_string(buffer, "(TM)");
+	remove_string(buffer, "CPU");
+	//crop space beforce string
+	for (int i = 0; buffer[i]; i++) {
+		if (buffer[i] != ' ') {
 			if (i)
-				memmove(buf, buf + i, str_len + 1 - i);
+				memmove(buffer, buffer + i, strlen(buffer + i) + 1);
 			break;
 		}
+	}
+	//remove space which continues.
+	for (int i = 0; buffer[i]; i++) {
+		if (buffer[i] == ' ') {
+			int space_idx = i;
+			while (buffer[i+1] == ' ')
+				i++;
+			if (i != space_idx)
+				memmove(buffer + space_idx + 1, buffer + i + 1, strlen(buffer + i + 1) + 1);
+		}
+	}
+	//delete last blank
+	if (0 < strlen(buffer)) {
+		char *last_ptr = buffer + strlen(buffer) - 1;
+		if (' ' == *last_ptr)
+			last_ptr = '\0';
 	}
 	return 0;
 }
