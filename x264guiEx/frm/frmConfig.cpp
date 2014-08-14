@@ -1916,9 +1916,11 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"キーフレーム検出は、自動フィールドシフトと同時に使用できません。\n"
 		+ L"自動フィールドシフト使用時は無効となります。"
 		);
-	fcgTTEx->SetToolTip(fcgCXX264Priority, L""
-		+ L"x264のCPU優先度を設定します。\n"
-		+ L"AviutlSync で Aviutlの優先度と同じになります。"
+	fcgTTEx->SetToolTip(fcgCBInputAsLW48, L""
+		+ L"L-SMASH WorksのLW48機能を使用します。\n"
+		+ L"lwinput.auiおよびlwcolor.aucと組み合わせて使用します。\n"
+		+ L"チェックを入れることで、通常のYC48ではなく、\n"
+		+ L"LW48として処理するようになります。"
 		);
 	fcgTTEx->SetToolTip(fcgCXTempDir,      L""
 		+ L"一時ファイル群\n"
