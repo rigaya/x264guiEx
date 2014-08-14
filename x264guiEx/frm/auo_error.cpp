@@ -303,6 +303,11 @@ void warning_amp_failed() {
 	write_log_auo_line(LOG_WARNING, "自動マルチパスがチェックに失敗しました。指定した上限が守られていない可能性があります。");
 }
 
+void warning_amp_filesize_over_limit() {
+	write_log_auo_line_fmt(LOG_WARNING, "エンコード中にファイルサイズが上限を上回ってしました。");
+	write_log_auo_line_fmt(LOG_WARNING, "エンコードを中断し、設定を調整した後、再エンコードを行います。");
+}
+
 void warning_no_auto_save_log_dir() {
 	write_log_auo_line(LOG_WARNING, "指定した自動ログ保存先が存在しません。動画出力先に保存します。");
 }

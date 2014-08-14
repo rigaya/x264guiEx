@@ -724,6 +724,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	write_log_auo_line(LOG_INFO, "x264 options...");
 	write_args(x264cmd);
 	sprintf_s(x264args, _countof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
+	remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
 	
 	if (conf->vid.afs && conf->x264.interlaced) {
 		ret |= AUO_RESULT_ERROR; error_afs_interlace_stg();
@@ -744,7 +745,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 		int i = 0;
 		void *frame = NULL;
 		int *next_jitter = NULL;
-		int repeat = pe->delay_cut_additional_vframe;
+		UINT64 amp_filesize_limit = (UINT64)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
 		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)].FOURCC;
 
@@ -777,6 +778,18 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
 				//音声同時処理
 				ret |= aud_parallel_task(oip, pe);
+				
+				//上限をオーバーしていないかチェック
+				if (!(i & 63)
+					&& amp_filesize_limit //上限設定が存在する
+					&& !(1 == pe->current_x264_pass && 1 < pe->total_x264_pass)) { //multi passエンコードの1pass目でない
+					UINT64 current_filesize = 0;
+					if (GetFileSizeUInt64(pe->temp_filename, &current_filesize) && current_filesize > amp_filesize_limit) {
+						warning_amp_filesize_over_limit();
+						pe->muxer_to_be_used = MUXER_DISABLED; //muxをスキップ
+						break;
+					}
+				}
 			}
 
 			//一時停止
