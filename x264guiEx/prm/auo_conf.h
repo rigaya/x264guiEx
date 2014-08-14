@@ -103,7 +103,7 @@ typedef struct {
 
 typedef struct {
 	char        conf_name[CONF_NAME_BLOCK_LEN];  //保存時に使用
-	int         size_all;                        //保存時: CONF_X264GUIEXの全サイズ / 設定中、エンコ中: CONF_INITIALIZED
+	int         size_all;                        //保存時: CONF_GUIEXの全サイズ / 設定中、エンコ中: CONF_INITIALIZED
 	int         head_size;                       //ヘッダ部分の全サイズ
 	int         block_count;                     //ヘッダ部を除いた設定のブロック数
 	int         block_size[CONF_BLOCK_MAX];      //各ブロックのサイズ
@@ -113,7 +113,7 @@ typedef struct {
 	CONF_AUDIO  aud;                             //音声についての設定
 	CONF_MUX    mux;                             //muxについての設定
 	CONF_OTHER  oth;                             //その他の設定
-} CONF_X264GUIEX;
+} CONF_GUIEX;
 
 class guiEx_config {
 private:
@@ -121,14 +121,14 @@ private:
 	static const int conf_block_data[CONF_BLOCK_COUNT];
 public:
 	guiEx_config();
-	static void write_conf_header(CONF_X264GUIEX *conf);
-	static int  adjust_conf_size(CONF_X264GUIEX *conf_buf, void *old_data, int old_size);
-	int  load_x264guiEx_conf(CONF_X264GUIEX *conf, const char *stg_file);       //設定をstgファイルから読み込み
-	int  save_x264guiEx_conf(const CONF_X264GUIEX *conf, const char *stg_file); //設定をstgファイルとして保存
+	static void write_conf_header(CONF_GUIEX *conf);
+	static int  adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int old_size);
+	int  load_x264guiEx_conf(CONF_GUIEX *conf, const char *stg_file);       //設定をstgファイルから読み込み
+	int  save_x264guiEx_conf(const CONF_GUIEX *conf, const char *stg_file); //設定をstgファイルとして保存
 };
 
 //定義はx264guiEx.cpp
-void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定
+void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定
 
 //出力ファイルの拡張子フィルタを作成
 //filterがNULLならauoのOUTPUT_PLUGIN_TABLE用のフィルタを書き換える

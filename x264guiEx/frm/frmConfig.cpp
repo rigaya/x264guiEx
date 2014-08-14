@@ -26,7 +26,7 @@ using namespace x264guiEx;
 ///     設定画面の表示
 /// -------------------------------------------------
 [STAThreadAttribute]
-void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat) {
+void ShowfrmConfig(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat) {
 	if (!sys_dat->exstg->s_local.disable_visual_styles)
 		System::Windows::Forms::Application::EnableVisualStyles();
 	System::IO::Directory::SetCurrentDirectory(String(sys_dat->aviutl_dir).ToString());
@@ -208,8 +208,8 @@ System::Boolean frmConfig::CheckLocalStg() {
 	bool CheckX264highbit;
 	if (fcgTSBCMDOnly->Checked) {
 		//CLIモードの時はコマンドラインを解析してhighbitかどうか判定
-		CONF_X264GUIEX cnf;
-		init_CONF_X264GUIEX(&cnf, FALSE);
+		CONF_GUIEX cnf;
+		init_CONF_GUIEX(&cnf, FALSE);
 		char cmdex[2048] = { 0 };
 		GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
 		set_cmd_to_conf(cmdex, &cnf.x264);
@@ -768,9 +768,9 @@ System::Void frmConfig::AudioEncodeModeChanged() {
 }
 
 ///////////////   設定ファイル関連   //////////////////////
-System::Void frmConfig::CheckTSItemsEnabled(CONF_X264GUIEX *current_conf) {
+System::Void frmConfig::CheckTSItemsEnabled(CONF_GUIEX *current_conf) {
 	bool selected = (CheckedStgMenuItem != nullptr);
-	fcgTSBSave->Enabled = (selected && memcmp(cnf_stgSelected, current_conf, sizeof(CONF_X264GUIEX)));
+	fcgTSBSave->Enabled = (selected && memcmp(cnf_stgSelected, current_conf, sizeof(CONF_GUIEX)));
 	fcgTSBDelete->Enabled = selected;
 }
 
@@ -823,7 +823,7 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 	size_t nameLen = CountStringBytes(stgName) + 1; 
 	char *stg_name = (char *)malloc(nameLen);
 	GetCHARfromString(stg_name, nameLen, stgName);
-	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
+	init_CONF_GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
 	FrmToConf(cnf_stgSelected);
 	String^ stgDir = Path::GetDirectoryName(stgName);
 	if (!Directory::Exists(stgDir))
@@ -841,7 +841,7 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
 		default:
 			break;
 	}
-	init_CONF_X264GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
+	init_CONF_GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
 	FrmToConf(cnf_stgSelected);
 }
 
@@ -885,7 +885,7 @@ System::Void frmConfig::fcgTSSettings_DropDownItemClicked(System::Object^  sende
 		return;
 	if (ClickedMenuItem->Tag == nullptr || ClickedMenuItem->Tag->ToString()->Length == 0)
 		return;
-	CONF_X264GUIEX load_stg;
+	CONF_GUIEX load_stg;
 	guiEx_config exCnf;
 	char stg_path[MAX_PATH_LEN];
 	GetCHARfromString(stg_path, sizeof(stg_path), ClickedMenuItem->Tag->ToString());
@@ -899,7 +899,7 @@ System::Void frmConfig::fcgTSSettings_DropDownItemClicked(System::Object^  sende
 	}
 	ConfToFrm(&load_stg, true);
 	CheckTSSettingsDropDownItem(ClickedMenuItem);
-	memcpy(cnf_stgSelected, &load_stg, sizeof(CONF_X264GUIEX));
+	memcpy(cnf_stgSelected, &load_stg, sizeof(CONF_GUIEX));
 }
 
 System::Void frmConfig::RebuildStgFileDropDown(ToolStripDropDownItem^ TS, String^ dir) {
@@ -930,10 +930,10 @@ System::Void frmConfig::RebuildStgFileDropDown(String^ stgDir) {
 }
 
 //////////////   初期化関連     ////////////////
-System::Void frmConfig::InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data) {
+System::Void frmConfig::InitData(CONF_GUIEX *set_config, const SYSTEM_DATA *system_data) {
 	if (set_config->size_all != CONF_INITIALIZED) {
 		//初期化されていなければ初期化する
-		init_CONF_X264GUIEX(set_config, FALSE);
+		init_CONF_GUIEX(set_config, FALSE);
 	}
 	conf = set_config;
 	sys_dat = system_data;
@@ -1148,7 +1148,7 @@ System::Void frmConfig::InitForm() {
 }
 
 /////////////         データ <-> GUI     /////////////
-System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
+System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
 	//ひたすら書くだけ。めんどい
 	CONF_X264 *cx264 = &cnf->x264;
 	memcpy(cnf_fcgTemp, cx264, sizeof(CONF_X264)); //一時保存用
@@ -1329,7 +1329,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 	this->PerformLayout();
 }
 
-System::Void frmConfig::FrmToConf(CONF_X264GUIEX *cnf) {
+System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
 	//これもひたすら書くだけ。めんどい
 	//x264部
 	cnf->x264.use_highbit_depth    = fcgCBUsehighbit->Checked;

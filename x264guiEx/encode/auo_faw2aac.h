@@ -22,6 +22,6 @@ static const char * const FAW2AAC_NAME[] = { "faw2aac.auo", "plugins\\faw2aac.au
 
 BOOL check_if_faw2aac_exists();
 
-AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
+AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
 
 #endif //_AUO_FAW2AAC_H_

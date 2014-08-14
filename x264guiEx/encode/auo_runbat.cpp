@@ -23,7 +23,7 @@
 #include "auo_error.h"
 #include "auo_frm.h"
 
-static void bat_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+static void bat_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	char log_path[MAX_PATH_LEN];
 	getLogFilePath(log_path, _countof(log_path), pe, sys_dat, conf, oip);
 	replace(cmd, nSize, "%{logpath}", log_path);
@@ -40,7 +40,7 @@ static void bat_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM
 	replace(cmd, nSize, "%{chap_apple}", chap_apple);
 }
 
-AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, DWORD run_bat_mode) {
+AUO_RESULT run_bat_file(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, DWORD run_bat_mode) {
 	if (!(conf->oth.run_bat & run_bat_mode))
 		return AUO_RESULT_SUCCESS;
 

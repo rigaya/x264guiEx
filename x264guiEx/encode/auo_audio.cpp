@@ -254,7 +254,7 @@ static AUO_RESULT wav_output(const OUTPUT_INFO *oip, PRM_ENC *pe, const char *wa
 	return ret;
 }
 
-AUO_RESULT audio_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT audio_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//音声エンコードの必要がなければ終了
 	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))

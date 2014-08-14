@@ -46,11 +46,11 @@ namespace x264guiEx {
 	public ref class frmConfig : public System::Windows::Forms::Form
 	{
 	public:
-		frmConfig(CONF_X264GUIEX *_conf, const SYSTEM_DATA *_sys_dat)
+		frmConfig(CONF_GUIEX *_conf, const SYSTEM_DATA *_sys_dat)
 		{
 			InitData(_conf, _sys_dat);
 			cnf_fcgTemp = (CONF_X264*)calloc(1, sizeof(CONF_X264));
-			cnf_stgSelected = (CONF_X264GUIEX*)calloc(1, sizeof(CONF_X264GUIEX));
+			cnf_stgSelected = (CONF_GUIEX*)calloc(1, sizeof(CONF_GUIEX));
 			InitializeComponent();
 			//
 			//TODO: ここにコンストラクタ コードを追加します
@@ -4497,7 +4497,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 	private:
 		CONF_X264 *cnf_fcgTemp;
 		const SYSTEM_DATA *sys_dat;
-		CONF_X264GUIEX *conf;
+		CONF_GUIEX *conf;
 		LocalSettings LocalStg;
 		TBValueBitrateConvert TBBConvert;
 		System::Threading::Timer^ qualityTimer;
@@ -4506,7 +4506,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		bool stgChanged;
 		String^ CurrentStgDir;
 		ToolStripMenuItem^ CheckedStgMenuItem;
-		CONF_X264GUIEX *cnf_stgSelected;
+		CONF_GUIEX *cnf_stgSelected;
 		String^ lastQualityStr;
 	private:
 		System::Int32 GetCurrentAudioDefaultBitrate();
@@ -4527,8 +4527,8 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		System::Void SetTXMaxLen(TextBox^ TX, int max_len);
 		System::Void SetTXMaxLenAll();
 		System::Void InitForm();
-		System::Void ConfToFrm(CONF_X264GUIEX *cnf, bool all);
-		System::Void FrmToConf(CONF_X264GUIEX *cnf);
+		System::Void ConfToFrm(CONF_GUIEX *cnf, bool all);
+		System::Void FrmToConf(CONF_GUIEX *cnf);
 		System::Void SetChangedEvent(Control^ control, System::EventHandler^ _event);
 		System::Void SetToolStripEvents(ToolStrip^ TS, System::Windows::Forms::MouseEventHandler^ _event);
 		System::Void SetAllCheckChangedEvents(Control ^top);
@@ -4550,7 +4550,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		ToolStripMenuItem^ fcgTSSettingsSearchItem(String^ stgPath, ToolStripItem^ mItem);
 		ToolStripMenuItem^ fcgTSSettingsSearchItem(String^ stgPath);
 		System::Void CheckTSSettingsDropDownItem(ToolStripMenuItem^ mItem);
-		System::Void CheckTSItemsEnabled(CONF_X264GUIEX *current_conf);
+		System::Void CheckTSItemsEnabled(CONF_GUIEX *current_conf);
 		System::Void SetHelpToolTips();
 		System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
 		System::Void SetX264VersionToolTip(String^ x264Path, bool ashighbit);
@@ -4582,7 +4582,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		System::Void fcgCXCmdExInsert_FontChanged(System::Object^  sender, System::EventArgs^  e);
 		System::Void fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e);
 	public:
-		System::Void InitData(CONF_X264GUIEX *set_config, const SYSTEM_DATA *system_data);
+		System::Void InitData(CONF_GUIEX *set_config, const SYSTEM_DATA *system_data);
 		System::Void SetVideoBitrate(int bitrate);
 		System::Void SetAudioBitrate(int bitrate);
 		System::Void InformfbcClosed();
@@ -4923,8 +4923,8 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		}
 	private: 
 		System::Void fcgBTApplyPreset_Click(System::Object^  sender, System::EventArgs^  e) {
-			CONF_X264GUIEX cnf;
-			init_CONF_X264GUIEX(&cnf, fcgCBUsehighbit->Checked);
+			CONF_GUIEX cnf;
+			init_CONF_GUIEX(&cnf, fcgCBUsehighbit->Checked);
 			cnf.x264.preset = fcgCXPreset->SelectedIndex;
 			cnf.x264.tune = fcgCXTune->SelectedIndex;
 			cnf.x264.profile = fcgCXProfile->SelectedIndex;
@@ -4933,8 +4933,8 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		}
 	private: 
 		System::Void fcgBTCmdEx_Click(System::Object^  sender, System::EventArgs^  e) {
-			CONF_X264GUIEX cnf;
-			init_CONF_X264GUIEX(&cnf, fcgCBUsehighbit->Checked);
+			CONF_GUIEX cnf;
+			init_CONF_GUIEX(&cnf, fcgCBUsehighbit->Checked);
 			FrmToConf(&cnf);
 			char cmdex[2048] = { 0 };
 			GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
@@ -4949,7 +4949,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		System::Void fcgBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
 			if (CheckLocalStg())
 				return;
-			init_CONF_X264GUIEX(conf, fcgCBUsehighbit->Checked);
+			init_CONF_GUIEX(conf, fcgCBUsehighbit->Checked);
 			FrmToConf(conf);
 			SaveLocalStg();
 			ZeroMemory(conf->oth.notes, sizeof(conf->oth.notes));
@@ -4961,7 +4961,7 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 		}
 	private: 
 		System::Void fcgBTDefault_Click(System::Object^  sender, System::EventArgs^  e) {
-			init_CONF_X264GUIEX(conf, FALSE);
+			init_CONF_GUIEX(conf, FALSE);
 			ConfToFrm(conf, true);
 		}
 	private:
@@ -4974,23 +4974,23 @@ private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 	private:
 		System::Void fcgRebuildCmd(System::Object^  sender, System::EventArgs^  e) {
 			char re_cmd[MAX_CMD_LEN] = { 0 };
-			CONF_X264GUIEX rebuild;
-			init_CONF_X264GUIEX(&rebuild, fcgCBUsehighbit->Checked);
+			CONF_GUIEX rebuild;
+			init_CONF_GUIEX(&rebuild, fcgCBUsehighbit->Checked);
 			FrmToConf(&rebuild);
 			if (!rebuild.oth.disable_guicmd)
 				build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.x264, &rebuild.vid, FALSE);
 			fcgTXCmd->Text = String(re_cmd).ToString();
 			if (CheckedStgMenuItem != nullptr)
-				ChangePresetNameDisplay(memcmp(&rebuild, cnf_stgSelected, sizeof(CONF_X264GUIEX)) != 0);
+				ChangePresetNameDisplay(memcmp(&rebuild, cnf_stgSelected, sizeof(CONF_GUIEX)) != 0);
 		}
 	private:
 		System::Void CheckOtherChanges(System::Object^  sender, System::EventArgs^  e) {
 			if (CheckedStgMenuItem == nullptr)
 				return;
-			CONF_X264GUIEX check_change;
-			init_CONF_X264GUIEX(&check_change, fcgCBUsehighbit->Checked);
+			CONF_GUIEX check_change;
+			init_CONF_GUIEX(&check_change, fcgCBUsehighbit->Checked);
 			FrmToConf(&check_change);
-			ChangePresetNameDisplay(memcmp(&check_change, cnf_stgSelected, sizeof(CONF_X264GUIEX)) != 0);
+			ChangePresetNameDisplay(memcmp(&check_change, cnf_stgSelected, sizeof(CONF_GUIEX)) != 0);
 		}
 	private: 
 		System::Void fcgTXCmd_DoubleClick(System::Object^  sender, System::EventArgs^  e) {

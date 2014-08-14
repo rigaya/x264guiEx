@@ -68,7 +68,7 @@ static int calc_input_frame_size(int width, int height, int color_format) {
 	return width * height * COLORFORMATS[color_format].size;
 }
 
-BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_X264GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable) {
+BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable) {
 	//すでに初期化してある または 必要ない
 	if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED || !conf->vid.afs)
 		return TRUE;
@@ -101,7 +101,7 @@ void close_afsvideo(PRM_ENC *pe) {
 	pe->afs_init = FALSE;
 }
 
-static AUO_RESULT check_cmdex(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT check_cmdex(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	DWORD ret = AUO_RESULT_SUCCESS;
 	const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp); //現在の色形式を保存
 	if (conf->oth.disable_guicmd) 
@@ -257,7 +257,7 @@ static int ReadLogEnc(PIPE_SET *pipes, int total_drop, int current_frames) {
 }
 
 //cmdexのうち、guiから発行されるオプションとの衝突をチェックして、読み取られなかったコマンドを追加する
-static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble_guicmd, const CONF_X264GUIEX *conf) {
+static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble_guicmd, const CONF_GUIEX *conf) {
 	const size_t cmd_len = strlen(cmd);
 	const size_t cmdex_len = strlen(cmdex);
 
@@ -274,16 +274,16 @@ static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble
 		//改行のチェックのみ行う
 		replace_cmd_CRLF_to_Space(cmd + cmd_len + 1, nSize - cmd_len - 1);
 	} else {
-		CONF_X264GUIEX cnf = *conf;
+		CONF_GUIEX cnf = *conf;
 		//confに読み込ませ、読み取られなかった部分のみを得る
 		set_cmd_to_conf(cmd + cmd_len + 1, &cnf.x264, cmdex_len, TRUE);
 	}
 }
 
-static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
-	CONF_X264GUIEX prm;
+static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
+	CONF_GUIEX prm;
 	//パラメータをコピー
-	memcpy(&prm, conf, sizeof(CONF_X264GUIEX));
+	memcpy(&prm, conf, sizeof(CONF_GUIEX));
 	//共通置換を実行
 	cmd_replace(prm.vid.cmdex,     sizeof(prm.vid.cmdex),     pe, sys_dat, conf, oip);
 	cmd_replace(prm.vid.stats,     sizeof(prm.vid.stats),     pe, sys_dat, conf, oip);
@@ -327,7 +327,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, 
 	sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " \"%s\"", input);
 }
 
-static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_X264GUIEX *conf, int w, int h) {
+static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_GUIEX *conf, int w, int h) {
 	const int byte_per_pixel = (conf->x264.use_highbit_depth) ? sizeof(short) : sizeof(BYTE);
 	ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
 	switch (conf->x264.output_csp) {
@@ -446,7 +446,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 	return vid_ret;
 }
 
-static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	PIPE_SET pipes = { 0 };
 	PROCESS_INFORMATION pi_enc = { 0 };
@@ -644,7 +644,7 @@ static void set_window_title_x264(const PRM_ENC *pe) {
 	set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
-static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	if (!(conf->x264.use_auto_npass && conf->x264.rc_mode == X264_RC_BITRATE) || !conf->vid.amp_check)
 		return AUO_RESULT_SUCCESS;
 	//音声ファイルサイズ取得
@@ -706,7 +706,7 @@ static AUO_RESULT check_amp(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_EN
 	return AUO_RESULT_SUCCESS;
 }
 
-static AUO_RESULT video_output_inside(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//動画エンコードの必要がなければ終了
 	if (pe->video_out_type == VIDEO_OUTPUT_DISABLED)
@@ -753,6 +753,6 @@ static AUO_RESULT video_output_inside(CONF_X264GUIEX *conf, const OUTPUT_INFO *o
 	return ret;
 }
 
-AUO_RESULT video_output(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT video_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	return exit_audio_parallel_control(oip, pe, video_output_inside(conf, oip, pe, sys_dat));
 }

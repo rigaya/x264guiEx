@@ -17,7 +17,7 @@
 #include "auo_frm.h"
 
 typedef struct {
-	CONF_X264GUIEX *_conf;
+	CONF_GUIEX *_conf;
 	const OUTPUT_INFO *_oip;
 	PRM_ENC *_pe;
 	const SYSTEM_DATA *_sys_dat;
@@ -33,7 +33,7 @@ static inline void if_valid_close_handle(HANDLE *p_hnd) {
 //音声並列処理スレッド用関数
 static unsigned __stdcall audio_output_parallel_func(void *prm) {
 	AUDIO_OUTPUT_PRM *aud_prm = (AUDIO_OUTPUT_PRM *)prm;
-	CONF_X264GUIEX *conf = aud_prm->_conf;
+	CONF_GUIEX *conf = aud_prm->_conf;
 	const OUTPUT_INFO *oip = aud_prm->_oip;
 	PRM_ENC *pe = aud_prm->_pe;
 	const SYSTEM_DATA *sys_dat = aud_prm->_sys_dat;
@@ -45,7 +45,7 @@ static unsigned __stdcall audio_output_parallel_func(void *prm) {
 }
 
 //音声並列処理を開始する
-AUO_RESULT audio_output_parallel(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT audio_output_parallel(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//音声エンコードの必要がなければ終了
 	if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))

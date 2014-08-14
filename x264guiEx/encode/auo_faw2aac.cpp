@@ -66,7 +66,7 @@ static int auo_kill_update_preview() {
 	return TRUE;
 }
 
-AUO_RESULT audio_faw2aac(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	HMODULE hModule = NULL;
 	func_get_auo_table getFAW2AACTable = NULL;

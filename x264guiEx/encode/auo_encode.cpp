@@ -49,14 +49,14 @@ void get_muxout_filename(char *filename, size_t nSize, const SYSTEM_DATA *sys_da
 
 //チャプターファイル名とapple形式のチャプターファイル名を同時に作成する
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
-					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	strcpy_s(chap_file, cf_nSize, chap_base);
 	cmd_replace(chap_file, cf_nSize, pe, sys_dat, conf, oip);
 	apply_appendix(chap_apple, ca_nSize, chap_file, pe->append.chap_apple);
 	sys_dat->exstg->apply_fn_replace(PathFindFileName(chap_apple), ca_nSize - (PathFindFileName(chap_apple) - chap_apple));
 }
 
-static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	const int w = oip->w;
 	const int h = oip->h;
  
@@ -99,7 +99,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_X264GUIEX *
 	replace(cmd, nSize, "%{dar_y}", buf);
 }
 
-void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	char tmp[MAX_PATH_LEN] = { 0 };
 	//置換操作の実行
 	//%{vidpath}
@@ -218,7 +218,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 	return TRUE;
 }
 
-AUO_RESULT move_temporary_files(const CONF_X264GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const OUTPUT_INFO *oip, DWORD ret) {
+AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const OUTPUT_INFO *oip, DWORD ret) {
 	//動画ファイル
 	if (!conf->oth.out_audio_only)
 		if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? oip->savefile : pe->temp_filename), pe->temp_filename, oip->savefile, ret, FALSE, "出力", !ret))
@@ -273,7 +273,7 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 		return priority_table[set].value;
 }
 
-int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf->oth.out_audio_only) {
 		if (check_ext(oip->savefile, ".mp4"))  return VIDEO_OUTPUT_MP4;
 		if (check_ext(oip->savefile, ".mkv"))  return VIDEO_OUTPUT_MKV;
@@ -284,7 +284,7 @@ int check_video_ouput(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
 	return VIDEO_OUTPUT_DISABLED;
 }
 
-int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BOOL audio_output) {
+int check_muxer_to_be_used(const CONF_GUIEX *conf, int video_output_type, BOOL audio_output) {
 	//if (conf.vid.afs)
 	//	conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
 
@@ -302,7 +302,7 @@ int check_muxer_to_be_used(const CONF_X264GUIEX *conf, int video_output_type, BO
 		return MUXER_DISABLED;
 }
 
-AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip) {
+AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	guiEx_settings stg(TRUE); //ログウィンドウの保存先設定は最新のものを使用する
 	stg.load_log_win();
@@ -370,7 +370,7 @@ static AUO_RESULT get_duration_from_timecode(double *duration, const char *tc_fi
 	return ret;
 }
 
-double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
+double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	char buffer[MAX_PATH_LEN];
 	//Aviutlから再生時間情報を取得
 	double duration = (((double)oip->n * (double)oip->scale) / (double)oip->rate);
@@ -409,7 +409,7 @@ static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
 // -1 … チェックできない(エラー)
 //  1 … 動画を再エンコ
 //  2 … 音声を再エンコ
-int amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
+int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	if (!conf->x264.use_auto_npass || !conf->vid.amp_check || conf->oth.out_audio_only)
 		return 0;
 	//チェックするファイル名を取得

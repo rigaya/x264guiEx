@@ -35,7 +35,7 @@ typedef struct {
 } LOG_CACHE;
 
 //設定ウィンドウ
-void ShowfrmConfig(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat);
+void ShowfrmConfig(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat);
 
 //ログウィンドウ制御
 void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles);

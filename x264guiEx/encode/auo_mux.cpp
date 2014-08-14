@@ -44,7 +44,7 @@ static void show_mux_info(const char *mux_stg_name, BOOL vidmux, BOOL audmux, BO
 }
 
 //muxの空き容量などを計算し、行えるかを確認する
-static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char *mux_tmpdir, const CONF_X264GUIEX *conf, const PRM_ENC *pe, UINT64 expected_filesize) {
+static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char *mux_tmpdir, const CONF_GUIEX *conf, const PRM_ENC *pe, UINT64 expected_filesize) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	UINT64 required_space = (UINT64)(expected_filesize * 1.01); //ちょい多め
 	//出力先ドライブ
@@ -173,7 +173,7 @@ static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 	del_arg(cmd, "%{chapter}", -1);
 }
 
-static int get_excmd_mode(const CONF_X264GUIEX *conf, const PRM_ENC *pe) {
+static int get_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
 	int mode = 0;
 	switch (pe->muxer_to_be_used) {
 		case MUXER_MKV:    mode = conf->mux.mkv_mode; break;
@@ -300,7 +300,7 @@ static inline BOOL muxer_is_for_raw_only(const PRM_ENC *pe, const SYSTEM_DATA *s
 //異なるmuxerを駆動し、最後にpe->muxer_to_be_usedを戻す
 //PRM_ENCをコピーして使用しないのは、PRM_ENCのファイル名(拡張子)が
 //muxによって変更されることがあるため(その情報を用いて、mp4かrawか判定していて、重要な情報)
-static AUO_RESULT run_mux_as(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat, int run_as) {
+static AUO_RESULT run_mux_as(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat, int run_as) {
 	const int last_muxer = pe->muxer_to_be_used;
 	pe->muxer_to_be_used = run_as;
 	AUO_RESULT ret = mux(conf, oip, pe, sys_dat);
@@ -308,7 +308,7 @@ static AUO_RESULT run_mux_as(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip,
 	return ret;
 }
 
-AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 	//muxの必要がなければ終了
 	if (pe->muxer_to_be_used == MUXER_DISABLED)

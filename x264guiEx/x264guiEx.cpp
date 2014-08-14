@@ -41,7 +41,7 @@ static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe);
 //		出力プラグイン内部変数
 //---------------------------------------------------------------------
 
-static CONF_X264GUIEX conf;
+static CONF_GUIEX conf;
 static SYSTEM_DATA sys_dat = { 0 };
 static char auo_filefilter[1024] = { 0 };
 
@@ -214,7 +214,7 @@ BOOL func_config(HWND hwnd, HINSTANCE dll_hinst)
 
 int func_config_get( void *data, int size )
 {
-	if (data && size == sizeof(CONF_X264GUIEX))
+	if (data && size == sizeof(CONF_GUIEX))
 		memcpy(data, &conf, sizeof(conf));
 	return sizeof(conf);
 }
@@ -224,7 +224,7 @@ int func_config_set( void *data,int size )
 	init_SYSTEM_DATA(&sys_dat);
 	if (!sys_dat.exstg->get_init_success(TRUE))
 		return NULL;
-	init_CONF_X264GUIEX(&conf, FALSE);
+	init_CONF_GUIEX(&conf, FALSE);
 	return (guiEx_config::adjust_conf_size(&conf, data, size)) ? size : NULL;
 }
 
@@ -249,8 +249,8 @@ void delete_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
 	}
 	_sys_dat->init = FALSE;
 }
-void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit) {
-	ZeroMemory(conf, sizeof(CONF_X264GUIEX));
+void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
+	ZeroMemory(conf, sizeof(CONF_GUIEX));
 	guiEx_config::write_conf_header(conf);
 	get_default_conf_x264(&conf->x264, use_highbit);
 	conf->size_all = CONF_INITIALIZED;

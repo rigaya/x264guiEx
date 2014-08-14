@@ -15,6 +15,6 @@
 #include "auo_settings.h"
 #include "auo_system.h"
 
-AUO_RESULT run_bat_file(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, DWORD run_bat_mode);
+AUO_RESULT run_bat_file(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, DWORD run_bat_mode);
 
 #endif //_AUO_RUNBAT_H_
