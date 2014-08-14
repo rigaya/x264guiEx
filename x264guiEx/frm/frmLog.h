@@ -622,7 +622,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(L"auo [" + log_type[log_type_index] + L"]: " + str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
-				//richTextLog->ScrollToCaret(); //AppendTextにより自動スクロールされるので不要、しかもこれがあるとwineでこける
+				richTextLog->ScrollToCaret();
 				richTextLog->ResumeLayout();
 			}
 		}
@@ -643,7 +643,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
-				//richTextLog->ScrollToCaret(); //AppendTextにより自動スクロールされるので不要、しかもこれがあるとwineでこける
+				richTextLog->ScrollToCaret();
 				richTextLog->ResumeLayout();
 			}
 		}
@@ -810,6 +810,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				//	pause_start = NULL;
 				//}
 			}
+			Application::DoEvents();
 		}
 	private: 
 		System::Void toolStripMenuItemShowStatus_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
