@@ -255,7 +255,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, 
 				this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(245, 312);
+			this->contextMenuStripLog->Size = System::Drawing::Size(245, 334);
 			// 
 			// toolStripMenuItemFileOpen
 			// 
