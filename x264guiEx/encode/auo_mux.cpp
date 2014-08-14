@@ -89,7 +89,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
 		ULARGE_INTEGER muxer_drive_avail_space = { 0 };
 		if (!PathGetRoot(mux_stg->fullpath, muxer_root, _countof(muxer_root)) ||
 			!GetDiskFreeSpaceEx(muxer_root, &muxer_drive_avail_space, NULL, NULL)) {
-			error_failed_muxer_drive_space(); return AUO_RESULT_ERROR;
+			warning_failed_muxer_drive_space(); return AUO_RESULT_WARNING;
 		}
 		//一時フォルダと出力先が同じフォルダかどうかで、一時フォルダの必要とされる空き領域が変わる
 		BOOL muxer_same_drive_as_out = (_stricmp(vid_root, muxer_root) == NULL);
@@ -104,7 +104,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
 	//ドライブの空き容量取得
 	ULARGE_INTEGER out_drive_avail_space = { 0 };
 	if (!GetDiskFreeSpaceEx(vid_root, &out_drive_avail_space, NULL, NULL)) {
-		error_failed_out_drive_space(); return AUO_RESULT_ERROR;
+		warning_failed_out_drive_space(); return AUO_RESULT_WARNING;
 	}
 	if ((UINT64)out_drive_avail_space.QuadPart < required_space) {
 		error_out_drive_not_enough_space(); return AUO_RESULT_ERROR;
