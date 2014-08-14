@@ -128,10 +128,12 @@ System::Void frmConfig::CloseBitrateCalc() {
 }
 System::Void frmConfig::fcgTSBBitrateCalc_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 	if (fcgTSBBitrateCalc->Checked) {
+		int videoBitrate = 0;
 		bool videoBitrateMode = (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE);
+		videoBitrateMode &= Int32::TryParse(fcgTXQuality->Text, videoBitrate);
 
 		frmBitrateCalculator::Instance::get()->Init(
-			(videoBitrateMode) ? Convert::ToInt32(fcgTXQuality->Text) : 0,
+			(videoBitrateMode) ? videoBitrate : 0,
 			(fcgNUAudioBitrate->Visible) ? (int)fcgNUAudioBitrate->Value : 0,
 			videoBitrateMode,
 			fcgNUAudioBitrate->Visible,
