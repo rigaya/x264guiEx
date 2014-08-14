@@ -736,7 +736,7 @@ System::Void frmConfig::setAudioDisplay() {
 	for (int i = 0; i < astg->mode_count; i++)
 		fcgCXAudioEncMode->Items->Add(String(astg->mode[i].name).ToString());
 	fcgCXAudioEncMode->EndUpdate();
-	bool pipe_enabled = (astg->pipe_input && !fcgCBAudio2pass->Checked);
+	bool pipe_enabled = (astg->pipe_input && (!(fcgCBAudio2pass->Checked && astg->mode[index].enc_2pass != 0)));
 	CurrentPipeEnabled = pipe_enabled;
 	fcgCBAudioUsePipe->Enabled = pipe_enabled;
 	fcgCBAudioUsePipe->Checked = pipe_enabled;
