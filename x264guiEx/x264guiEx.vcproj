@@ -879,6 +879,7 @@
 				>
 				<File
 					RelativePath=".\frm\frmLog.resx"
+					SubType="Designer"
 					>
 				</File>
 			</File>
