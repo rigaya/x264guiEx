@@ -129,6 +129,7 @@
     <None Include="image\folder_open.ico">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include="x264guiEx.ini" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="auo.h">
