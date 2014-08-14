@@ -205,10 +205,13 @@ void error_x264_dead() {
 	write_log_auo_line(LOG_ERROR, "x264が予期せず途中終了しました。x264に不正なパラメータ(オプション)が渡された可能性があります。");
 }
 
-void error_x264_version() {
-	write_log_line(LOG_ERROR, ""
+void error_x264_version(const char *required_ver, const char *current_ver) {
+	write_log_line_fmt(LOG_ERROR, ""
 		"auo [error]: x264のバージョンが古く、エンコードできません。\n"
-		"             最新のx264をダウンロードし、設定画面で最新版に指定しなおしてください。");
+		"             最新の%sをダウンロードし、設定画面で最新版に指定しなおしてください。\n"
+		"             必要なバージョン:         %s\n"
+		"             実行ファイルのバージョン: %s\n",
+		required_ver, current_ver);
 }
 
 void error_afs_get_frame() {
