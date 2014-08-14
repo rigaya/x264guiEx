@@ -392,3 +392,31 @@ BOOL getProcessorCount(DWORD *physical_processor_core, DWORD *logical_processor_
 
     return TRUE;
 }
+
+int getCPUName(char *buf, size_t nSize) {
+    int CPUInfo[4] = {-1};
+    __cpuid(CPUInfo, 0x80000000);
+    unsigned int nExIds = CPUInfo[0];
+	if (nSize < 0x40)
+		return 1;
+	memset(buf, 0, 0x40);
+    for (unsigned int i = 0x80000000; i <= nExIds; i++) {
+        __cpuid(CPUInfo, i);
+		int offset = 0;
+		switch (i) {
+			case 0x80000002: offset =  0; break;
+			case 0x80000003: offset = 16; break;
+			case 0x80000004: offset = 32; break;
+		}
+		memcpy(buf + offset, CPUInfo, sizeof(CPUInfo)); 
+	}
+	const int str_len = strlen(buf);
+	for (int i = 0; i < str_len; i++) {
+		if (buf[i] != ' ') {
+			if (i)
+				memmove(buf, buf + i, str_len + 1 - i);
+			break;
+		}
+	}
+	return 0;
+}
