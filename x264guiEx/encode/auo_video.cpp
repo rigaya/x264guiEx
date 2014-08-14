@@ -238,7 +238,7 @@ static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, con
 }
 
 //自動フィールドシフトが、動きを検出できない部分では正しく設定できないこともある
-static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> *keyframe_list, const std::set<int> *keyframe_set, const OUTPUT_INFO *oip) {
+static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> &keyframe_list, const std::set<int> &keyframe_set, const OUTPUT_INFO *oip) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
 #if 0 //デバッグ用
 	{
@@ -269,16 +269,16 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> *keyframe_list, 
 	}
 #endif
 	//24fps化を仮定して設定し直す
-	keyframe_list->clear();
+	keyframe_list.clear();
 	const char * const MES_CHAPTER_AFS_ADJUST = "チャプター 補正計算中(afs 24fps化)...";
 	set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_CONTINUOUS);
 
 	int last_chapter = 0;
-	const_foreach(std::set<int>, it_keyframe, keyframe_set) {
+	for each (auto keyframe in keyframe_set) {
 		DWORD tm = 0, tm_prev = 0;
-		const int check_start = (std::max)(0, ((*it_keyframe - 300) / 5) * 5);
+		const int check_start = (std::max)(0, ((keyframe - 300) / 5) * 5);
 		int drop_count = 0;
-		for (int i_frame = check_start, drop = FALSE, next_jitter = 0; i_frame < (std::min)(*it_keyframe, oip->n); i_frame++) {
+		for (int i_frame = check_start, drop = FALSE, next_jitter = 0; i_frame < (std::min)(keyframe, oip->n); i_frame++) {
 			afs_get_video((OUTPUT_INFO *)oip, i_frame, &drop, &next_jitter);
 			drop_count += !!drop;
 			//中断
@@ -288,15 +288,15 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> *keyframe_list, 
 			}
 			//進捗表示
 			if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
-				double progress_current_chapter = (i_frame - check_start) / (double)(*it_keyframe - check_start);
-				set_log_progress((last_chapter + progress_current_chapter * (*it_keyframe - last_chapter)) / (double)oip->n);
+				double progress_current_chapter = (i_frame - check_start) / (double)(keyframe - check_start);
+				set_log_progress((last_chapter + progress_current_chapter * (keyframe - last_chapter)) / (double)oip->n);
 				log_process_events();
 				tm_prev = tm;
 			}
 		}
-		last_chapter = *it_keyframe;
+		last_chapter = keyframe;
 
-		keyframe_list->push_back(4*check_start/5 + (*it_keyframe - check_start) - drop_count);
+		keyframe_list.push_back(4*check_start/5 + (keyframe - check_start) - drop_count);
 	}
 	set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_DISABLED);
 	write_log_auo_line(LOG_INFO, "チャプター 補正計算(afs 24fps化)が完了しました。");
@@ -337,7 +337,7 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
 		if (!conf->vid.afs) {
 			keyframe_list.assign(keyframe_set.begin(), keyframe_set.end());
 		} else {
-			ret |= adjust_keyframe_as_afs_24fps(&keyframe_list, &keyframe_set, oip);
+			ret |= adjust_keyframe_as_afs_24fps(keyframe_list, keyframe_set, oip);
 		}
 
 		if (!ret) {

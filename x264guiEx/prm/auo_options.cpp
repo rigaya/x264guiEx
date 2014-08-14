@@ -809,14 +809,14 @@ const WRITE_CMD write_cmd[] = {
 
 //MediaInfoからの情報で無視するもの
 static BOOL is_arg_ignore_mediainfo(const char *arg) {
-	static const char * const IGNORE_ARGS[] = { "threads", "lookahead_threads", NULL };
-	for (int i = 0; IGNORE_ARGS[i]; i++)
+	static const char * const IGNORE_ARGS[] = { "threads", "lookahead_threads" };
+	for (int i = 0; i < _countof(IGNORE_ARGS); i++)
 		if (NULL == strcmp(arg, IGNORE_ARGS[i]))
 			return TRUE;
 	return FALSE;
 }
 
-static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_list) {
+static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> &cmd_arg_list) {
 	BOOL dQB = FALSE;
 	BOOL space_flag = TRUE;
 	BOOL next_option_flag = TRUE;
@@ -832,7 +832,7 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 				space_flag = FALSE;
 				if (*cmd == '-' && !isdigit(*(cmd+1))) { //isdigitは負数を避けるため
 					if (cmd_arg.arg_type) {
-						cmd_arg_list->push_back(cmd_arg);
+						cmd_arg_list.push_back(cmd_arg);
 						ZeroMemory(&cmd_arg, sizeof(CMD_ARG));
 					}
 					cmd_arg.value = NULL;
@@ -871,7 +871,7 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 										cmd_arg_media_info.arg_type = ARG_TYPE_LONG;
 										cmd_arg_media_info.value = equal_ptr + 1;
 										cmd_arg_media_info.type_mediainfo = TRUE;
-										cmd_arg_list->push_back(cmd_arg_media_info);
+										cmd_arg_list.push_back(cmd_arg_media_info);
 									}
 								}
 								cmd = ptr;
@@ -894,10 +894,10 @@ static void parse_arg(char *cmd, size_t cmd_len, std::vector<CMD_ARG> *cmd_arg_l
 		cmd++;
 	}
 	if (cmd_arg.arg_type)
-		cmd_arg_list->push_back(cmd_arg);
+		cmd_arg_list.push_back(cmd_arg);
 
 	//最初と最後の'"'を落とす
-	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
+	foreach (it_arg, cmd_arg_list) {
 		if (it_arg->value == NULL)
 			continue;
 		size_t value_len = strlen(it_arg->value);
@@ -924,19 +924,19 @@ static void set_setting_list() {
 }
 
 //MediaInfoからの情報の補正を行う
-static void check_values_from_mediainfo(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
+static void check_values_from_mediainfo(const std::vector<CMD_ARG> &cmd_arg_list, CONF_X264 *conf_set) {
 	BOOL keyint_from_mediainfo = FALSE;
 	BOOL keyint_min_from_mediainfo = FALSE;
 	BOOL chroma_qp_offset_from_mediainfo = FALSE;
 	//2重に指定された場合などを考え、一度すべて見てみてから判定
-	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
-		if (it_arg->ret) {
-			if        (NULL == strcmp(it_arg->option_name, "chroma_qp_offset")) {
-				chroma_qp_offset_from_mediainfo = it_arg->type_mediainfo;
-			} else if (NULL == strcmp(it_arg->option_name, "keyint")) {
-				keyint_from_mediainfo = it_arg->type_mediainfo;
-			} else if (NULL == strcmp(it_arg->option_name, "keyint_min")) {
-				keyint_min_from_mediainfo = it_arg->type_mediainfo;
+	for each (auto arg in cmd_arg_list) {
+		if (arg.ret) {
+			if        (NULL == strcmp(arg.option_name, "chroma_qp_offset")) {
+				chroma_qp_offset_from_mediainfo = arg.type_mediainfo;
+			} else if (NULL == strcmp(arg.option_name, "keyint")) {
+				keyint_from_mediainfo = arg.type_mediainfo;
+			} else if (NULL == strcmp(arg.option_name, "keyint_min")) {
+				keyint_min_from_mediainfo = arg.type_mediainfo;
 			}
 		}
 	}
@@ -960,8 +960,8 @@ static inline BOOL option_has_no_value(DWORD type) {
 	return FALSE;
 }
 
-static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
-	foreach(std::vector<CMD_ARG>, it_arg, cmd_arg_list) {
+static void set_conf(std::vector<CMD_ARG> &cmd_arg_list, CONF_X264 *conf_set) {
+	foreach (it_arg, cmd_arg_list) {
 		int i;
 		for (i = 0; i < _countof(x264_options_table); i++) {
 			if (NULL == x264_options_table[i].long_name) //書き出しの終了条件
@@ -981,8 +981,8 @@ static void set_conf(std::vector<CMD_ARG> *cmd_arg_list, CONF_X264 *conf_set) {
 void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
 	std::vector<CMD_ARG> cmd_arg_list;
 	set_setting_list();
-	parse_arg(cmd, cmd_len, &cmd_arg_list);
-	set_conf(&cmd_arg_list, conf_set);
+	parse_arg(cmd, cmd_len, cmd_arg_list);
+	set_conf(cmd_arg_list, conf_set);
 	if (build_not_imported_cmd) {
 		//コマンドラインの再構築
 		//it_arg->option_name のポインタが指すのはcmd上の文字列なので、
@@ -990,14 +990,14 @@ void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_
 		//そこで一時領域を確保する
 		char * const tmp = (char *)calloc((cmd_len + 1) * sizeof(tmp[0]), 1);
 		size_t new_len = 0;
-		const_foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {
+		for each (auto arg in cmd_arg_list) {
 			//正常に読み込まれていない、かつMediaInfoの書式でないものを再構成する
-			if (!it_arg->ret && !it_arg->type_mediainfo) {
+			if (!arg.ret && !arg.type_mediainfo) {
 				new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, "%s%s%s",
-					(new_len) ? " " : "", (it_arg->arg_type == ARG_TYPE_LONG) ? "--" : "-", it_arg->option_name);
-				if (it_arg->value) {
-					const char * const dqb = (it_arg->value_had_dQB) ? "\"" : "";
-					new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, " %s%s%s", dqb, it_arg->value, dqb);
+					(new_len) ? " " : "", (arg.arg_type == ARG_TYPE_LONG) ? "--" : "-", arg.option_name);
+				if (arg.value) {
+					const char * const dqb = (arg.value_had_dQB) ? "\"" : "";
+					new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, " %s%s%s", dqb, arg.value, dqb);
 				}
 			}
 		}
@@ -1167,12 +1167,12 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
 	char * const cmd = (char *)malloc((cmd_len + 1) * sizeof(cmd[0]));
 	memcpy(cmd, cmd_src, (cmd_len + 1) * sizeof(cmd[0]));
 	set_setting_list();
-	parse_arg(cmd, cmd_len, &cmd_arg_list);
-	foreach(std::vector<CMD_ARG>, it_arg, &cmd_arg_list) {
-		if (it_arg->arg_type == target_arg_type) {
-			if (NULL == strcmp(it_arg->option_name, target_option_name)) {
-				if (it_arg->value) {
-					strcpy_s(buffer, nSize, it_arg->value);
+	parse_arg(cmd, cmd_len, cmd_arg_list);
+	for each (auto arg in cmd_arg_list) {
+		if (arg.arg_type == target_arg_type) {
+			if (NULL == strcmp(arg.option_name, target_option_name)) {
+				if (arg.value) {
+					strcpy_s(buffer, nSize, arg.value);
 					ret = 0; //正常に取得
 				}
 				break;
