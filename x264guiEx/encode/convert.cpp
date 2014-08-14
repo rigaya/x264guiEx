@@ -158,8 +158,8 @@ void copy_yuy2_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, c
 	for (; dst < dst_fin; src += 4, dst += 4)
 		*(int*)dst = *(int*)src;
 }
-
-void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+//AviutlのRGBをx264用に並び替える
+void sort_to_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	BYTE *ptr = pixel_data->data[0];
 	BYTE *dst, *src;
 	int y0 = 0, y1 = height - 1;
@@ -167,48 +167,30 @@ void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const i
 	for (; y0 < height; y0++, y1--) {
 		dst = ptr          + y1*width*3;
 		src = (BYTE*)frame + y0*step;
-		for (int x = 0; x < width * 3; x++)
-			dst[x] = src[x];
+		for (int x = 0; x < width; x++) {
+			dst[x*3 + 2] = src[x*3 + 0];
+			dst[x*3 + 1] = src[x*3 + 1];
+			dst[x*3 + 0] = src[x*3 + 2];
+		}
 	}
 }
-void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void sort_to_rgb_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+	static const __m128i xC_SHUF = _mm_set_epi8(16, 12, 13, 14, 9, 10,  11,  6,  7,  8,  3,  4,  5,  0,  1,  2);
 	BYTE *ptr = pixel_data->data[0];
 	BYTE *dst, *src, *src_fin;
-	__m128i x0, x1, x2, x3;
+	__m128i x0;
 	int y0 = 0, y1 = height - 1;
 	const int step = (width*3 + 3) & ~3;
-	const int y_fin = height - 1;
-	for (; y0 < y_fin; y0++, y1--) {
+	for (; y0 < height; y0++, y1--) {
 		dst = ptr          + y0*width*3;
 		src = (BYTE*)frame + y1*step;
 		src_fin = src + width*3;
-		for (; src < src_fin; src += 64, dst += 64) {
-			x0    = _mm_loadu_si128((const __m128i *)(src +  0));
-			x1    = _mm_loadu_si128((const __m128i *)(src + 16));
-			x2    = _mm_loadu_si128((const __m128i *)(src + 32));
-			x3    = _mm_loadu_si128((const __m128i *)(src + 48));
-			_mm_storeu_si128((__m128i *)(dst +  0), x0);
-			_mm_storeu_si128((__m128i *)(dst + 16), x1);
-			_mm_storeu_si128((__m128i *)(dst + 32), x2);
-			_mm_storeu_si128((__m128i *)(dst + 48), x3);
+		for (; src < src_fin; src += 15, dst += 15) {
+			x0 = _mm_loadu_si128((const __m128i *)src);
+			x0 = _mm_shuffle_epi8(x0, xC_SHUF);
+			_mm_storeu_si128((__m128i *)dst, x0);
 		}
 	}
-	dst = ptr          + y0*width*3;
-	src = (BYTE*)frame + y1*step;
-	src_fin = src + ((width*3) & ~63);
-	for (; src < src_fin; src += 64, dst += 64) {
-		x0    = _mm_loadu_si128((const __m128i *)(src +  0));
-		x1    = _mm_loadu_si128((const __m128i *)(src + 16));
-		x2    = _mm_loadu_si128((const __m128i *)(src + 32));
-		x3    = _mm_loadu_si128((const __m128i *)(src + 48));
-		_mm_storeu_si128((__m128i *)(dst +  0), x0);
-		_mm_storeu_si128((__m128i *)(dst + 16), x1);
-		_mm_storeu_si128((__m128i *)(dst + 32), x2);
-		_mm_storeu_si128((__m128i *)(dst + 48), x3);
-	}
-	src_fin = src + ((width*3) & 63);
-	for (; src < src_fin; src++, dst++)
-		*dst = *src;
 }
 //適当。
 void convert_yuy2_to_nv12(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
