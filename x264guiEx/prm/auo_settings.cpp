@@ -177,7 +177,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
 		apply_appendix(ini_fileName,  _countof(ini_fileName),  auo_path, INI_APPENDIX);
 		apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
 		init = check_inifile() && !disable_loading;
-		GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(ini_section_main), ini_fileName);
+		GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(blog_url), ini_fileName);
 		if (init) {
 			load_encode_stg();
 			load_fn_replace();
