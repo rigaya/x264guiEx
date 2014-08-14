@@ -183,7 +183,7 @@ static int get_unicode_data_from_file(std::vector<WCHAR> *wchar_data, const char
 	//ファイルを一気に読み込み
 	std::vector<char> apple_data;
 	std::ifstream inputFile(filename, std::ios::in | std::ios::binary);
-	if (inputFile == NULL) {
+	if (!inputFile.good()) {
 		return AUO_CHAP_ERR_FILE_OPEN;
 	}
 	apple_data.resize((size_t)inputFile.seekg(0, std::ios::end).tellg());
