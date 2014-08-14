@@ -128,6 +128,12 @@ public:
 };
 
 //定義はx264guiEx.cpp
-void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定 
+void init_CONF_X264GUIEX(CONF_X264GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定
+
+//出力ファイルの拡張子フィルタを作成
+//filterがNULLならauoのOUTPUT_PLUGIN_TABLE用のフィルタを書き換える
+void make_file_filter(char *filter, size_t nSize, int default_index);
+
+void overwrite_aviutl_ini_file_filter(int idx);
 
 #endif //_AUO_CONF_H_

@@ -494,6 +494,7 @@ void guiEx_settings::load_local() {
 
 	s_local.large_cmdbox              = GetPrivateProfileInt(   ini_section_main, "large_cmdbox",             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
 	s_local.auto_afs_disable          = GetPrivateProfileInt(   ini_section_main, "auto_afs_disable",         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	s_local.default_output_ext        = GetPrivateProfileInt(   ini_section_main, "default_output_ext",       DEFAULT_OUTPUT_EXT,            conf_fileName);
 	s_local.auto_del_stats            = GetPrivateProfileInt(   ini_section_main, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
 	s_local.auto_del_chap             = GetPrivateProfileInt(   ini_section_main, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
 	s_local.disable_tooltip_help      = GetPrivateProfileInt(   ini_section_main, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
@@ -573,6 +574,7 @@ void guiEx_settings::load_fbc() {
 void guiEx_settings::save_local() {
 	WritePrivateProfileIntWithDefault(   ini_section_main, "large_cmdbox",              s_local.large_cmdbox,             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_afs_disable",          s_local.auto_afs_disable,         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "default_output_ext",        s_local.default_output_ext,       DEFAULT_OUTPUT_EXT,            conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);

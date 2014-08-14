@@ -18,6 +18,7 @@
 
 static const BOOL   DEFAULT_LARGE_CMD_BOX         = 0;
 static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
+static const int    DEFAULT_OUTPUT_EXT            = 0;
 static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
 static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
 static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
@@ -235,6 +236,7 @@ typedef struct {
 	BOOL   large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
 	DWORD  audio_buffer_size;                   //音声用バッファサイズ
 	BOOL   auto_afs_disable;                    //自動的にafsを無効化
+	int    default_output_ext;                  //デフォルトで使用する拡張子
 	BOOL   auto_del_stats;                      //自動マルチパス時、ステータスファイルを自動的に削除
 	BOOL   auto_del_chap;                       //チャプターファイルの自動削除
 	BOOL   disable_tooltip_help;                //ポップアップヘルプを抑制する

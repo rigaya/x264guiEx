@@ -37,6 +37,10 @@ enum {
 	MUXER_MP4_RAW  = VIDEO_OUTPUT_MP4 + 4,
 };
 
+static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264" };
+static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
+static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
+
 enum {
 	AUO_RESULT_SUCCESS    = 0x0000,
 	AUO_RESULT_ERROR      = 0x0001,

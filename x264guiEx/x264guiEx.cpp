@@ -37,6 +37,13 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe);
 static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip);
 static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe);
 
+//---------------------------------------------------------------------
+//		出力プラグイン内部変数
+//---------------------------------------------------------------------
+
+static CONF_X264GUIEX conf;
+static SYSTEM_DATA sys_dat = { 0 };
+static char auo_filefilter[1024] = { 0 };
 
 //---------------------------------------------------------------------
 //		出力プラグイン構造体定義
@@ -60,16 +67,12 @@ OUTPUT_PLUGIN_TABLE output_plugin_table = {
 //---------------------------------------------------------------------
 EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTable( void )
 {
+	init_SYSTEM_DATA(&sys_dat);
+	make_file_filter(NULL, 0, sys_dat.exstg->s_local.default_output_ext);
+	overwrite_aviutl_ini_file_filter(sys_dat.exstg->s_local.default_output_ext);
+	output_plugin_table.filefilter = auo_filefilter;
 	return &output_plugin_table;
 }
-
-
-//---------------------------------------------------------------------
-//		出力プラグイン内部変数
-//---------------------------------------------------------------------
-
-static CONF_X264GUIEX conf;
-static SYSTEM_DATA sys_dat = { 0 };
 
 
 //---------------------------------------------------------------------
@@ -473,4 +476,59 @@ static void auto_save_log(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 		warning_no_auto_save_log_dir();
 	auto_save_log_file(log_file_path);
 	return;
+}
+
+void overwrite_aviutl_ini_file_filter(int idx) {
+	char ini_file[1024];
+	get_aviutl_dir(ini_file, _countof(ini_file));
+	PathAddBackSlashLong(ini_file);
+	strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
+	
+	char filefilter_ini[1024] = { 0 };
+	make_file_filter(filefilter_ini, _countof(filefilter_ini), idx);
+	WritePrivateProfileString(AUO_NAME, "filefilter", filefilter_ini, ini_file);
+}
+
+void make_file_filter(char *filter, size_t nSize, int default_index) {
+	static const char *const TOP = "All Support Formats (*.*)";
+	const char separator = (filter) ? '\\' : '\0';
+	if (filter == NULL) {
+		filter = auo_filefilter;
+		nSize = _countof(auo_filefilter);
+	}
+	char *ptr = filter;
+	
+#define ADD_FILTER(str, appendix) { \
+	size_t len = strlen(str); \
+	if (nSize - (ptr - filter) <= len + 1) return; \
+	memcpy(ptr, (str), sizeof(ptr[0]) * len); \
+	ptr += len; \
+	*ptr = (appendix); \
+	ptr++; \
+}
+#define ADD_DESC(idx) { \
+	size_t len = sprintf_s(ptr, nSize - (ptr - filter), "%s (%s)", OUTPUT_FILE_EXT_DESC[idx], OUTPUT_FILE_EXT_FILTER[idx]); \
+	ptr += len; \
+	*ptr = separator; \
+	ptr++; \
+	len = strlen(OUTPUT_FILE_EXT_FILTER[idx]); \
+	if (nSize - (ptr - filter) <= len + 1) return; \
+	memcpy(ptr, OUTPUT_FILE_EXT_FILTER[idx], sizeof(ptr[0]) * len); \
+	ptr += len; \
+	*ptr = separator; \
+	ptr++; \
+}
+	ADD_FILTER(TOP, separator);
+	ADD_FILTER(OUTPUT_FILE_EXT_FILTER[default_index], ';');
+	for (int idx = 0; idx < _countof(OUTPUT_FILE_EXT_FILTER); idx++)
+		if (idx != default_index)
+			ADD_FILTER(OUTPUT_FILE_EXT_FILTER[idx], ';');
+	ADD_FILTER(OUTPUT_FILE_EXT_FILTER[default_index], separator);
+	ADD_DESC(default_index);
+	for (int idx = 0; idx < _countof(OUTPUT_FILE_EXT_FILTER); idx++)
+		if (idx != default_index)
+			ADD_DESC(idx);
+	ptr[0] = '\0';
+#undef ADD_FILTER
+#undef ADD_DESC
 }
