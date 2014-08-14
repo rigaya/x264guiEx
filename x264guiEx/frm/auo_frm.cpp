@@ -86,14 +86,22 @@ void set_reconstructed_title_mes(const char *mes, int total_drop, int current_fr
 	int i_frame = 0, total_frame = 0;
 	int remain_time[3] = { 0 }, elapsed_time[3] = { 0 };
 	char buffer[1024] = { 0 };
+	int length = 0;
 	const char *ptr = buffer;
 	if ('[' == mes[0]
-		&& 11 == sscanf_s(mes, "[%lf%%] %d/%d %lf %lf %d:%d:%d %d:%d:%d",
+		&& 11 >= sscanf_s(mes, "[%lf%%] %d/%d %lf %lf %d:%d:%d %d:%d:%d %n",
 			&progress, &i_frame, &total_frame, &fps, &bitrate,
 			&remain_time[0], &remain_time[1], &remain_time[2],
-			&elapsed_time[0], &elapsed_time[1], &elapsed_time[2])) {
-		sprintf_s(buffer, _countof(buffer), "[%3.1lf%%] %d/%d frames, %.2lf fps, %.2lf kb/s, eta %d:%02d:%02d",
-			progress, i_frame, total_frame, fps, bitrate, elapsed_time[0], elapsed_time[1], elapsed_time[2]);
+			&elapsed_time[0], &elapsed_time[1], &elapsed_time[2],
+			&length)) {
+		const char *qtr = mes + length;
+		while (' ' == *qtr) qtr++;
+		while (' ' != *qtr && '\0' != *qtr) qtr++;
+		while (' ' == *qtr) qtr++;
+		while (' ' != *qtr && '\0' != *qtr) qtr++;
+		while (' ' == *qtr) qtr++;
+		sprintf_s(buffer, _countof(buffer), "[%3.1lf%%] %d/%d frames, %.2lf fps, %.2lf kb/s, eta %d:%02d:%02d, %s %s",
+			progress, i_frame, total_frame, fps, bitrate, elapsed_time[0], elapsed_time[1], elapsed_time[2], ('\0' != *qtr) ? "est.size" : "", qtr);
 	} else if (3 == sscanf_s(mes, "%d %lf %lf", &i_frame, &fps, &bitrate)) {
 		sprintf_s(buffer, _countof(buffer), "%d frames, %.2lf fps, %.2lf kb/s", i_frame, fps, bitrate);
 	} else {
