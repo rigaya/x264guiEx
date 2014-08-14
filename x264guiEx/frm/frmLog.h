@@ -182,6 +182,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemWindowFont
 private: System::Windows::Forms::FontDialog^  fontDialogLog;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemTransparentValue;
 private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColor;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFileOpen;
+private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOpen;
 
 
 	private: System::ComponentModel::IContainer^  components;
@@ -203,6 +205,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 			this->components = (gcnew System::ComponentModel::Container());
 			this->richTextLog = (gcnew System::Windows::Forms::RichTextBox());
 			this->contextMenuStripLog = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+			this->toolStripMenuItemFileOpen = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->toolStripMenuItemFilePathOpen = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemx264Priority = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemEncPause = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ToolStripMenuItemTransparent = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -241,15 +245,33 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 			this->richTextLog->TabIndex = 0;
 			this->richTextLog->Text = L"";
 			this->richTextLog->WordWrap = false;
+			this->richTextLog->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &frmLog::richTextLog_MouseDown);
 			// 
 			// contextMenuStripLog
 			// 
-			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(12) {this->ToolStripMenuItemx264Priority, 
-				this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, this->toolStripMenuItemTransparentValue, this->toolStripMenuItemSetLogColor, 
-				this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, 
-				this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, this->toolStripMenuItemWindowFont});
+			this->contextMenuStripLog->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(14) {this->toolStripMenuItemFileOpen, 
+				this->toolStripMenuItemFilePathOpen, this->ToolStripMenuItemx264Priority, this->ToolStripMenuItemEncPause, this->ToolStripMenuItemTransparent, 
+				this->toolStripMenuItemTransparentValue, this->toolStripMenuItemSetLogColor, this->ToolStripMenuItemStartMinimized, this->toolStripMenuItemSaveLogSize, 
+				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, 
+				this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(245, 268);
+			this->contextMenuStripLog->Size = System::Drawing::Size(245, 334);
+			// 
+			// toolStripMenuItemFileOpen
+			// 
+			this->toolStripMenuItemFileOpen->ForeColor = System::Drawing::Color::Blue;
+			this->toolStripMenuItemFileOpen->Name = L"toolStripMenuItemFileOpen";
+			this->toolStripMenuItemFileOpen->Size = System::Drawing::Size(244, 22);
+			this->toolStripMenuItemFileOpen->Text = L"この動画を再生...";
+			this->toolStripMenuItemFileOpen->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemFileOpen_Click);
+			// 
+			// toolStripMenuItemFilePathOpen
+			// 
+			this->toolStripMenuItemFilePathOpen->ForeColor = System::Drawing::Color::Blue;
+			this->toolStripMenuItemFilePathOpen->Name = L"toolStripMenuItemFilePathOpen";
+			this->toolStripMenuItemFilePathOpen->Size = System::Drawing::Size(244, 22);
+			this->toolStripMenuItemFilePathOpen->Text = L"この動画の場所を開く...";
+			this->toolStripMenuItemFilePathOpen->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemFilePathOpen_Click);
 			// 
 			// ToolStripMenuItemx264Priority
 			// 
@@ -934,6 +956,56 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemSetLogColo
 				ColortoInt(exstg.s_log.log_color_text[i], log_color_text[i]);
 			exstg.save_log_win();
 		}
+	////  ファイル名をクリックして動画を再生・フォルダを開く /////////
+	private:
+		String^ selectedPathbyMouse;
+	private:
+		System::Void richTextLog_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+			const int index = richTextLog->GetCharIndexFromPosition(e->Location);
+			const int i_line = richTextLog->GetLineFromCharIndex(index);
+			//前後1行も検索
+			bool PathSelected = false;
+			for (int j = -1; j <= 1; j++) {
+				if (0 <= i_line + j && i_line + j < richTextLog->Lines->Length) {
+					String^ strLine = richTextLog->Lines[i_line + j];
+					const int startPos = strLine->IndexOf(L'[');
+					const int finPos = strLine->LastIndexOf(L']');
+					if (startPos >= 0 && finPos > startPos) {
+						strLine = strLine->Substring(startPos + 1, finPos - startPos - 1);
+						if (File::Exists(strLine)) {
+							PathSelected = true;
+							selectedPathbyMouse = strLine;
+							break;
+						}
+					}
+				}
+			}
+
+			bool FileEncondingFinished = (index < LastLogLen || !prevent_log_closing);
+			toolStripMenuItemFileOpen->Enabled = PathSelected && FileEncondingFinished;
+			toolStripMenuItemFilePathOpen->Enabled = PathSelected;
+		}
+	private:
+		System::Void toolStripMenuItemFileOpen_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (File::Exists(selectedPathbyMouse)) {
+				try {
+					System::Diagnostics::Process::Start(selectedPathbyMouse);
+				} catch (...) {
+					MessageBox::Show(L"ファイルオープンでエラーが発生しました。", AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				}
+			}
+		}
+	private:
+		System::Void toolStripMenuItemFilePathOpen_Click(System::Object^  sender, System::EventArgs^  e) {
+			if (File::Exists(selectedPathbyMouse)) {
+				try {
+					System::Diagnostics::Process::Start(L"explorer.exe", L"/select," + selectedPathbyMouse);
+				} catch (...) {
+					MessageBox::Show(L"ファイルの表示でエラーが発生しました。", AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				}
+			}
+		}
+	////  ファイル名をクリックして動画を再生・フォルダを開く /////////
 };
 }
 
