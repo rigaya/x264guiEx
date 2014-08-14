@@ -301,6 +301,9 @@ static BOOL check_amp() {
 		if (conf.vid.amp_limit_file_size <= 0.0)
 			conf.vid.amp_check &= ~AMPLIMIT_FILE_SIZE; //フラグを折る
 	}
+	if (conf.vid.amp_check && conf.vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == conf.aud.delay_cut) {
+		check = FALSE; error_amp_afs_audio_delay_confliction();
+	}
 	return check;
 }
 
@@ -381,6 +384,12 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 	//自動マルチパス設定
 	check &= check_amp();
 
+	//オーディオディレイカット
+	if (conf.vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == conf.aud.delay_cut) {
+		info_afs_audio_delay_confliction();
+		conf.aud.audio_encode_timing = 0;
+	}
+
 	return check;
 }
 
@@ -429,36 +438,29 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile) {
 	}
 }
 
-static int additional_vframe_for_aud_delay_cut(const OUTPUT_INFO *oip, int audio_delay) {
-	double delay_sec = audio_delay / (double)oip->audio_rate;
-	double fps = oip->rate / (double)oip->scale;
-	return (int)ceil(delay_sec * fps);
-}
-
-static int additional_silence_for_aud_delay_cut(const OUTPUT_INFO *oip, int audio_delay) {
-	int vframe_added = additional_vframe_for_aud_delay_cut(oip, audio_delay);
-	double fps = oip->rate / (double)oip->scale;
-	return (int)(vframe_added / (double)fps * oip->audio_rate + 0.5) - audio_delay;
-}
-
 static void set_aud_delay_cut(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	pe->delay_cut_additional_vframe = 0;
 	pe->delay_cut_additional_aframe = 0;
 	if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
 		int audio_delay = sys_dat.exstg->s_aud[conf.aud.encoder].mode[conf.aud.enc_mode].delay;
 		if (audio_delay) {
+			const double fps = oip->rate / (double)oip->scale;
+			const int audio_rate = oip->audio_rate;
 			switch (conf.aud.delay_cut) {
-			case 1:
+			case AUDIO_DELAY_CUT_DELETE_AUDIO:
 				pe->delay_cut_additional_aframe = -1 * audio_delay;
 				break;
-			case 2:
-				pe->delay_cut_additional_vframe = additional_vframe_for_aud_delay_cut(oip, audio_delay);
-				pe->delay_cut_additional_aframe = additional_silence_for_aud_delay_cut(oip, audio_delay);
+			case AUDIO_DELAY_CUT_ADD_VIDEO:
+				pe->delay_cut_additional_vframe = additional_vframe_for_aud_delay_cut(fps, audio_rate, audio_delay);
+				pe->delay_cut_additional_aframe = additional_silence_for_aud_delay_cut(fps, audio_rate, audio_delay);
 				break;
-			case 0:
+			case AUDIO_DELAY_CUT_NONE:
 			default:
+				conf.aud.delay_cut = AUDIO_DELAY_CUT_NONE;
 				break;
 			}
+		} else {
+			conf.aud.delay_cut = AUDIO_DELAY_CUT_NONE;
 		}
 	}
 }
@@ -487,12 +489,14 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 
 	//音声一時フォルダの決定
 	char *cus_aud_tdir = pe->temp_filename;
-	if (conf.aud.aud_temp_dir)
+	if (conf.aud.aud_temp_dir) {
 		if (DirectoryExistsOrCreate(sys_dat.exstg->s_local.custom_audio_tmp_dir)) {
 			cus_aud_tdir = sys_dat.exstg->s_local.custom_audio_tmp_dir;
 			write_log_auo_line_fmt(LOG_INFO, "音声一時フォルダ : %s", cus_aud_tdir);
-		} else
+		} else {
 			warning_no_aud_temp_root(sys_dat.exstg->s_local.custom_audio_tmp_dir);
+		}
+	}
 	strcpy_s(pe->aud_temp_dir, _countof(pe->aud_temp_dir), cus_aud_tdir);
 
 	//ファイル名置換を行い、一時ファイル名を作成
@@ -537,38 +541,38 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
 		nSize = _countof(auo_filefilter);
 	}
 	char *ptr = filter;
-	
-#define ADD_FILTER(str, appendix) { \
-	size_t len = strlen(str); \
-	if (nSize - (ptr - filter) <= len + 1) return; \
-	memcpy(ptr, (str), sizeof(ptr[0]) * len); \
-	ptr += len; \
-	*ptr = (appendix); \
-	ptr++; \
-}
-#define ADD_DESC(idx) { \
-	size_t len = sprintf_s(ptr, nSize - (ptr - filter), "%s (%s)", OUTPUT_FILE_EXT_DESC[idx], OUTPUT_FILE_EXT_FILTER[idx]); \
-	ptr += len; \
-	*ptr = separator; \
-	ptr++; \
-	len = strlen(OUTPUT_FILE_EXT_FILTER[idx]); \
-	if (nSize - (ptr - filter) <= len + 1) return; \
-	memcpy(ptr, OUTPUT_FILE_EXT_FILTER[idx], sizeof(ptr[0]) * len); \
-	ptr += len; \
-	*ptr = separator; \
-	ptr++; \
-}
-	ADD_FILTER(TOP, separator);
-	ADD_FILTER(OUTPUT_FILE_EXT_FILTER[default_index], ';');
+
+	auto add_filter = [&](const char *str, char appendix) {
+		size_t len = strlen(str);
+		if (nSize - (ptr - filter) <= len + 1)
+			return;
+		memcpy(ptr, (str), sizeof(ptr[0]) * len);
+		ptr += len;
+		*ptr = appendix;
+		ptr++;
+	};
+	auto add_desc = [&](int idx) {
+		size_t len = sprintf_s(ptr, nSize - (ptr - filter), "%s (%s)", OUTPUT_FILE_EXT_DESC[idx], OUTPUT_FILE_EXT_FILTER[idx]);
+		ptr += len;
+		*ptr = separator;
+		ptr++;
+		len = strlen(OUTPUT_FILE_EXT_FILTER[idx]);
+		if (nSize - (ptr - filter) <= len + 1)
+			return;
+		memcpy(ptr, OUTPUT_FILE_EXT_FILTER[idx], sizeof(ptr[0]) * len);
+		ptr += len;
+		*ptr = separator;
+		ptr++;
+	};
+	add_filter(TOP, separator);
+	add_filter(OUTPUT_FILE_EXT_FILTER[default_index], ';');
 	for (int idx = 0; idx < _countof(OUTPUT_FILE_EXT_FILTER); idx++)
 		if (idx != default_index)
-			ADD_FILTER(OUTPUT_FILE_EXT_FILTER[idx], ';');
-	ADD_FILTER(OUTPUT_FILE_EXT_FILTER[default_index], separator);
-	ADD_DESC(default_index);
+			add_filter(OUTPUT_FILE_EXT_FILTER[idx], ';');
+	add_filter(OUTPUT_FILE_EXT_FILTER[default_index], separator);
+	add_desc(default_index);
 	for (int idx = 0; idx < _countof(OUTPUT_FILE_EXT_FILTER); idx++)
 		if (idx != default_index)
-			ADD_DESC(idx);
+			add_desc(idx);
 	ptr[0] = '\0';
-#undef ADD_FILTER
-#undef ADD_DESC
 }

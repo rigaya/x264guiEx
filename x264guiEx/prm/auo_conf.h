@@ -54,6 +54,12 @@ enum {
 	CHECK_KEYFRAME_CHAPTER = 0x02, //チャプターの位置にキーフレームを設定する
 };
 
+enum {
+	AUDIO_DELAY_CUT_NONE         = 0, //音声エンコード遅延の削除を行わない
+	AUDIO_DELAY_CUT_DELETE_AUDIO = 1, //音声エンコード遅延の削除を音声の先頭を削除することで行う
+	AUDIO_DELAY_CUT_ADD_VIDEO    = 2, //音声エンコード遅延の削除を映像を先頭に追加することで行う
+};
+
 typedef struct {
 	BOOL   afs;                      //自動フィールドシフトの使用
 	BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正

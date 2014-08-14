@@ -28,6 +28,20 @@
 #include "auo_encode.h"
 #include "auo_error.h"
 
+int additional_vframe_for_aud_delay_cut(double fps, int audio_rate, int audio_delay) {
+	double delay_sec = audio_delay / (double)audio_rate;
+	return (int)ceil(delay_sec * fps);
+}
+
+int additional_silence_for_aud_delay_cut(double fps, int audio_rate, int audio_delay, int vframe_added) {
+	vframe_added = (vframe_added >= 0) ? vframe_added : additional_vframe_for_aud_delay_cut(fps, audio_rate, audio_delay);
+	return (int)(vframe_added / (double)fps * audio_rate + 0.5) - audio_delay;
+}
+
+BOOL fps_after_afs_is_24fps(const int frame_n, const PRM_ENC *pe) {
+	return (pe->drop_count > (frame_n * 0.10));
+}
+
 int get_mux_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
 	int mode = 0;
 	switch (pe->muxer_to_be_used) {
@@ -398,7 +412,7 @@ static AUO_RESULT get_duration_from_timecode(double *duration, const char *tc_fi
 double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	char buffer[MAX_PATH_LEN];
 	//Aviutlから再生時間情報を取得
-	double duration = (((double)oip->n * (double)oip->scale) / (double)oip->rate);
+	double duration = (((double)(oip->n + pe->delay_cut_additional_vframe) * (double)oip->scale) / (double)oip->rate);
 	//tcfile-inなら、動画の長さはタイムコードから取得する
 	if (conf->x264.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, "--tcfile-in", buffer, sizeof(buffer))) {
 		double duration_tmp = 0.0;

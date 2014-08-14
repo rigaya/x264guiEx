@@ -18,6 +18,8 @@ void warning_no_aud_temp_root(const char *dir);
 void error_filename_too_long();
 void error_nothing_to_output();
 void error_amp_bitrate_confliction();
+void error_amp_afs_audio_delay_confliction();
+void info_afs_audio_delay_confliction();
 void info_amp_do_aud_enc_first(DWORD target_limit);
 void error_amp_aud_too_big(DWORD target_limit);
 void error_amp_target_bitrate_too_small(DWORD target_limit);

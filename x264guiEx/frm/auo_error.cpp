@@ -41,6 +41,15 @@ void error_amp_bitrate_confliction() {
 	write_log_auo_line(LOG_ERROR, "ビットレート設定を見なおしてください。");
 }
 
+void error_amp_afs_audio_delay_confliction() {
+	write_log_auo_line(LOG_ERROR, "上限設定付き自動マルチパス、自動フィールドシフト、音声ディレイカット[動画追加]は同時に指定できません。");
+	write_log_auo_line(LOG_ERROR, "エンコードを続行できません。");
+}
+
+void info_afs_audio_delay_confliction() {
+	write_log_auo_line(LOG_INFO, "自動フィールドシフト、音声ディレイカット[動画追加]が同時に指定されている場合には、音声エンコードは後で行います。");
+}
+
 static const char *get_target_limit_name(DWORD target_limit) {
 	const char *str_limit = "";
 	switch (target_limit) {
