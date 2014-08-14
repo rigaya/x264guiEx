@@ -19,6 +19,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <vector>
+#include <set>
 
 #include "output.h"
 #include "vphelp_client.h"
@@ -37,6 +38,7 @@
 #include "auo_convert.h"
 #include "auo_system.h"
 #include "auo_version.h"
+#include "auo_chapter.h"
 
 #include "auo_encode.h"
 #include "auo_video.h"
@@ -133,7 +135,9 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 	//ファイル名作成
 	apply_appendix(auotcfile, _countof(auotcfile), pe->temp_filename, pe->append.tc);
 
-	if (fopen_s(&tcfile, auotcfile, "wb") == NULL) {
+	if (NULL != fopen_s(&tcfile, auotcfile, "wb")) {
+		ret |= AUO_RESULT_ERROR; warning_auo_tcfile_failed();
+	} else {
 		fprintf(tcfile, "# timecode format v2\r\n");
 		if (afs) {
 			for (int i = 0; i < frame_n; i++)
@@ -144,26 +148,16 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 				fprintf(tcfile, "%.6lf\r\n", i * tm_multi);
 		}
 		fclose(tcfile);
-	} else {
-		ret |= AUO_RESULT_ERROR; warning_auo_tcfile_failed();
 	}
 	return ret;
 }
 
-//Aviutlのキーフレーム検出からqpfile作成
-static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
+static AUO_RESULT set_keyframe_from_aviutl(std::vector<int> *keyframe_list, const OUTPUT_INFO *oip) {
 	AUO_RESULT ret = AUO_RESULT_SUCCESS;
-	char auoqpfile[MAX_PATH_LEN] = { 0 };
+	const int prev_chap_count = keyframe_list->size();
+	const char * const MES_SEARCH_KEYFRAME = "Aviutl キーフレーム検出中…";
 	DWORD tm = 0, tm_prev = 0;
-	const char * const mes_head = "Aviutl キーフレーム検出中…";
-	std::vector<int> keyframe_list;
-
-	//ファイル名作成
-	apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
-	if (PathFileExists(auoqpfile))
-		remove(auoqpfile);
-
-	set_window_title(mes_head, PROGRESSBAR_CONTINUOUS);
+	set_window_title(MES_SEARCH_KEYFRAME, PROGRESSBAR_CONTINUOUS);
 
 	//検出ループ
 	for (int i = 0; i < oip->n; i++) {
@@ -174,29 +168,171 @@ static AUO_RESULT check_keyframe_flag(const OUTPUT_INFO *oip, const PRM_ENC *pe)
 		}
 		//フラグ検出
 		if (oip->func_get_flag(i) & OUTPUT_INFO_FRAME_FLAG_KEYFRAME)
-			keyframe_list.push_back(i);
-		//進捗表示
+			keyframe_list->push_back(i);
+		//進捗表示 (自動24fps化などしていると時間がかかる)
 		if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
 			set_log_progress(i / (double)oip->n);
 			tm_prev = tm;
 		}
 	}
+	set_window_title(MES_SEARCH_KEYFRAME, PROGRESSBAR_DISABLED);
+	write_log_auo_line_fmt(LOG_INFO, "Aviutlから %d箇所 キーフレーム設定を検出しました。", keyframe_list->size() - prev_chap_count);
+	return ret;
+}
 
-	//キーフレームが検出されればファイル出力
-	if (keyframe_list.size()) {
-		write_log_auo_line_fmt(LOG_INFO, "Aviutlから %d箇所 キーフレーム設定を検出しました。", keyframe_list.size());
-		FILE *qpfile = NULL;
-		if (fopen_s(&qpfile, auoqpfile, "wb") != NULL) {
-			ret |= AUO_RESULT_ERROR; warning_auto_qpfile_failed();
-		} else {
-			foreach(std::vector<int>, it_keyframe, &keyframe_list)
-				fprintf_s(qpfile, "%d I\r\n", *it_keyframe);
-			fclose(qpfile);
-		}
+static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+	//mux設定がなければスキップ
+	if (pe->muxer_to_be_used == MUXER_DISABLED) {
+		//スキップ
+		write_log_auo_line(LOG_INFO, "使用するmuxerが設定されていないため、チャプターからのキーフレーム検出は行いません。");
 	} else {
-		write_log_auo_line(LOG_INFO, "キーフレーム探索を行いましたが、キーフレーム設定を検出できませんでした。");
+		//チャプターファイル名作成
+		char chap_file[MAX_PATH_LEN] = { 0 };
+		const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[(pe->muxer_to_be_used == MUXER_TC2MP4) ? MUXER_MP4 : pe->muxer_to_be_used];
+		const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_mux_excmd_mode(conf, pe)];
+		strcpy_s(chap_file, _countof(chap_file), muxer_mode->chap_file);
+		cmd_replace(chap_file, _countof(chap_file), pe, sys_dat, conf, oip);
+
+		chapter_list_t chap_list = { 0 };
+		if (!str_has_char(chap_file) || !PathFileExists(chap_file)) {
+			write_log_auo_line(LOG_INFO, "チャプターファイルが存在しません。");
+		//チャプターリストを取得
+		} else if (AUO_CHAP_ERR_NONE != get_chapter_list(&chap_list, chap_file, CODE_PAGE_UNSET)) {
+			ret |= AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "チャプターファイルからチャプター設定を読み取れませんでした。");
+		//チャプターがない場合
+		} else if (0 == chap_list.count) {
+			write_log_auo_line(LOG_WARNING, "チャプターファイルからチャプター設定を読み取れませんでした。");
+		} else {
+			const double fps = oip->rate / (double)oip->scale;
+			//QPファイルを出力
+			for (int i_chap = 0; i_chap < chap_list.count; i_chap++) {
+				double chap_time_s = get_chap_second(&chap_list.data[i_chap]);
+				int i_frame = (int)(chap_time_s * fps + 0.5);
+				keyframe_list->push_back(i_frame);
+			}
+			write_log_auo_line_fmt(LOG_INFO, "チャプターファイルから %d箇所 キーフレーム設定を行いました。", chap_list.count);
+		}
+		free_chapter_list(&chap_list);
 	}
-	set_window_title(mes_head, PROGRESSBAR_DISABLED);
+	return ret;
+}
+
+//自動フィールドシフトが、動きを検出できない部分では正しく設定できないこともある
+static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> *keyframe_list, const std::set<int> *keyframe_set, const OUTPUT_INFO *oip) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+#if 0 //デバッグ用
+	{
+		const char * const MES_AFS_DEBUG = "Aviutl afs検出中…";
+		set_window_title(MES_AFS_DEBUG, PROGRESSBAR_CONTINUOUS);
+		DWORD tm = 0, tm_prev = 0;
+		char afs_csv_file[MAX_PATH_LEN] = { 0 };
+		strcpy_s(afs_csv_file, _countof(afs_csv_file), oip->savefile);
+		change_ext(afs_csv_file, _countof(afs_csv_file), "x264guiEx_afs_log.csv");
+		FILE *fp_log = NULL;
+		if (fopen_s(&fp_log, afs_csv_file, "wb") || fp_log == NULL) {
+			write_log_auo_line(LOG_WARNING, "x264guiEx_afsログファイルを開けませんでした。");
+		} else {
+			int drop = FALSE, next_jitter = 0;
+			for (int i = 0; i < oip->n; i++) {
+				afs_get_video((OUTPUT_INFO *)oip, i, &drop, &next_jitter);
+				fprintf(fp_log, "%d\r\n%d,%d,", drop, next_jitter, 4*(i+1) + next_jitter);
+				//進捗表示 (自動24fps化などしていると時間がかかる)
+				if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
+					set_log_progress(i / (double)oip->n);
+					log_process_events();
+					tm_prev = tm;
+				}
+			}
+			fclose(fp_log);
+		}
+		set_window_title(MES_AFS_DEBUG, PROGRESSBAR_DISABLED);
+	}
+#endif
+	//24fps化を仮定して設定し直す
+	keyframe_list->clear();
+	const char * const MES_CHAPTER_AFS_ADJUST = "チャプター 補正計算中(afs 24fps化)...";
+	set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_CONTINUOUS);
+
+	int last_chapter = 0;
+	const_foreach(std::set<int>, it_keyframe, keyframe_set) {
+		DWORD tm = 0, tm_prev = 0;
+		const int check_start = (std::max)(0, ((*it_keyframe - 300) / 5) * 5);
+		int drop_count = 0;
+		for (int i_frame = check_start, drop = FALSE, next_jitter = 0; i_frame < (std::min)(*it_keyframe, oip->n); i_frame++) {
+			afs_get_video((OUTPUT_INFO *)oip, i_frame, &drop, &next_jitter);
+			drop_count += !!drop;
+			//中断
+			if (oip->func_is_abort()) {
+				ret |= AUO_RESULT_ABORT; write_log_auo_line(LOG_INFO, "Aviutl キーフレーム検出を中断しました。");
+				break;
+			}
+			//進捗表示
+			if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
+				double progress_current_chapter = (i_frame - check_start) / (double)(*it_keyframe - check_start);
+				set_log_progress((last_chapter + progress_current_chapter * (*it_keyframe - last_chapter)) / (double)oip->n);
+				log_process_events();
+				tm_prev = tm;
+			}
+		}
+		last_chapter = *it_keyframe;
+
+		keyframe_list->push_back(4*check_start/5 + (*it_keyframe - check_start) - drop_count);
+	}
+	set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_DISABLED);
+	write_log_auo_line(LOG_INFO, "チャプター 補正計算(afs 24fps化)が完了しました。");
+	return ret;
+}
+
+static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+	AUO_RESULT ret = AUO_RESULT_SUCCESS;
+	std::vector<int> keyframe_list;
+
+	//自動フィールドシフトならスキップ
+	BOOL disable_keyframe_afs = conf->vid.afs && !sys_dat->exstg->s_local.set_keyframe_as_afs_24fps;
+	if (disable_keyframe_afs)
+		return ret;
+
+	//ファイル名作成
+	char auoqpfile[MAX_PATH_LEN] = { 0 };
+	apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
+	if (PathFileExists(auoqpfile))
+		remove(auoqpfile);
+
+	//Aviutlのキーフレーム検出からキーフレーム設定
+	if (!ret && conf->vid.check_keyframe & CHECK_KEYFRAME_AVIUTL)
+		ret |= set_keyframe_from_aviutl(&keyframe_list, oip);
+
+	//チャプターからキーフレーム設定
+	if (!ret && conf->vid.check_keyframe & CHECK_KEYFRAME_CHAPTER)
+		ret |= set_keyframe_from_chapter(&keyframe_list, conf, oip, pe, sys_dat);
+
+	if (ret) {
+		//エラーないし中断
+	} else if (!keyframe_list.size()) {
+		write_log_auo_line(LOG_INFO, "キーフレーム探索を行いましたが、キーフレーム設定を検出できませんでした。");
+	} else {
+		//重複要素削除 + ソートを自動でやってくれる
+		std::set<int> keyframe_set(keyframe_list.begin(), keyframe_list.end());
+
+		if (!conf->vid.afs) {
+			keyframe_list.assign(keyframe_set.begin(), keyframe_set.end());
+		} else {
+			ret |= adjust_keyframe_as_afs_24fps(&keyframe_list, &keyframe_set, oip);
+		}
+
+		if (!ret) {
+			FILE *qpfile = NULL;
+			if (NULL != fopen_s(&qpfile, auoqpfile, "wb")) {
+				ret |= AUO_RESULT_ERROR; warning_auto_qpfile_failed();
+			} else {
+				//出力
+				foreach(std::vector<int>, it_keyframe, &keyframe_list)
+					fprintf(qpfile, "%d I\r\n", *it_keyframe);
+				fclose(qpfile);
+			}
+		}
+	}
 	return ret;
 }
 
@@ -204,9 +340,9 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 	AUO_RESULT ret = AUO_RESULT_WARNING;
 	static const int REQUIRED_X264_CORE = 104;
 	static const int REQUIRED_X264_REV = 1673;
-	char buffer[2048];
+	char buffer[2048] = { 0 };
 	if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
-		char print_line[512];
+		char print_line[512] = { 0 };
 		const char *LINE_HEADER = "x264 version: ";
 		const char *LINE_CONFIGURATION = "configuration:";
 		BOOL line_configuration = FALSE;
@@ -304,10 +440,11 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
 	//メッセージの発行
 	if ((conf->x264.vbv_bufsize != 0 || conf->x264.vbv_maxrate != 0) && prm.vid.afs)
 		write_log_auo_line(LOG_INFO, "自動フィールドシフト使用時はvbv設定は正確に反映されません。");
-	//AviUtlのkeyframe指定があれば、それをqpfileで読み込む
+	//キーフレーム検出を行い、そのQPファイルが存在し、かつ--qpfileの指定がなければ、それをqpfileで読み込む
 	char auoqpfile[MAX_PATH_LEN];
 	apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
-	if (prm.vid.check_keyframe && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
+	BOOL disable_keyframe_afs = conf->vid.afs && !sys_dat->exstg->s_local.set_keyframe_as_afs_24fps;
+	if (prm.vid.check_keyframe && !disable_keyframe_afs && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
 		sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
 	//1pass目でafsでない、--framesがなければ--framesを指定
 	if ((!prm.vid.afs || pe->current_x264_pass > 1) && strstr(cmd, "--frames") == NULL)
@@ -459,11 +596,11 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
 	
 	const BOOL afs = conf->vid.afs != 0;
-	CONVERT_CF_DATA pixel_data;
+	CONVERT_CF_DATA pixel_data = { 0 };
 	set_pixel_data(&pixel_data, conf, oip->w, oip->h);
 	
 	int *jitter = NULL;
-	int rp_ret;
+	int rp_ret = 0;
 
 	//x264優先度関連の初期化
 	DWORD set_priority = (pe->h_p_aviutl || conf->vid.priority != AVIUTLSYNC_PRIORITY_CLASS) ? priority_table[conf->vid.priority].value : NORMAL_PRIORITY_CLASS;
@@ -518,7 +655,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 		ret |= AUO_RESULT_ERROR; error_run_process("x264", rp_ret);
 	} else {
 		//全て正常
-		int i;
+		int i = 0;
 		void *frame = NULL;
 		int *next_jitter = NULL;
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
@@ -638,7 +775,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 }
 
 static void set_window_title_x264(const PRM_ENC *pe) {
-	char mes[256];
+	char mes[256] = { 0 };
 	strcpy_s(mes, _countof(mes), "x264エンコード");
 	if (pe->total_x264_pass > 1)
 		sprintf_s(mes + strlen(mes), _countof(mes) - strlen(mes), "   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
@@ -730,9 +867,9 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
 		//追加コマンドをパラメータに適用する
 		ret |= check_cmdex(conf, oip, pe, sys_dat);
 
-		//キーフレーム検出
-		if (!ret && conf->vid.check_keyframe && !conf->vid.afs && strstr(conf->vid.cmdex, "--qpfile") == NULL)
-			check_keyframe_flag(oip, pe);
+		//キーフレーム検出 (cmdexのほうに--qpfileの指定があればそれを優先する)
+		if (!ret && conf->vid.check_keyframe && strstr(conf->vid.cmdex, "--qpfile") == NULL)
+			set_keyframe(conf, oip, pe, sys_dat);
 	}
 
 	for (; !ret && pe->current_x264_pass <= pe->total_x264_pass; pe->current_x264_pass++) {

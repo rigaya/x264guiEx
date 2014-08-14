@@ -416,13 +416,17 @@ System::Void frmConfig::fcgCBAFS_CheckedChanged(System::Object^  sender, System:
 	fcgCBAFSBitrateCorrection->Enabled = fcgCBAFS->Checked;
 	fcgLBVBVafsWarning->Visible        = fcgCBAFS->Checked;
 	if (fcgCBAFS->Checked) {
-		fcgCBCheckKeyframes->Checked   = false;
 		//fcgCBMP4MuxerExt->Checked      = true;
 		//fcgCBMKVMuxerExt->Checked      = true;
 	}
 	//fcgCBMP4MuxerExt->Enabled          = !fcgCBAFS->Checked;
 	//fcgCBMKVMuxerExt->Enabled          = !fcgCBAFS->Checked;
-	fcgCBCheckKeyframes->Enabled       = !fcgCBAFS->Checked;
+
+	bool disable_keyframe_detect = fcgCBAFS->Checked && !sys_dat->exstg->s_local.set_keyframe_as_afs_24fps;
+	if (disable_keyframe_detect)
+		fcgCBCheckKeyframes->Checked   = false;
+	fcgCBCheckKeyframes->Enabled       = !disable_keyframe_detect;
+
 	int muxer_cmdex = fcgCXMP4CmdEx->SelectedIndex;
 	setMuxerCmdExNames(fcgCXMP4CmdEx, (fcgCBAFS->Checked) ? MUXER_TC2MP4 : MUXER_MP4);
 	fcgCXMP4CmdEx->SelectedIndex = muxer_cmdex;
@@ -1344,7 +1348,8 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
 		fcgCBAFS->Checked                  = cnf->vid.afs != 0;
 		fcgCBAFSBitrateCorrection->Checked = cnf->vid.afs_bitrate_correction != 0;
 		fcgCBAuoTcfileout->Checked         = cnf->vid.auo_tcfile_out != 0;
-		fcgCBCheckKeyframes->Checked       = cnf->vid.check_keyframe != 0;
+		fcgCBCheckKeyframes->Checked       =(cnf->vid.check_keyframe & CHECK_KEYFRAME_AVIUTL) != 0;
+		fcgCBSetKeyframeAtChapter->Checked =(cnf->vid.check_keyframe & CHECK_KEYFRAME_CHAPTER) != 0;
 		fcgCBInputAsLW48->Checked          = cnf->vid.input_as_lw48 != 0;
 
 		SetCXIndex(fcgCXX264Priority,        cnf->vid.priority);
@@ -1502,7 +1507,9 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
 	cnf->vid.afs                    = fcgCBAFS->Checked;
 	cnf->vid.afs_bitrate_correction = fcgCBAFSBitrateCorrection->Checked;
 	cnf->vid.auo_tcfile_out         = fcgCBAuoTcfileout->Checked;
-	cnf->vid.check_keyframe         = fcgCBCheckKeyframes->Checked;
+	cnf->vid.check_keyframe         = CHECK_KEYFRAME_NONE;
+	cnf->vid.check_keyframe        |= (fcgCBCheckKeyframes->Checked)       ? CHECK_KEYFRAME_AVIUTL  : CHECK_KEYFRAME_NONE;
+	cnf->vid.check_keyframe        |= (fcgCBSetKeyframeAtChapter->Checked) ? CHECK_KEYFRAME_CHAPTER : CHECK_KEYFRAME_NONE;
 	cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
 	cnf->vid.input_as_lw48          = fcgCBInputAsLW48->Checked;
 	cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
@@ -1912,6 +1919,12 @@ System::Void frmConfig::SetHelpToolTips() {
 	fcgTTEx->SetToolTip(fcgCBCheckKeyframes, L""
 		+ L"Aviutlのキーフレーム設定をx264に伝えるため、\n"
 		+ L"キーフレーム検出を行います。\n"
+		+ L"\n"
+		+ L"キーフレーム検出は、自動フィールドシフトと同時に使用できません。\n"
+		+ L"自動フィールドシフト使用時は無効となります。"
+		);
+	fcgTTEx->SetToolTip(fcgCBSetKeyframeAtChapter, L""
+		+ L"チャプターの位置にキーフレームを設定します。\n"
 		+ L"\n"
 		+ L"キーフレーム検出は、自動フィールドシフトと同時に使用できません。\n"
 		+ L"自動フィールドシフト使用時は無効となります。"

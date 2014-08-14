@@ -255,7 +255,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				this->toolStripMenuItemAutoSave, this->toolStripMenuItemAutoSaveSettings, this->toolStripMenuItemShowStatus, this->toolStripMenuItemTaskBarProgress, 
 				this->toolStripMenuItemWindowFont});
 			this->contextMenuStripLog->Name = L"contextMenuStrip1";
-			this->contextMenuStripLog->Size = System::Drawing::Size(245, 334);
+			this->contextMenuStripLog->Size = System::Drawing::Size(245, 312);
 			// 
 			// toolStripMenuItemFileOpen
 			// 
@@ -434,9 +434,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 			this->Name = L"frmLog";
 			this->ShowIcon = false;
 			this->Text = L"x264guiEx Log";
+			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
 			this->Load += gcnew System::EventHandler(this, &frmLog::frmLog_Load);
 			this->ClientSizeChanged += gcnew System::EventHandler(this, &frmLog::frmLog_ClientSizeChanged);
-			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
 			this->LocationChanged += gcnew System::EventHandler(this, &frmLog::frmLog_LocationChanged);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmLog::frmLog_KeyDown);
 			this->contextMenuStripLog->ResumeLayout(false);

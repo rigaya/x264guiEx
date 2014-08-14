@@ -12,7 +12,17 @@
 
 #include <Windows.h>
 
-enum AuoChapStatus {
+typedef struct {
+	WCHAR *name;
+	int h, m, s, ms;
+} chapter_t;
+
+typedef struct {
+	chapter_t *data;
+	int count;
+} chapter_list_t;
+
+enum {
 	AUO_CHAP_ERR_NONE = 0,
 	AUO_CHAP_ERR_FILE_OPEN,
 	AUO_CHAP_ERR_FILE_WRITE,
@@ -29,9 +39,13 @@ enum AuoChapStatus {
 	AUO_CHAP_ERR_PARSE_XML
 };
 
+int get_chapter_list(chapter_list_t *chap_list, const char *filename, DWORD orig_code_page);
+void free_chapter_list(chapter_list_t *chap_list);
+double get_chap_second(chapter_t *chap);
+
 //チャプターファイルの変換を行う
 //基本的にはorig_nero_filename(nero形式) から new_apple_filename(apple形式) へ
 //orig_fileがapple形式の場合、nero形式を出力してファイル名をスワップする
-AuoChapStatus convert_chapter(const char *new_apple_filename, const char *orig_nero_filename, DWORD orig_code_page, double duration);
+int convert_chapter(const char *new_apple_filename, const char *orig_nero_filename, DWORD orig_code_page, double duration);
 
 #endif //_AUO_CHAPTER_H_

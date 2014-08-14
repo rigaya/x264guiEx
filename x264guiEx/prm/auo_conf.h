@@ -48,11 +48,17 @@ enum {
 	AMPLIMIT_BITRATE   = 0x02, //自動マルチパス時、ビットレートのチェックを行う
 };
 
+enum {
+	CHECK_KEYFRAME_NONE = 0x00,
+	CHECK_KEYFRAME_AVIUTL = 0x01, //Aviutlのキーフレームフラグをチェックする
+	CHECK_KEYFRAME_CHAPTER = 0x02, //チャプターの位置にキーフレームを設定する
+};
+
 typedef struct {
 	BOOL   afs;                      //自動フィールドシフトの使用
 	BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
 	BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
-	BOOL   check_keyframe;           //キーフレームチェックを行う
+	DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
 	int    priority;                 //x264のCPU優先度(インデックス)
 	char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
 	char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
@@ -96,8 +102,8 @@ typedef struct {
 	int   temp_dir;               //一時ディレクトリ
 	BOOL  out_audio_only;         //音声のみ出力
 	char  notes[128];             //メモ
-	DWORD run_bat;                //バッチファイルを実行するかどうか
-	DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか
+	DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
+	DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
 	char  batfile_after[MAX_PATH_LEN];   //エンコ後バッチファイルのパス
 	char  batfile_before[MAX_PATH_LEN];  //エンコ前バッチファイルのパス
 } CONF_OTHER;

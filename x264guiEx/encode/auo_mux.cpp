@@ -183,17 +183,6 @@ static void del_chap_cmd(char *cmd, BOOL apple_type_only) {
 	del_arg(cmd, "%{chapter}", -1);
 }
 
-static int get_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
-	int mode = 0;
-	switch (pe->muxer_to_be_used) {
-		case MUXER_MKV:    mode = conf->mux.mkv_mode; break;
-		case MUXER_MPG:    mode = conf->mux.mpg_mode; break;
-		case MUXER_MP4:
-		case MUXER_TC2MP4: mode = conf->mux.mp4_mode; break;
-	}
-	return mode;
-}
-
 static void build_aud_mux_cmd(char *audstr, size_t nSize, const char *aud_cmd, DWORD enable_aud_mux, const PRM_ENC *pe) {
 	*audstr = '\0';
 	if (enable_aud_mux == 0x00)
@@ -219,7 +208,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
 						  BOOL enable_vid_mux, DWORD enable_aud_mux, BOOL enable_chap_mux) {
 	strcpy_s(cmd, nSize, mux_stg->base_cmd);
 	const BOOL enable_tc_mux = ((conf->vid.afs) != 0) && str_has_char(mux_stg->tc_cmd);
-	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_excmd_mode(conf, pe)];
+	const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_mux_excmd_mode(conf, pe)];
 	const char *vidstr = (enable_vid_mux) ? mux_stg->vid_cmd : "";
 	const char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
 	const char *exstr  = (conf->mux.apple_mode && str_has_char(muxer_mode->cmd_apple)) ? muxer_mode->cmd_apple : muxer_mode->cmd;
@@ -275,7 +264,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
 				pe->muxer_to_be_used == MUXER_MP4_RAW) {
 				//apple形式チャプターファイルへの置換が行われたら、apple形式チャプターファイルを作成する
 				if (strstr(cmd, "%{chap_apple}")) {
-					AuoChapStatus sts = convert_chapter(chap_apple, chap_file, CODE_PAGE_UNSET, get_duration(conf, sys_dat, pe, oip));
+					int sts = convert_chapter(chap_apple, chap_file, CODE_PAGE_UNSET, get_duration(conf, sys_dat, pe, oip));
 					if (sts != AUO_CHAP_ERR_NONE) {
 						warning_mux_chapter(sts);
 						del_chap_cmd(cmd, TRUE);

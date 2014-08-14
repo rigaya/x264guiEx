@@ -322,7 +322,7 @@ void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_
 }
 
 void warning_mux_chapter(int sts) {
-	switch ((AuoChapStatus)sts) {
+	switch (sts) {
 		case AUO_CHAP_ERR_NONE: break;
 		case AUO_CHAP_ERR_FILE_OPEN:        write_log_auo_line(LOG_WARNING, "チャプターファイルのオープンに失敗しました。"); break;
 		case AUO_CHAP_ERR_FILE_READ:        write_log_auo_line(LOG_WARNING, "チャプターファイルの読み込みに失敗しました。"); break;

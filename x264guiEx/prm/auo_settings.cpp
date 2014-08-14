@@ -492,22 +492,23 @@ void guiEx_settings::load_local() {
 
 	clear_local();
 
-	s_local.large_cmdbox              = GetPrivateProfileInt(   ini_section_main, "large_cmdbox",             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
-	s_local.auto_afs_disable          = GetPrivateProfileInt(   ini_section_main, "auto_afs_disable",         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
-	s_local.default_output_ext        = GetPrivateProfileInt(   ini_section_main, "default_output_ext",       DEFAULT_OUTPUT_EXT,            conf_fileName);
-	s_local.auto_del_stats            = GetPrivateProfileInt(   ini_section_main, "auto_del_stats",           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
-	s_local.auto_del_chap             = GetPrivateProfileInt(   ini_section_main, "auto_del_chap",            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
-	s_local.keep_qp_file              = GetPrivateProfileInt(   ini_section_main, "keep_qp_file",             DEFAULT_KEEP_QP_FILE,          conf_fileName);
-	s_local.disable_tooltip_help      = GetPrivateProfileInt(   ini_section_main, "disable_tooltip_help",     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
-	s_local.disable_visual_styles     = GetPrivateProfileInt(   ini_section_main, "disable_visual_styles",    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
-	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   ini_section_main, "enable_stg_esc_key",       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
-	s_local.get_relative_path         = GetPrivateProfileInt(   ini_section_main, "get_relative_path",        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
-	s_local.run_bat_minimized         = GetPrivateProfileInt(   ini_section_main, "run_bat_minimized",        DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
+	s_local.large_cmdbox              = GetPrivateProfileInt(   ini_section_main, "large_cmdbox",              DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	s_local.auto_afs_disable          = GetPrivateProfileInt(   ini_section_main, "auto_afs_disable",          DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	s_local.default_output_ext        = GetPrivateProfileInt(   ini_section_main, "default_output_ext",        DEFAULT_OUTPUT_EXT,            conf_fileName);
+	s_local.auto_del_stats            = GetPrivateProfileInt(   ini_section_main, "auto_del_stats",            DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	s_local.auto_del_chap             = GetPrivateProfileInt(   ini_section_main, "auto_del_chap",             DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	s_local.keep_qp_file              = GetPrivateProfileInt(   ini_section_main, "keep_qp_file",              DEFAULT_KEEP_QP_FILE,          conf_fileName);
+	s_local.disable_tooltip_help      = GetPrivateProfileInt(   ini_section_main, "disable_tooltip_help",      DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	s_local.disable_visual_styles     = GetPrivateProfileInt(   ini_section_main, "disable_visual_styles",     DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	s_local.enable_stg_esc_key        = GetPrivateProfileInt(   ini_section_main, "enable_stg_esc_key",        DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	s_local.get_relative_path         = GetPrivateProfileInt(   ini_section_main, "get_relative_path",         DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	s_local.run_bat_minimized         = GetPrivateProfileInt(   ini_section_main, "run_bat_minimized",         DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
+	s_local.set_keyframe_as_afs_24fps = GetPrivateProfileInt(   ini_section_main, "set_keyframe_as_afs_24fps", DEFAULT_SET_KEYFRAME_AFS24FPS, conf_fileName);
 
-	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
-	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi", DEFAULT_AMP_MARGIN,            conf_fileName);
-	s_local.amp_reenc_audio_multi     = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_reenc_audio_multi",    DEFAULT_AMP_REENC_AUDIO_MULTI, conf_fileName);
-	s_local.amp_keep_old_file         = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_keep_old_file",        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
+	s_local.amp_retry_limit           = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_retry_limit",           DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
+	s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  DEFAULT_AMP_MARGIN,            conf_fileName);
+	s_local.amp_reenc_audio_multi     = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_reenc_audio_multi",     DEFAULT_AMP_REENC_AUDIO_MULTI, conf_fileName);
+	s_local.amp_keep_old_file         = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_keep_old_file",         DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 	s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);   
 	
 	GetFontInfo(ini_section_main, "conf_font", &s_local.conf_font, conf_fileName);
@@ -575,17 +576,18 @@ void guiEx_settings::load_fbc() {
 }
 
 void guiEx_settings::save_local() {
-	WritePrivateProfileIntWithDefault(   ini_section_main, "large_cmdbox",              s_local.large_cmdbox,             DEFAULT_LARGE_CMD_BOX,         conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_afs_disable",          s_local.auto_afs_disable,         DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "default_output_ext",        s_local.default_output_ext,       DEFAULT_OUTPUT_EXT,            conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_stats",            s_local.auto_del_stats,           DEFAULT_AUTO_DEL_STATS,        conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_chap",             s_local.auto_del_chap,            DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "keep_qp_file",              s_local.keep_qp_file,             DEFAULT_KEEP_QP_FILE,          conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_tooltip_help",      s_local.disable_tooltip_help,     DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_visual_styles",     s_local.disable_visual_styles,    DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "enable_stg_esc_key",        s_local.enable_stg_esc_key,       DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "get_relative_path",         s_local.get_relative_path,        DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
-	WritePrivateProfileIntWithDefault(   ini_section_main, "run_bat_minimized",         s_local.run_bat_minimized,        DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "large_cmdbox",              s_local.large_cmdbox,              DEFAULT_LARGE_CMD_BOX,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_afs_disable",          s_local.auto_afs_disable,          DEFAULT_AUTO_AFS_DISABLE,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "default_output_ext",        s_local.default_output_ext,        DEFAULT_OUTPUT_EXT,            conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_stats",            s_local.auto_del_stats,            DEFAULT_AUTO_DEL_STATS,        conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "auto_del_chap",             s_local.auto_del_chap,             DEFAULT_AUTO_DEL_CHAP,         conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "keep_qp_file",              s_local.keep_qp_file,              DEFAULT_KEEP_QP_FILE,          conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_tooltip_help",      s_local.disable_tooltip_help,      DEFAULT_DISABLE_TOOLTIP_HELP,  conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "disable_visual_styles",     s_local.disable_visual_styles,     DEFAULT_DISABLE_VISUAL_STYLES, conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "enable_stg_esc_key",        s_local.enable_stg_esc_key,        DEFAULT_ENABLE_STG_ESC_KEY,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "get_relative_path",         s_local.get_relative_path,         DEFAULT_SAVE_RELATIVE_PATH,    conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "run_bat_minimized",         s_local.run_bat_minimized,         DEFAULT_RUN_BAT_MINIMIZED,     conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "set_keyframe_as_afs_24fps", s_local.set_keyframe_as_afs_24fps, DEFAULT_SET_KEYFRAME_AFS24FPS, conf_fileName);
 
 	WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
 	WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);

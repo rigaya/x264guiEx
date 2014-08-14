@@ -622,6 +622,8 @@ private: System::Windows::Forms::Label^  fcgLBBatAfterString;
 
 private: System::Windows::Forms::Label^  fcgLBBatBeforeString;
 private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
+private: System::Windows::Forms::CheckBox^  fcgCBSetKeyframeAtChapter;
+
 
 
 
@@ -877,6 +879,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
 			this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCBSetKeyframeAtChapter = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
 			this->fcgCBAuoTcfileout = (gcnew System::Windows::Forms::CheckBox());
@@ -3202,6 +3205,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			// 
 			// fcggroupBoxExSettings
 			// 
+			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBSetKeyframeAtChapter);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBInputAsLW48);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
 			this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAuoTcfileout);
@@ -3214,10 +3218,21 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 			this->fcggroupBoxExSettings->TabStop = false;
 			this->fcggroupBoxExSettings->Text = L"拡張設定";
 			// 
+			// fcgCBSetKeyframeAtChapter
+			// 
+			this->fcgCBSetKeyframeAtChapter->AutoSize = true;
+			this->fcgCBSetKeyframeAtChapter->Location = System::Drawing::Point(18, 140);
+			this->fcgCBSetKeyframeAtChapter->Name = L"fcgCBSetKeyframeAtChapter";
+			this->fcgCBSetKeyframeAtChapter->Size = System::Drawing::Size(267, 18);
+			this->fcgCBSetKeyframeAtChapter->TabIndex = 5;
+			this->fcgCBSetKeyframeAtChapter->Tag = L"chValue";
+			this->fcgCBSetKeyframeAtChapter->Text = L"チャプター位置にキーフレームを設定する (mux有効時)";
+			this->fcgCBSetKeyframeAtChapter->UseVisualStyleBackColor = true;
+			// 
 			// fcgCBInputAsLW48
 			// 
 			this->fcgCBInputAsLW48->AutoSize = true;
-			this->fcgCBInputAsLW48->Location = System::Drawing::Point(18, 151);
+			this->fcgCBInputAsLW48->Location = System::Drawing::Point(18, 179);
 			this->fcgCBInputAsLW48->Name = L"fcgCBInputAsLW48";
 			this->fcgCBInputAsLW48->Size = System::Drawing::Size(81, 18);
 			this->fcgCBInputAsLW48->TabIndex = 4;
@@ -4632,6 +4647,8 @@ private: System::Windows::Forms::CheckBox^  fcgCBInputAsLW48;
 		System::Void frmConfig_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 			if (e->KeyCode == Keys::Escape)
 				this->Close();
+			if ((e->KeyData & (Keys::Control | Keys::Shift | Keys::Enter)) == (Keys::Control | Keys::Shift | Keys::Enter))
+				fcgBTOK_Click(sender, nullptr);
 		}
 	private:
 		System::Void NUSelectAll(System::Object^  sender, System::EventArgs^  e) {
