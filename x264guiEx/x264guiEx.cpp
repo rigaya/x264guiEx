@@ -193,6 +193,8 @@ BOOL func_output( OUTPUT_INFO *oip )
 	if (!(ret & (AUO_RESULT_ERROR | AUO_RESULT_ABORT)))
 		ret |= run_bat_file(&conf, oip, &pe, &sys_dat, RUN_BAT_AFTER);
 
+	log_process_events();
+
 	return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
 }
 
