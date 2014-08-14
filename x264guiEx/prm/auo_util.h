@@ -25,10 +25,6 @@
 #include "auo.h"
 #include "auo_version.h"
 
-#if (_MSC_VER >= 1600)
-#include <immintrin.h>
-#endif
-
 //日本語環境の一般的なコードページ一覧
 enum : DWORD {
 	CODE_PAGE_SJIS        = 932, //Shift-JIS
