@@ -720,6 +720,6 @@ void guiEx_settings::clear_append() {
 }
 
 void guiEx_settings::apply_fn_replace(char *target_filename, DWORD nSize) {
-	for each (auto i_rep in fn_rep)
+	for (auto i_rep : fn_rep)
 		replace(target_filename, nSize, i_rep.from, i_rep.to);
 }

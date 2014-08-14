@@ -929,7 +929,7 @@ static void check_values_from_mediainfo(const std::vector<CMD_ARG> &cmd_arg_list
 	BOOL keyint_min_from_mediainfo = FALSE;
 	BOOL chroma_qp_offset_from_mediainfo = FALSE;
 	//2重に指定された場合などを考え、一度すべて見てみてから判定
-	for each (auto arg in cmd_arg_list) {
+	for (auto arg : cmd_arg_list) {
 		if (arg.ret) {
 			if        (NULL == strcmp(arg.option_name, "chroma_qp_offset")) {
 				chroma_qp_offset_from_mediainfo = arg.type_mediainfo;
@@ -990,7 +990,7 @@ void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_
 		//そこで一時領域を確保する
 		char * const tmp = (char *)calloc((cmd_len + 1) * sizeof(tmp[0]), 1);
 		size_t new_len = 0;
-		for each (auto arg in cmd_arg_list) {
+		for (auto arg : cmd_arg_list) {
 			//正常に読み込まれていない、かつMediaInfoの書式でないものを再構成する
 			if (!arg.ret && !arg.type_mediainfo) {
 				new_len += sprintf_s(tmp + new_len, cmd_len+1 - new_len, "%s%s%s",
@@ -1168,7 +1168,7 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
 	memcpy(cmd, cmd_src, (cmd_len + 1) * sizeof(cmd[0]));
 	set_setting_list();
 	parse_arg(cmd, cmd_len, cmd_arg_list);
-	for each (auto arg in cmd_arg_list) {
+	for (auto arg : cmd_arg_list) {
 		if (arg.arg_type == target_arg_type) {
 			if (NULL == strcmp(arg.option_name, target_option_name)) {
 				if (arg.value) {

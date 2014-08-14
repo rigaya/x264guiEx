@@ -267,12 +267,12 @@ BOOL SetThreadPriorityForModule(DWORD TargetProcessId, const char *TargetModule,
 	BOOL ret = TRUE;
 	std::vector<DWORD> thread_list = GetThreadList(TargetProcessId);
 	std::vector<MODULEENTRY32> module_list = GetModuleList(TargetProcessId);
-	for each (auto thread_id in thread_list) {
+	for (auto thread_id : thread_list) {
 		void *thread_address = GetThreadBeginAddress(thread_id);
 		if (!thread_address) {
 			ret = FALSE;
 		} else {
-			for each (auto i_module in module_list) {
+			for (auto i_module : module_list) {
 				if (   check_range(thread_address, i_module.modBaseAddr, i_module.modBaseAddr + i_module.modBaseSize - 1)
 					&& (NULL == TargetModule || NULL == _strnicmp(TargetModule, i_module.szModule, strlen(TargetModule)))) {
 					ret &= !!SetThreadPriorityFromThreadId(thread_id, ThreadPriority);
@@ -297,12 +297,12 @@ BOOL SetThreadAffinityForModule(DWORD TargetProcessId, const char *TargetModule,
 	BOOL ret = TRUE;
 	std::vector<DWORD> thread_list = GetThreadList(TargetProcessId);
 	std::vector<MODULEENTRY32> module_list = GetModuleList(TargetProcessId);
-	for each (auto thread_id in thread_list) {
+	for (auto thread_id : thread_list) {
 		void *thread_address = GetThreadBeginAddress(thread_id);
 		if (!thread_address) {
 			ret = FALSE;
 		} else {
-			for each (auto i_module in module_list) {
+			for (auto i_module : module_list) {
 				if (   check_range(thread_address, i_module.modBaseAddr, i_module.modBaseAddr + i_module.modBaseSize - 1)
 					&& (NULL == TargetModule || NULL == _strnicmp(TargetModule, i_module.szModule, strlen(TargetModule)))) {
 					ret &= !!SetThreadAffinityFromThreadId(thread_id, ThreadAffinityMask);

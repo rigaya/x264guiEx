@@ -274,7 +274,7 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> &keyframe_list, 
 	set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_CONTINUOUS);
 
 	int last_chapter = 0;
-	for each (auto keyframe in keyframe_set) {
+	for (auto keyframe : keyframe_set) {
 		DWORD tm = 0, tm_prev = 0;
 		const int check_start = (std::max)(0, ((keyframe - 300) / 5) * 5);
 		int drop_count = 0;
