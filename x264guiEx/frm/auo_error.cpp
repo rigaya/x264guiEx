@@ -151,6 +151,10 @@ void error_run_process(const char *exe_name, int rp_ret) {
 	}
 }
 
+void error_video_output_thread_start() {
+	write_log_auo_line(LOG_ERROR, "パイプ出力用スレッドの生成に失敗しました。");
+}
+
 void warning_auto_qpfile_failed() {
 	write_log_auo_line(LOG_WARNING, "Aviutlのキーフレーム検出用 qpfileの自動作成に失敗しました。");
 }
