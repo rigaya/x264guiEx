@@ -622,7 +622,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(L"auo [" + log_type[log_type_index] + L"]: " + str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
-				richTextLog->ScrollToCaret();
+				//richTextLog->ScrollToCaret(); //AppendTextにより自動スクロールされるので不要、しかもこれがあるとwineでこける
 				richTextLog->ResumeLayout();
 			}
 		}
@@ -643,7 +643,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				richTextLog->SelectionColor = log_color_text[log_type_index];
 				richTextLog->AppendText(str + L"\n");
 				richTextLog->SelectionStart = richTextLog->Text->Length;
-				richTextLog->ScrollToCaret();
+				//richTextLog->ScrollToCaret(); //AppendTextにより自動スクロールされるので不要、しかもこれがあるとwineでこける
 				richTextLog->ResumeLayout();
 			}
 		}
