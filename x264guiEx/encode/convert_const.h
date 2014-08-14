@@ -111,6 +111,9 @@ ALIGN32_CONST_ARRAY BYTE  Array_SUFFLE_YCP_Y[32] = {
 	0, 1, 6, 7, 12, 13, 2, 3, 8, 9, 14, 15, 4, 5, 10, 11, 
 	0, 1, 6, 7, 12, 13, 2, 3, 8, 9, 14, 15, 4, 5, 10, 11
 };
+ALIGN32_CONST_ARRAY BYTE  Array_SUFFLE_YCP_C[16] = {
+	2, 3, 4, 5, 14, 15, 1, 2, 10, 11, 12, 13, 6, 7, 8, 9
+};
 
 ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = { 
 	{1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3},
