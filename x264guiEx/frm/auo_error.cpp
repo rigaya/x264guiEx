@@ -70,8 +70,13 @@ void error_amp_target_bitrate_too_small(DWORD target_limit) {
 }
 
 void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit) {
-	write_log_auo_line_fmt(LOG_WARNING, "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。", get_target_limit_name(target_limit));
-	write_log_auo_line_fmt(LOG_WARNING, "目標ビットレートを %d kbps -> %d kbpsに変更します。", bitrate_old, bitrate_new);
+	if (bitrate_old < INT_MAX) {
+		write_log_auo_line_fmt(LOG_WARNING, "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。", get_target_limit_name(target_limit));
+		write_log_auo_line_fmt(LOG_WARNING, "目標ビットレートを %d kbps -> %d kbpsに変更します。", bitrate_old, bitrate_new);
+	} else {
+		//INT_MAXは上限確認付crfで使用する
+		write_log_auo_line_fmt(LOG_WARNING, "目標ビットレートを %d kbpsに設定します。", bitrate_new);
+	}
 }
 
 void error_invalid_resolution(BOOL width, int mul, int w, int h) {
@@ -287,19 +292,22 @@ void warning_mux_no_chapter_file() {
 	write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。チャプターはmuxされません。");
 }
 
-void info_amp_result(DWORD status, BOOL retry, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate) {
-	int log_index = (status) ? ((retry) ? LOG_WARNING : LOG_ERROR) : LOG_INFO;
+void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate) {
+	int log_index = (status) ? ((amp_result) ? LOG_WARNING : LOG_ERROR) : LOG_INFO;
 	write_log_auo_line_fmt(    log_index, "出力ファイルサイズ %.2f MB, ファイルビットレート %.2f kbps", filesize / (double)(1024*1024), file_bitrate);
 	if (status & AMPLIMIT_FILE_SIZE)
 		write_log_auo_line_fmt(log_index, "上限ファイルサイズ %.2f MB を上回ってしまいました。", limit_filesize);
 	if (status & AMPLIMIT_BITRATE)
 		write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。", limit_filebitrate);
-	if (status && retry)
-		write_log_auo_line_fmt(log_index, "目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
+	if (status && amp_result)
+		if (amp_result == 2)
+			write_log_auo_line_fmt(log_index, "音声目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
+		else if (new_bitrate < INT_MAX) //INT_MAXは上限確認付crfで使用する
+			write_log_auo_line_fmt(log_index, "映像目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
 
 	if (!status)
 		write_log_auo_line_fmt(log_index, "指定された上限を下回っていることを確認しました。");
-	else if (!retry)
+	else if (!amp_result)
 		write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限を上回ってしまいました。目標ビットレートを見なおしてください。", retry_count);
 }
 

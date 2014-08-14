@@ -443,7 +443,7 @@ System::Void frmConfig::fcgArrangeForAutoMultiPass(bool enable) {
 System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 	int index = fcgCXX264Mode->SelectedIndex;
 	cnf_fcgTemp->rc_mode = x264_encmode_to_RCint[index];
-	cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5);
+	cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5 || fcgCXX264Mode->SelectedIndex == 6);
 	switch (cnf_fcgTemp->rc_mode) {
 		case X264_RC_BITRATE:
 			fcgLBQuality->Text = (fcgCXX264Mode->SelectedIndex == 5) ? L"目標映像ビットレート(kbps)" : L"ビットレート(kbps)";
@@ -500,7 +500,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			break;
 	}
 	fcgNUAutoNPass->Enabled = (fcgCXX264Mode->SelectedIndex == 5);
-	fcgArrangeForAutoMultiPass(fcgNUAutoNPass->Enabled);
+	fcgArrangeForAutoMultiPass(cnf_fcgTemp->use_auto_npass != 0);
 }
 
 System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -1171,7 +1171,7 @@ System::Void frmConfig::ConfToFrm(CONF_X264GUIEX *cnf, bool all) {
 			break;
 		case X264_RC_CRF:
 		default:
-			fcgCXX264Mode->SelectedIndex = 2;
+			fcgCXX264Mode->SelectedIndex = (cx264->use_auto_npass) ? 6 : 2;
 			break;
 	}
 	fcgCXX264Mode_SelectedIndexChanged(nullptr, nullptr); //こいつをやっとかないと更新されないこともある
@@ -1605,9 +1605,13 @@ System::Void frmConfig::SetHelpToolTips() {
 		+ L"   " + String(x264_encodemode_desc[3]).ToString()->Replace(L"マルチパス - ", L"") + L"\t … --pass 1 --bitrate\n"
 		+ L"   " + String(x264_encodemode_desc[4]).ToString()->Replace(L"マルチパス - ", L"") + L"\t … --pass 3 --bitrate\n"
 		+ L"\n"
-		+ L"【自動マルチパス】\n"
+		+ L"【" + String(x264_encodemode_desc[5]).ToString() + L"】\n"
 		+ L"    マルチパス出力(1pass → npass)を自動で行います。\n"
 		+ L"    --pass 1/3 --bitrate"
+		+ L"\n"
+		+ L"【" + String(x264_encodemode_desc[6]).ToString() + L"】\n"
+		+ L"    品質基準VBR (crf)でのエンコード後、ファイルサイズ・ビットレートを確認します。\n"
+		+ L"    --crf"
 		);
 	fcgTTX264->SetToolTip(fcgCBNulOut,            L"-o nul");
 	fcgTTX264->SetToolTip(fcgCBFastFirstPass,     L"--slow-firstpass (チェックオフ時)");

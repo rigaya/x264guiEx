@@ -55,6 +55,12 @@ enum {
 	YC48_COLMAT_CONV_BT709,
 };
 
+enum {
+	AUTO_NPASS_NONE = 0,
+	AUTO_NPASS_AMP,
+	AUTO_NPASS_CRF,
+};
+
 //x264のinput-cspとして使用するもの
 //OUT_CSP_NV12, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 static const char * const specify_csp[] = {

@@ -60,7 +60,7 @@ void error_check_muxout_exist();
 void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB);
 void warning_failed_check_muxout_filesize();
 void warning_amp_failed();
-void info_amp_result(DWORD status, BOOL retry, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate);
+void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate);
 
 void warning_no_auto_save_log_dir();
 

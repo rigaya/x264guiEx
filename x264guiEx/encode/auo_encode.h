@@ -24,6 +24,8 @@
 
 static const char * const PIPE_FN = "-";
 
+static const char * const VID_FILE_APPENDIX = "_vid";
+
 typedef AUO_RESULT (*encode_task) (CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
 
 void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe); //音声一時ファイル名を作成
@@ -43,7 +45,7 @@ double get_duration(const CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, cons
 
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi);
 
-AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip);
+int amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip);
 
 int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache);
 void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_cache);

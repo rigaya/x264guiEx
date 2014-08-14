@@ -402,7 +402,10 @@ AUO_RESULT mux(const CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 		ret |= check_muxout_filesize(muxout, expected_filesize);
 		if (ret == AUO_RESULT_SUCCESS) {
 			if (enable_vid_mux) {
-				remove(pe->temp_filename);
+				apply_appendix(pe->muxed_vid_filename, _countof(pe->muxed_vid_filename), pe->temp_filename, VID_FILE_APPENDIX);
+				strcat_s(pe->muxed_vid_filename, _countof(pe->muxed_vid_filename), PathFindExtension(pe->temp_filename));
+				if (PathFileExists(pe->muxed_vid_filename)) remove(pe->muxed_vid_filename);
+				rename(pe->temp_filename, pe->muxed_vid_filename);
 				change_ext(pe->temp_filename, _countof(pe->temp_filename), mux_stg->out_ext); //拡張子を変更
 				if (PathFileExists(pe->temp_filename)) remove(pe->temp_filename);
 				rename(muxout, pe->temp_filename);

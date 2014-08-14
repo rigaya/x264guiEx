@@ -201,6 +201,7 @@ const WCHAR * const x264_encodemode_desc[] = {
 	L"マルチパス - 1pass",
 	L"マルチパス - Npass",
 	L"自動マルチパス",
+	L"上限確認付 品質基準VBR(可変レート)",
 	NULL
 };
 
@@ -211,6 +212,7 @@ const int x264_encmode_to_RCint[] = {
 	X264_RC_BITRATE,
 	X264_RC_BITRATE,
 	X264_RC_BITRATE,
+	X264_RC_CRF,
 	NULL
 };
 

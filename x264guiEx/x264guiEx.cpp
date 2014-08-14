@@ -153,7 +153,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 	if (!sys_dat.exstg->get_init_success()) return FALSE;
 
 	//ログウィンドウを開く
-	open_log_window(oip->savefile, 1, (conf.x264.use_auto_npass) ? conf.x264.auto_npass : 1);
+	open_log_window(oip->savefile, 1, (conf.x264.use_auto_npass && conf.x264.rc_mode == X264_RC_BITRATE) ? conf.x264.auto_npass : 1);
 	set_prevent_log_close(TRUE); //※1 start
 
 	//各種設定を行う
@@ -168,10 +168,11 @@ BOOL func_output( OUTPUT_INFO *oip )
 		for (int i = 0; !ret && i < 2; i++)
 			ret |= task[conf.aud.audio_encode_timing][i](&conf, oip, &pe, &sys_dat);
 
+		int amp_result = 1;
 		do {
-			if (!ret) ret |= video_output(&conf, oip, &pe, &sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
+			if (!ret) ret |= task[0][amp_result-1](&conf, oip, &pe, &sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
 			if (!ret) ret |= mux(&conf, oip, &pe, &sys_dat);
-		} while (!ret && AUO_RESULT_WARNING == amp_check_file(&conf, &sys_dat, &pe, oip)); //再エンコードの必要があるかをチェック
+		} while (!ret && 0 < (amp_result = amp_check_file(&conf, &sys_dat, &pe, oip))); //再エンコードの必要があるかをチェック
 
 		ret |= move_temporary_files(&conf, &pe, &sys_dat, oip, ret);
 
@@ -387,7 +388,7 @@ void open_log_window(const char *savefile, int current_pass, int total_pass) {
 	char mes[MAX_PATH_LEN + 512];
 	char *newLine = (get_current_log_len(current_pass)) ? "\r\n\r\n" : ""; //必要なら行送り
 	static const char *SEPARATOR = "------------------------------------------------------------------------------------------------------------------------------";
-	if (total_pass < 2)
+	if (total_pass < 2 || current_pass > total_pass)
 		sprintf_s(mes, sizeof(mes), "%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile, SEPARATOR);
 	else
 		sprintf_s(mes, sizeof(mes), "%s%s\r\n[%s] (%d / %d pass)\r\n%s", newLine, SEPARATOR, savefile, current_pass, total_pass, SEPARATOR);
@@ -438,7 +439,7 @@ static void set_enc_prm(PRM_ENC *pe, const OUTPUT_INFO *oip) {
 	
 	pe->video_out_type = check_video_ouput(&conf, oip);
 	pe->muxer_to_be_used = check_muxer_to_be_used(&conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
-	pe->total_x264_pass = (conf.x264.use_auto_npass && !conf.oth.disable_guicmd) ? conf.x264.auto_npass : 1;
+	pe->total_x264_pass = (conf.x264.use_auto_npass && conf.x264.rc_mode == X264_RC_BITRATE && !conf.oth.disable_guicmd) ? conf.x264.auto_npass : 1;
 	pe->amp_x264_pass_limit = pe->total_x264_pass + sys_dat.exstg->s_local.amp_retry_limit;
 	pe->current_x264_pass = 1;
 	pe->drop_count = 0;

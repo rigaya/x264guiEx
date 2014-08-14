@@ -28,6 +28,7 @@ static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
 static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
 static const double DEFAULT_AMP_MARGIN            = 0.05;
+static const double DEFAULT_AMP_REENC_AUDIO_MULTI = 0.10;
 static const BOOL   DEFAULT_AMP_KEEP_OLD_FILE     = 0;
 static const BOOL   DEFAULT_RUN_BAT_MINIMIZED     = 0;
 
@@ -248,6 +249,7 @@ typedef struct {
 	AUO_FONT_INFO conf_font;                    //設定画面のフォント
 	int    amp_retry_limit;                     //自動マルチパス試行回数制限
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
+	double amp_reenc_audio_multi;               //自動マルチパスで、音声側を再エンコしてビットレート調整をする上限倍率
 	BOOL   amp_keep_old_file;                   //自動マルチパスで、上限を超えてしまったファイルを削除しない
 	BOOL   get_relative_path;                   //相対パスで保存する
 	BOOL   run_bat_minimized;                   //エンコ前後バッチ処理を最小化で実行

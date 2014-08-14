@@ -34,18 +34,19 @@ typedef struct ALIGN_PTR {
 } AUD_PARALLEL_ENC;
 
 typedef struct {
-	AUD_PARALLEL_ENC aud_parallel;      //音声並列処理の管理
-	int video_out_type;                 //出力する動画のフォーマット(拡張子により判断)
-	int muxer_to_be_used;               //使用するmuxerのインデックス
-	int current_x264_pass;              //現在のx264パス数
-	int total_x264_pass;                //最大x264パス数
-	int amp_x264_pass_limit;            //自動マルチパス時に再エンコードをトライするときのパス数上限
-	int drop_count;                     //ドロップ数
-	BOOL afs_init;                      //動画入力の準備ができているか
-	HANDLE h_p_aviutl;                  //優先度取得用のAviutlのハンドル
-	char temp_filename[MAX_PATH_LEN];   //一時ファイル名
-	char aud_temp_dir[MAX_PATH_LEN];    //音声一時ディレクトリ
-	FILE_APPENDIX append;               //ファイル名に追加する文字列のリスト
+	AUD_PARALLEL_ENC aud_parallel;         //音声並列処理の管理
+	int video_out_type;                    //出力する動画のフォーマット(拡張子により判断)
+	int muxer_to_be_used;                  //使用するmuxerのインデックス
+	int current_x264_pass;                 //現在のx264パス数
+	int total_x264_pass;                   //最大x264パス数
+	int amp_x264_pass_limit;               //自動マルチパス時に再エンコードをトライするときのパス数上限
+	int drop_count;                        //ドロップ数
+	BOOL afs_init;                         //動画入力の準備ができているか
+	HANDLE h_p_aviutl;                     //優先度取得用のAviutlのハンドル
+	char temp_filename[MAX_PATH_LEN];      //一時ファイル名
+	char muxed_vid_filename[MAX_PATH_LEN]; //mux後に退避された動画のみファイル
+	char aud_temp_dir[MAX_PATH_LEN];       //音声一時ディレクトリ
+	FILE_APPENDIX append;                  //ファイル名に追加する文字列のリスト
 } PRM_ENC;
 
 typedef struct {
