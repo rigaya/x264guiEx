@@ -405,7 +405,7 @@ static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
 //AUO_RESULT_ERROR    … チェックできない
 //AUO_REESULT_WARNING … 再エンコの必要あり
 AUO_RESULT amp_check_file(CONF_X264GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip) {
-	if (!conf->x264.use_auto_npass || !conf->vid.amp_check)
+	if (!conf->x264.use_auto_npass || !conf->vid.amp_check || conf->oth.out_audio_only)
 		return AUO_RESULT_SUCCESS;
 	//チェックするファイル名を取得
 	char muxout[MAX_PATH_LEN];
