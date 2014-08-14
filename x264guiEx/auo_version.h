@@ -1,5 +1,5 @@
 ﻿//  -----------------------------------------------------------------------------------------
-//    拡張 x264 出力(GUI) Ex  v1.xx by rigaya
+//    拡張 x264 出力(GUI) Ex  v1.xx/2.xx by rigaya
 //  -----------------------------------------------------------------------------------------
 //   ソースコードについて
 //   ・無保証です。
@@ -10,8 +10,8 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION          0,1,75,0
-#define AUO_VERSION_STR      "1.75"
+#define AUO_VERSION          0,2,00,1
+#define AUO_VERSION_STR      "2.00"
 #define AUO_NAME_WITHOUT_EXT "x264guiEx"
 #define AUO_NAME             "x264guiEx.auo"
 #define AUO_NAME_W          L"x264guiEx.auo"

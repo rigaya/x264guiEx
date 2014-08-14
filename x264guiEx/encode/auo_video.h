@@ -1,5 +1,5 @@
 ﻿//  -----------------------------------------------------------------------------------------
-//    拡張 x264 出力(GUI) Ex  v1.xx by rigaya
+//    拡張 x264 出力(GUI) Ex  v1.xx/2.xx by rigaya
 //  -----------------------------------------------------------------------------------------
 //   ソースコードについて
 //   ・無保証です。
@@ -23,12 +23,14 @@ enum {
 	CF_YUY2 = 0,
 	CF_YC48 = 1,
 	CF_RGB  = 2,
+	CF_LW48 = 3,
 };
-static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB" };
+static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB", "LW48" };
 static const COLORFORMAT_DATA COLORFORMATS[] = {
 	{ MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
 	{ MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48
-	{ NULL,                           3 }  //RGB
+	{ NULL,                           3 }, //RGB
+	{ MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
 };
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable);

@@ -267,5 +267,8 @@
     <EmbeddedResource Include="frm\frmSetTransparency.resx">
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
+    <EmbeddedResource Include="frm\frmSetLogColor.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
