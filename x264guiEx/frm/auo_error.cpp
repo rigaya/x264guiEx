@@ -105,6 +105,19 @@ void error_no_exe_file(const char *name, const char *path) {
 	write_log_auo_line_fmt(LOG_ERROR, "%s を用意し、その場所を設定画面から正しく指定してください。", name);
 }
 
+void error_mp4_muxer_unmatch_of_ini_and_exe(BOOL exe_file_is_lsmash) {
+	static const char *MUXER_TYPE[] = { "mp4box", "L-SMASH" };
+	static const char *MUXER_STR1[] = { "mp4 muxの実行ファイル", "iniファイル" };
+	static const char *MUXER_STR2[] = { "", "用" };
+	static const char *MUXER_STR3[] = { "に指定しなおしてください。", "で上書きしてください。" };
+	write_log_auo_line_fmt(LOG_ERROR, "指定されたmp4 muxerとini設定ファイルのmuxerの種類が一致していません。ini: %s,  指定されたexe: %s",
+		MUXER_TYPE[!exe_file_is_lsmash], MUXER_TYPE[!!exe_file_is_lsmash]);
+	write_log_auo_line_fmt(LOG_ERROR, "L-SMASH(muxer, remuxer)を使用したい場合には、%sをL-SMASH%s%s",
+		MUXER_STR1[!!exe_file_is_lsmash], MUXER_STR2[!!exe_file_is_lsmash], MUXER_STR3[!!exe_file_is_lsmash]);
+	write_log_auo_line_fmt(LOG_ERROR, "mp4boxを使用したい場合には、%sをmp4box%s%s",
+		MUXER_STR1[!exe_file_is_lsmash], MUXER_STR2[!exe_file_is_lsmash], MUXER_STR3[!exe_file_is_lsmash]);
+}
+
 void warning_auto_afs_disable() {
 	write_log_line(LOG_WARNING, ""
 		"auo [warning]: Aviutlからの映像入力の初期化に失敗したため、\n"

@@ -27,6 +27,7 @@ void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_l
 void error_invalid_resolution(BOOL width, int mul, int w, int h);
 void error_log_line_cache();
 void error_no_exe_file(const char *name, const char *path);
+void error_mp4_muxer_unmatch_of_ini_and_exe(BOOL exe_file_is_lsmash);
 void warning_auto_afs_disable();
 void error_afs_setup(BOOL afs, BOOL auto_afs_disable);
 void error_run_process(const char *exe_name, int rp_ret);

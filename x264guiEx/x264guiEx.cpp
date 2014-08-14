@@ -287,6 +287,43 @@ static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg) {
 	return FALSE;
 }
 
+static BOOL check_if_exe_is_mp4box(const char *exe_path, const char *version_arg) {
+	BOOL ret = FALSE;
+	char exe_message[8192] = { 0 };
+	if (   PathFileExists(exe_path)
+		&& RP_SUCCESS == get_exe_message(exe_path, version_arg, exe_message, _countof(exe_message), AUO_PIPE_MUXED)
+		&& (stristr(exe_message, "mp4box") || stristr(exe_message, "GPAC"))) {
+		ret = TRUE;
+	}
+	return ret;
+}
+
+static BOOL check_if_exe_is_lsmash(const char *exe_path, const char *version_arg) {
+	BOOL ret = FALSE;
+	char exe_message[8192] = { 0 };
+	if (   PathFileExists(exe_path)
+		&& RP_SUCCESS == get_exe_message(exe_path, version_arg, exe_message, _countof(exe_message), AUO_PIPE_MUXED)
+		&& stristr(exe_message, "L-SMASH")) {
+		ret = TRUE;
+	}
+	return ret;
+}
+
+static BOOL check_muxer_matched_with_ini() {
+	BOOL ret = TRUE;
+	//不確定な場合は"0", mp4boxなら"-1", L-SMASHなら"1"
+	int ini_muxer_mode = (NULL != stristr(sys_dat.exstg->s_mux[MUXER_MP4].filename, "remuxer"))
+		               - (NULL != stristr(sys_dat.exstg->s_mux[MUXER_MP4].filename, "mp4box"));
+	int exe_muxer_mode = (FALSE != check_if_exe_is_lsmash(sys_dat.exstg->s_mux[MUXER_MP4].fullpath, "--version"))
+		               - (FALSE != check_if_exe_is_mp4box(sys_dat.exstg->s_mux[MUXER_MP4].fullpath, "-version"));
+	//互いに明確に相反する場合にエラーを出す
+	if (ini_muxer_mode * exe_muxer_mode < 0) {
+		error_mp4_muxer_unmatch_of_ini_and_exe(0 < exe_muxer_mode);
+		ret = FALSE;
+	}
+	return ret;
+}
+
 static BOOL check_amp() {
 	BOOL check = TRUE;
 	if (!conf.x264.use_auto_npass)
@@ -376,6 +413,7 @@ static BOOL check_output(const OUTPUT_INFO *oip, const PRM_ENC *pe) {
 			check &= check_muxer_exist(&sys_dat.exstg->s_mux[MUXER_MP4]); //tc2mp4使用時は追加でmp4boxも必要
 			//下へフォールスルー
 		case MUXER_MP4:
+			check &= check_muxer_matched_with_ini();
 		case MUXER_MKV:
 			check &= check_muxer_exist(&sys_dat.exstg->s_mux[pe->muxer_to_be_used]);
 			break;
