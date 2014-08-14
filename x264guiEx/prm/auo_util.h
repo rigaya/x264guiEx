@@ -453,6 +453,43 @@ static inline void apply_appendix(WCHAR *new_filename, size_t new_filename_size,
 	wcscpy_s(PathFindExtensionW(new_filename), new_filename_size - (PathFindExtensionW(new_filename) - new_filename), appendix);
 }
 
+static inline void insert_before_ext(char *filename, size_t nSize, const char *insert_str) {
+	char *ext = PathFindExtensionA(filename);
+	if (ext == NULL)
+		strcat_s(filename, nSize, insert_str);
+	else {
+		const size_t insert_len = strlen(insert_str);
+		const size_t filename_len = strlen(filename);
+		if (nSize > filename_len + insert_len) {
+			memmove(ext + insert_len, ext, sizeof(insert_str[0]) * (strlen(ext)+1));
+			memcpy(ext, insert_str, sizeof(insert_str[0]) * insert_len);
+		}
+	}
+}
+static inline void insert_before_ext(WCHAR *filename, size_t nSize, const WCHAR *insert_str) {
+	WCHAR *ext = PathFindExtensionW(filename);
+	if (ext == NULL)
+		wcscat_s(filename, nSize, insert_str);
+	else {
+		const size_t insert_len = wcslen(insert_str);
+		const size_t filename_len = wcslen(filename);
+		if (nSize > filename_len + insert_len) {
+			memmove(ext + insert_len, ext, sizeof(insert_str[0]) * (wcslen(ext)+1));
+			memcpy(ext, insert_str, sizeof(insert_str[0]) * insert_len);
+		}
+	}
+}
+static inline void insert_before_ext(char *filename, size_t nSize, int insert_num) {
+	char tmp[22];
+	sprintf_s(tmp, _countof(tmp), "%d", insert_num);
+	insert_before_ext(filename, nSize, tmp);
+}
+static inline void insert_before_ext(WCHAR *filename, size_t nSize, int insert_num) {
+	WCHAR tmp[22];
+	swprintf_s(tmp, _countof(tmp), L"%d", insert_num);
+	insert_before_ext(filename, nSize, tmp);
+}
+
 //拡張子が一致するか確認する
 static inline BOOL check_ext(const char *filename, const char *ext) {
 	return (_stricmp(PathFindExtensionA(filename), ext) == NULL) ? TRUE : FALSE;
