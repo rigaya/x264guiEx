@@ -115,6 +115,15 @@
     <ClCompile Include="prm\auo_conf_convert.cpp">
       <Filter>ソース ファイル\prm</Filter>
     </ClCompile>
+    <ClCompile Include="encode\convert_sse2.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="encode\convert_sse41.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
+    <ClCompile Include="encode\convert_ssse3.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="x264guiEx.def">
@@ -241,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="frm\frmSetLogColor.h">
       <Filter>フォーム</Filter>
+    </ClInclude>
+    <ClInclude Include="encode\convert_simd.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -706,13 +706,13 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
 	const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
-	const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
+	const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
 	if (convert_frame == NULL) {
 		ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
 		return ret;
 	}
 	//映像バッファ用メモリ確保
-	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, conf->x264.use_highbit_depth)) {
+	if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, (conf->x264.use_highbit_depth) ? 16 : 8)) {
 		ret |= AUO_RESULT_ERROR; error_malloc_pixel_data();
 		return ret;
 	}
@@ -724,8 +724,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
 	//x264バージョン情報表示・チェック
 	if (AUO_RESULT_ERROR == write_log_x264_version(x264fullpath)) {
-		ret |= AUO_RESULT_ERROR; error_x264_version();
-		return ret;
+		return (ret | AUO_RESULT_ERROR);
 	}
 
 	//コマンドライン生成
