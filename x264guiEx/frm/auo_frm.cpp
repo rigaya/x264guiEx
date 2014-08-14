@@ -81,6 +81,27 @@ static int write_log_enc_mes_line(char *const mes, LOG_CACHE *cache_line) {
 	return mes_len;
 }
 
+void set_reconstructed_title_mes(const char *mes, int total_drop, int current_frames) {
+	double progress = 0, fps = 0, bitrate = 0;
+	int i_frame = 0, total_frame = 0;
+	int remain_time[3] = { 0 }, elapsed_time[3] = { 0 };
+	char buffer[1024] = { 0 };
+	const char *ptr = buffer;
+	if ('[' == mes[0]
+		&& 11 == sscanf_s(mes, "[%lf%%] %d/%d %lf %lf %d:%d:%d %d:%d:%d",
+			&progress, &i_frame, &total_frame, &fps, &bitrate,
+			&remain_time[0], &remain_time[1], &remain_time[2],
+			&elapsed_time[0], &elapsed_time[1], &elapsed_time[2])) {
+		sprintf_s(buffer, _countof(buffer), "[%3.1lf%%] %d/%d frames, %.2lf fps, %.2lf kb/s, eta %d:%02d:%02d",
+			progress, i_frame, total_frame, fps, bitrate, elapsed_time[0], elapsed_time[1], elapsed_time[2]);
+	} else if (3 == sscanf_s(mes, "%d %lf %lf", &i_frame, &fps, &bitrate)) {
+		sprintf_s(buffer, _countof(buffer), "%d frames, %.2lf fps, %.2lf kb/s", i_frame, fps, bitrate);
+	} else {
+		ptr = mes;
+	}
+	set_window_title_enc_mes(ptr, total_drop, current_frames);
+}
+
 void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames) {
 	char *a, *b, *mes = msg;
 	char * const fin = mes + *log_len; //null文字の位置
@@ -99,7 +120,11 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
 		*(b+1) = '\0';
 		if ((b = strrchr(mes, '\r', b - mes - 2)) != NULL)
 			mes = b + 1;
-		set_window_title_enc_mes(mes, total_drop, current_frames);
+		if (NULL == strstr(mes, "frames")) {
+			set_reconstructed_title_mes(mes, total_drop, current_frames);
+		} else {
+			set_window_title_enc_mes(mes, total_drop, current_frames);
+		}
 		mes = a + 1;
 	}
 	if (mes == msg && *log_len)
