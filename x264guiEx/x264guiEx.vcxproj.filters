@@ -109,6 +109,9 @@
     <ClCompile Include="frm\frmLog.cpp">
       <Filter>フォーム</Filter>
     </ClCompile>
+    <ClCompile Include="encode\convert_avx2.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="x264guiEx.def">

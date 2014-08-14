@@ -128,9 +128,27 @@ ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = {
 
 #define xC_INTERLACE_WEIGHT(i) _mm_load_si128((__m128i*)Array_INTERLACE_WEIGHT[i])
 
-#define MASK_YCP2Y       _mm_load_si128((__m128i*)Array_MASK_YCP2Y)
-#define MASK_YCP2UV      _mm_load_si128((__m128i*)Array_MASK_YCP2UV)
-#define SUFFLE_YCP_Y     _mm_load_si128((__m128i*)Array_SUFFLE_YCP_Y)
-//#define SUFFLE_YCP_UV = _mm_set_epi8( 9,  8,  7,  6, 13, 12, 11, 10,  1,  0, 15, 14,  5,  4,  3 ,  2);
+#define xC_MASK_YCP2Y       _mm_load_si128((__m128i*)Array_MASK_YCP2Y)
+#define xC_MASK_YCP2UV      _mm_load_si128((__m128i*)Array_MASK_YCP2UV)
+#define xC_SUFFLE_YCP_Y     _mm_load_si128((__m128i*)Array_SUFFLE_YCP_Y)
+
+#define yC_Y_L_MA_8           _mm256_load_si256((__m256i*) Array_Y_L_MA_8)
+#define yC_UV_L_MA_8_420P     _mm256_load_si256((__m256i*)Array_UV_L_MA_8_420P)
+#define yC_UV_L_MA_8_420I(i)  _mm256_load_si256((__m256i*)Array_UV_L_MA_8_420I[i])
+#define yC_UV_L_MA_8_444      _mm256_load_si256((__m256i*)Array_UV_L_MA_8_444)
+#define  yC_Y_L_MA_16         _mm256_load_si256((__m256i*) Array_Y_L_MA_16)
+#define yC_UV_L_MA_16_420P    _mm256_load_si256((__m256i*)Array_UV_L_MA_16_420P)
+#define yC_UV_L_MA_16_420I(i) _mm256_load_si256((__m256i*)Array_UV_L_MA_16_420I[i])
+#define yC_UV_L_MA_16_444     _mm256_load_si256((__m256i*)Array_UV_L_MA_16_444)
+#define  yC_Y_F_MA_16         _mm256_load_si256((__m256i*) Array_Y_F_MA_16)
+#define yC_UV_F_MA_16_420P    _mm256_load_si256((__m256i*)Array_UV_F_MA_16_420P)
+#define yC_UV_F_MA_16_420I(i) _mm256_load_si256((__m256i*)Array_UV_F_MA_16_420I[i])
+#define yC_UV_F_MA_16_444     _mm256_load_si256((__m256i*)Array_UV_F_MA_16_444)
+
+#define yC_INTERLACE_WEIGHT(i) _mm256_load_si256((__m256i*)Array_INTERLACE_WEIGHT[i])
+
+#define yC_MASK_YCP2Y       _mm256_load_si256((__m256i*)Array_MASK_YCP2Y)
+#define yC_MASK_YCP2UV      _mm256_load_si256((__m256i*)Array_MASK_YCP2UV)
+#define yC_SUFFLE_YCP_Y     _mm256_load_si256((__m256i*)Array_SUFFLE_YCP_Y)
 
 #endif //_CONVERT_CONST_H_

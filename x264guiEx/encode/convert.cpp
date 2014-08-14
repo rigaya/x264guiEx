@@ -227,6 +227,7 @@ void convert_yuy2_to_nv12(void *frame, CONVERT_CF_DATA *pixel_data, const int wi
 		}
 	}
 }
+
 //これも適当。
 void convert_yuy2_to_nv12_i(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
 	int x, y;
@@ -762,13 +763,13 @@ void convert_yc48_to_nv12_16bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 
 			_mm_prefetch((const char *)ycpw, _MM_HINT_T1);
 
-			x4 = MASK_YCP2Y;
+			x4 = xC_MASK_YCP2Y;
 			x0 = select_by_mask(x1, x2, x4);
 			x7 = _mm_srli_si128(x4, 4);
 			x0 = select_by_mask(x0, x3, x7);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
-			x5 = MASK_YCP2UV;
+			x5 = xC_MASK_YCP2UV;
 			x6 = select_by_mask(x1, x2, x5);
 			x7 = _mm_srli_si128(x5, 4);
 			x6 = select_by_mask(x6, x3, x7); 
@@ -800,7 +801,7 @@ void convert_yc48_to_nv12_16bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 			x0 = select_by_mask(x1, x2, x4);
 			x7 = _mm_srli_si128(x4, 4);
 			x0 = select_by_mask(x0, x3, x7);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x1 = select_by_mask(x1, x2, x5);
 			x7 = _mm_srli_si128(x5, 4);
@@ -871,13 +872,13 @@ void convert_yc48_to_nv12_i_16bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data
 
 				_mm_prefetch((const char *)ycpw, _MM_HINT_T1);
 
-				x4 = MASK_YCP2Y;
+				x4 = xC_MASK_YCP2Y;
 				x0 = select_by_mask(x1, x2, x4);
 				x7 = _mm_srli_si128(x4, 4);
 				x0 = select_by_mask(x0, x3, x7);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
-				x5 = MASK_YCP2UV;
+				x5 = xC_MASK_YCP2UV;
 				x6 = select_by_mask(x1, x2, x5);
 				x7 = _mm_srli_si128(x5, 4);
 				x6 = select_by_mask(x6, x3, x7); 
@@ -909,7 +910,7 @@ void convert_yc48_to_nv12_i_16bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data
 				x0 = select_by_mask(x1, x2, x4);
 				x7 = _mm_srli_si128(x4, 4);
 				x0 = select_by_mask(x0, x3, x7);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x1 = select_by_mask(x1, x2, x5);
 				x7 = _mm_srli_si128(x5, 4);
@@ -985,13 +986,13 @@ void convert_yc48_to_nv12_16bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_d
 
 			_mm_prefetch((const char *)ycpw, _MM_HINT_T1);
 
-			x4 = MASK_YCP2Y;
+			x4 = xC_MASK_YCP2Y;
 			x0 = select_by_mask(x1, x2, x4);
 			x7 = _mm_srli_si128(x4, 4);
 			x0 = select_by_mask(x0, x3, x7);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
-			x5 = MASK_YCP2UV;
+			x5 = xC_MASK_YCP2UV;
 			x6 = select_by_mask(x1, x2, x5);
 			x7 = _mm_srli_si128(x5, 4);
 			x6 = select_by_mask(x6, x3, x7); 
@@ -1023,7 +1024,7 @@ void convert_yc48_to_nv12_16bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel_d
 			x0 = select_by_mask(x1, x2, x4);
 			x7 = _mm_srli_si128(x4, 4);
 			x0 = select_by_mask(x0, x3, x7);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x1 = select_by_mask(x1, x2, x5);
 			x7 = _mm_srli_si128(x5, 4);
@@ -1094,13 +1095,13 @@ void convert_yc48_to_nv12_i_16bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel
 
 				_mm_prefetch((const char *)ycpw, _MM_HINT_T1);
 
-				x4 = MASK_YCP2Y;
+				x4 = xC_MASK_YCP2Y;
 				x0 = select_by_mask(x1, x2, x4);
 				x7 = _mm_srli_si128(x4, 4);
 				x0 = select_by_mask(x0, x3, x7);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
-				x5 = MASK_YCP2UV;
+				x5 = xC_MASK_YCP2UV;
 				x6 = select_by_mask(x1, x2, x5);
 				x7 = _mm_srli_si128(x5, 4);
 				x6 = select_by_mask(x6, x3, x7); 
@@ -1132,7 +1133,7 @@ void convert_yc48_to_nv12_i_16bit_ssse3_mod8(void *pixel, CONVERT_CF_DATA *pixel
 				x0 = select_by_mask(x1, x2, x4);
 				x7 = _mm_srli_si128(x4, 4);
 				x0 = select_by_mask(x0, x3, x7);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x1 = select_by_mask(x1, x2, x5);
 				x7 = _mm_srli_si128(x5, 4);
@@ -1213,7 +1214,7 @@ void convert_yc48_to_nv12_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 
 			x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 			x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x6 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 			x6 = _mm_blend_epi16(x6, x3, MASK_INT_UV>>2);
@@ -1244,7 +1245,7 @@ void convert_yc48_to_nv12_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 
 			x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 			x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x1 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 			x1 = _mm_blend_epi16(x1, x3, MASK_INT_UV>>2); 
@@ -1318,7 +1319,7 @@ void convert_yc48_to_nv12_i_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 
 				x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 				x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x6 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 				x6 = _mm_blend_epi16(x6, x3, MASK_INT_UV>>2);
@@ -1349,7 +1350,7 @@ void convert_yc48_to_nv12_i_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 
 				x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 				x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x1 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 				x1 = _mm_blend_epi16(x1, x3, MASK_INT_UV>>2);
@@ -1428,7 +1429,7 @@ void convert_yc48_to_nv12_16bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 
 			x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 			x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x6 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 			x6 = _mm_blend_epi16(x6, x3, MASK_INT_UV>>2); 
@@ -1459,7 +1460,7 @@ void convert_yc48_to_nv12_16bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixel_
 
 			x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 			x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-			x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+			x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 			x1 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 			x1 = _mm_blend_epi16(x1, x3, MASK_INT_UV>>2); 
@@ -1533,7 +1534,7 @@ void convert_yc48_to_nv12_i_16bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixe
 
 				x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 				x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x6 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 				x6 = _mm_blend_epi16(x6, x3, MASK_INT_UV>>2);
@@ -1564,7 +1565,7 @@ void convert_yc48_to_nv12_i_16bit_sse4_1_mod8(void *pixel, CONVERT_CF_DATA *pixe
 
 				x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 				x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-				x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+				x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 				x1 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 				x1 = _mm_blend_epi16(x1, x3, MASK_INT_UV>>2); 
@@ -2073,7 +2074,7 @@ void convert_yc48_to_yuv444_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_dat
 		x6 = _mm_blend_epi16(x6, x1, MASK_INT<<1);
 		x7 = _mm_blend_epi16(x7, x3, MASK_INT<<1);
 
-		x1 = SUFFLE_YCP_Y;
+		x1 = xC_SUFFLE_YCP_Y;
 		x0 = _mm_shuffle_epi8(x0, x1);
 		x1 = _mm_alignr_epi8(x1, x1, 6);
 		x6 = _mm_shuffle_epi8(x6, x1);
@@ -2375,13 +2376,13 @@ void convert_yc48_to_nv16_16bit_ssse3(void *pixel, CONVERT_CF_DATA *pixel_data, 
 		x2 = _mm_loadu_si128((__m128i *)(ycp +  8));
 		x3 = _mm_loadu_si128((__m128i *)(ycp + 16));
 
-		x4 = MASK_YCP2Y;
+		x4 = xC_MASK_YCP2Y;
 		x0 = select_by_mask(x1, x2, x4);
 		x4 = _mm_srli_si128(x4, 4);
 		x0 = select_by_mask(x0, x3, x4);
-		x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+		x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
-		x4 = MASK_YCP2UV;
+		x4 = xC_MASK_YCP2UV;
 		x1 = select_by_mask(x1, x2, x4);
 		x4 = _mm_srli_si128(x4, 4);
 		x1 = select_by_mask(x1, x3, x4); 
@@ -2442,7 +2443,7 @@ void convert_yc48_to_nv16_16bit_sse4_1(void *pixel, CONVERT_CF_DATA *pixel_data,
 
 		x0 = _mm_blend_epi16(x1, x2, MASK_INT_Y);
 		x0 = _mm_blend_epi16(x0, x3, MASK_INT_Y>>2);
-		x0 = _mm_shuffle_epi8(x0, SUFFLE_YCP_Y);
+		x0 = _mm_shuffle_epi8(x0, xC_SUFFLE_YCP_Y);
 
 		x1 = _mm_blend_epi16(x1, x2, MASK_INT_UV);
 		x1 = _mm_blend_epi16(x1, x3, MASK_INT_UV>>2);
