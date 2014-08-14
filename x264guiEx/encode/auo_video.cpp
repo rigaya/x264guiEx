@@ -140,10 +140,19 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 	} else {
 		fprintf(tcfile, "# timecode format v2\r\n");
 		if (afs) {
+			int time_additional_frame = 0;
+			if (pe->delay_cut_additional_vframe) {
+				const int multi_for_additional_vframe = 4 + !!fps_after_afs_is_24fps(frame_n, pe);
+				for (int i = 0; i < pe->delay_cut_additional_vframe; i++)
+					fprintf(tcfile, "%.6lf\r\n", i * multi_for_additional_vframe * tm_multi);
+
+				time_additional_frame = pe->delay_cut_additional_vframe * multi_for_additional_vframe;
+			}
 			for (int i = 0; i < frame_n; i++)
 				if (jitter[i] != DROP_FRAME_FLAG)
-					fprintf(tcfile, "%.6lf\r\n", (i * 4 + jitter[i]) * tm_multi);
+					fprintf(tcfile, "%.6lf\r\n", (i * 4 + jitter[i] + time_additional_frame) * tm_multi);
 		} else {
+			frame_n += pe->delay_cut_additional_vframe;
 			for (int i = 0; i < frame_n; i++)
 				fprintf(tcfile, "%.6lf\r\n", i * tm_multi);
 		}
@@ -327,8 +336,8 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
 				ret |= AUO_RESULT_ERROR; warning_auto_qpfile_failed();
 			} else {
 				//出力
-				foreach(std::vector<int>, it_keyframe, &keyframe_list)
-					fprintf(qpfile, "%d I\r\n", *it_keyframe);
+				for (auto i_keyframe : keyframe_list)
+					fprintf(qpfile, "%d I\r\n", (i_keyframe) ? i_keyframe + pe->delay_cut_additional_vframe : 0);
 				fclose(qpfile);
 			}
 		}
