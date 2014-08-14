@@ -43,6 +43,17 @@ namespace x264guiEx {
 				delete components;
 			}
 		}
+	//Instanceを介し、ひとつだけ生成
+	private:
+		static frmSetTransparency^ _instance;
+	public:
+		static property frmSetTransparency^ Instance {
+			frmSetTransparency^ get() {
+				if (_instance == nullptr || _instance->IsDisposed)
+					_instance = gcnew frmSetTransparency();
+				return _instance;
+			}
+		}
 	private: System::Windows::Forms::Button^  fstBTDefault;
 	private: System::Windows::Forms::Button^  fstBTOK;
 	private: System::Windows::Forms::Button^  fstBTCancel;
@@ -149,16 +160,20 @@ namespace x264guiEx {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fstBTCancel;
 			this->ClientSize = System::Drawing::Size(332, 115);
-			this->ControlBox = false;
 			this->Controls->Add(this->fstLBTransparency);
 			this->Controls->Add(this->fstNUTransparency);
 			this->Controls->Add(this->fstTBTransparency);
 			this->Controls->Add(this->fstBTCancel);
 			this->Controls->Add(this->fstBTOK);
 			this->Controls->Add(this->fstBTDefault);
+			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
 			this->KeyPreview = true;
+			this->MaximizeBox = false;
+			this->MinimizeBox = false;
 			this->Name = L"frmSetTransparency";
+			this->ShowIcon = false;
 			this->Text = L"透過率の指定 (上限 90%)";
 			this->Load += gcnew System::EventHandler(this, &frmSetTransparency::frmSetTransparency_Load);
 			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &frmSetTransparency::frmSetTransparency_FormClosed);
@@ -170,17 +185,6 @@ namespace x264guiEx {
 
 		}
 #pragma endregion
-	//Instanceを介し、ひとつだけ生成
-	private:
-		static frmSetTransparency^ _instance;
-	public:
-		static property frmSetTransparency^ Instance {
-			frmSetTransparency^ get() {
-				if (_instance == nullptr || _instance->IsDisposed)
-					_instance = gcnew frmSetTransparency();
-				return _instance;
-			}
-		}
 	private:
 		int last_transparency;
 	private:

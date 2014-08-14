@@ -42,6 +42,17 @@ namespace x264guiEx {
 				delete components;
 			}
 		}
+	//Instanceを介し、ひとつだけ生成
+	private:
+		static frmSetLogColor^ _instance;
+	public:
+		static property frmSetLogColor^ Instance {
+			frmSetLogColor^ get() {
+				if (_instance == nullptr || _instance->IsDisposed)
+					_instance = gcnew frmSetLogColor();
+				return _instance;
+			}
+		}
 	private: System::Windows::Forms::Button^  fscBTOK;
 	protected: 
 	private: System::Windows::Forms::Button^  fscBTCancel;
@@ -197,7 +208,6 @@ namespace x264guiEx {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
 			this->CancelButton = this->fscBTCancel;
 			this->ClientSize = System::Drawing::Size(352, 224);
-			this->ControlBox = false;
 			this->Controls->Add(this->fcsTXColorTextError);
 			this->Controls->Add(this->fcsTXColorTextWarning);
 			this->Controls->Add(this->fcsTXColorTextInfo);
@@ -207,9 +217,14 @@ namespace x264guiEx {
 			this->Controls->Add(this->fscBTDefault);
 			this->Controls->Add(this->fscBTCancel);
 			this->Controls->Add(this->fscBTOK);
+			this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
 			this->KeyPreview = true;
+			this->MaximizeBox = false;
+			this->MinimizeBox = false;
 			this->Name = L"frmSetLogColor";
+			this->ShowIcon = false;
 			this->Text = L"各ボックスをクリックして色を変更...";
 			this->Load += gcnew System::EventHandler(this, &frmSetLogColor::frmSetLogColor_Load);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmSetLogColor::frmSetLogColor_KeyDown);
@@ -218,17 +233,6 @@ namespace x264guiEx {
 
 		}
 #pragma endregion
-	//Instanceを介し、ひとつだけ生成
-	private:
-		static frmSetLogColor^ _instance;
-	public:
-		static property frmSetLogColor^ Instance {
-			frmSetLogColor^ get() {
-				if (_instance == nullptr || _instance->IsDisposed)
-					_instance = gcnew frmSetLogColor();
-				return _instance;
-			}
-		}
 	public:
 		Color colorBackGround;
 		Color colorInfo;
