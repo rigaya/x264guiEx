@@ -606,7 +606,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 
 static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
 	UINT64 filesize_limit = MAXUINT64;
-	if (conf->x264.auto_npass) {
+	if (conf->x264.use_auto_npass) {
 		//上限ファイルサイズのチェック
 		if (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) {
 			filesize_limit = min(filesize_limit, (UINT64)(conf->vid.amp_limit_file_size*1024*1024));
