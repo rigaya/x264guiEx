@@ -28,6 +28,7 @@ static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
 static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const BOOL   DEFAULT_CHAP_NERO_TO_UTF8     = 0;
+static const BOOL   DEFAULT_AUDIO_ENCODER         = 8;
 static const int    DEFAULT_AMP_RETRY_LIMIT       = 3;
 static const double DEFAULT_AMP_MARGIN            = 0.05;
 static const double DEFAULT_AMP_REENC_AUDIO_MULTI = 0.10;
@@ -252,6 +253,7 @@ typedef struct {
 	BOOL   disable_visual_styles;               //視覚効果をオフにする
 	BOOL   enable_stg_esc_key;                  //設定画面でEscキーを有効化する
 	AUO_FONT_INFO conf_font;                    //設定画面のフォント
+	int    default_audio_encoder;               //デフォルトの音声エンコーダ
 	int    amp_retry_limit;                     //自動マルチパス試行回数制限
 	double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
 	double amp_reenc_audio_multi;               //自動マルチパスで、音声側を再エンコしてビットレート調整をする上限倍率

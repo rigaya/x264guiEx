@@ -255,6 +255,7 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
 	ZeroMemory(conf, sizeof(CONF_GUIEX));
 	guiEx_config::write_conf_header(conf);
 	get_default_conf_x264(&conf->x264, use_highbit);
+	conf->aud.encoder = sys_dat.exstg->s_local.default_audio_encoder;
 	conf->size_all = CONF_INITIALIZED;
 }
 void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {

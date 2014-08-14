@@ -131,6 +131,8 @@ namespace x264guiEx {
 	private: System::Windows::Forms::Button^  fosBTStgDir;
 	private: System::Windows::Forms::TextBox^  fosTXStgDir;
 	private: System::Windows::Forms::CheckBox^  fosCBAutoRefLimitByLevel;
+	private: System::Windows::Forms::ComboBox^  fosCXDefaultAudioEncoder;
+	private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
 
 
 
@@ -172,6 +174,9 @@ namespace x264guiEx {
 			this->fosfontDialog = (gcnew System::Windows::Forms::FontDialog());
 			this->fosTabControl = (gcnew System::Windows::Forms::TabControl());
 			this->fostabPageGeneral = (gcnew System::Windows::Forms::TabPage());
+			this->fosCXDefaultAudioEncoder = (gcnew System::Windows::Forms::ComboBox());
+			this->fosLBDefaultAudioEncoder = (gcnew System::Windows::Forms::Label());
+			this->fosCBAutoRefLimitByLevel = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBChapConvertToUTF8 = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBKeepQPFile = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBRunBatMinimized = (gcnew System::Windows::Forms::CheckBox());
@@ -210,7 +215,6 @@ namespace x264guiEx {
 			this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
 			this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
 			this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
-			this->fosCBAutoRefLimitByLevel = (gcnew System::Windows::Forms::CheckBox());
 			this->fosTabControl->SuspendLayout();
 			this->fostabPageGeneral->SuspendLayout();
 			this->fostabPageGUI->SuspendLayout();
@@ -246,7 +250,7 @@ namespace x264guiEx {
 			// 
 			// fosCBAutoAFSDisable
 			// 
-			this->fosCBAutoAFSDisable->Location = System::Drawing::Point(17, 71);
+			this->fosCBAutoAFSDisable->Location = System::Drawing::Point(17, 146);
 			this->fosCBAutoAFSDisable->Name = L"fosCBAutoAFSDisable";
 			this->fosCBAutoAFSDisable->Size = System::Drawing::Size(308, 53);
 			this->fosCBAutoAFSDisable->TabIndex = 6;
@@ -256,7 +260,7 @@ namespace x264guiEx {
 			// fosCBAutoDelChap
 			// 
 			this->fosCBAutoDelChap->AutoSize = true;
-			this->fosCBAutoDelChap->Location = System::Drawing::Point(17, 130);
+			this->fosCBAutoDelChap->Location = System::Drawing::Point(17, 205);
 			this->fosCBAutoDelChap->Name = L"fosCBAutoDelChap";
 			this->fosCBAutoDelChap->Size = System::Drawing::Size(295, 19);
 			this->fosCBAutoDelChap->TabIndex = 13;
@@ -289,6 +293,8 @@ namespace x264guiEx {
 			// 
 			// fostabPageGeneral
 			// 
+			this->fostabPageGeneral->Controls->Add(this->fosCXDefaultAudioEncoder);
+			this->fostabPageGeneral->Controls->Add(this->fosLBDefaultAudioEncoder);
 			this->fostabPageGeneral->Controls->Add(this->fosCBAutoRefLimitByLevel);
 			this->fostabPageGeneral->Controls->Add(this->fosCBChapConvertToUTF8);
 			this->fostabPageGeneral->Controls->Add(this->fosCBKeepQPFile);
@@ -306,10 +312,38 @@ namespace x264guiEx {
 			this->fostabPageGeneral->Text = L"エンコード";
 			this->fostabPageGeneral->UseVisualStyleBackColor = true;
 			// 
+			// fosCXDefaultAudioEncoder
+			// 
+			this->fosCXDefaultAudioEncoder->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fosCXDefaultAudioEncoder->FormattingEnabled = true;
+			this->fosCXDefaultAudioEncoder->Location = System::Drawing::Point(52, 104);
+			this->fosCXDefaultAudioEncoder->Name = L"fosCXDefaultAudioEncoder";
+			this->fosCXDefaultAudioEncoder->Size = System::Drawing::Size(190, 23);
+			this->fosCXDefaultAudioEncoder->TabIndex = 25;
+			// 
+			// fosLBDefaultAudioEncoder
+			// 
+			this->fosLBDefaultAudioEncoder->AutoSize = true;
+			this->fosLBDefaultAudioEncoder->Location = System::Drawing::Point(25, 81);
+			this->fosLBDefaultAudioEncoder->Name = L"fosLBDefaultAudioEncoder";
+			this->fosLBDefaultAudioEncoder->Size = System::Drawing::Size(130, 15);
+			this->fosLBDefaultAudioEncoder->TabIndex = 24;
+			this->fosLBDefaultAudioEncoder->Text = L"デフォルトの音声エンコーダ";
+			// 
+			// fosCBAutoRefLimitByLevel
+			// 
+			this->fosCBAutoRefLimitByLevel->AutoSize = true;
+			this->fosCBAutoRefLimitByLevel->Location = System::Drawing::Point(17, 288);
+			this->fosCBAutoRefLimitByLevel->Name = L"fosCBAutoRefLimitByLevel";
+			this->fosCBAutoRefLimitByLevel->Size = System::Drawing::Size(283, 19);
+			this->fosCBAutoRefLimitByLevel->TabIndex = 23;
+			this->fosCBAutoRefLimitByLevel->Text = L"参照距離をH.264のレベルに応じて自動的に制限する";
+			this->fosCBAutoRefLimitByLevel->UseVisualStyleBackColor = true;
+			// 
 			// fosCBChapConvertToUTF8
 			// 
 			this->fosCBChapConvertToUTF8->AutoSize = true;
-			this->fosCBChapConvertToUTF8->Location = System::Drawing::Point(17, 186);
+			this->fosCBChapConvertToUTF8->Location = System::Drawing::Point(17, 261);
 			this->fosCBChapConvertToUTF8->Name = L"fosCBChapConvertToUTF8";
 			this->fosCBChapConvertToUTF8->Size = System::Drawing::Size(204, 19);
 			this->fosCBChapConvertToUTF8->TabIndex = 22;
@@ -319,7 +353,7 @@ namespace x264guiEx {
 			// fosCBKeepQPFile
 			// 
 			this->fosCBKeepQPFile->AutoSize = true;
-			this->fosCBKeepQPFile->Location = System::Drawing::Point(17, 159);
+			this->fosCBKeepQPFile->Location = System::Drawing::Point(17, 234);
 			this->fosCBKeepQPFile->Name = L"fosCBKeepQPFile";
 			this->fosCBKeepQPFile->Size = System::Drawing::Size(260, 19);
 			this->fosCBKeepQPFile->TabIndex = 21;
@@ -404,6 +438,7 @@ namespace x264guiEx {
 			this->fosBTSetFont->TabIndex = 23;
 			this->fosBTSetFont->Text = L"フォントの変更...";
 			this->fosBTSetFont->UseVisualStyleBackColor = true;
+			this->fosBTSetFont->Click += gcnew System::EventHandler(this, &frmOtherSettings::fosBTSetFont_Click);
 			// 
 			// fosCBStgEscKey
 			// 
@@ -484,6 +519,7 @@ namespace x264guiEx {
 			this->fosBTStgDir->TabIndex = 8;
 			this->fosBTStgDir->Text = L"...";
 			this->fosBTStgDir->UseVisualStyleBackColor = true;
+			this->fosBTStgDir->Click += gcnew System::EventHandler(this, &frmOtherSettings::fosBTStgDir_Click);
 			// 
 			// fosTXStgDir
 			// 
@@ -708,16 +744,6 @@ namespace x264guiEx {
 			this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
 			this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
 			// 
-			// fosCBAutoRefLimitByLevel
-			// 
-			this->fosCBAutoRefLimitByLevel->AutoSize = true;
-			this->fosCBAutoRefLimitByLevel->Location = System::Drawing::Point(17, 213);
-			this->fosCBAutoRefLimitByLevel->Name = L"fosCBAutoRefLimitByLevel";
-			this->fosCBAutoRefLimitByLevel->Size = System::Drawing::Size(283, 19);
-			this->fosCBAutoRefLimitByLevel->TabIndex = 23;
-			this->fosCBAutoRefLimitByLevel->Text = L"参照距離をH.264のレベルに応じて自動的に制限する";
-			this->fosCBAutoRefLimitByLevel->UseVisualStyleBackColor = true;
-			// 
 			// frmOtherSettings
 			// 
 			this->AcceptButton = this->fosCBOK;
@@ -780,6 +806,7 @@ namespace x264guiEx {
 			fos_ex_stg->s_local.get_relative_path         = fosCBGetRelativePath->Checked;
 			fos_ex_stg->s_local.default_output_ext        = fosCXDefaultOutExt->SelectedIndex;
 			fos_ex_stg->s_local.run_bat_minimized         = fosCBRunBatMinimized->Checked;
+			fos_ex_stg->s_local.default_audio_encoder     = fosCXDefaultAudioEncoder->SelectedIndex;
 			fos_ex_stg->save_local();
 			fos_ex_stg->save_log_win();
 			this->Close();
@@ -792,31 +819,37 @@ namespace x264guiEx {
 			for (int i = 0; i < _countof(OUTPUT_FILE_EXT); i++)
 				fosCXDefaultOutExt->Items->Add(String(OUTPUT_FILE_EXT_DESC[i]).ToString() + L" (" + String(OUTPUT_FILE_EXT[i]).ToString() + L")");
 			fosCXDefaultOutExt->ResumeLayout();
+			
+			fosCXDefaultAudioEncoder->SuspendLayout();
+			fosCXDefaultAudioEncoder->Items->Clear();
+			for (int i = 0; i < fos_ex_stg->s_aud_count; i++)
+				fosCXDefaultAudioEncoder->Items->Add(String(fos_ex_stg->s_aud[i].dispname).ToString());
+			fosCXDefaultAudioEncoder->ResumeLayout();
 		}
 	private: 
 		System::Void frmOtherSettings_Load(System::Object^  sender, System::EventArgs^  e) {
-			fosSetComboBox();
-
 			this->Text = String(AUO_FULL_NAME).ToString();
 			fosTXStgDir->Text = stgDir;
 			fos_ex_stg->load_encode_stg();
 			fos_ex_stg->load_log_win();
-			fosCBAutoAFSDisable->Checked         = fos_ex_stg->s_local.auto_afs_disable != 0;
-			fosNUAMPLimitMargin->Value           = clamp(Convert::ToDecimal(fos_ex_stg->s_local.amp_bitrate_margin_multi * 100.0), fosNUAMPLimitMargin->Minimum, fosNUAMPLimitMargin->Maximum);
-			fosCBAmpKeepOldFile->Checked         = fos_ex_stg->s_local.amp_keep_old_file != 0;
-			fosCBAutoDelStats->Checked           = fos_ex_stg->s_local.auto_del_stats != 0;
-			fosCBAutoDelChap->Checked            = fos_ex_stg->s_local.auto_del_chap != 0;
-			fosCBKeepQPFile->Checked             = fos_ex_stg->s_local.keep_qp_file != 0;
-			fosCBDisableToolTip->Checked         = fos_ex_stg->s_local.disable_tooltip_help != 0;
-			fosCBDisableVisualStyles->Checked    = fos_ex_stg->s_local.disable_visual_styles != 0;
-			fosCBStgEscKey->Checked              = fos_ex_stg->s_local.enable_stg_esc_key != 0;
-			fosCBChapConvertToUTF8->Checked      = fos_ex_stg->s_local.chap_nero_convert_to_utf8 != 0;
-			fosCBAutoRefLimitByLevel->Checked    = fos_ex_stg->s_local.auto_ref_limit_by_level != 0;
-			fosCBLogStartMinimized->Checked      = fos_ex_stg->s_log.minimized != 0;
-			fosCBLogDisableTransparency->Checked = fos_ex_stg->s_log.transparent == 0;
-			fosCBGetRelativePath->Checked        = fos_ex_stg->s_local.get_relative_path != 0;
-			fosCXDefaultOutExt->SelectedIndex    = fos_ex_stg->s_local.default_output_ext;
-			fosCBRunBatMinimized->Checked        = fos_ex_stg->s_local.run_bat_minimized != 0;
+			fosSetComboBox();
+			fosCBAutoAFSDisable->Checked            = fos_ex_stg->s_local.auto_afs_disable != 0;
+			fosNUAMPLimitMargin->Value              = clamp(Convert::ToDecimal(fos_ex_stg->s_local.amp_bitrate_margin_multi * 100.0), fosNUAMPLimitMargin->Minimum, fosNUAMPLimitMargin->Maximum);
+			fosCBAmpKeepOldFile->Checked            = fos_ex_stg->s_local.amp_keep_old_file != 0;
+			fosCBAutoDelStats->Checked              = fos_ex_stg->s_local.auto_del_stats != 0;
+			fosCBAutoDelChap->Checked               = fos_ex_stg->s_local.auto_del_chap != 0;
+			fosCBKeepQPFile->Checked                = fos_ex_stg->s_local.keep_qp_file != 0;
+			fosCBDisableToolTip->Checked            = fos_ex_stg->s_local.disable_tooltip_help != 0;
+			fosCBDisableVisualStyles->Checked       = fos_ex_stg->s_local.disable_visual_styles != 0;
+			fosCBStgEscKey->Checked                 = fos_ex_stg->s_local.enable_stg_esc_key != 0;
+			fosCBChapConvertToUTF8->Checked         = fos_ex_stg->s_local.chap_nero_convert_to_utf8 != 0;
+			fosCBAutoRefLimitByLevel->Checked       = fos_ex_stg->s_local.auto_ref_limit_by_level != 0;
+			fosCBLogStartMinimized->Checked         = fos_ex_stg->s_log.minimized != 0;
+			fosCBLogDisableTransparency->Checked    = fos_ex_stg->s_log.transparent == 0;
+			fosCBGetRelativePath->Checked           = fos_ex_stg->s_local.get_relative_path != 0;
+			fosCXDefaultOutExt->SelectedIndex       = fos_ex_stg->s_local.default_output_ext;
+			fosCBRunBatMinimized->Checked           = fos_ex_stg->s_local.run_bat_minimized != 0;
+			fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder, 0, fosCXDefaultAudioEncoder->Items->Count);
 			if (str_has_char(fos_ex_stg->s_local.conf_font.name))
 				SetFontFamilyToForm(this, gcnew FontFamily(String(fos_ex_stg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
 			fosNUAMPLimitMargin_ValueChanged(nullptr, nullptr);
