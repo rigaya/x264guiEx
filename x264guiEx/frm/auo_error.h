@@ -36,6 +36,7 @@ void warning_audio_length();
 void error_malloc_pixel_data();
 void error_malloc_tc();
 void error_malloc_8bit();
+void error_afs_interlace_stg();
 void error_x264_dead();
 void error_x264_version();
 void error_afs_get_frame();

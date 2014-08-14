@@ -157,6 +157,12 @@ void error_malloc_8bit() {
 	write_log_auo_line(LOG_ERROR, "音声16bit→8bit変換用メモリ確保に失敗しました。");
 }
 
+void error_afs_interlace_stg() {
+	write_log_line(LOG_ERROR, 
+		"auo [error]: 自動フィールドシフトとインターレース設定が両方オンになっており、設定が矛盾しています。\n"
+		"             設定を見なおしてください。");
+}
+
 void error_x264_dead() {
 	write_log_auo_line(LOG_ERROR, "x264が予期せず途中終了しました。x264に不正なパラメータ(オプション)が渡された可能性があります。");
 }

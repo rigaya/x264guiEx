@@ -502,8 +502,10 @@ static AUO_RESULT x264_out(CONF_X264GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC
 	write_args(x264cmd);
 	sprintf_s(x264args, _countof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
 	
+	if (conf->vid.afs && conf->x264.interlaced) {
+		ret |= AUO_RESULT_ERROR; error_afs_interlace_stg();
 	//jitter用領域確保
-	if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
+	} else if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
 		ret |= AUO_RESULT_ERROR; error_malloc_tc();
 	//Aviutl(afs)からのフレーム読み込み
 	} else if (!setup_afsvideo(oip, conf, pe, sys_dat->exstg->s_local.auto_afs_disable)) {
