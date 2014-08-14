@@ -904,6 +904,8 @@ private: System::Windows::Forms::Label^  fcgLBAudioDelayCut;
 			this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
 			this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->fcggroupBoxAudio = (gcnew System::Windows::Forms::GroupBox());
+			this->fcgCXAudioDelayCut = (gcnew System::Windows::Forms::ComboBox());
+			this->fcgLBAudioDelayCut = (gcnew System::Windows::Forms::Label());
 			this->fcgCBAudioEncTiming = (gcnew System::Windows::Forms::Label());
 			this->fcgCXAudioEncTiming = (gcnew System::Windows::Forms::ComboBox());
 			this->fcgCXAudioTempDir = (gcnew System::Windows::Forms::ComboBox());
@@ -993,8 +995,6 @@ private: System::Windows::Forms::Label^  fcgLBAudioDelayCut;
 			this->fcgTTX264Version = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->fcgCSReplaceStrings = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
 			this->fcgLBguiExBlog = (gcnew System::Windows::Forms::LinkLabel());
-			this->fcgCXAudioDelayCut = (gcnew System::Windows::Forms::ComboBox());
-			this->fcgLBAudioDelayCut = (gcnew System::Windows::Forms::Label());
 			this->fcgtabControlVideo->SuspendLayout();
 			this->fcgtabPageX264Main->SuspendLayout();
 			this->fcgPNStatusFile->SuspendLayout();
@@ -3293,12 +3293,12 @@ private: System::Windows::Forms::Label^  fcgLBAudioDelayCut;
 			// 
 			this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->fcgTSExeFileshelp });
 			this->fcgCSExeFiles->Name = L"fcgCSx264";
-			this->fcgCSExeFiles->Size = System::Drawing::Size(137, 26);
+			this->fcgCSExeFiles->Size = System::Drawing::Size(153, 48);
 			// 
 			// fcgTSExeFileshelp
 			// 
 			this->fcgTSExeFileshelp->Name = L"fcgTSExeFileshelp";
-			this->fcgTSExeFileshelp->Size = System::Drawing::Size(136, 22);
+			this->fcgTSExeFileshelp->Size = System::Drawing::Size(152, 22);
 			this->fcgTSExeFileshelp->Text = L"helpを表示";
 			this->fcgTSExeFileshelp->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSExeFileshelp_Click);
 			// 
@@ -3473,6 +3473,25 @@ private: System::Windows::Forms::Label^  fcgLBAudioDelayCut;
 			this->fcggroupBoxAudio->TabIndex = 2;
 			this->fcggroupBoxAudio->TabStop = false;
 			this->fcggroupBoxAudio->Text = L"音声";
+			// 
+			// fcgCXAudioDelayCut
+			// 
+			this->fcgCXAudioDelayCut->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->fcgCXAudioDelayCut->FormattingEnabled = true;
+			this->fcgCXAudioDelayCut->Location = System::Drawing::Point(296, 141);
+			this->fcgCXAudioDelayCut->Name = L"fcgCXAudioDelayCut";
+			this->fcgCXAudioDelayCut->Size = System::Drawing::Size(70, 22);
+			this->fcgCXAudioDelayCut->TabIndex = 11;
+			this->fcgCXAudioDelayCut->Tag = L"chValue";
+			// 
+			// fcgLBAudioDelayCut
+			// 
+			this->fcgLBAudioDelayCut->AutoSize = true;
+			this->fcgLBAudioDelayCut->Location = System::Drawing::Point(229, 144);
+			this->fcgLBAudioDelayCut->Name = L"fcgLBAudioDelayCut";
+			this->fcgLBAudioDelayCut->Size = System::Drawing::Size(60, 14);
+			this->fcgLBAudioDelayCut->TabIndex = 31;
+			this->fcgLBAudioDelayCut->Text = L"ディレイカット";
 			// 
 			// fcgCBAudioEncTiming
 			// 
@@ -4408,25 +4427,6 @@ private: System::Windows::Forms::Label^  fcgLBAudioDelayCut;
 			this->fcgLBguiExBlog->Text = L"x264guiExについて";
 			this->fcgLBguiExBlog->VisitedLinkColor = System::Drawing::Color::Gray;
 			this->fcgLBguiExBlog->LinkClicked += gcnew System::Windows::Forms::LinkLabelLinkClickedEventHandler(this, &frmConfig::fcgLBguiExBlog_LinkClicked);
-			// 
-			// fcgCXAudioDelayCut
-			// 
-			this->fcgCXAudioDelayCut->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->fcgCXAudioDelayCut->FormattingEnabled = true;
-			this->fcgCXAudioDelayCut->Location = System::Drawing::Point(296, 141);
-			this->fcgCXAudioDelayCut->Name = L"fcgCXAudioDelayCut";
-			this->fcgCXAudioDelayCut->Size = System::Drawing::Size(70, 22);
-			this->fcgCXAudioDelayCut->TabIndex = 11;
-			this->fcgCXAudioDelayCut->Tag = L"chValue";
-			// 
-			// fcgLBAudioDelayCut
-			// 
-			this->fcgLBAudioDelayCut->AutoSize = true;
-			this->fcgLBAudioDelayCut->Location = System::Drawing::Point(229, 144);
-			this->fcgLBAudioDelayCut->Name = L"fcgLBAudioDelayCut";
-			this->fcgLBAudioDelayCut->Size = System::Drawing::Size(60, 14);
-			this->fcgLBAudioDelayCut->TabIndex = 31;
-			this->fcgLBAudioDelayCut->Text = L"ディレイカット";
 			// 
 			// frmConfig
 			// 
