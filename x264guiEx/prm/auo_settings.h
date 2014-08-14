@@ -19,7 +19,7 @@
 static const BOOL   DEFAULT_LARGE_CMD_BOX         = 0;
 static const BOOL   DEFAULT_AUTO_AFS_DISABLE      = 0;
 static const int    DEFAULT_OUTPUT_EXT            = 0;
-static const BOOL   DEFAULT_AUTO_DEL_STATS        = 0;
+static const BOOL   DEFAULT_AUTO_DEL_STATS        = 1;
 static const BOOL   DEFAULT_AUTO_DEL_CHAP         = 1;
 static const BOOL   DEFAULT_KEEP_QP_FILE          = 0;
 static const BOOL   DEFAULT_AUD_DELAY_CUT_MODE    = 0;
