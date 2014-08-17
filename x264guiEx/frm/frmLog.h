@@ -55,6 +55,7 @@ namespace x264guiEx {
 	public:
 		frmLog(void)
 		{
+			taskbar_progress = nullptr;
 			timerResizeOrPos = nullptr;
 			//これがfalseだとイベントで設定保存をするので、とりあえずtrue
 			prevent_log_closing = true;
@@ -106,9 +107,8 @@ namespace x264guiEx {
 				SetWindowSize(exstg.s_log.log_width, exstg.s_log.log_height);
 			lastWindowState = this->WindowState;
 			//プログレスバーの初期化
-			taskbar_progress_enable(exstg.s_log.taskbar_progress);
-			hWnd = (HWND)this->Handle.ToPointer();
-			taskbar_progress_init();
+			taskbar_progress = new taskbarProgress((HWND)this->Handle.ToPointer());
+			taskbar_progress->set_visible(FALSE != exstg.s_log.taskbar_progress);
 			//ログフォントの設定
 			richTextLog->Font = GetFontFrom_AUO_FONT_INFO(&exstg.s_log.log_font, richTextLog->Font);
 			//通常のステータスに戻す(false) -> 設定保存イベントで設定保存される
@@ -121,11 +121,15 @@ namespace x264guiEx {
 		/// </summary>
 		~frmLog()
 		{
+			if (nullptr != taskbar_progress) {
+				delete taskbar_progress;
+			}
 			if (components)
 			{
 				delete components;
 			}
 			delete log_type;
+
 			frmAutoSaveLogSettings::Instance::get()->Close();
 		}
 	//Instanceを介し、ひとつだけ生成
@@ -140,6 +144,7 @@ namespace x264guiEx {
 			}
 		}
 	private:
+		taskbarProgress *taskbar_progress; //タスクバーでの進捗表示
 		HWND hWnd; //このウィンドウのハンドル
 		DWORD *_x264_priority; //x264優先度へのポインタ
 		BOOL *_enc_pause;      //エンコ一時停止へのポインタ
@@ -451,7 +456,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 		System::Void frmLog_Load(System::Object^  sender, System::EventArgs^  e) {
 			closed = false;
 			pause_start = NULL;
-			taskbar_progress_init();
 			
 			guiEx_settings exstg(true);
 			exstg.load_log_win();
@@ -521,7 +525,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 			toolStripStatusCurrentTask->Text = (show_progress) ? LogTitle : L"";
 			if (!show_progress)
 				toolStripCurrentProgress->Value = 0;
-			taskbar_progress_start(hWnd, progress_mode);
+			taskbar_progress->set_progress(0.0);
+			taskbar_progress->set_mode(progress_mode);
 		}
 	public:
 		System::Void SetTaskName(const char *chr) {
@@ -533,7 +538,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 			toolStripStatusCurrentProgress->Text = (progress).ToString("P1");
 			toolStripStatusElapsedTime->Text = L"";
 			this->Text = L"[" + toolStripStatusCurrentProgress->Text + L"] " + LogTitle;
-			taskbar_setprogress(hWnd, progress);
+			taskbar_progress->set_progress(progress);
 		}
 	public:
 		System::Void SetWindowTitleX264Mes(const char *chr, int total_drop, int frame_n) {
@@ -568,7 +573,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 			}
 			toolStripCurrentProgress->Value = clamp((int)(progress * toolStripCurrentProgress->Maximum + 0.5), toolStripCurrentProgress->Minimum, toolStripCurrentProgress->Maximum);
 			toolStripStatusCurrentProgress->Text = ProgressPercent;
-			taskbar_setprogress(hWnd, progress);
+			taskbar_progress->set_progress(progress);
 
 			time_elapsed /= 1000;
 			t = (int)(time_elapsed / 3600);
@@ -800,8 +805,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 		System::Void ToolStripMenuItemEncPause_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			if (_enc_pause) {
 				*_enc_pause = Convert::ToInt32(ToolStripMenuItemEncPause->Checked);
-				if (*_enc_pause)
-					taskbar_progress_paused(hWnd);
+				if (nullptr != taskbar_progress) {
+					(*_enc_pause) ? taskbar_progress->pause() : taskbar_progress->restart();
+				}
 				//if (*_enc_pause) {
 				//	pause_start = timeGetTime(); //一時停止を開始した時間
 				//} else {
@@ -810,7 +816,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 				//	pause_start = NULL;
 				//}
 			}
-			Application::DoEvents();
 		}
 	private: 
 		System::Void toolStripMenuItemShowStatus_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -823,7 +828,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 		}
 	private: 
 		System::Void toolStripMenuItemTaskBarProgress_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			taskbar_progress_enable(Convert::ToInt32(toolStripMenuItemTaskBarProgress->Checked));
+			if (nullptr != taskbar_progress) {
+				taskbar_progress->set_visible(toolStripMenuItemTaskBarProgress->Checked);
+			}
 			ToolStripCheckItem_CheckedChanged(sender, e);
 		 }
 	private:
