@@ -58,6 +58,15 @@ enum {
 	AUDIO_DELAY_CUT_NONE         = 0, //音声エンコード遅延の削除を行わない
 	AUDIO_DELAY_CUT_DELETE_AUDIO = 1, //音声エンコード遅延の削除を音声の先頭を削除することで行う
 	AUDIO_DELAY_CUT_ADD_VIDEO    = 2, //音声エンコード遅延の削除を映像を先頭に追加することで行う
+	AUDIO_DELAY_CUT_EDTS         = 3, //音声エンコード遅延の削除をedtsを用いて行う
+};
+
+static const char *const AUDIO_DELAY_CUT_MODE[] = {
+	"補正なし",
+	"音声カット",
+	"映像追加",
+	"edts",
+	NULL
 };
 
 typedef struct {
