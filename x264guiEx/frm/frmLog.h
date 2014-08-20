@@ -106,8 +106,10 @@ namespace x264guiEx {
 			if (exstg.s_log.save_log_size)
 				SetWindowSize(exstg.s_log.log_width, exstg.s_log.log_height);
 			lastWindowState = this->WindowState;
+			//ウィンドウハンドルの取得
+			hWnd = (HWND)this->Handle.ToPointer();
 			//プログレスバーの初期化
-			taskbar_progress = new taskbarProgress((HWND)this->Handle.ToPointer());
+			taskbar_progress = new taskbarProgress(hWnd);
 			taskbar_progress->set_visible(FALSE != exstg.s_log.taskbar_progress);
 			//ログフォントの設定
 			richTextLog->Font = GetFontFrom_AUO_FONT_INFO(&exstg.s_log.log_font, richTextLog->Font);
