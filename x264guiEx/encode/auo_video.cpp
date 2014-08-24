@@ -1072,13 +1072,13 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
 		//キーフレーム検出 (cmdexのほうに--qpfileの指定があればそれを優先する)
 		if (!ret && conf->vid.check_keyframe && strstr(conf->vid.cmdex, "--qpfile") == NULL)
 			set_keyframe(conf, oip, pe, sys_dat);
+	}
 		
-		char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
-		if (!check_x264_mp4_output(x264fullpath, pe->temp_filename)) {
-			//一時ファイルの拡張子を変更
-			change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
-			warning_x264_mp4_output_not_supported();
-		}
+	char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
+	if (!check_x264_mp4_output(x264fullpath, pe->temp_filename)) {
+		//一時ファイルの拡張子を変更
+		change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
+		warning_x264_mp4_output_not_supported();
 	}
 
 	for (; !ret && pe->current_x264_pass <= pe->total_x264_pass; pe->current_x264_pass++) {
