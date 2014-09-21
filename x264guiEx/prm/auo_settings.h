@@ -37,6 +37,7 @@ static const BOOL   DEFAULT_RUN_BAT_MINIMIZED     = 0;
 static const BOOL   DEFAULT_SET_KEYFRAME_AFS24FPS = 0;
 static const BOOL   DEFAULT_AUTO_REFLIMIT_BYLEVEL = 0;
 
+static const BOOL   DEFAULT_LOG_WINE_COMPAT      = 0;
 static const BOOL   DEFAULT_LOG_START_MINIMIZED  = 0;
 static const BOOL   DEFAULT_LOG_TRANSPARENT      = 1;
 static const BOOL   DEFAULT_LOG_AUTO_SAVE        = 0;
@@ -219,6 +220,7 @@ typedef struct {
 
 typedef struct {
 	BOOL minimized;                        //最小化で起動
+	BOOL wine_compat;                      //wine互換モード
 	BOOL transparent;                      //半透明で表示
 	int  transparency;                     //透過度
 	BOOL auto_save_log;                    //ログ自動保存を行うかどうか
