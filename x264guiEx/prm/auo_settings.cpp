@@ -550,6 +550,7 @@ void guiEx_settings::load_log_win() {
 	clear_log_win();
 	s_log.minimized          = GetPrivateProfileInt(   ini_section_main, "log_start_minimized",  DEFAULT_LOG_START_MINIMIZED,  conf_fileName);
 	s_log.wine_compat        = GetPrivateProfileInt(   ini_section_main, "log_wine_compat",      DEFAULT_LOG_WINE_COMPAT,      conf_fileName);
+	s_log.log_level          = GetPrivateProfileInt(   ini_section_main, "log_level",            DEFAULT_LOG_LEVEL,            conf_fileName);
 	s_log.transparent        = GetPrivateProfileInt(   ini_section_main, "log_transparent",      DEFAULT_LOG_TRANSPARENT,      conf_fileName);
 	s_log.transparency       = GetPrivateProfileInt(   ini_section_main, "log_transparency",     DEFAULT_LOG_TRANSPARENCY,     conf_fileName);
 	s_log.auto_save_log      = GetPrivateProfileInt(   ini_section_main, "log_auto_save",        DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
@@ -665,6 +666,7 @@ void guiEx_settings::save_log_win() {
 	WritePrivateProfileIntWithDefault(   ini_section_main, "log_pos_x",             s_log.log_pos[0],         DEFAULT_LOG_POS[0],           conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "log_pos_y",             s_log.log_pos[1],         DEFAULT_LOG_POS[1],           conf_fileName);
 	WritePrivateProfileIntWithDefault(   ini_section_main, "log_wine_compat",       s_log.wine_compat,        DEFAULT_LOG_WINE_COMPAT,      conf_fileName);
+	WritePrivateProfileIntWithDefault(   ini_section_main, "log_level",             s_log.log_level,          DEFAULT_LOG_LEVEL,            conf_fileName);
 	WriteColorInfo(ini_section_main, "log_color_background",   s_log.log_color_background, DEFAULT_LOG_COLOR_BACKGROUND, conf_fileName);
 	WriteColorInfo(ini_section_main, "log_color_text_info",    s_log.log_color_text[0],    DEFAULT_LOG_COLOR_TEXT[0],    conf_fileName);
 	WriteColorInfo(ini_section_main, "log_color_text_warning", s_log.log_color_text[1],    DEFAULT_LOG_COLOR_TEXT[1],    conf_fileName);

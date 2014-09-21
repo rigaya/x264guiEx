@@ -134,6 +134,7 @@ namespace x264guiEx {
 	private: System::Windows::Forms::ComboBox^  fosCXDefaultAudioEncoder;
 	private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
 private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
+private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
 
 
 
@@ -185,6 +186,7 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			this->fosCXDefaultOutExt = (gcnew System::Windows::Forms::ComboBox());
 			this->fosLBDefaultOutExt = (gcnew System::Windows::Forms::Label());
 			this->fostabPageGUI = (gcnew System::Windows::Forms::TabPage());
+			this->fosCBWineCompat = (gcnew System::Windows::Forms::CheckBox());
 			this->fosCBGetRelativePath = (gcnew System::Windows::Forms::CheckBox());
 			this->fosBTSetFont = (gcnew System::Windows::Forms::Button());
 			this->fosCBStgEscKey = (gcnew System::Windows::Forms::CheckBox());
@@ -216,7 +218,7 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
 			this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
 			this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
-			this->fosCBWineCompat = (gcnew System::Windows::Forms::CheckBox());
+			this->fosCBOutputMoreLog = (gcnew System::Windows::Forms::CheckBox());
 			this->fosTabControl->SuspendLayout();
 			this->fostabPageGeneral->SuspendLayout();
 			this->fostabPageGUI->SuspendLayout();
@@ -404,6 +406,7 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			// 
 			// fostabPageGUI
 			// 
+			this->fostabPageGUI->Controls->Add(this->fosCBOutputMoreLog);
 			this->fostabPageGUI->Controls->Add(this->fosCBWineCompat);
 			this->fostabPageGUI->Controls->Add(this->fosCBGetRelativePath);
 			this->fostabPageGUI->Controls->Add(this->fosBTSetFont);
@@ -422,6 +425,16 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			this->fostabPageGUI->TabIndex = 2;
 			this->fostabPageGUI->Text = L"ログ・設定画面";
 			this->fostabPageGUI->UseVisualStyleBackColor = true;
+			// 
+			// fosCBWineCompat
+			// 
+			this->fosCBWineCompat->AutoSize = true;
+			this->fosCBWineCompat->Location = System::Drawing::Point(20, 266);
+			this->fosCBWineCompat->Name = L"fosCBWineCompat";
+			this->fosCBWineCompat->Size = System::Drawing::Size(104, 19);
+			this->fosCBWineCompat->TabIndex = 25;
+			this->fosCBWineCompat->Text = L"wine互換モード";
+			this->fosCBWineCompat->UseVisualStyleBackColor = true;
 			// 
 			// fosCBGetRelativePath
 			// 
@@ -747,15 +760,15 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
 			this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
 			// 
-			// fosCBWineCompat
+			// fosCBOutputMoreLog
 			// 
-			this->fosCBWineCompat->AutoSize = true;
-			this->fosCBWineCompat->Location = System::Drawing::Point(20, 266);
-			this->fosCBWineCompat->Name = L"fosCBWineCompat";
-			this->fosCBWineCompat->Size = System::Drawing::Size(104, 19);
-			this->fosCBWineCompat->TabIndex = 25;
-			this->fosCBWineCompat->Text = L"wine互換モード";
-			this->fosCBWineCompat->UseVisualStyleBackColor = true;
+			this->fosCBOutputMoreLog->AutoSize = true;
+			this->fosCBOutputMoreLog->Location = System::Drawing::Point(20, 294);
+			this->fosCBOutputMoreLog->Name = L"fosCBOutputMoreLog";
+			this->fosCBOutputMoreLog->Size = System::Drawing::Size(143, 19);
+			this->fosCBOutputMoreLog->TabIndex = 26;
+			this->fosCBOutputMoreLog->Text = L"音声・muxのログも表示";
+			this->fosCBOutputMoreLog->UseVisualStyleBackColor = true;
 			// 
 			// frmOtherSettings
 			// 
@@ -817,6 +830,7 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			fos_ex_stg->s_log.minimized                   = fosCBLogStartMinimized->Checked;
 			fos_ex_stg->s_log.transparent                 = !fosCBLogDisableTransparency->Checked;
 			fos_ex_stg->s_log.wine_compat                 = fosCBWineCompat->Checked;
+			fos_ex_stg->s_log.log_level                   =(fosCBOutputMoreLog->Checked) ? LOG_MORE : LOG_INFO;
 			fos_ex_stg->s_local.get_relative_path         = fosCBGetRelativePath->Checked;
 			fos_ex_stg->s_local.default_output_ext        = fosCXDefaultOutExt->SelectedIndex;
 			fos_ex_stg->s_local.run_bat_minimized         = fosCBRunBatMinimized->Checked;
@@ -861,6 +875,7 @@ private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 			fosCBLogStartMinimized->Checked         = fos_ex_stg->s_log.minimized != 0;
 			fosCBLogDisableTransparency->Checked    = fos_ex_stg->s_log.transparent == 0;
 			fosCBWineCompat->Checked                = fos_ex_stg->s_log.wine_compat != 0;
+			fosCBOutputMoreLog->Checked             = fos_ex_stg->s_log.log_level != LOG_INFO;
 			fosCBGetRelativePath->Checked           = fos_ex_stg->s_local.get_relative_path != 0;
 			fosCXDefaultOutExt->SelectedIndex       = fos_ex_stg->s_local.default_output_ext;
 			fosCBRunBatMinimized->Checked           = fos_ex_stg->s_local.run_bat_minimized != 0;
