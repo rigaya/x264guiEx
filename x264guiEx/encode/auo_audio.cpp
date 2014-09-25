@@ -351,6 +351,8 @@ static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_EN
 			samples_read += samples_get;
 			set_log_progress(samples_read / (double)oip->audio_n);
 
+			while (0 < ReadLogExe(&aud_dat->pipes, nullptr, &aud_dat->log_line_cache));
+
 			if (wav_8bit)
 				audio_16to8(buf8bit, (short*)audio_dat, samples_get * oip->audio_ch);
 
