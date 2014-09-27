@@ -843,23 +843,18 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
 }
 
 int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache) {
-	DWORD total_read = 0;
-	auto read = [&](HANDLE h_read) {
-		DWORD pipe_read = 0;
-		if (h_read) {
-			if (!PeekNamedPipe(h_read, NULL, 0, NULL, &pipe_read, NULL))
-				return -1;
-			if (pipe_read) {
-				ReadFile(pipes->stdOut.h_read, pipes->read_buf + pipes->buf_len, sizeof(pipes->read_buf) - pipes->buf_len - 1, &pipe_read, NULL);
-				pipes->buf_len += pipe_read;
-				pipes->read_buf[pipes->buf_len] = '\0';
-				write_log_exe_mes(pipes->read_buf, &pipes->buf_len, exename, log_line_cache);
-				total_read += pipe_read;
-			}
+	DWORD pipe_read = 0;
+	if (pipes->stdOut.h_read) {
+		if (!PeekNamedPipe(pipes->stdOut.h_read, NULL, 0, NULL, &pipe_read, NULL))
+			return -1;
+		if (pipe_read) {
+			ReadFile(pipes->stdOut.h_read, pipes->read_buf + pipes->buf_len, sizeof(pipes->read_buf) - pipes->buf_len - 1, &pipe_read, NULL);
+			pipes->buf_len += pipe_read;
+			pipes->read_buf[pipes->buf_len] = '\0';
+			write_log_exe_mes(pipes->read_buf, &pipes->buf_len, exename, log_line_cache);
 		}
-		return (int)pipe_read;
-	};
-	return read(pipes->stdOut.h_read) + read(pipes->stdErr.h_read);
+	}
+	return (int)pipe_read;
 }
 
 void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_cache) {
