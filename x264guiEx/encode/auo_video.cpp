@@ -213,26 +213,25 @@ static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, con
 		strcpy_s(chap_file, _countof(chap_file), muxer_mode->chap_file);
 		cmd_replace(chap_file, _countof(chap_file), pe, sys_dat, conf, oip);
 
-		chapter_list_t chap_list = { 0 };
+		chapter_file chapter;
 		if (!str_has_char(chap_file) || !PathFileExists(chap_file)) {
 			write_log_auo_line(LOG_INFO, "チャプターファイルが存在しません。");
 		//チャプターリストを取得
-		} else if (AUO_CHAP_ERR_NONE != get_chapter_list(&chap_list, chap_file, CODE_PAGE_UNSET)) {
+		} else if (AUO_CHAP_ERR_NONE != chapter.read_file(chap_file, CODE_PAGE_UNSET, 0.0)) {
 			ret |= AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "チャプターファイルからチャプター設定を読み取れませんでした。");
 		//チャプターがない場合
-		} else if (0 == chap_list.count) {
+		} else if (0 == chapter.chapters.size()) {
 			write_log_auo_line(LOG_WARNING, "チャプターファイルからチャプター設定を読み取れませんでした。");
 		} else {
 			const double fps = oip->rate / (double)oip->scale;
 			//QPファイルを出力
-			for (int i_chap = 0; i_chap < chap_list.count; i_chap++) {
-				double chap_time_s = get_chap_second(&chap_list.data[i_chap]);
+			for (const auto& chap : chapter.chapters) {
+				double chap_time_s = chap->get_ms();
 				int i_frame = (int)(chap_time_s * fps + 0.5);
 				keyframe_list->push_back(i_frame);
 			}
-			write_log_auo_line_fmt(LOG_INFO, "チャプターファイルから %d箇所 キーフレーム設定を行いました。", chap_list.count);
+			write_log_auo_line_fmt(LOG_INFO, "チャプターファイルから %d箇所 キーフレーム設定を行いました。", chapter.chapters.size());
 		}
-		free_chapter_list(&chap_list);
 	}
 	return ret;
 }
