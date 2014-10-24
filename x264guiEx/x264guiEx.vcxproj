@@ -158,6 +158,10 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="encode\exe_version.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
     <ClCompile Include="x264guiEx.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
@@ -256,6 +260,7 @@
     <ClInclude Include="auo.h" />
     <ClInclude Include="auo_version.h" />
     <ClInclude Include="encode\convert_simd.h" />
+    <ClInclude Include="encode\exe_version.h" />
     <ClInclude Include="frm\frmSetLogColor.h">
       <FileType>CppForm</FileType>
     </ClInclude>

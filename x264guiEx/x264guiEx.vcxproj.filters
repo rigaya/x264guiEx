@@ -118,6 +118,9 @@
     <ClCompile Include="encode\convert_ssse3.cpp">
       <Filter>ソース ファイル\encode</Filter>
     </ClCompile>
+    <ClCompile Include="encode\exe_version.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="x264guiEx.def">
@@ -247,6 +250,9 @@
       <Filter>フォーム</Filter>
     </ClInclude>
     <ClInclude Include="encode\convert_simd.h">
+      <Filter>ヘッダー ファイル\encode</Filter>
+    </ClInclude>
+    <ClInclude Include="encode\exe_version.h">
       <Filter>ヘッダー ファイル\encode</Filter>
     </ClInclude>
   </ItemGroup>
