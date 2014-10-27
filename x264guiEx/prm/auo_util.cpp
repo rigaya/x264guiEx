@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <tlhelp32.h>
 #include <vector>
+#include <tchar.h>
 
 #include "auo_util.h"
 #include "auo_version.h"
@@ -326,125 +327,81 @@ static DWORD CountSetBits(ULONG_PTR bitMask) {
     return bitSetCount;
 }
 
-BOOL getProcessorCount(DWORD *physical_processor_core, DWORD *logical_processor_core) {
-	*physical_processor_core = 0;
-	*logical_processor_core = 0;
-
-    LPFN_GLPI glpi = (LPFN_GLPI)GetProcAddress(GetModuleHandle("kernel32"), "GetLogicalProcessorInformation");
-    if (NULL == glpi)
-		return FALSE;
-
-    DWORD returnLength = 0;
-    PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
-	while (FALSE == glpi(buffer, &returnLength)) {
-		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-			if (buffer) 
-				free(buffer);
-			if (NULL == (buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(returnLength)))
-				return FALSE;
-		}
-	}
-
-    DWORD logicalProcessorCount = 0;
-    DWORD numaNodeCount = 0;
-    DWORD processorCoreCount = 0;
-    DWORD processorL1CacheCount = 0;
-    DWORD processorL2CacheCount = 0;
-    DWORD processorL3CacheCount = 0;
-    DWORD processorPackageCount = 0;
-    PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = buffer;
-    for (DWORD byteOffset = 0; byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength;
-		byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION)) {
-        switch (ptr->Relationship) {
-        case RelationNumaNode:
-            // Non-NUMA systems report a single record of this type.
-            numaNodeCount++;
-            break;
-        case RelationProcessorCore:
-            processorCoreCount++;
-            // A hyperthreaded core supplies more than one logical processor.
-            logicalProcessorCount += CountSetBits(ptr->ProcessorMask);
-            break;
-
-        case RelationCache:
-			{
-            // Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
-            PCACHE_DESCRIPTOR Cache = &ptr->Cache;
-			processorL1CacheCount += (Cache->Level == 1);
-			processorL2CacheCount += (Cache->Level == 2);
-			processorL3CacheCount += (Cache->Level == 3);
-            break;
+const TCHAR *getOSVersion() {
+	const TCHAR *ptr = _T("Unknown");
+	OSVERSIONINFO info = { 0 };
+	info.dwOSVersionInfoSize = sizeof(info);
+	GetVersionEx(&info);
+	switch (info.dwPlatformId) {
+	case VER_PLATFORM_WIN32_WINDOWS:
+		if (4 <= info.dwMajorVersion) {
+			switch (info.dwMinorVersion) {
+			case 0:  ptr = _T("Windows 95"); break;
+			case 10: ptr = _T("Windows 98"); break;
+			case 90: ptr = _T("Windows Me"); break;
+			default: break;
 			}
-        case RelationProcessorPackage:
-            // Logical processors share a physical package.
-            processorPackageCount++;
-            break;
-
-        default:
-            //Unsupported LOGICAL_PROCESSOR_RELATIONSHIP value.
-            break;
-        }
-        ptr++;
-    }
-
-	*physical_processor_core = processorCoreCount;
-	*logical_processor_core = logicalProcessorCount;
-
-    return TRUE;
-}
-
-int getCPUName(char *buffer, size_t nSize) {
-    int CPUInfo[4] = {-1};
-    __cpuid(CPUInfo, 0x80000000);
-    unsigned int nExIds = CPUInfo[0];
-	if (nSize < 0x40)
-		return 1;
-
-	memset(buffer, 0, 0x40);
-    for (unsigned int i = 0x80000000; i <= nExIds; i++) {
-        __cpuid(CPUInfo, i);
-		int offset = 0;
-		switch (i) {
-			case 0x80000002: offset =  0; break;
-			case 0x80000003: offset = 16; break;
-			case 0x80000004: offset = 32; break;
+		}
+		break;
+	case VER_PLATFORM_WIN32_NT:
+		switch (info.dwMajorVersion) {
+		case 3:
+			switch (info.dwMinorVersion) {
+			case 0:  ptr = _T("Windows NT 3"); break;
+			case 1:  ptr = _T("Windows NT 3.1"); break;
+			case 5:  ptr = _T("Windows NT 3.5"); break;
+			case 51: ptr = _T("Windows NT 3.51"); break;
+			default: break;
+			}
+			break;
+		case 4:
+			if (0 == info.dwMinorVersion)
+				ptr = _T("Windows NT 4.0");
+			break;
+		case 5:
+			switch (info.dwMinorVersion) {
+			case 0:  ptr = _T("Windows 2000"); break;
+			case 1:  ptr = _T("Windows XP"); break;
+			case 2:  ptr = _T("Windows Server 2003"); break;
+			default: break;
+			}
+			break;
+		case 6:
+			switch (info.dwMinorVersion) {
+			case 0:  ptr = _T("Windows Vista"); break;
+			case 1:  ptr = _T("Windows 7"); break;
+#if (_MSC_VER >= 1800)
 			default:
-				continue;
-		}
-		memcpy(buffer + offset, CPUInfo, sizeof(CPUInfo)); 
-	}
-	auto remove_string =[](char *target_str, const char *remove_str) {
-		char *ptr = strstr(target_str, remove_str);
-		if (nullptr != ptr) {
-			memmove(ptr, ptr + strlen(remove_str), (strlen(ptr) - strlen(remove_str) + 1) *  sizeof(target_str[0]));
-		}
-	};
-	remove_string(buffer, "(R)");
-	remove_string(buffer, "(TM)");
-	remove_string(buffer, "CPU");
-	//crop space beforce string
-	for (int i = 0; buffer[i]; i++) {
-		if (buffer[i] != ' ') {
-			if (i)
-				memmove(buffer, buffer + i, strlen(buffer + i) + 1);
+				if (IsWindowsVersionOrGreater(6, 5, 0)) {
+					ptr = _T("Later than Windows 10");
+				} else if (IsWindowsVersionOrGreater(6, 4, 0)) {
+					ptr = _T("Windows 10");
+				} else if (IsWindowsVersionOrGreater(6, 3, 0)) {
+					ptr = _T("Windows 8.1");
+				} else {
+					ptr = _T("Windows 8");
+				}
+#else
+			case 2:  ptr = _T("Windows 8"); break;
+			case 3:  ptr = _T("Windows 8.1"); break;
+			case 4:  ptr = _T("Windows 10"); break;
+			default:
+				if (5 <= info.dwMinorVersion) {
+					ptr = _T("Later than Windows 10");
+				}
+#endif
+				break;
+			}
+			break;
+		default:
+			if (7 <= info.dwPlatformId) {
+				ptr = _T("Later than Windows 10");
+			}
 			break;
 		}
+		break;
+	default:
+		break;
 	}
-	//remove space which continues.
-	for (int i = 0; buffer[i]; i++) {
-		if (buffer[i] == ' ') {
-			int space_idx = i;
-			while (buffer[i+1] == ' ')
-				i++;
-			if (i != space_idx)
-				memmove(buffer + space_idx + 1, buffer + i + 1, strlen(buffer + i + 1) + 1);
-		}
-	}
-	//delete last blank
-	if (0 < strlen(buffer)) {
-		char *last_ptr = buffer + strlen(buffer) - 1;
-		if (' ' == *last_ptr)
-			last_ptr = '\0';
-	}
-	return 0;
+	return ptr;
 }
