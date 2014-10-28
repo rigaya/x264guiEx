@@ -43,8 +43,8 @@ void set_window_title_enc_mes(const char *chr, int total_drop, int frame_n) {
 }
 //メッセージをログウィンドウに表示
 [STAThreadAttribute]
-void write_log_auo_line(int log_type_index, const char *chr) {
-	frmLog::Instance::get()->WriteLogAuoLine(String(chr).ToString(), log_type_index);
+void write_log_auo_line(int log_type_index, const char *chr, bool from_utf8) {
+	frmLog::Instance::get()->WriteLogAuoLine((from_utf8) ? Utf8toString(chr) : String(chr).ToString(), log_type_index);
 }
 //現在実行中の内容の設定
 [STAThreadAttribute]
@@ -60,8 +60,8 @@ void set_log_progress(double progress) {
 }
 //メッセージを直接ログウィンドウに表示
 [STAThreadAttribute]
-void write_log_line(int log_type_index, const char *chr) {
-	frmLog::Instance::get()->WriteLogLine(String(chr).ToString(), log_type_index);
+void write_log_line(int log_type_index, const char *chr, bool from_utf8) {
+	frmLog::Instance::get()->WriteLogLine((from_utf8) ? Utf8toString(chr) : String(chr).ToString(), log_type_index);
 }
 //音声を並列に処理する際に、蓄えた音声のログを表示
 //必ず音声処理が動いていないところで呼ぶこと!
