@@ -43,6 +43,7 @@
 #include "auo_encode.h"
 #include "auo_video.h"
 #include "auo_audio_parallel.h"
+#include "cpu_info.h"
 
 const int DROP_FRAME_FLAG = INT_MAX;
 
@@ -756,6 +757,10 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 		BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
 		const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)].FOURCC;
 
+		//Aviutlの時間を取得
+		PROCESS_TIME time_aviutl;
+		GetProcessTime(pe->h_p_aviutl, &time_aviutl);
+
 		//x264が待機に入るまでこちらも待機
 		while (WaitForInputIdle(pi_enc.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
 			log_process_events();
@@ -878,7 +883,8 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
 		if (!(ret & AUO_RESULT_ERROR) && afs)
 			write_log_auo_line_fmt(LOG_INFO, "drop %d / %d frames", pe->drop_count, i);
-
+		
+		write_log_auo_line_fmt(LOG_INFO, "CPU使用率: Aviutl: %.2f%% / x264: %.2f%%", GetProcessAvgCPUUsage(pe->h_p_aviutl, &time_aviutl), GetProcessAvgCPUUsage(pi_enc.hProcess));
 		write_log_auo_enc_time("x264エンコード時間", tm_vid_enc_fin - tm_vid_enc_start);
 	}
 
