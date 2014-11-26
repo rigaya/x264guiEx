@@ -227,7 +227,7 @@ static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, con
 			const double fps = oip->rate / (double)oip->scale;
 			//QPファイルを出力
 			for (const auto& chap : chapter.chapters) {
-				double chap_time_s = chap->get_ms();
+				double chap_time_s = chap->get_ms() / 1000.0;
 				int i_frame = (int)(chap_time_s * fps + 0.5);
 				keyframe_list->push_back(i_frame);
 			}
