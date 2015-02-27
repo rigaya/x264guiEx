@@ -317,12 +317,12 @@ BOOL SetThreadAffinityForModule(DWORD TargetProcessId, const char *TargetModule,
 typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
 static DWORD CountSetBits(ULONG_PTR bitMask) {
-    DWORD LSHIFT = sizeof(ULONG_PTR)*8 - 1;
-    DWORD bitSetCount = 0;
-    for (ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT; bitTest; bitTest >>= 1)
-        bitSetCount += ((bitMask & bitTest) != 0);
+	DWORD LSHIFT = sizeof(ULONG_PTR)*8 - 1;
+	DWORD bitSetCount = 0;
+	for (ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT; bitTest; bitTest >>= 1)
+		bitSetCount += ((bitMask & bitTest) != 0);
 
-    return bitSetCount;
+	return bitSetCount;
 }
 
 const TCHAR *getOSVersion() {

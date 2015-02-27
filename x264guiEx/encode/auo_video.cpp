@@ -356,53 +356,53 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
 }
 
 static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
-    AUO_RESULT ret = AUO_RESULT_WARNING;
-    static const int REQUIRED_X264_CORE = 104;
-    static const int REQUIRED_X264_REV = 1673;
-    char buffer[2048] = { 0 };
-    if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
-        char print_line[512] = { 0 };
-        const char *LINE_HEADER = "x264 version: ";
-        const char *LINE_CONFIGURATION = "configuration:";
-        BOOL line_configuration = FALSE;
-        sprintf_s(print_line, _countof(print_line), LINE_HEADER);
-        int a = -1, b = -1, c = -1;
-        for (char *ptr = buffer, *qtr = NULL; NULL != (ptr = strtok_s(ptr, "\r\n", &qtr)); ) {
-            if (ptr == buffer) {
-                strcat_s(print_line, _countof(print_line), ptr + strlen("x264 ") * (NULL == strncmp(ptr, "x264 ", strlen("x264 "))));
-                if (3 != sscanf_s(ptr, "x264 %d.%d.%d", &a, &b, &c))
-                    a = b = c = -1;
-            } else if (strstr(ptr, LINE_CONFIGURATION)) {
-                strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
-                line_configuration = TRUE;
-            } else if (line_configuration) {
-                const char *rtr = ptr;
-                while (*rtr == ' ') rtr++;
-                if ((size_t)(rtr - ptr) == strlen(LINE_CONFIGURATION) + 1) {
-                    strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
-                } else {
-                    line_configuration = FALSE;
-                }
-            } else {
-                line_configuration = FALSE;
-            }
-            ptr = NULL;
-        }
-        if (strlen(print_line) > strlen(LINE_HEADER)) {
-            write_log_auo_line(LOG_INFO, print_line);
-        }
-        if (a >= 0 && b >= 0 && c >= 0) {
-            ret = (b >= REQUIRED_X264_CORE || c >= REQUIRED_X264_REV) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
-        }
-        if (ret & AUO_RESULT_ERROR) {
-            char required_ver[128] = { 0 };
-            char current_ver[128] = { 0 };
-            sprintf_s(required_ver, _countof(required_ver), "Core:%4d, Rev: %4d", REQUIRED_X264_CORE, REQUIRED_X264_REV);
-            sprintf_s(current_ver,  _countof(current_ver),  "Core:%4d, Rev: %4d", b, c);
-            error_x264_version(required_ver, current_ver);
-        }
-    }
-    return ret;
+	AUO_RESULT ret = AUO_RESULT_WARNING;
+	static const int REQUIRED_X264_CORE = 104;
+	static const int REQUIRED_X264_REV = 1673;
+	char buffer[2048] = { 0 };
+	if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
+		char print_line[512] = { 0 };
+		const char *LINE_HEADER = "x264 version: ";
+		const char *LINE_CONFIGURATION = "configuration:";
+		BOOL line_configuration = FALSE;
+		sprintf_s(print_line, _countof(print_line), LINE_HEADER);
+		int a = -1, b = -1, c = -1;
+		for (char *ptr = buffer, *qtr = NULL; NULL != (ptr = strtok_s(ptr, "\r\n", &qtr)); ) {
+			if (ptr == buffer) {
+				strcat_s(print_line, _countof(print_line), ptr + strlen("x264 ") * (NULL == strncmp(ptr, "x264 ", strlen("x264 "))));
+				if (3 != sscanf_s(ptr, "x264 %d.%d.%d", &a, &b, &c))
+					a = b = c = -1;
+			} else if (strstr(ptr, LINE_CONFIGURATION)) {
+				strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+				line_configuration = TRUE;
+			} else if (line_configuration) {
+				const char *rtr = ptr;
+				while (*rtr == ' ') rtr++;
+				if ((size_t)(rtr - ptr) == strlen(LINE_CONFIGURATION) + 1) {
+					strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+				} else {
+					line_configuration = FALSE;
+				}
+			} else {
+				line_configuration = FALSE;
+			}
+			ptr = NULL;
+		}
+		if (strlen(print_line) > strlen(LINE_HEADER)) {
+			write_log_auo_line(LOG_INFO, print_line);
+		}
+		if (a >= 0 && b >= 0 && c >= 0) {
+			ret = (b >= REQUIRED_X264_CORE || c >= REQUIRED_X264_REV) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
+		}
+		if (ret & AUO_RESULT_ERROR) {
+			char required_ver[128] = { 0 };
+			char current_ver[128] = { 0 };
+			sprintf_s(required_ver, _countof(required_ver), "Core:%4d, Rev: %4d", REQUIRED_X264_CORE, REQUIRED_X264_REV);
+			sprintf_s(current_ver,  _countof(current_ver),  "Core:%4d, Rev: %4d", b, c);
+			error_x264_version(required_ver, current_ver);
+		}
+	}
+	return ret;
 }
 
 //auo_pipe.cppのread_from_pipeの特別版
@@ -704,7 +704,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 	}
 	PathGetDirectory(x264dir, _countof(x264dir), x264fullpath);
 
-    //YUY2/YC48->NV12/YUV444, RGBコピー用関数
+	//YUY2/YC48->NV12/YUV444, RGBコピー用関数
 	const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
 	const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
 	if (convert_frame == NULL) {
