@@ -25,6 +25,7 @@
 #include "auo_pipe.h"
 
 #include "auo_frm.h"
+#include "auo_video.h"
 #include "auo_encode.h"
 #include "auo_error.h"
 #include "auo_audio.h"
@@ -275,7 +276,6 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
 	sys_dat->exstg->load_fn_replace();
 	
 	pe->video_out_type = check_video_ouput(conf, oip);
-	pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 	pe->total_x264_pass = get_total_path(conf);
 	pe->amp_x264_pass_limit = pe->total_x264_pass + sys_dat->exstg->s_local.amp_retry_limit;
 	pe->current_x264_pass = 1;
@@ -304,6 +304,17 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
 	strcpy_s(filename_replace, _countof(filename_replace), PathFindFileName(oip->savefile));
 	sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
 	PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
+
+	if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
+		char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
+		if (!check_x264_mp4_output(x264fullpath, pe->temp_filename)) {
+			//一時ファイルの拡張子を変更
+			change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
+			warning_x264_mp4_output_not_supported();
+		}
+	}
+
+	pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 	
 	//FAWチェックとオーディオディレイの修正
 	if (conf->aud.faw_check)
@@ -608,33 +619,49 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 		return priority_table[set].value;
 }
 
+int check_video_ouput(const char *filename) {
+	if (check_ext(filename, ".mp4"))  return VIDEO_OUTPUT_MP4;
+	if (check_ext(filename, ".mkv"))  return VIDEO_OUTPUT_MKV;
+	if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
+	if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
+	return VIDEO_OUTPUT_RAW;
+}
+
 int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 	if ((oip->flag & OUTPUT_INFO_FLAG_VIDEO) && !conf->oth.out_audio_only) {
-		if (check_ext(oip->savefile, ".mp4"))  return VIDEO_OUTPUT_MP4;
-		if (check_ext(oip->savefile, ".mkv"))  return VIDEO_OUTPUT_MKV;
-		if (check_ext(oip->savefile, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
-		if (check_ext(oip->savefile, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
-		return VIDEO_OUTPUT_RAW;
+		return check_video_ouput(oip->savefile);
 	}
 	return VIDEO_OUTPUT_DISABLED;
 }
 
-int check_muxer_to_be_used(const CONF_GUIEX *conf, int video_output_type, BOOL audio_output) {
+BOOL check_output_has_chapter(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, int muxer_to_be_used) {
+	BOOL has_chapter = FALSE;
+	if (muxer_to_be_used == MUXER_MKV || muxer_to_be_used == MUXER_TC2MP4 || muxer_to_be_used == MUXER_MP4) {
+		const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[muxer_to_be_used].ex_cmd[(muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
+		has_chapter = str_has_char(muxer_mode->chap_file);
+	}
+	return has_chapter;
+}
+
+int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
 	//if (conf.vid.afs)
 	//	conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
 
-	//音声なし、afsなしならmuxしない
-	if (!audio_output && !conf->vid.afs)
-		return MUXER_DISABLED;
-
+	int muxer_to_be_used = MUXER_DISABLED;
 	if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
-		return (conf->vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
+		muxer_to_be_used = (conf->vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
 	else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
-		return MUXER_MKV;
+		muxer_to_be_used = MUXER_MKV;
 	else if (video_output_type == VIDEO_OUTPUT_MPEG2 && !conf->mux.disable_mpgext)
-		return MUXER_MPG;
-	else
-		return MUXER_DISABLED;
+		muxer_to_be_used = MUXER_MPG;
+	
+	//muxerが必要ないかどうかチェック
+	BOOL no_muxer = TRUE;
+	no_muxer &= !audio_output;
+	no_muxer &= !conf->vid.afs;
+	no_muxer &= video_output_type == check_video_ouput(temp_filename);
+	no_muxer &= !check_output_has_chapter(conf, sys_dat, muxer_to_be_used);
+	return (no_muxer) ? MUXER_DISABLED : muxer_to_be_used;
 }
 
 AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -781,7 +808,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
 	//再エンコードを行う
 	if (retry) {
 		//muxerを再設定する
-		pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+		pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 		//音声がビットレートモードなら音声再エンコによる調整を検討する
 		double limit_bitrate = DBL_MAX;
 		if (status & AMPLIMIT_FILE_SIZE)

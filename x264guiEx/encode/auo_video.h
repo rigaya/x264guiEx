@@ -33,7 +33,9 @@ static const COLORFORMAT_DATA COLORFORMATS[] = {
 	{ MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
 };
 
-BOOL setup_afsvideo(const OUTPUT_INFO *oip, CONF_GUIEX *conf, PRM_ENC *pe, BOOL auto_afs_disable);
+BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename);
+
+BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUIEX *conf, PRM_ENC *pe);
 void close_afsvideo(PRM_ENC *pe);
 
 AUO_RESULT video_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat);
