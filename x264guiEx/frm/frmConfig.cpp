@@ -402,6 +402,8 @@ System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, Sy
 }
 
 System::Void frmConfig::fcgCBUsehighbit_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+	//一度ウィンドウの再描画を完全に抑止する
+	SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
 	//8bit/highbitで異なるQPの最大最小を管理する
 	int old_max = (int)fcgNUQpmax->Maximum;
 	fcgNUQpmax->Maximum = (fcgCBUsehighbit->Checked) ? X264_QP_MAX_10BIT : X264_QP_MAX_8BIT;
@@ -416,7 +418,9 @@ System::Void frmConfig::fcgCBUsehighbit_CheckedChanged(System::Object^  sender, 
 	fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
 	fcgLBX264Path->Text = (fcgCBUsehighbit->Checked) ? L"x264.exe(highbit) の指定" : L"x264.exe の指定";
 	SetX264VersionToolTip(fcgTXX264Path->Text, fcgCBUsehighbit->Checked);
-	SetTBValueToTextBox();
+	//一度ウィンドウの再描画を再開し、強制的に再描画させる
+	SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 1, 0);
+	this->Refresh();
 }
 
 System::Void frmConfig::fcgCBAFS_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -546,7 +550,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
 			fcgCBNulOut->Checked = false;
 			fcgCBFastFirstPass->Enabled = false; //Enabledの変更が先
 			fcgCBFastFirstPass->Checked = false;
-			fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->crf / 100.0);
+			fcgTXQuality->Text = Convert::ToString(clamp(cnf_fcgTemp->crf / 100.0, (fcgCBUsehighbit->Checked) ? -12 : 0, 51));
 			SetfbcBTVBEnable(false);
 			break;
 	}
