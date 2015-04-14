@@ -124,6 +124,9 @@
     <ClCompile Include="prm\cpu_info.cpp">
       <Filter>ソース ファイル\prm</Filter>
     </ClCompile>
+    <ClCompile Include="prm\auo_conf_convert.cpp">
+      <Filter>ソース ファイル\prm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="x264guiEx.def">

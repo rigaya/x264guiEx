@@ -22,17 +22,27 @@ enum {
 	TMP_DIR_CUSTOM = 2,
 };
 
-enum {
-	RUN_BAT_NONE   = 0x00,
-	RUN_BAT_AFTER  = 0x01,
-	RUN_BAT_BEFORE = 0x02,
+enum : DWORD {
+	RUN_BAT_NONE           = 0x00,
+	RUN_BAT_BEFORE_PROCESS = 0x01,
+	RUN_BAT_AFTER_PROCESS  = 0x02,
+	RUN_BAT_BEFORE_AUDIO   = 0x04,
+	RUN_BAT_AFTER_AUDIO    = 0x08,
 };
 
-static const char *const CONF_NAME    = "x264guiEx ConfigFile";
-const int CONF_NAME_BLOCK_LEN         = 32;
-const int CONF_BLOCK_MAX              = 32;
-const int CONF_BLOCK_COUNT            = 5; //最大 CONF_BLOCK_MAXまで
-const int CONF_HEAD_SIZE              = (3 + CONF_BLOCK_MAX) * sizeof(int) + CONF_BLOCK_MAX * sizeof(size_t) + CONF_NAME_BLOCK_LEN;
+static inline int get_run_bat_idx(DWORD flag) {
+	DWORD ret;
+	_BitScanForward(&ret, flag);
+	return (int)ret;
+}
+
+static const char *const CONF_NAME_OLD_1 = "x264guiEx ConfigFile";
+static const char *const CONF_NAME_OLD_2 = "x264guiEx ConfigFile v2";
+static const char *const CONF_NAME       = CONF_NAME_OLD_2;
+const int CONF_NAME_BLOCK_LEN            = 32;
+const int CONF_BLOCK_MAX                 = 32;
+const int CONF_BLOCK_COUNT               = 5; //最大 CONF_BLOCK_MAXまで
+const int CONF_HEAD_SIZE                 = (3 + CONF_BLOCK_MAX) * sizeof(int) + CONF_BLOCK_MAX * sizeof(size_t) + CONF_NAME_BLOCK_LEN;
 
 enum {
 	CONF_ERROR_NONE = 0,
@@ -87,17 +97,17 @@ typedef struct {
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {
-	int  encoder;             //使用する音声エンコーダ
-	int  enc_mode;            //使用する音声エンコーダの設定
-	int  bitrate;             //ビットレート指定モード
-	BOOL use_2pass;           //音声2passエンコードを行う
-	BOOL use_wav;             //パイプを使用せず、wavを出力してエンコードを行う
-	BOOL faw_check;           //FAWCheckを行う
-	int  priority;            //音声エンコーダのCPU優先度(インデックス)
-	BOOL minimized;           //音声エンコーダを最小化で実行
-	int  aud_temp_dir;        //音声専用一時フォルダ
-	int  audio_encode_timing; //音声を先にエンコード
-	int  delay_cut;           //エンコード遅延の削除
+	int   encoder;             //使用する音声エンコーダ
+	int   enc_mode;            //使用する音声エンコーダの設定
+	int   bitrate;             //ビットレート指定モード
+	BOOL  use_2pass;           //音声2passエンコードを行う
+	BOOL  use_wav;             //パイプを使用せず、wavを出力してエンコードを行う
+	BOOL  faw_check;           //FAWCheckを行う
+	int   priority;            //音声エンコーダのCPU優先度(インデックス)
+	BOOL  minimized;           //音声エンコーダを最小化で実行
+	int   aud_temp_dir;        //音声専用一時フォルダ
+	int   audio_encode_timing; //音声を先にエンコード
+	int   delay_cut;           //エンコード遅延の削除
 } CONF_AUDIO; //音声用設定
 
 typedef struct {
@@ -120,8 +130,15 @@ typedef struct {
 	char  notes[128];             //メモ
 	DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
 	DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
-	char  batfile_after[MAX_PATH_LEN];   //エンコ後バッチファイルのパス
-	char  batfile_before[MAX_PATH_LEN];  //エンコ前バッチファイルのパス
+	union {
+		char batfiles[4][512];        //バッチファイルのパス
+		struct {
+			char before_process[512]; //エンコ前バッチファイルのパス
+			char after_process[512];  //エンコ後バッチファイルのパス
+			char before_audio[512];   //音声エンコ前バッチファイルのパス
+			char after_audio[512];    //音声エンコ後バッチファイルのパス
+		} batfile;
+	};
 } CONF_OTHER;
 
 typedef struct {
@@ -143,6 +160,7 @@ private:
 	static const size_t conf_block_pointer[CONF_BLOCK_COUNT];
 	static const int conf_block_data[CONF_BLOCK_COUNT];
 	static void convert_x265stg_to_x264stg(CONF_GUIEX *conf, const BYTE *dat);
+	static void convert_x264stg_to_x264stgv2(CONF_GUIEX *conf);
 public:
 	guiEx_config();
 	static void write_conf_header(CONF_GUIEX *conf);
