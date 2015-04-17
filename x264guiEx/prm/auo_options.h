@@ -79,10 +79,11 @@ const X264_OPTION_STR list_output_csp[] = {
 	{ NULL, NULL }
 };
 const X264_OPTION_STR list_aq[] = { 
-	{ NULL, L"none"    }, 
-	{ NULL, L"VAQ"     }, 
-	{ NULL, L"AutoVAQ" }, 
-	{ NULL, NULL } 
+	{ NULL, L"none"    },
+	{ NULL, L"VAQ"     },
+	{ NULL, L"AutoVAQ" },
+	{ NULL, L"MixAQ"   },
+	{ NULL, NULL }
 };
 const X264_OPTION_STR list_weightp[] = { 
 	{ NULL, L"Disabled" }, 
