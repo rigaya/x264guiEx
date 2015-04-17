@@ -364,7 +364,9 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 		char print_line[512] = { 0 };
 		const char *LINE_HEADER = "x264 version: ";
 		const char *LINE_CONFIGURATION = "configuration:";
-		BOOL line_configuration = FALSE;
+		BOOL line_configuration = FALSE; //現在取得中かどうか
+		BOOL got_line_configuration = FALSE; //一度取得したかどうか
+		int configuration_pos = 0; //取得開始の文字の位置
 		sprintf_s(print_line, _countof(print_line), LINE_HEADER);
 		int a = -1, b = -1, c = -1;
 		for (char *ptr = buffer, *qtr = NULL; NULL != (ptr = strtok_s(ptr, "\r\n", &qtr)); ) {
@@ -372,14 +374,20 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
 				strcat_s(print_line, _countof(print_line), ptr + strlen("x264 ") * (NULL == strncmp(ptr, "x264 ", strlen("x264 "))));
 				if (3 != sscanf_s(ptr, "x264 %d.%d.%d", &a, &b, &c))
 					a = b = c = -1;
-			} else if (strstr(ptr, LINE_CONFIGURATION)) {
-				strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+			} else if (strstr(ptr, LINE_CONFIGURATION) && !got_line_configuration) {
+				const char *rtr = strstr(ptr, LINE_CONFIGURATION) + strlen(LINE_CONFIGURATION);
+				while (*rtr == ' ') rtr++;
+				strcat_s(print_line, _countof(print_line), " ");
+				strcat_s(print_line, _countof(print_line), rtr);
+				configuration_pos = rtr - ptr;
 				line_configuration = TRUE;
+				got_line_configuration = TRUE;
 			} else if (line_configuration) {
 				const char *rtr = ptr;
 				while (*rtr == ' ') rtr++;
-				if ((size_t)(rtr - ptr) == strlen(LINE_CONFIGURATION) + 1) {
-					strcat_s(print_line, _countof(print_line), ptr + strlen(LINE_CONFIGURATION));
+				if ((int)(rtr - ptr) == configuration_pos) {
+					strcat_s(print_line, _countof(print_line), " ");
+					strcat_s(print_line, _countof(print_line), rtr);
 				} else {
 					line_configuration = FALSE;
 				}
