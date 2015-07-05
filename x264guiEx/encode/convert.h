@@ -12,23 +12,23 @@
 
 #include <Windows.h>
 
-typedef	struct {
-	short	y;					//	画素(輝度    )データ (     0 ～ 4096 )
-	short	cb;					//	画素(色差(青))データ ( -2048 ～ 2048 )
-	short	cr;					//	画素(色差(赤))データ ( -2048 ～ 2048 )
-								//	画素データは範囲外に出ていることがあります
-								//	また範囲内に収めなくてもかまいません
+typedef    struct {
+    short    y;                    //    画素(輝度    )データ (     0 ～ 4096 )
+    short    cb;                    //    画素(色差(青))データ ( -2048 ～ 2048 )
+    short    cr;                    //    画素(色差(赤))データ ( -2048 ～ 2048 )
+                                //    画素データは範囲外に出ていることがあります
+                                //    また範囲内に収めなくてもかまいません
 } PIXEL_YC;
 
 typedef struct {
-	USHORT y, cb, cr;
+    USHORT y, cb, cr;
 } PIXEL_LW48;
 
 typedef struct {
-	int   count;       //planarの枚数。packedなら1
-	BYTE *data[3];     //planarの先頭へのポインタ
-	int   size[3];     //planarのサイズ
-	int   total_size;  //全planarのサイズの総和
+    int   count;       //planarの枚数。packedなら1
+    BYTE *data[3];     //planarの先頭へのポインタ
+    int   size[3];     //planarのサイズ
+    int   total_size;  //全planarのサイズの総和
 } CONVERT_CF_DATA;
 
 

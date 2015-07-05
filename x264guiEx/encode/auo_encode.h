@@ -43,7 +43,7 @@ void get_aud_filename(char *audfile, size_t nSize, const PRM_ENC *pe, int i_aud)
 void insert_num_to_replace_key(char *key, size_t nSize, int num);
 void get_muxout_filename(char *filename, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe); //mux出力ファイル名を作成
 void set_chap_filename(char *chap_file, size_t cf_nSize, char *chap_apple, size_t ca_nSize, const char *chap_base, 
-					   const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip); //チャプターファイルのパスを生成
+                       const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip); //チャプターファイルのパスを生成
 void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip); //コマンドラインの共通置換を実行
 AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const OUTPUT_INFO *oip, DWORD ret); //一時ファイルの最終的な移動・削除を実行
 DWORD GetExePriority(DWORD set, HANDLE h_aviutl); //実行ファイルに指定すべき優先度を取得

@@ -15,21 +15,21 @@
 #include "auo_options.h"
 
 void guiEx_config::convert_x264stg_to_x264stgv2(CONF_GUIEX *conf) {
-	static const DWORD OLD_FLAG_AFTER  = 0x01;
-	static const DWORD OLD_FLAG_BEFORE = 0x02;
+    static const DWORD OLD_FLAG_AFTER  = 0x01;
+    static const DWORD OLD_FLAG_BEFORE = 0x02;
 
-	char bat_path_before_process[1024];
-	char bat_path_after_process[1024];
-	strcpy_s(bat_path_after_process,  conf->oth.batfiles[0]);
-	strcpy_s(bat_path_before_process, conf->oth.batfiles[2]);
-	
-	DWORD old_run_bat_flags = conf->oth.run_bat;
-	conf->oth.run_bat  = 0x00;
-	conf->oth.run_bat |= (old_run_bat_flags & OLD_FLAG_BEFORE) ? RUN_BAT_BEFORE_PROCESS : 0x00;
-	conf->oth.run_bat |= (old_run_bat_flags & OLD_FLAG_AFTER)  ? RUN_BAT_AFTER_PROCESS  : 0x00;
+    char bat_path_before_process[1024];
+    char bat_path_after_process[1024];
+    strcpy_s(bat_path_after_process,  conf->oth.batfiles[0]);
+    strcpy_s(bat_path_before_process, conf->oth.batfiles[2]);
+    
+    DWORD old_run_bat_flags = conf->oth.run_bat;
+    conf->oth.run_bat  = 0x00;
+    conf->oth.run_bat |= (old_run_bat_flags & OLD_FLAG_BEFORE) ? RUN_BAT_BEFORE_PROCESS : 0x00;
+    conf->oth.run_bat |= (old_run_bat_flags & OLD_FLAG_AFTER)  ? RUN_BAT_AFTER_PROCESS  : 0x00;
 
-	memset(&conf->oth.batfiles[0], 0, sizeof(conf->oth.batfiles));
-	strcpy_s(conf->oth.batfile.before_process, bat_path_before_process);
-	strcpy_s(conf->oth.batfile.after_process,  bat_path_after_process);
-	strcpy_s(conf->conf_name, CONF_NAME_OLD_2);
+    memset(&conf->oth.batfiles[0], 0, sizeof(conf->oth.batfiles));
+    strcpy_s(conf->oth.batfile.before_process, bat_path_before_process);
+    strcpy_s(conf->oth.batfile.after_process,  bat_path_after_process);
+    strcpy_s(conf->conf_name, CONF_NAME_OLD_2);
 }

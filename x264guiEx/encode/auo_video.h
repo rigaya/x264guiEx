@@ -15,22 +15,22 @@
 #include "auo_system.h"
 
 typedef struct {
-	DWORD FOURCC;   //FOURCC
-	DWORD size;  //1ピクセルあたりバイト数
+    DWORD FOURCC;   //FOURCC
+    DWORD size;  //1ピクセルあたりバイト数
 } COLORFORMAT_DATA;
 
 enum {
-	CF_YUY2 = 0,
-	CF_YC48 = 1,
-	CF_RGB  = 2,
-	CF_LW48 = 3,
+    CF_YUY2 = 0,
+    CF_YC48 = 1,
+    CF_RGB  = 2,
+    CF_LW48 = 3,
 };
 static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB", "LW48" };
 static const COLORFORMAT_DATA COLORFORMATS[] = {
-	{ MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
-	{ MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48
-	{ NULL,                           3 }, //RGB
-	{ MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
+    { MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
+    { MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48
+    { NULL,                           3 }, //RGB
+    { MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
 };
 
 BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename);
