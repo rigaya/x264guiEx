@@ -13,6 +13,10 @@
 
 #include "convert_simd.h"
 
+#if _MSC_VER >= 1800 && !defined(__AVX__) && !defined(_DEBUG)
+static_assert(false, "do not forget to set /arch:AVX or /arch:AVX2 for this file.");
+#endif
+
 //AVXが使用可能なSandyBridge以降のCPUでは、
 //メモリがalignされていれば、_mm_store_si128 / _mm_storeu_si128 に速度差はないため
 //関数も_mm_storeu_si128のもののみ用意する

@@ -13,6 +13,10 @@
 #include "convert.h"
 #include "convert_const.h"
 
+#if _MSC_VER >= 1800 && !defined(__AVX__) && !defined(_DEBUG)
+static_assert(false, "do not forget to set /arch:AVX or /arch:AVX2 for this file.");
+#endif
+
 
 //本来の256bit alignr
 #define MM_ABS(x) (((x) < 0) ? -(x) : (x))
