@@ -34,9 +34,9 @@
 //        出力プラグイン内部変数
 //---------------------------------------------------------------------
 
-static CONF_GUIEX conf = { 0 };
-static SYSTEM_DATA sys_dat = { 0 };
-static char auo_filefilter[1024] = { 0 };
+static CONF_GUIEX g_conf = { 0 };
+static SYSTEM_DATA g_sys_dat = { 0 };
+static char g_auo_filefilter[1024] = { 0 };
 
 //---------------------------------------------------------------------
 //        出力プラグイン構造体定義
@@ -60,10 +60,10 @@ OUTPUT_PLUGIN_TABLE output_plugin_table = {
 //---------------------------------------------------------------------
 EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTable( void )
 {
-    init_SYSTEM_DATA(&sys_dat);
-    make_file_filter(NULL, 0, sys_dat.exstg->s_local.default_output_ext);
-    overwrite_aviutl_ini_file_filter(sys_dat.exstg->s_local.default_output_ext);
-    output_plugin_table.filefilter = auo_filefilter;
+    init_SYSTEM_DATA(&g_sys_dat);
+    make_file_filter(NULL, 0, g_sys_dat.exstg->s_local.default_output_ext);
+    overwrite_aviutl_ini_file_filter(g_sys_dat.exstg->s_local.default_output_ext);
+    output_plugin_table.filefilter = g_auo_filefilter;
     return &output_plugin_table;
 }
 
@@ -130,7 +130,7 @@ BOOL func_init()
 
 BOOL func_exit() 
 {
-    delete_SYSTEM_DATA(&sys_dat);
+    delete_SYSTEM_DATA(&g_sys_dat);
     return TRUE;
 }
 
@@ -139,36 +139,36 @@ BOOL func_output( OUTPUT_INFO *oip )
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     static const encode_task task[3][2] = { { video_output, audio_output }, { audio_output, video_output }, { audio_output_parallel, video_output }  };
     PRM_ENC pe = { 0 };
-    CONF_GUIEX conf_out = conf;
+    CONF_GUIEX conf_out = g_conf;
     const DWORD tm_start_enc = timeGetTime();
 
     //データの初期化
-    init_SYSTEM_DATA(&sys_dat);
-    if (!sys_dat.exstg->get_init_success()) return FALSE;
+    init_SYSTEM_DATA(&g_sys_dat);
+    if (!g_sys_dat.exstg->get_init_success()) return FALSE;
 
     //ログウィンドウを開く
-    open_log_window(oip->savefile, &sys_dat, 1, get_total_path(&conf_out));
+    open_log_window(oip->savefile, &g_sys_dat, 1, get_total_path(&conf_out));
     set_prevent_log_close(TRUE); //※1 start
 
     //各種設定を行う
-    set_enc_prm(&conf_out, &pe, oip, &sys_dat);
+    set_enc_prm(&conf_out, &pe, oip, &g_sys_dat);
     pe.h_p_aviutl = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId()); //※2 start
 
     //チェックを行い、エンコード可能ならエンコードを開始する
-    if (check_output(&conf_out, oip, &pe, sys_dat.exstg) && setup_afsvideo(oip, &sys_dat, &conf_out, &pe)) { //※3 start
+    if (check_output(&conf_out, oip, &pe, g_sys_dat.exstg) && setup_afsvideo(oip, &g_sys_dat, &conf_out, &pe)) { //※3 start
 
-        ret |= run_bat_file(&conf_out, oip, &pe, &sys_dat, RUN_BAT_BEFORE_PROCESS);
+        ret |= run_bat_file(&conf_out, oip, &pe, &g_sys_dat, RUN_BAT_BEFORE_PROCESS);
 
         for (int i = 0; !ret && i < 2; i++)
-            ret |= task[conf_out.aud.audio_encode_timing][i](&conf_out, oip, &pe, &sys_dat);
+            ret |= task[conf_out.aud.audio_encode_timing][i](&conf_out, oip, &pe, &g_sys_dat);
 
         int amp_result = 1;
         do {
-            if (!ret) ret |= task[0][amp_result-1](&conf_out, oip, &pe, &sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
-            if (!ret) ret |= mux(&conf_out, oip, &pe, &sys_dat);
-        } while (!ret && 0 < (amp_result = amp_check_file(&conf_out, &sys_dat, &pe, oip))); //再エンコードの必要があるかをチェック
+            if (!ret) ret |= task[0][amp_result-1](&conf_out, oip, &pe, &g_sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
+            if (!ret) ret |= mux(&conf_out, oip, &pe, &g_sys_dat);
+        } while (!ret && 0 < (amp_result = amp_check_file(&conf_out, &g_sys_dat, &pe, oip))); //再エンコードの必要があるかをチェック
 
-        ret |= move_temporary_files(&conf_out, &pe, &sys_dat, oip, ret);
+        ret |= move_temporary_files(&conf_out, &pe, &g_sys_dat, oip, ret);
 
         write_log_auo_enc_time("総エンコード時間  ", timeGetTime() - tm_start_enc);
 
@@ -182,10 +182,10 @@ BOOL func_output( OUTPUT_INFO *oip )
 
     CloseHandle(pe.h_p_aviutl); //※2 end
     set_prevent_log_close(FALSE); //※1 end
-    auto_save_log(&conf_out, oip, &pe, &sys_dat); //※1 end のあとで行うこと
+    auto_save_log(&conf_out, oip, &pe, &g_sys_dat); //※1 end のあとで行うこと
 
     if (!(ret & (AUO_RESULT_ERROR | AUO_RESULT_ABORT)))
-        ret |= run_bat_file(&conf_out, oip, &pe, &sys_dat, RUN_BAT_AFTER_PROCESS);
+        ret |= run_bat_file(&conf_out, oip, &pe, &g_sys_dat, RUN_BAT_AFTER_PROCESS);
 
     log_process_events();
 
@@ -201,9 +201,9 @@ BOOL func_output( OUTPUT_INFO *oip )
 #pragma warning( disable: 4100 )
 BOOL func_config(HWND hwnd, HINSTANCE dll_hinst)
 {
-    init_SYSTEM_DATA(&sys_dat);
-    if (sys_dat.exstg->get_init_success())
-        ShowfrmConfig(&conf, &sys_dat);
+    init_SYSTEM_DATA(&g_sys_dat);
+    if (g_sys_dat.exstg->get_init_success())
+        ShowfrmConfig(&g_conf, &g_sys_dat);
     return TRUE;
 }
 #pragma warning( pop )
@@ -211,45 +211,45 @@ BOOL func_config(HWND hwnd, HINSTANCE dll_hinst)
 int func_config_get( void *data, int size )
 {
     if (data && size == sizeof(CONF_GUIEX))
-        memcpy(data, &conf, sizeof(conf));
-    return sizeof(conf);
+        memcpy(data, &g_conf, sizeof(g_conf));
+    return sizeof(g_conf);
 }
 
 int func_config_set( void *data,int size )
 {
-    init_SYSTEM_DATA(&sys_dat);
-    if (!sys_dat.exstg->get_init_success(TRUE))
+    init_SYSTEM_DATA(&g_sys_dat);
+    if (!g_sys_dat.exstg->get_init_success(TRUE))
         return NULL;
-    init_CONF_GUIEX(&conf, FALSE);
-    return (guiEx_config::adjust_conf_size(&conf, data, size)) ? size : NULL;
+    init_CONF_GUIEX(&g_conf, FALSE);
+    return (guiEx_config::adjust_conf_size(&g_conf, data, size)) ? size : NULL;
 }
 
 
 //---------------------------------------------------------------------
 //        x264guiExのその他の関数
 //---------------------------------------------------------------------
-void init_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
-    if (_sys_dat->init)
+void init_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
+    if (sys_dat->init)
         return;
-    get_auo_path(_sys_dat->auo_path, _countof(_sys_dat->auo_path));
-    get_aviutl_dir(_sys_dat->aviutl_dir, _countof(_sys_dat->aviutl_dir));
-    _sys_dat->exstg = new guiEx_settings();
-    set_ex_stg_ptr(_sys_dat->exstg);
-    _sys_dat->init = TRUE;
+    get_auo_path(sys_dat->auo_path, _countof(sys_dat->auo_path));
+    get_aviutl_dir(sys_dat->aviutl_dir, _countof(sys_dat->aviutl_dir));
+    sys_dat->exstg = new guiEx_settings();
+    set_ex_stg_ptr(sys_dat->exstg);
+    sys_dat->init = TRUE;
 }
-void delete_SYSTEM_DATA(SYSTEM_DATA *_sys_dat) {
-    if (_sys_dat->init) {
-        delete _sys_dat->exstg;
-        _sys_dat->exstg = NULL;
-        set_ex_stg_ptr(_sys_dat->exstg);
+void delete_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
+    if (sys_dat->init) {
+        delete sys_dat->exstg;
+        sys_dat->exstg = NULL;
+        set_ex_stg_ptr(sys_dat->exstg);
     }
-    _sys_dat->init = FALSE;
+    sys_dat->init = FALSE;
 }
 void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     ZeroMemory(conf, sizeof(CONF_GUIEX));
     guiEx_config::write_conf_header(conf);
     get_default_conf_x264(&conf->x264, use_highbit);
-    conf->aud.encoder = sys_dat.exstg->s_local.default_audio_encoder;
+    conf->aud.encoder = g_sys_dat.exstg->s_local.default_audio_encoder;
     conf->size_all = CONF_INITIALIZED;
 }
 void write_log_line_fmt(int log_type_index, const char *format, ...) {
@@ -301,8 +301,8 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
     static const char *const TOP = "All Support Formats (*.*)";
     const char separator = (filter) ? '\\' : '\0';
     if (filter == NULL) {
-        filter = auo_filefilter;
-        nSize = _countof(auo_filefilter);
+        filter = g_auo_filefilter;
+        nSize = _countof(g_auo_filefilter);
     }
     char *ptr = filter;
 

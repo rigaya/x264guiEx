@@ -225,8 +225,8 @@ static BOOL x264guiEx_strtof(float *f, const char *str, DWORD len) {
 static BOOL x264guiEx_parse_int(int *i, const char *value, DWORD len) {
     BOOL ret;
     if ((ret = x264guiEx_strtol(i, value, len)) == FALSE) {
-        size_t len = strlen(value);
-        if (*value == '[' && value[len-1] == ']') {
+        size_t val_len = strlen(value);
+        if (*value == '[' && value[val_len -1] == ']') {
             const char *a, *b, *c;
             if ((a = strstr(value, "if>")) != NULL && (b = strstr(value, "else")) != NULL) {
                 int v;
@@ -234,10 +234,10 @@ static BOOL x264guiEx_parse_int(int *i, const char *value, DWORD len) {
                 ret |= x264guiEx_strtol(&v, c, b-c);
                 b += strlen("else");
                 if (*i > v)
-                    c = value+1, len = a - c;
+                    c = value+1, val_len = a - c;
                 else
-                    c = b, len = (value + len - 1) - c;
-                ret &= x264guiEx_strtol(i, c, len);
+                    c = b, val_len = (value + val_len - 1) - c;
+                ret &= x264guiEx_strtol(i, c, val_len);
             }
         }
     }
@@ -247,8 +247,8 @@ static BOOL x264guiEx_parse_int(int *i, const char *value, DWORD len) {
 static BOOL x264guiEx_parse_float(float *f, const char *value, DWORD len) {
     BOOL ret;
     if ((ret = x264guiEx_strtof(f, value, len)) == FALSE) {
-        size_t len = strlen(value);
-        if (*value == '[' && value[len-1] == ']') {
+        size_t val_len = strlen(value);
+        if (*value == '[' && value[val_len -1] == ']') {
             const char *a, *b, *c;
             if ((a = strstr(value, "if>")) != NULL && (b = strstr(value, "else")) != NULL) {
                 float v;
@@ -256,10 +256,10 @@ static BOOL x264guiEx_parse_float(float *f, const char *value, DWORD len) {
                 ret |= x264guiEx_strtof(&v, c, b-c);
                 b += strlen("else");
                 if (*f > v)
-                    c = value+1, len = a - c;
+                    c = value+1, val_len = a - c;
                 else
-                    c = b, len = (value + len - 1) - c;
-                ret &= x264guiEx_strtof(f, c, len);
+                    c = b, val_len = (value + val_len - 1) - c;
+                ret &= x264guiEx_strtof(f, c, val_len);
             }
         }
     }
@@ -488,8 +488,8 @@ static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) 
             if (i == 9)
                 strcpy_s(buf, _countof(buf), "1b");
             else {
-                size_t len = sprintf_s(buf, _countof(buf), "%.1f", i / 10.0);
-                char *p = buf + len - 1;
+                size_t buf_len = sprintf_s(buf, _countof(buf), "%.1f", i / 10.0);
+                char *p = buf + buf_len - 1;
                 while (*p == '0' && p >= buf)
                     p--;
                 if (*p == '.') p--; //最後に'.'が残ったら消す
@@ -648,7 +648,7 @@ static void write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, con
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr)
-        sprintf_s(cmd, nSize, " --%s %s", options->long_name, options->list[*iptr]);
+        sprintf_s(cmd, nSize, " --%s %s", options->long_name, options->list[*iptr].name);
 }
 
 static void write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {

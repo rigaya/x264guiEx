@@ -199,7 +199,7 @@ void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int curre
     
     char cpu_info[256];
     getCPUInfo(cpu_info);
-    write_log_auo_line_fmt(LOG_INFO, AUO_NAME_WITHOUT_EXT" "AUO_VERSION_STR" / %s (%s) / %s", getOSVersion(), is_64bit_os() ? "x64" : "x86", cpu_info);
+    write_log_auo_line_fmt(LOG_INFO, "%s %s / %s (%s) / %s", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR, getOSVersion(), is_64bit_os() ? "x64" : "x86", cpu_info);
 }
 
 static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, const SYSTEM_DATA *sys_dat) {

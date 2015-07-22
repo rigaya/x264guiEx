@@ -430,8 +430,6 @@ void guiEx_settings::load_fn_replace() {
 }
 
 void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section) {
-    int i;
-    char *p, *q;
     char key[INI_KEY_MAX_LEN];
     char *name = s_x264_mc.SetPrivateProfileString(section, "name", "", ini_fileName);
     s_x264_mc.CutMem(sizeof(key[0]));
@@ -441,7 +439,8 @@ void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_i
     x264cmd->cmd = (char **)s_x264_mc.CutMem(sizeof(char *) * (*count + 1));
 
     x264cmd->name[0].name = name;
-    for (i = 0, p = x264cmd->name[0].name; (x264cmd->name[i].name = strtok_s(p, ",", &q)) != NULL; i++)
+    char *p = x264cmd->name[0].name, *q;
+    for (int i = 0; (x264cmd->name[i].name = strtok_s(p, ",", &q)) != NULL; i++)
         p = NULL;
 
     setlocale(LC_ALL, "japanese");
@@ -456,7 +455,7 @@ void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_i
     char *def = s_x264_mc.SetPrivateProfileString(section, "disp", "", ini_fileName);
     sprintf_s(key,  sizeof(key), "cmd_");
     size_t keybase_len = strlen(key);
-    for (i = 0; x264cmd->name[i].name; i++) {
+    for (int i = 0; x264cmd->name[i].name; i++) {
         strcpy_s(key + keybase_len, sizeof(key) - keybase_len, x264cmd->name[i].name);
         x264cmd->cmd[i] = s_x264_mc.SetPrivateProfileString(section, key, "", ini_fileName);
         if (_stricmp(x264cmd->name[i].name, def) == NULL)
@@ -482,7 +481,7 @@ void guiEx_settings::load_x264() {
 
     s_x264.profile_vbv_multi = (float *)s_x264_mc.CutMem(sizeof(float) * s_x264.profile_count);
     for (int i = 0; i < s_x264.profile_count; i++) {
-        sprintf_s(key, _countof(key), "vbv_multi_%s", s_x264.profile.name[i]);
+        sprintf_s(key, _countof(key), "vbv_multi_%s", s_x264.profile.name[i].name);
         s_x264.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, 1.0, ini_fileName);
     }
 

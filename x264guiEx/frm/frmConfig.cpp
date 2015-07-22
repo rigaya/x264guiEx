@@ -716,7 +716,7 @@ System::Void frmConfig::fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  s
         ofd->FileName = L"";
         ofd->Multiselect = false;
         ofd->Filter = L"(*.*)|*.*";
-        bool ret = (ofd->ShowDialog() == Windows::Forms::DialogResult::OK);
+        bool ret = (ofd->ShowDialog() == System::Windows::Forms::DialogResult::OK);
         if (ret) {
             if (sys_dat->exstg->s_local.get_relative_path)
                 ofd->FileName = GetRelativePath(ofd->FileName, CurrentDir);
