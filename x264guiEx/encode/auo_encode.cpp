@@ -643,6 +643,10 @@ BOOL check_output_has_chapter(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat
     return has_chapter;
 }
 
+BOOL check_tcfilein_is_used(const CONF_GUIEX *conf) {
+    return conf->x264.use_tcfilein || strstr(conf->vid.cmdex, "--tcfile-in") != nullptr;
+}
+
 int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
     //if (conf.vid.afs)
     //    conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
