@@ -3358,12 +3358,12 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgCSExeFiles->ImageScalingSize = System::Drawing::Size(18, 18);
             this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->fcgTSExeFileshelp });
             this->fcgCSExeFiles->Name = L"fcgCSx264";
-            this->fcgCSExeFiles->Size = System::Drawing::Size(132, 26);
+            this->fcgCSExeFiles->Size = System::Drawing::Size(131, 26);
             // 
             // fcgTSExeFileshelp
             // 
             this->fcgTSExeFileshelp->Name = L"fcgTSExeFileshelp";
-            this->fcgTSExeFileshelp->Size = System::Drawing::Size(131, 22);
+            this->fcgTSExeFileshelp->Size = System::Drawing::Size(130, 22);
             this->fcgTSExeFileshelp->Text = L"helpを表示";
             this->fcgTSExeFileshelp->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSExeFileshelp_Click);
             // 
@@ -4143,12 +4143,12 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
                     this->toolStripSeparator1, this->fcgCSCqmFile
             });
             this->fcgCSCQM->Name = L"fcgCSCQM";
-            this->fcgCSCQM->Size = System::Drawing::Size(117, 76);
+            this->fcgCSCQM->Size = System::Drawing::Size(114, 76);
             // 
             // fcgCSFlat
             // 
             this->fcgCSFlat->Name = L"fcgCSFlat";
-            this->fcgCSFlat->Size = System::Drawing::Size(116, 22);
+            this->fcgCSFlat->Size = System::Drawing::Size(113, 22);
             this->fcgCSFlat->Tag = L"0";
             this->fcgCSFlat->Text = L"flat";
             this->fcgCSFlat->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::CSCqmCheckedChanged);
@@ -4157,7 +4157,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgCSJvt
             // 
             this->fcgCSJvt->Name = L"fcgCSJvt";
-            this->fcgCSJvt->Size = System::Drawing::Size(116, 22);
+            this->fcgCSJvt->Size = System::Drawing::Size(113, 22);
             this->fcgCSJvt->Tag = L"1";
             this->fcgCSJvt->Text = L"jvt";
             this->fcgCSJvt->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::CSCqmCheckedChanged);
@@ -4166,12 +4166,12 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // toolStripSeparator1
             // 
             this->toolStripSeparator1->Name = L"toolStripSeparator1";
-            this->toolStripSeparator1->Size = System::Drawing::Size(113, 6);
+            this->toolStripSeparator1->Size = System::Drawing::Size(110, 6);
             // 
             // fcgCSCqmFile
             // 
             this->fcgCSCqmFile->Name = L"fcgCSCqmFile";
-            this->fcgCSCqmFile->Size = System::Drawing::Size(116, 22);
+            this->fcgCSCqmFile->Size = System::Drawing::Size(113, 22);
             this->fcgCSCqmFile->Tag = L"2";
             this->fcgCSCqmFile->Text = L"cqmfile";
             this->fcgCSCqmFile->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::CSCqmCheckedChanged);
@@ -4274,7 +4274,6 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgtabPageAudioMain->TabIndex = 0;
             this->fcgtabPageAudioMain->Text = L"音声";
             this->fcgtabPageAudioMain->UseVisualStyleBackColor = true;
-            this->fcgtabPageAudioMain->Click += gcnew System::EventHandler(this, &frmConfig::fcgBTAudioEncoderPath_Click);
             // 
             // fcgCXAudioDelayCut
             // 
@@ -4421,6 +4420,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgTXAudioEncoderPath->Name = L"fcgTXAudioEncoderPath";
             this->fcgTXAudioEncoderPath->Size = System::Drawing::Size(303, 21);
             this->fcgTXAudioEncoderPath->TabIndex = 37;
+            this->fcgTXAudioEncoderPath->Click += gcnew System::EventHandler(this, &frmConfig::fcgCXAudioEncoder_SelectedIndexChanged);
             this->fcgTXAudioEncoderPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXAudioEncoderPath_TextChanged);
             this->fcgTXAudioEncoderPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
             this->fcgTXAudioEncoderPath->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_Enter);
