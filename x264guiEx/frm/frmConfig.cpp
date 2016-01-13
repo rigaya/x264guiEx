@@ -1535,8 +1535,8 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->x264.timebase.x           = (int)fcgNUTimebaseNum->Value;
     cnf->x264.timebase.y           = (int)fcgNUTimebaseDen->Value;
 
-    GetCHARfromString(cnf->vid.stats,     sizeof(cnf->vid.stats),     fcgTXStatusFile->Text);
-    GetCHARfromString(cnf->vid.tcfile_in, sizeof(cnf->vid.tcfile_in), fcgTXTCIN->Text);
+    GetCHARfromString(cnf->vid.stats,     fcgTXStatusFile->Text);
+    GetCHARfromString(cnf->vid.tcfile_in, fcgTXTCIN->Text);
 
     //拡張部
     cnf->vid.afs                    = fcgCBAFS->Checked;
@@ -1548,7 +1548,7 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
     cnf->vid.input_as_lw48          = fcgCBInputAsLW48->Checked;
     cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
-    GetCHARfromString(cnf->vid.cmdex, sizeof(cnf->vid.cmdex), fcgTXCmdEx->Text);
+    GetCHARfromString(cnf->vid.cmdex, fcgTXCmdEx->Text);
 
     //音声部
     cnf->aud.encoder                = fcgCXAudioEncoder->SelectedIndex;
@@ -1582,10 +1582,10 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->oth.dont_wait_bat_fin      = RUN_BAT_NONE;
     cnf->oth.dont_wait_bat_fin     |= (!fcgCBWaitForBatBefore->Checked) ? RUN_BAT_BEFORE_PROCESS : NULL;
     cnf->oth.dont_wait_bat_fin     |= (!fcgCBWaitForBatAfter->Checked)  ? RUN_BAT_AFTER_PROCESS  : NULL;
-    GetCHARfromString(cnf->oth.batfile.before_process, sizeof(cnf->oth.batfile.before_process), fcgTXBatBeforePath->Text);
-    GetCHARfromString(cnf->oth.batfile.after_process,  sizeof(cnf->oth.batfile.after_process),  fcgTXBatAfterPath->Text);
-    GetCHARfromString(cnf->oth.batfile.before_audio, sizeof(cnf->oth.batfile.before_audio), fcgTXBatBeforeAudioPath->Text);
-    GetCHARfromString(cnf->oth.batfile.after_audio,  sizeof(cnf->oth.batfile.after_audio),  fcgTXBatAfterAudioPath->Text);
+    GetCHARfromString(cnf->oth.batfile.before_process, fcgTXBatBeforePath->Text);
+    GetCHARfromString(cnf->oth.batfile.after_process,  fcgTXBatAfterPath->Text);
+    GetCHARfromString(cnf->oth.batfile.before_audio,   fcgTXBatBeforeAudioPath->Text);
+    GetCHARfromString(cnf->oth.batfile.after_audio,    fcgTXBatAfterAudioPath->Text);
 
     GetfcgTSLSettingsNotes(cnf->oth.notes, sizeof(cnf->oth.notes));
 

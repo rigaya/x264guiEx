@@ -152,19 +152,25 @@ const X264_OPTION_STR list_colorprim[] = {
     { "bt470bg",   L"bt470bg"   },
     { "smpte240m", L"smpte240m" },
     { "film",      L"film"      },
+    { "bt2020",    L"bt2020"    },
     { NULL, NULL }
 };
 const X264_OPTION_STR list_transfer[] = {
-    { "undef",     L"指定なし"  },
-    { "auto",      L"自動"      },
-    { "bt709",     L"bt709"     },
-    { "smpte170m", L"smpte170m" },
-    { "bt470m",    L"bt470m"    },
-    { "bt470bg",   L"bt470bg"   },
-    { "smpte240m", L"smpte240m" },
-    { "linear",    L"linear"    },
-    { "log100",    L"log100"    },
-    { "log316",    L"log316"    },
+    { "undef",        L"指定なし"     },
+    { "auto",         L"自動"         },
+    { "bt709",        L"bt709"        },
+    { "smpte170m",    L"smpte170m"    },
+    { "bt470m",       L"bt470m"       },
+    { "bt470bg",      L"bt470bg"      },
+    { "smpte240m",    L"smpte240m"    },
+    { "linear",       L"linear"       },
+    { "log100",       L"log100"       },
+    { "log316",       L"log316"       },
+    { "iec61966-2-4", L"iec61966-2-4" },
+    { "bt1361e",      L"bt1361e"      },
+    { "iec61966-2-1", L"iec61966-2-1" },
+    { "bt2020-10",    L"bt2020-10"    },
+    { "bt2020-12",    L"bt2020-12"    },
     { NULL, NULL }
 };
 const X264_OPTION_STR list_colormatrix[] = {
@@ -177,6 +183,8 @@ const X264_OPTION_STR list_colormatrix[] = {
     { "YCgCo",     L"YCgCo"     },
     { "fcc",       L"fcc"       },
     { "GBR",       L"GBR"       },
+    { "bt2020nc",  L"bt2020nc"  },
+    { "bt2020c",   L"bt2020c"   },
     { NULL, NULL }
 };
 const X264_OPTION_STR list_videoformat[] = {
