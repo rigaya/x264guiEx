@@ -579,164 +579,183 @@ static BOOL set_do_nothing(void *cx, const char *value, const X264_OPTION_STR *l
 }
 
 
-static void write_bool(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     BOOL *bptr = (BOOL*)((BYTE*)cx + options->p_offset);
     BOOL *defptr = (BOOL*)((BYTE*)def + options->p_offset);
     if ((write_all || *bptr != *defptr) && *bptr)
-        sprintf_s(cmd, nSize, " --%s", options->long_name);
+        return sprintf_s(cmd, nSize, " --%s", options->long_name);
+    return 0;
 }
 
-static void write_bool_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     BOOL *bptr = (BOOL*)((BYTE*)cx + options->p_offset);
     BOOL *defptr = (BOOL*)((BYTE*)def + options->p_offset);
     if ((write_all || *bptr != *defptr) && !(*bptr))
-        sprintf_s(cmd, nSize, " --%s", options->long_name);
+        return sprintf_s(cmd, nSize, " --%s", options->long_name);
+    return 0;
 }
 
-static void write_bool2_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool2_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     INT2 *bptr = (INT2*)((BYTE*)cx + options->p_offset);
     if (!(bptr->x | bptr->y))
-        sprintf_s(cmd, nSize, " --%s", options->long_name);
+        return sprintf_s(cmd, nSize, " --%s", options->long_name);
+    return 0;
 }
 
-static void write_int(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_int(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr)
-        sprintf_s(cmd, nSize, " --%s %d", options->long_name, *iptr);
+        return sprintf_s(cmd, nSize, " --%s %d", options->long_name, *iptr);
+    return 0;
 }
 //小数表示の鬱陶しい0を消す
-static inline void write_float_ex(char *cmd, size_t nSize, float f) {
-    size_t last_len = strlen(cmd);
+static inline int write_float_ex(char *cmd, size_t nSize, float f) {
     double d = (int)(f * 1000.0 + 0.5 - (f<0)) / 1000.0; //これを入れないと22.2が22.19999とかになる
-    sprintf_s(cmd + last_len, nSize - last_len, "%lf", d);
-    char *p = cmd + strlen(cmd) - 1;
-    while (*p == '0' && p >= cmd + last_len)
+    int len = sprintf_s(cmd, nSize, "%lf", d);
+    char *p = cmd + len - 1;
+    while (*p == '0' && p >= cmd)
         p--;
     if (*p == '.') p--; //最後に'.'が残ったら消す
-    *(p + 1) = '\0';
+    p++;
+    *p = '\0';
+    return p - cmd;
 }
 
-static void write_float(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_float(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     float *fptr = (float*)((BYTE*)cx + options->p_offset);
     float *defptr = (float*)((BYTE*)def + options->p_offset);
     if (write_all || abs(*fptr - *defptr) > EPS_FLOAT) {
-        sprintf_s(cmd, nSize, " --%s ", options->long_name);
-        write_float_ex(cmd, nSize, *fptr);
+        int len = sprintf_s(cmd, nSize, " --%s ", options->long_name);
+        return len + write_float_ex(cmd + len, nSize - len, *fptr);
     }
+    return 0;
 }
 
-static void write_int2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_int2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     INT2 *iptr = (INT2*)((BYTE*)cx + options->p_offset);
     INT2 *defptr = (INT2*)((BYTE*)def + options->p_offset);
     if (write_all || iptr->x != defptr->x || iptr->y != defptr->y)
-        sprintf_s(cmd, nSize, " --%s %d:%d", options->long_name, iptr->x, iptr->y);
+        return sprintf_s(cmd, nSize, " --%s %d:%d", options->long_name, iptr->x, iptr->y);
+    return 0;
 }
 
-static void write_float2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_float2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     FLOAT2 *fptr = (FLOAT2*)((BYTE*)cx + options->p_offset);
     FLOAT2 *defptr = (FLOAT2*)((BYTE*)def + options->p_offset);
     if (write_all || fptr->x != defptr->x || fptr->y != defptr->y) {
-        sprintf_s(cmd, nSize, " --%s ", options->long_name);
-        write_float_ex(cmd, nSize, fptr->x);
-        strcat_s(cmd, nSize, ":");
-        write_float_ex(cmd, nSize, fptr->y);
+        int len = sprintf_s(cmd, nSize, " --%s ", options->long_name);
+        len += write_float_ex(cmd + len, nSize - len, fptr->x);
+        strcpy_s(cmd + len, nSize - len, ":");
+        len += strlen(":");
+        return len + write_float_ex(cmd + len, nSize - len, fptr->y);
     }
+    return 0;
 }
 
-static void write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr)
-        sprintf_s(cmd, nSize, " --%s %s", options->long_name, options->list[*iptr].name);
+        return sprintf_s(cmd, nSize, " --%s %s", options->long_name, options->list[*iptr].name);
+    return 0;
 }
 
-static void write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_CRF) {
-        sprintf_s(cmd, nSize, " --%s ", options->long_name);
-        write_float_ex(cmd, nSize, cx->crf / 100.0f);
+        int len = sprintf_s(cmd, nSize, " --%s ", options->long_name);
+        return len + write_float_ex(cmd + len, nSize - len, cx->crf / 100.0f);
     }
+    return 0;
 }
-static void write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_BITRATE) {
-        sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->bitrate);
+        int len = sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->bitrate);
         if (cx->pass) {
-            sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --pass %d", cx->pass);
-            sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --stats \"%s\"", vid->stats);
+            len += sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --pass %d", cx->pass);
+            len += sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --stats \"%s\"", vid->stats);
         }
+        return len;
     }
+    return 0;
 }
-static void write_qp(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_qp(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_QP)
-        sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->qp);
+        return sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->qp);
+    return 0;
 }
-static void write_keyint(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_keyint(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr) {
-        if (*iptr != 0)
-            sprintf_s(cmd, nSize, " --%s %d", options->long_name, *iptr);
-        else
-            strcpy_s(cmd, nSize, " --keyint infinite");
+        return (*iptr != 0) ? sprintf_s(cmd, nSize, " --%s %d", options->long_name, *iptr)
+                            : sprintf_s(cmd, nSize, " --%s %s", options->long_name, "infinite");
     }
+    return 0;
 }
-static void write_deblock(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_deblock(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_deblock)
         if (write_all || cx->deblock.x != def->deblock.x || cx->deblock.y != def->deblock.y)
-            sprintf_s(cmd, nSize, " --%s %d:%d", options->long_name, cx->deblock.x, cx->deblock.y);
+            return sprintf_s(cmd, nSize, " --%s %d:%d", options->long_name, cx->deblock.x, cx->deblock.y);
+    return 0;
 }
-static void write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->cqm < 2)
-        write_list(cmd, nSize, options, cx, def, vid, write_all);
+        return write_list(cmd, nSize, options, cx, def, vid, write_all);
     else
-        sprintf_s(cmd, nSize, " --cqmfile \"%s\"", vid->cqmfile);
+        return sprintf_s(cmd, nSize, " --cqmfile \"%s\"", vid->cqmfile);
+    return 0;
 }
-static void write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_tcfilein)
-        sprintf_s(cmd, nSize, " --tcfile-in \"%s\"", vid->tcfile_in);
+        return sprintf_s(cmd, nSize, " --tcfile-in \"%s\"", vid->tcfile_in);
+    return 0;
 }
-static void write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_highbit_depth)
-        strcpy_s(cmd, nSize, " --input-depth 16");
+        return strcpy_s(cmd, nSize, " --input-depth 16");
+    return 0;
 }
-static void write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {    
+static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {    
     DWORD *dwptr = (DWORD*)((BYTE*)cx + options->p_offset);
     DWORD *defptr = (DWORD*)((BYTE*)def + options->p_offset);
-    const char * const arg = " --partitions ";
-    if ((write_all || *dwptr != *defptr) && nSize > strlen(arg)) {
-        strcpy_s(cmd, nSize, arg);
-        cmd += strlen(arg); nSize -= strlen(arg);
-        if (*dwptr == MB_PARTITION_ALL)
-            strcpy_s(cmd, nSize, "all");
-        else {
-            strcpy_s(cmd, nSize, "none");
-            if (*dwptr != MB_PARTITION_NONE) {
-                size_t len = 0;
-#define APPEND_OPT(v) { strcpy_s(cmd + len, nSize - len, v); len += strlen(v); }
-                if (*dwptr & MB_PARTITION_P8x8) APPEND_OPT("p8x8,");
-                if (*dwptr & MB_PARTITION_B8x8) APPEND_OPT("b8x8,");
-                if (*dwptr & MB_PARTITION_P4x4) APPEND_OPT("p4x4,");
-                if (*dwptr & MB_PARTITION_I8x8) APPEND_OPT("i8x8,");
-                if (*dwptr & MB_PARTITION_I4x4) APPEND_OPT("i4x4,");
-#undef APPEND_OPT
-                if (len)
-                    cmd[len-1] = '\0'; //最後の","を取る
-            }
+    if (write_all || *dwptr != *defptr) {
+        int len = 0;
+#define APPEND_OPT(v) { strcpy_s(cmd + len, nSize - len, v); len += (int)strlen(v); }
+        APPEND_OPT(" --partitions ");
+        if (*dwptr == MB_PARTITION_ALL) {
+            APPEND_OPT("all");
+        } else if (*dwptr == MB_PARTITION_NONE) {
+            APPEND_OPT("none");
+        } else {
+            if (*dwptr & MB_PARTITION_P8x8) APPEND_OPT("p8x8,");
+            if (*dwptr & MB_PARTITION_B8x8) APPEND_OPT("b8x8,");
+            if (*dwptr & MB_PARTITION_P4x4) APPEND_OPT("p4x4,");
+            if (*dwptr & MB_PARTITION_I8x8) APPEND_OPT("i8x8,");
+            if (*dwptr & MB_PARTITION_I4x4) APPEND_OPT("i4x4,");
+            //最後の","を取る
+            len--;
+            cmd[len] = '\0'; 
         }
+        return len;
+#undef APPEND_OPT
     }
+    return 0;
 }
-static void write_tff(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_tff(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->interlaced)
-        strcpy_s(cmd, nSize, (cx->tff) ? " --tff" : " --bff");
+        return sprintf_s(cmd, nSize, " --%s ", (cx->tff) ? "tff" : "bff");
+    return 0;
 }
-static void write_timebase(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_timebase(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_timebase)
         if (write_all || cx->timebase.x != def->timebase.x || cx->timebase.y != def->timebase.y)
             if (cx->timebase.x > 0 && cx->timebase.y > 0)
-                sprintf_s(cmd, nSize, " --%s %d/%d", options->long_name, cx->timebase.x, cx->timebase.y);
+                return sprintf_s(cmd, nSize, " --%s %d/%d", options->long_name, cx->timebase.x, cx->timebase.y);
+    return 0;
 }
-static void write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
-    return;
+static int write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+    return 0;
 }
 
 #pragma warning( pop ) //( disable: 4100 ) 終了
@@ -775,7 +794,7 @@ const SET_VALUE set_value[] = {
 };
 
 //この配列に従って各関数に飛ばされる
-typedef void (*WRITE_CMD) (char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all);
+typedef int (*WRITE_CMD) (char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all);
 const WRITE_CMD write_cmd[] = {
     NULL, 
     write_bool,
@@ -1054,7 +1073,6 @@ int check_profile(const CONF_X264 *conf_set) {
 }
 
 void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const void *_vid, BOOL write_all) {
-    size_t len = 0;
     CONF_X264 x264def;
     CONF_X264 *def = &x264def;
     CONF_VIDEO *vid = (CONF_VIDEO *)_vid;
@@ -1064,11 +1082,11 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const v
     set_profile_to_conf(def, conf->profile);
 
     for (X264_OPTIONS *opt = x264_options_table; opt->long_name; opt++) {
-        write_cmd[opt->type](cmd, nSize, opt, conf, def, vid, write_all);
+        int len = write_cmd[opt->type](cmd, nSize, opt, conf, def, vid, write_all);
         len = strlen(cmd);
         nSize -= len;
         cmd += len;
-        if (opt->p_offset && (opt->p_offset == (opt+1)->p_offset) && !write_all)
+        if (opt->p_offset && (opt->p_offset == (opt+1)->p_offset) && len && !write_all)
             opt++;
     }
 }
