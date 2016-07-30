@@ -985,6 +985,15 @@ DWORD jpn_check(const void *str, DWORD size_in_byte);
 //西ヨーロッパ言語 なら Shift-JIS にしてしまう
 BOOL fix_ImulL_WesternEurope(UINT *code_page);
 
+//ひとつのコードページの表すutf-8文字を返す
+std::string cp_to_utf8(uint32_t codepoint);
+
+//複数のU+xxxxU+xxxxのような文字列について、codepageのリストを作成する
+std::vector<uint32_t> get_cp_list(const std::string& str);
+
+//code pageを記述している'U+xxxx'を含むUTF-8文字列をcode page部分を文字列に置換して返す
+std::string conv_cp_part_to_utf8(const std::string& string_utf8_with_cp);
+
 //cmd中のtarget_argを抜き出し削除する
 //del_valueが+1ならその後の値を削除する、-1ならその前の値を削除する
 //値を削除できたらTRUEを返す
