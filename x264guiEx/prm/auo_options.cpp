@@ -704,7 +704,6 @@ static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const
         return write_list(cmd, nSize, options, cx, def, vid, write_all);
     else
         return sprintf_s(cmd, nSize, " --cqmfile \"%s\"", vid->cqmfile);
-    return 0;
 }
 static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_tcfilein)
