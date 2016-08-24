@@ -18,6 +18,7 @@ void warning_no_aud_temp_root(const char *dir);
 void error_filename_too_long();
 void error_nothing_to_output();
 void error_amp_bitrate_confliction();
+void warning_amp_bitrate_confliction(int lower, int upper);
 void error_amp_afs_audio_delay_confliction();
 void info_afs_audio_delay_confliction();
 void info_amp_do_aud_enc_first(DWORD target_limit);
@@ -68,7 +69,7 @@ void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_
 void warning_failed_check_muxout_filesize();
 void warning_amp_failed();
 void warning_amp_filesize_over_limit();
-void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate);
+void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate_upper, double limit_filebitrate_lower, int retry_count, int new_bitrate);
 
 void warning_no_auto_save_log_dir();
 

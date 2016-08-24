@@ -80,13 +80,13 @@ static BOOL check_amp(CONF_GUIEX *conf) {
     BOOL check = TRUE;
     if (!conf->x264.use_auto_npass)
         return check;
-    if (conf->vid.amp_check & AMPLIMIT_BITRATE) {
-        //if (conf->x264.bitrate > conf->vid.amp_limit_bitrate) {
+    if (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) {
+        //if (conf->x264.bitrate > conf->vid.amp_limit_bitrate_upper) {
         //    check = FALSE; error_amp_bitrate_confliction();
-        //} else if (conf->vid.amp_limit_bitrate <= 0.0)
+        //} else if (conf->vid.amp_limit_bitrate_upper <= 0.0)
         //    conf->vid.amp_check &= ~AMPLIMIT_BITRATE; //フラグを折る
-        if (conf->vid.amp_limit_bitrate <= 0.0)
-            conf->vid.amp_check &= ~AMPLIMIT_BITRATE; //フラグを折る
+        if (conf->vid.amp_limit_bitrate_upper <= 0.0)
+            conf->vid.amp_check &= ~AMPLIMIT_BITRATE_UPPER; //フラグを折る
     }
     if (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) {
         if (conf->vid.amp_limit_file_size <= 0.0)
@@ -755,7 +755,7 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
 }
 
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
-    return base_bitrate * clamp(1.0 - margin_multi / sqrt(base_bitrate / 100.0), 0.8, 1.0);
+    return base_bitrate * clamp(1.0 - margin_multi / sqrt(max(base_bitrate, 1.0) / 100.0), 0.8, 1.0);
 }
 
 static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
@@ -798,13 +798,15 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     }
     const double duration = get_duration(conf, sys_dat, pe, oip);
     double file_bitrate = (filesize * 8.0) / 1000.0 / duration;
-    DWORD status = NULL;
+    DWORD status = 0x00;
     //ファイルサイズのチェックを行う
     if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) && filesize > conf->vid.amp_limit_file_size * 1024*1024)
         status |= AMPLIMIT_FILE_SIZE;
     //ビットレートのチェックを行う
-    if ((conf->vid.amp_check & AMPLIMIT_BITRATE) && file_bitrate > conf->vid.amp_limit_bitrate)
-        status |= AMPLIMIT_BITRATE;
+    if ((conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) && file_bitrate > conf->vid.amp_limit_bitrate_upper)
+        status |= AMPLIMIT_BITRATE_UPPER;
+    if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && file_bitrate < conf->vid.amp_limit_bitrate_lower)
+        status |= AMPLIMIT_BITRATE_LOWER;
 
     BOOL retry = (status && pe->current_x264_pass < pe->amp_x264_pass_limit);
     BOOL show_header = FALSE;
@@ -813,13 +815,31 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     if (retry) {
         //muxerを再設定する
         pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
-        //音声がビットレートモードなら音声再エンコによる調整を検討する
-        double limit_bitrate = DBL_MAX;
+        
+        //まずビットレートの上限を計算
+        double limit_bitrate_upper = DBL_MAX;
         if (status & AMPLIMIT_FILE_SIZE)
-            limit_bitrate = min(limit_bitrate, (conf->vid.amp_limit_file_size * 1024*1024)*8.0/1000 / duration);
-        if (status & AMPLIMIT_BITRATE)
-            limit_bitrate = min(limit_bitrate, conf->vid.amp_limit_bitrate);
-        const double bitrate_delta = file_bitrate - limit_bitrate;
+            limit_bitrate_upper = min(limit_bitrate_upper, (conf->vid.amp_limit_file_size * 1024*1024)*8.0/1000 / duration);
+        if (status & AMPLIMIT_BITRATE_UPPER)
+            limit_bitrate_upper = min(limit_bitrate_upper, conf->vid.amp_limit_bitrate_upper);
+        //次にビットレートの下限を計算
+        double limit_bitrate_lower = (status & AMPLIMIT_BITRATE_LOWER) ? conf->vid.amp_limit_bitrate_lower : 0.0;
+        //上限・下限チェック
+        if (limit_bitrate_lower > limit_bitrate_upper) {
+            warning_amp_bitrate_confliction((int)limit_bitrate_lower, (int)limit_bitrate_upper);
+            conf->vid.amp_check &= ~AMPLIMIT_BITRATE_LOWER;
+            limit_bitrate_lower = 0.0;
+        }
+        //必要な修正量を算出
+        //deltaは上げる必要があれば正、下げる必要があれば負
+        double bitrate_delta = 0.0;
+        if (file_bitrate > limit_bitrate_upper) {
+            bitrate_delta = limit_bitrate_upper - file_bitrate;
+        }
+        if (file_bitrate < limit_bitrate_lower) {
+            bitrate_delta = limit_bitrate_lower - file_bitrate;
+        }
+        //音声がビットレートモードなら音声再エンコによる調整を検討する
         const AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud[conf->aud.encoder];
         if ((oip->flag & OUTPUT_INFO_FLAG_AUDIO)
             && aud_stg->mode[conf->aud.enc_mode].bitrate
@@ -829,7 +849,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
             && PathFileExists(pe->muxed_vid_filename)) {
             //音声の再エンコードで修正
             amp_result = 2;
-			const int delta_sign = (bitrate_delta >= 0.0) ? 1 : -1;
+            const int delta_sign = (bitrate_delta >= 0.0) ? 1 : -1;
             conf->aud.bitrate += (int)((std::max)(std::abs(bitrate_delta), (std::min)(15.0, conf->aud.bitrate * (1.0 / 8.0))) + 1.5) * delta_sign;
 
             //動画のみファイルをもとの位置へ
@@ -855,24 +875,25 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 conf->x264.slow_first_pass = FALSE;
                 conf->x264.nul_out = TRUE;
                 //ここでは目標ビットレートには-1を指定しておき、
-                //後段で上限設定をもとに修正させる
+                //後段のcheck_ampで上限/下限設定をもとに修正させる
                 conf->x264.bitrate = -1;
                 //自動マルチパスの1pass目には本来ヘッダーが表示されないので、 ここで表示しておく
                 show_header = TRUE;
             } else {
                 //再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
-                //3通りの方法で計算してみる
-                double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * 0.5);
-                double bitrate_limit  = (conf->vid.amp_check & AMPLIMIT_BITRATE)   ? conf->x264.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate) : conf->x264.bitrate;
+                //上限を4通りの方法で計算してみる
+                double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * (status & (AMPLIMIT_FILE_SIZE | AMPLIMIT_BITRATE_UPPER)) ? 0.5 : -0.5);
+                double bitrate_limit_upper = (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) ? conf->x264.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate_upper) : conf->x264.bitrate;
+                double bitrate_limit_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->x264.bitrate + 0.5 * (conf->vid.amp_limit_bitrate_lower - file_bitrate) : conf->x264.bitrate;
                 double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - 0.5 * ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;
-                conf->x264.bitrate = (int)(0.5 + min(margin_bitrate, min(bitrate_limit, filesize_limit)));
+                conf->x264.bitrate = (int)(0.5 + max(min(margin_bitrate, min(filesize_limit, bitrate_limit_upper)), bitrate_limit_lower));
             }
             //必要なら、今回作成した動画を待避
             if (sys_dat->exstg->s_local.amp_keep_old_file)
                 amp_move_old_file(muxout, oip->savefile);
         }
     }
-    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate, pe->current_x264_pass - conf->x264.auto_npass, (amp_result == 2) ? conf->aud.bitrate : conf->x264.bitrate);
+    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, pe->current_x264_pass - conf->x264.auto_npass, (amp_result == 2) ? conf->aud.bitrate : conf->x264.bitrate);
 
     if (show_header)
         open_log_window(oip->savefile, sys_dat, pe->current_x264_pass, pe->total_x264_pass);

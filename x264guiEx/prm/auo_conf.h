@@ -54,8 +54,9 @@ enum {
 const int CMDEX_MAX_LEN = 2048;    //追加コマンドラインの最大長
 
 enum {
-    AMPLIMIT_FILE_SIZE = 0x01, //自動マルチパス時、ファイルサイズのチェックを行う
-    AMPLIMIT_BITRATE   = 0x02, //自動マルチパス時、ビットレートのチェックを行う
+    AMPLIMIT_FILE_SIZE     = 0x01, //自動マルチパス時、ファイルサイズのチェックを行う
+    AMPLIMIT_BITRATE_UPPER = 0x02, //自動マルチパス時、ビットレート上限のチェックを行う
+    AMPLIMIT_BITRATE_LOWER = 0x04, //自動マルチパス時、ビットレート下限のチェックを行う
 };
 
 enum {
@@ -92,8 +93,9 @@ typedef struct {
     int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
     DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
-    double amp_limit_bitrate;        //自動マルチパス時のビットレート制限(kbps)
+    double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
     BOOL   input_as_lw48;            //LW48モード
+    double amp_limit_bitrate_lower;  //自動マルチパス時のビットレート下限(kbps)
 } CONF_VIDEO; //動画用設定(x264以外)
 
 typedef struct {

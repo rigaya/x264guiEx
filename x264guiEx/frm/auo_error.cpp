@@ -36,6 +36,11 @@ void error_nothing_to_output() {
     write_log_auo_line(LOG_ERROR, "出力すべきものがありません。");
 }
 
+void warning_amp_bitrate_confliction(int lower, int upper) {
+    write_log_auo_line_fmt(LOG_WARNING, "ビットレート上限の指定により、下限設定を適用できません。上限: %dkbps, 下限: %dkbps", upper, lower);
+    write_log_auo_line(LOG_WARNING, "下限ビットレートは無視されます。");
+}
+
 void error_amp_bitrate_confliction() {
     write_log_auo_line(LOG_ERROR, "上限ビットレートが、目標ビットレートより小さく設定されています。エンコードできません。");
     write_log_auo_line(LOG_ERROR, "ビットレート設定を見なおしてください。");
@@ -53,13 +58,13 @@ void info_afs_audio_delay_confliction() {
 static const char *get_target_limit_name(DWORD target_limit) {
     const char *str_limit = "";
     switch (target_limit) {
-        case AMPLIMIT_BITRATE:
+        case AMPLIMIT_BITRATE_UPPER:
+        case AMPLIMIT_BITRATE_LOWER:
             str_limit = "ビットレート";   break;
         case AMPLIMIT_FILE_SIZE:
             str_limit = "ファイルサイズ"; break;
-        case (AMPLIMIT_BITRATE & AMPLIMIT_FILE_SIZE):
+        default:
             str_limit = "ファイルサイズ/ビットレート";   break;
-        default: break;
     }
     return str_limit;
 }
@@ -80,7 +85,10 @@ void error_amp_target_bitrate_too_small(DWORD target_limit) {
 
 void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit) {
     if (bitrate_old >= 0) {
-        write_log_auo_line_fmt(LOG_WARNING, "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。", get_target_limit_name(target_limit));
+        write_log_auo_line_fmt(LOG_WARNING, (bitrate_old > bitrate_new)
+            ? "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。"
+            : "下限%sの設定を守るには、指定された目標ビットレートは小さすぎます。",
+            get_target_limit_name(target_limit));
         write_log_auo_line_fmt(LOG_WARNING, "目標ビットレートを %d kbps -> %d kbpsに変更します。", bitrate_old, bitrate_new);
     } else {
         //-1は上限確認付crfで使用する
@@ -343,23 +351,25 @@ void warning_mux_no_chapter_file() {
     write_log_auo_line(LOG_WARNING, "指定されたチャプターファイルが存在しません。チャプターはmuxされません。");
 }
 
-void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate, int retry_count, int new_bitrate) {
+void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate_upper, double limit_filebitrate_lower, int retry_count, int new_bitrate) {
     int log_index = (status) ? ((amp_result) ? LOG_WARNING : LOG_ERROR) : LOG_INFO;
     write_log_auo_line_fmt(    log_index, "出力ファイルサイズ %.2f MB, ファイルビットレート %.2f kbps", filesize / (double)(1024*1024), file_bitrate);
     if (status & AMPLIMIT_FILE_SIZE)
         write_log_auo_line_fmt(log_index, "上限ファイルサイズ %.2f MB を上回ってしまいました。", limit_filesize);
-    if (status & AMPLIMIT_BITRATE)
-        write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。", limit_filebitrate);
+    if (status & AMPLIMIT_BITRATE_UPPER)
+        write_log_auo_line_fmt(log_index, "上限ファイルビットレート %.2f kbps を上回ってしまいました。", limit_filebitrate_upper);
+    if (status & AMPLIMIT_BITRATE_LOWER)
+        write_log_auo_line_fmt(log_index, "下限ファイルビットレート %.2f kbps を下回ってしまいました。", limit_filebitrate_lower);
     if (status && amp_result)
         if (amp_result == 2)
             write_log_auo_line_fmt(log_index, "音声目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
-        else if (new_bitrate >= 0) //-1は上限確認付crfで使用する
+        else if (new_bitrate >= 0) //-1, 0は上限確認付crfで使用する
             write_log_auo_line_fmt(log_index, "映像目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
 
     if (!status)
-        write_log_auo_line_fmt(log_index, "指定された上限を下回っていることを確認しました。");
+        write_log_auo_line_fmt(log_index, "指定された上限/下限を満たしていることを確認しました。");
     else if (!amp_result)
-        write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限を上回ってしまいました。目標ビットレートを見なおしてください。", retry_count);
+        write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限/下限を満たせませんでした。目標ビットレートを見なおしてください。", retry_count);
 }
 
 void warning_mux_chapter(int sts) {

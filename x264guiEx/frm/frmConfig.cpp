@@ -460,9 +460,11 @@ System::Void frmConfig::fcgArrangeForAutoMultiPass(bool enable) {
     NewPoint.Y += PNStatusFileOffset * ((enable) ? -1 : 1);
     fcgPNStatusFile->Location = NewPoint;
     fcgLastX264ModeAsAMP = enable;
-    fcgCBAMPLimitBitrate->Visible = enable;
+    fcgCBAMPLimitBitrateLower->Visible = enable;
+    fcgCBAMPLimitBitrateUpper->Visible = enable;
     fcgCBAMPLimitFileSize->Visible = enable;
-    fcgNUAMPLimitBitrate->Visible = enable;
+    fcgNUAMPLimitBitrateLower->Visible = enable;
+    fcgNUAMPLimitBitrateUpper->Visible = enable;
     fcgNUAMPLimitFileSize->Visible = enable;
 }
 
@@ -472,7 +474,7 @@ System::Void frmConfig::fcgCheckAMPAutoBitrateEvent(System::Object^  sender, Sys
     if (fcgCXX264Mode->SelectedIndex == 5) {
         if (   0 == String::Compare(fcgTXQuality->Text, STR_BITRATE_AUTO)
             || 0 == String::Compare(fcgTXQuality->Text, L"-1")) {
-                if (!fcgCBAMPLimitBitrate->Checked && !fcgCBAMPLimitFileSize->Checked) {
+                if (!fcgCBAMPLimitBitrateUpper->Checked && !fcgCBAMPLimitFileSize->Checked) {
                 fcgLBAMPAutoBitrate->Visible = true;
                 return;
                 }
@@ -482,7 +484,8 @@ System::Void frmConfig::fcgCheckAMPAutoBitrateEvent(System::Object^  sender, Sys
 }
 
 System::Void frmConfig::AddCheckAMPAutoBitrateEvent() {
-    fcgCBAMPLimitBitrate->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+    fcgCBAMPLimitBitrateLower->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
+    fcgCBAMPLimitBitrateUpper->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
     fcgCBAMPLimitFileSize->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
     fcgCXX264Mode->SelectedIndexChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
     fcgTXQuality->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgCheckAMPAutoBitrateEvent);
@@ -1278,10 +1281,12 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
     SetCXIndex(fcgCXPreset,           cx264->preset);
     SetCXIndex(fcgCXTune,             cx264->tune);
     SetCXIndex(fcgCXProfile,          cx264->profile);
-    fcgCBAMPLimitBitrate->Checked  = (cnf->vid.amp_check & AMPLIMIT_BITRATE) != 0;
-    fcgCBAMPLimitFileSize->Checked = (cnf->vid.amp_check & AMPLIMIT_FILE_SIZE) != 0;
+    fcgCBAMPLimitBitrateLower->Checked   = (cnf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) != 0;
+    fcgCBAMPLimitBitrateUpper->Checked = (cnf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) != 0;
+    fcgCBAMPLimitFileSize->Checked     = (cnf->vid.amp_check & AMPLIMIT_FILE_SIZE) != 0;
     SetNUValue(fcgNUAMPLimitFileSize, cnf->vid.amp_limit_file_size);
-    SetNUValue(fcgNUAMPLimitBitrate,  cnf->vid.amp_limit_bitrate);
+    SetNUValue(fcgNUAMPLimitBitrateUpper, cnf->vid.amp_limit_bitrate_upper);
+    SetNUValue(fcgNUAMPLimitBitrateLower, cnf->vid.amp_limit_bitrate_lower);
     SetCXIndex(fcgCXLevel,            cx264->h264_level);
     SetCXIndex(fcgCXVideoFormat,      cx264->videoformat);
     fcgCBAud->Checked               = cx264->aud != 0;
@@ -1447,11 +1452,13 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->x264.slow_first_pass      = cnf_fcgTemp->slow_first_pass;
     cnf->x264.use_auto_npass       = cnf_fcgTemp->use_auto_npass;
     cnf->x264.auto_npass           = (int)fcgNUAutoNPass->Value;
-    cnf->vid.amp_check             = NULL;
-    cnf->vid.amp_check            |= fcgCBAMPLimitBitrate->Checked ? AMPLIMIT_BITRATE : NULL;
-    cnf->vid.amp_check            |= fcgCBAMPLimitFileSize->Checked ? AMPLIMIT_FILE_SIZE : NULL;
-    cnf->vid.amp_limit_bitrate     = (double)fcgNUAMPLimitBitrate->Value;
-    cnf->vid.amp_limit_file_size   = (double)fcgNUAMPLimitFileSize->Value;
+    cnf->vid.amp_check             = 0x00;
+    cnf->vid.amp_check            |= fcgCBAMPLimitBitrateLower->Checked ? AMPLIMIT_BITRATE_LOWER : 0x00;
+    cnf->vid.amp_check            |= fcgCBAMPLimitBitrateUpper->Checked ? AMPLIMIT_BITRATE_UPPER : 0x00;
+    cnf->vid.amp_check            |= fcgCBAMPLimitFileSize->Checked ? AMPLIMIT_FILE_SIZE : 0x00;
+    cnf->vid.amp_limit_bitrate_upper = (double)fcgNUAMPLimitBitrateUpper->Value;
+    cnf->vid.amp_limit_bitrate_lower = (double)fcgNUAMPLimitBitrateLower->Value;
+    cnf->vid.amp_limit_file_size     = (double)fcgNUAMPLimitFileSize->Value;
     cnf->x264.preset               = fcgCXPreset->SelectedIndex;
     cnf->x264.tune                 = fcgCXTune->SelectedIndex;
     cnf->x264.profile              = fcgCXProfile->SelectedIndex;
@@ -1736,7 +1743,7 @@ System::Void frmConfig::SetHelpToolTips() {
         );
 
     //自動マルチパス 上限設定
-    String^ AMP_LimitBitrate = L""
+    String^ AMP_LimitBitrateUpper = L""
         + L"出力する動画ファイル(映像＋音声)のビットレートが、\n"
         + L"ここで設定した上限ビットレートを超えないようエンコードを行います。\n"
         + L"\n"
@@ -1744,8 +1751,18 @@ System::Void frmConfig::SetHelpToolTips() {
         + L"上回ってしまった場合には、再エンコードを行います。\n"
         + L"\n"
         + L"上限設定はチェックボックスによりオン/オフできます。";
-    fcgTTEx->SetToolTip(fcgCBAMPLimitBitrate,     AMP_LimitBitrate);
-    fcgTTEx->SetToolTip(fcgNUAMPLimitBitrate,     AMP_LimitBitrate);
+    String^ AMP_LimitBitrateLower = L""
+        + L"出力する動画ファイル(映像＋音声)のビットレートが、\n"
+        + L"ここで設定した下限ビットレートを下回らないようエンコードを行います。\n"
+        + L"\n"
+        + L"エンコード終了後にも確認を行い、ファイルビットレートが下限設定を\n"
+        + L"下回ってしまった場合には、再エンコードを行います。\n"
+        + L"\n"
+        + L"上限設定はチェックボックスによりオン/オフできます。";
+    fcgTTEx->SetToolTip(fcgCBAMPLimitBitrateUpper, AMP_LimitBitrateUpper);
+    fcgTTEx->SetToolTip(fcgNUAMPLimitBitrateUpper, AMP_LimitBitrateUpper);
+    fcgTTEx->SetToolTip(fcgCBAMPLimitBitrateLower, AMP_LimitBitrateLower);
+    fcgTTEx->SetToolTip(fcgNUAMPLimitBitrateLower, AMP_LimitBitrateLower);
     String^ AMP_LimitFileSize = L""
         + L"出力する動画ファイル(映像＋音声)のサイズが、\n"
         + L"ここで設定した上限ファイルサイズを超えないようエンコードを行います。\n"

@@ -627,9 +627,9 @@ static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *
             filesize_limit = min(filesize_limit, (UINT64)(conf->vid.amp_limit_file_size*1024*1024));
         }
         //上限ビットレートのチェック
-        if (conf->vid.amp_check & AMPLIMIT_BITRATE) {
+        if (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) {
             const double duration = get_duration(conf, sys_dat, pe, oip);
-            filesize_limit = min(filesize_limit, (UINT64)(conf->vid.amp_limit_bitrate * 1000 / 8 * duration));
+            filesize_limit = min(filesize_limit, (UINT64)(conf->vid.amp_limit_bitrate_upper * 1000 / 8 * duration));
         }
     }
     //音声のサイズはここでは考慮しない
@@ -1001,7 +1001,7 @@ static void set_window_title_x264(const PRM_ENC *pe) {
 
 static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     if (!(conf->x264.use_auto_npass && conf->x264.rc_mode == X264_RC_BITRATE) || !conf->vid.amp_check)
-        return AUO_RESULT_SUCCESS;
+        return AUO_RESULT_SUCCESS; //上限確認付きcrfはここで抜ける
     //音声ファイルサイズ取得
     double aud_bitrate = 0.0;
     const double duration = get_duration(conf, sys_dat, pe, oip);
@@ -1031,9 +1031,9 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
             return AUO_RESULT_ERROR;
         }
         aud_bitrate = aud_filesize * 8.0 / 1000.0 / duration;
-        if ((conf->vid.amp_check & AMPLIMIT_BITRATE) &&
-            aud_bitrate >= conf->vid.amp_limit_bitrate) {
-            error_amp_aud_too_big(AMPLIMIT_BITRATE);
+        if ((conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) &&
+            aud_bitrate >= conf->vid.amp_limit_bitrate_upper) {
+            error_amp_aud_too_big(AMPLIMIT_BITRATE_UPPER);
             return AUO_RESULT_ERROR;
         }
     }
@@ -1046,23 +1046,44 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
         target_limit = AMPLIMIT_FILE_SIZE;
     }
     //上限ビットレートのチェック
-    if ((conf->vid.amp_check & AMPLIMIT_BITRATE) &&
-        required_file_bitrate > conf->vid.amp_limit_bitrate) {
-        required_file_bitrate = conf->vid.amp_limit_bitrate;
-        target_limit = AMPLIMIT_BITRATE;
+    if ((conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) &&
+        required_file_bitrate > conf->vid.amp_limit_bitrate_upper) {
+        required_file_bitrate = conf->vid.amp_limit_bitrate_upper;
+        target_limit = AMPLIMIT_BITRATE_UPPER;
     }
-    double required_vid_bitrate = get_amp_margin_bitrate(required_file_bitrate - aud_bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi);
+    //下限ビットレートのチェック
+    //上限設定と矛盾した場合は、上限設定を優先させる
+    if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && required_file_bitrate < conf->vid.amp_limit_bitrate_lower) {
+        warning_amp_bitrate_confliction((int)conf->vid.amp_limit_bitrate_lower, (int)required_file_bitrate);
+        conf->vid.amp_check &= ~AMPLIMIT_BITRATE_LOWER;
+    }
+    const double required_vid_bitrate_upper = get_amp_margin_bitrate(required_file_bitrate - aud_bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi);
     //あまりにも計算したビットレートが小さすぎたらエラーを出す
-    if (required_vid_bitrate <= 1.0) {
+    if (required_vid_bitrate_upper <= 1.0) {
         error_amp_target_bitrate_too_small(target_limit);
         return AUO_RESULT_ERROR;
     }
+    const int bitrate_vid_old = conf->x264.bitrate;
+    //まず上限のほうをチェック、下限設定よりも優先させる
     //計算されたビットレートが目標ビットレートを上回っていたら、目標ビットレートを変更する
     //conf->x264.bitrate = -1は自動であるが、
     //これをDWORDとして扱うことでUINT_MAX扱いとし、自動的に反映する
-    if (required_vid_bitrate < (double)((DWORD)conf->x264.bitrate)) {
-        warning_amp_change_bitrate(conf->x264.bitrate, (int)(required_vid_bitrate + 0.5), target_limit);
-        conf->x264.bitrate = (int)(required_vid_bitrate + 0.5);
+    if (required_vid_bitrate_upper < (double)((DWORD)conf->x264.bitrate)) {
+        //下限のほうもぎりぎり超えないよう確認
+        const double limit_bitrate_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->vid.amp_limit_bitrate_lower - aud_bitrate : 0.0;
+        conf->x264.bitrate = (int)((std::max)(required_vid_bitrate_upper, limit_bitrate_lower) + 0.5);
+    } else {
+        //あとから下限のほうもチェック
+        const double required_vid_bitrate_lower = get_amp_margin_bitrate(conf->vid.amp_limit_bitrate_lower - aud_bitrate, -1.0 * sys_dat->exstg->s_local.amp_bitrate_margin_multi);
+        if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && conf->x264.bitrate < required_vid_bitrate_lower) {
+            //上限のほうもぎりぎり超えないよう確認
+            const double limit_bitrate_upper = (target_limit) ? required_file_bitrate - aud_bitrate : DBL_MAX;
+            conf->x264.bitrate = (int)((std::min)(required_vid_bitrate_lower, limit_bitrate_upper) + 0.5);
+        }
+    }
+    //ビットレートを変更したらメッセージ
+    if (bitrate_vid_old != conf->x264.bitrate) {
+        warning_amp_change_bitrate(bitrate_vid_old, conf->x264.bitrate, target_limit);
     }
     return AUO_RESULT_SUCCESS;
 }

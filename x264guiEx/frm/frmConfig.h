@@ -573,7 +573,7 @@ private: System::Windows::Forms::ComboBox^  fcgCXInputRange;
 
 private: System::Windows::Forms::Label^  fcgLBInputRange;
 private: System::Windows::Forms::ContextMenuStrip^  fcgCSReplaceStrings;
-private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrate;
+private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateUpper;
 
 
 private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitFileSize;
@@ -581,7 +581,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitFileSize;
 
 private: System::Windows::Forms::Panel^  fcgPNX264Mode;
 private: System::Windows::Forms::Panel^  fcgPNBitrate;
-private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrate;
+private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateUpper;
 
 private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitFileSize;
 private: System::Windows::Forms::Panel^  fcgPNStatusFile;
@@ -671,6 +671,8 @@ private: System::Windows::Forms::CheckBox^  fcgCBRunBatBeforeAudio;
 
 private: System::Windows::Forms::ComboBox^  fcgCXAudioPriority;
 private: System::Windows::Forms::Label^  fcgLBAudioPriority;
+private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateLower;
+private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
 
 
 
@@ -745,11 +747,11 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgBTTBQualityAdd = (gcnew System::Windows::Forms::Button());
             this->fcgTBQuality = (gcnew System::Windows::Forms::TrackBar());
             this->fcgPNX264Mode = (gcnew System::Windows::Forms::Panel());
-            this->fcgNUAMPLimitBitrate = (gcnew System::Windows::Forms::NumericUpDown());
+            this->fcgNUAMPLimitBitrateUpper = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgNUAMPLimitFileSize = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgCXX264Mode = (gcnew System::Windows::Forms::ComboBox());
             this->fcgCBNulOut = (gcnew System::Windows::Forms::CheckBox());
-            this->fcgCBAMPLimitBitrate = (gcnew System::Windows::Forms::CheckBox());
+            this->fcgCBAMPLimitBitrateUpper = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBFastFirstPass = (gcnew System::Windows::Forms::CheckBox());
             this->fcgNUAutoNPass = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgCBAMPLimitFileSize = (gcnew System::Windows::Forms::CheckBox());
@@ -1057,13 +1059,15 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgCBRunBatBeforeAudio = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCXAudioPriority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBAudioPriority = (gcnew System::Windows::Forms::Label());
+            this->fcgNUAMPLimitBitrateLower = (gcnew System::Windows::Forms::NumericUpDown());
+            this->fcgCBAMPLimitBitrateLower = (gcnew System::Windows::Forms::CheckBox());
             this->fcgtabControlVideo->SuspendLayout();
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
             this->fcgPNBitrate->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->BeginInit();
             this->fcgPNX264Mode->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrate))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->BeginInit();
             this->fcggroupBoxX264Out->SuspendLayout();
@@ -1129,6 +1133,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgtabPageAudioMain->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->BeginInit();
             this->fcgtabPageAudioOther->SuspendLayout();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->BeginInit();
             this->SuspendLayout();
             // 
             // fcgtabControlVideo
@@ -1186,7 +1191,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgPNStatusFile->Controls->Add(this->fcgLBSTATUS);
             this->fcgPNStatusFile->Controls->Add(this->fcgTXStatusFile);
             this->fcgPNStatusFile->Controls->Add(this->fcgBTStatusFile);
-            this->fcgPNStatusFile->Location = System::Drawing::Point(5, 271);
+            this->fcgPNStatusFile->Location = System::Drawing::Point(5, 291);
             this->fcgPNStatusFile->Name = L"fcgPNStatusFile";
             this->fcgPNStatusFile->Size = System::Drawing::Size(376, 32);
             this->fcgPNStatusFile->TabIndex = 49;
@@ -1227,7 +1232,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgPNBitrate->Controls->Add(this->fcgBTTBQualitySubtract);
             this->fcgPNBitrate->Controls->Add(this->fcgBTTBQualityAdd);
             this->fcgPNBitrate->Controls->Add(this->fcgTBQuality);
-            this->fcgPNBitrate->Location = System::Drawing::Point(5, 191);
+            this->fcgPNBitrate->Location = System::Drawing::Point(5, 211);
             this->fcgPNBitrate->Name = L"fcgPNBitrate";
             this->fcgPNBitrate->Size = System::Drawing::Size(376, 84);
             this->fcgPNBitrate->TabIndex = 48;
@@ -1310,35 +1315,37 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             // fcgPNX264Mode
             // 
-            this->fcgPNX264Mode->Controls->Add(this->fcgNUAMPLimitBitrate);
+            this->fcgPNX264Mode->Controls->Add(this->fcgNUAMPLimitBitrateLower);
+            this->fcgPNX264Mode->Controls->Add(this->fcgCBAMPLimitBitrateLower);
+            this->fcgPNX264Mode->Controls->Add(this->fcgNUAMPLimitBitrateUpper);
             this->fcgPNX264Mode->Controls->Add(this->fcgNUAMPLimitFileSize);
             this->fcgPNX264Mode->Controls->Add(this->fcgCXX264Mode);
             this->fcgPNX264Mode->Controls->Add(this->fcgCBNulOut);
-            this->fcgPNX264Mode->Controls->Add(this->fcgCBAMPLimitBitrate);
+            this->fcgPNX264Mode->Controls->Add(this->fcgCBAMPLimitBitrateUpper);
             this->fcgPNX264Mode->Controls->Add(this->fcgCBFastFirstPass);
             this->fcgPNX264Mode->Controls->Add(this->fcgNUAutoNPass);
             this->fcgPNX264Mode->Controls->Add(this->fcgCBAMPLimitFileSize);
             this->fcgPNX264Mode->Controls->Add(this->fcgLBAutoNpass);
             this->fcgPNX264Mode->Location = System::Drawing::Point(5, 67);
             this->fcgPNX264Mode->Name = L"fcgPNX264Mode";
-            this->fcgPNX264Mode->Size = System::Drawing::Size(376, 126);
+            this->fcgPNX264Mode->Size = System::Drawing::Size(376, 146);
             this->fcgPNX264Mode->TabIndex = 47;
             // 
-            // fcgNUAMPLimitBitrate
+            // fcgNUAMPLimitBitrateUpper
             // 
-            this->fcgNUAMPLimitBitrate->DecimalPlaces = 1;
-            this->fcgNUAMPLimitBitrate->Location = System::Drawing::Point(290, 100);
-            this->fcgNUAMPLimitBitrate->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
-            this->fcgNUAMPLimitBitrate->Name = L"fcgNUAMPLimitBitrate";
-            this->fcgNUAMPLimitBitrate->Size = System::Drawing::Size(78, 21);
-            this->fcgNUAMPLimitBitrate->TabIndex = 47;
-            this->fcgNUAMPLimitBitrate->Tag = L"chValue";
-            this->fcgNUAMPLimitBitrate->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+            this->fcgNUAMPLimitBitrateUpper->DecimalPlaces = 1;
+            this->fcgNUAMPLimitBitrateUpper->Location = System::Drawing::Point(290, 94);
+            this->fcgNUAMPLimitBitrateUpper->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
+            this->fcgNUAMPLimitBitrateUpper->Name = L"fcgNUAMPLimitBitrateUpper";
+            this->fcgNUAMPLimitBitrateUpper->Size = System::Drawing::Size(78, 21);
+            this->fcgNUAMPLimitBitrateUpper->TabIndex = 47;
+            this->fcgNUAMPLimitBitrateUpper->Tag = L"chValue";
+            this->fcgNUAMPLimitBitrateUpper->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
             // 
             // fcgNUAMPLimitFileSize
             // 
             this->fcgNUAMPLimitFileSize->DecimalPlaces = 1;
-            this->fcgNUAMPLimitFileSize->Location = System::Drawing::Point(290, 75);
+            this->fcgNUAMPLimitFileSize->Location = System::Drawing::Point(290, 69);
             this->fcgNUAMPLimitFileSize->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16384, 0, 0, 0 });
             this->fcgNUAMPLimitFileSize->Name = L"fcgNUAMPLimitFileSize";
             this->fcgNUAMPLimitFileSize->Size = System::Drawing::Size(78, 21);
@@ -1360,7 +1367,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgCBNulOut
             // 
             this->fcgCBNulOut->AutoSize = true;
-            this->fcgCBNulOut->Location = System::Drawing::Point(6, 45);
+            this->fcgCBNulOut->Location = System::Drawing::Point(6, 39);
             this->fcgCBNulOut->Name = L"fcgCBNulOut";
             this->fcgCBNulOut->Size = System::Drawing::Size(65, 18);
             this->fcgCBNulOut->TabIndex = 5;
@@ -1369,21 +1376,21 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgCBNulOut->UseVisualStyleBackColor = true;
             this->fcgCBNulOut->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgCBNulOut_CheckedChanged);
             // 
-            // fcgCBAMPLimitBitrate
+            // fcgCBAMPLimitBitrateUpper
             // 
-            this->fcgCBAMPLimitBitrate->AutoSize = true;
-            this->fcgCBAMPLimitBitrate->Location = System::Drawing::Point(30, 101);
-            this->fcgCBAMPLimitBitrate->Name = L"fcgCBAMPLimitBitrate";
-            this->fcgCBAMPLimitBitrate->Size = System::Drawing::Size(221, 18);
-            this->fcgCBAMPLimitBitrate->TabIndex = 45;
-            this->fcgCBAMPLimitBitrate->Tag = L"chValue";
-            this->fcgCBAMPLimitBitrate->Text = L"上限ファイルビットレート(映像+音声, kbps)";
-            this->fcgCBAMPLimitBitrate->UseVisualStyleBackColor = true;
+            this->fcgCBAMPLimitBitrateUpper->AutoSize = true;
+            this->fcgCBAMPLimitBitrateUpper->Location = System::Drawing::Point(30, 95);
+            this->fcgCBAMPLimitBitrateUpper->Name = L"fcgCBAMPLimitBitrateUpper";
+            this->fcgCBAMPLimitBitrateUpper->Size = System::Drawing::Size(221, 18);
+            this->fcgCBAMPLimitBitrateUpper->TabIndex = 45;
+            this->fcgCBAMPLimitBitrateUpper->Tag = L"chValue";
+            this->fcgCBAMPLimitBitrateUpper->Text = L"上限ファイルビットレート(映像+音声, kbps)";
+            this->fcgCBAMPLimitBitrateUpper->UseVisualStyleBackColor = true;
             // 
             // fcgCBFastFirstPass
             // 
             this->fcgCBFastFirstPass->AutoSize = true;
-            this->fcgCBFastFirstPass->Location = System::Drawing::Point(86, 45);
+            this->fcgCBFastFirstPass->Location = System::Drawing::Point(86, 39);
             this->fcgCBFastFirstPass->Name = L"fcgCBFastFirstPass";
             this->fcgCBFastFirstPass->Size = System::Drawing::Size(101, 18);
             this->fcgCBFastFirstPass->TabIndex = 6;
@@ -1394,7 +1401,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             // fcgNUAutoNPass
             // 
-            this->fcgNUAutoNPass->Location = System::Drawing::Point(313, 44);
+            this->fcgNUAutoNPass->Location = System::Drawing::Point(313, 38);
             this->fcgNUAutoNPass->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
             this->fcgNUAutoNPass->Name = L"fcgNUAutoNPass";
             this->fcgNUAutoNPass->Size = System::Drawing::Size(55, 21);
@@ -1406,7 +1413,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgCBAMPLimitFileSize
             // 
             this->fcgCBAMPLimitFileSize->AutoSize = true;
-            this->fcgCBAMPLimitFileSize->Location = System::Drawing::Point(30, 76);
+            this->fcgCBAMPLimitFileSize->Location = System::Drawing::Point(30, 70);
             this->fcgCBAMPLimitFileSize->Name = L"fcgCBAMPLimitFileSize";
             this->fcgCBAMPLimitFileSize->Size = System::Drawing::Size(191, 18);
             this->fcgCBAMPLimitFileSize->TabIndex = 43;
@@ -1417,7 +1424,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBAutoNpass
             // 
             this->fcgLBAutoNpass->AutoSize = true;
-            this->fcgLBAutoNpass->Location = System::Drawing::Point(218, 46);
+            this->fcgLBAutoNpass->Location = System::Drawing::Point(218, 40);
             this->fcgLBAutoNpass->Name = L"fcgLBAutoNpass";
             this->fcgLBAutoNpass->Size = System::Drawing::Size(83, 14);
             this->fcgLBAutoNpass->TabIndex = 34;
@@ -1459,16 +1466,16 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcggroupBoxX264Out->Controls->Add(this->fcgCBPSNR);
             this->fcggroupBoxX264Out->Controls->Add(this->fcgCXLogLevel);
             this->fcggroupBoxX264Out->Controls->Add(this->fcgLBLog);
-            this->fcggroupBoxX264Out->Location = System::Drawing::Point(196, 411);
+            this->fcggroupBoxX264Out->Location = System::Drawing::Point(196, 423);
             this->fcggroupBoxX264Out->Name = L"fcggroupBoxX264Out";
-            this->fcggroupBoxX264Out->Size = System::Drawing::Size(177, 77);
+            this->fcggroupBoxX264Out->Size = System::Drawing::Size(177, 65);
             this->fcggroupBoxX264Out->TabIndex = 16;
             this->fcggroupBoxX264Out->TabStop = false;
             // 
             // fcgCBSSIM
             // 
             this->fcgCBSSIM->AutoSize = true;
-            this->fcgCBSSIM->Location = System::Drawing::Point(106, 51);
+            this->fcgCBSSIM->Location = System::Drawing::Point(106, 41);
             this->fcgCBSSIM->Name = L"fcgCBSSIM";
             this->fcgCBSSIM->Size = System::Drawing::Size(53, 18);
             this->fcgCBSSIM->TabIndex = 2;
@@ -1479,7 +1486,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgCBPSNR
             // 
             this->fcgCBPSNR->AutoSize = true;
-            this->fcgCBPSNR->Location = System::Drawing::Point(17, 51);
+            this->fcgCBPSNR->Location = System::Drawing::Point(17, 41);
             this->fcgCBPSNR->Name = L"fcgCBPSNR";
             this->fcgCBPSNR->Size = System::Drawing::Size(56, 18);
             this->fcgCBPSNR->TabIndex = 1;
@@ -1491,7 +1498,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             this->fcgCXLogLevel->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXLogLevel->FormattingEnabled = true;
-            this->fcgCXLogLevel->Location = System::Drawing::Point(70, 18);
+            this->fcgCXLogLevel->Location = System::Drawing::Point(70, 14);
             this->fcgCXLogLevel->Name = L"fcgCXLogLevel";
             this->fcgCXLogLevel->Size = System::Drawing::Size(93, 22);
             this->fcgCXLogLevel->TabIndex = 0;
@@ -1500,7 +1507,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBLog
             // 
             this->fcgLBLog->AutoSize = true;
-            this->fcgLBLog->Location = System::Drawing::Point(14, 21);
+            this->fcgLBLog->Location = System::Drawing::Point(14, 17);
             this->fcgLBLog->Name = L"fcgLBLog";
             this->fcgLBLog->Size = System::Drawing::Size(45, 14);
             this->fcgLBLog->TabIndex = 0;
@@ -1542,16 +1549,16 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcggroupBoxThreads->Controls->Add(this->fcgCBSlicedThreads);
             this->fcggroupBoxThreads->Controls->Add(this->fcgLBThreads);
             this->fcggroupBoxThreads->Controls->Add(this->fcgNUThreads);
-            this->fcggroupBoxThreads->Location = System::Drawing::Point(196, 305);
+            this->fcggroupBoxThreads->Location = System::Drawing::Point(196, 325);
             this->fcggroupBoxThreads->Name = L"fcggroupBoxThreads";
-            this->fcggroupBoxThreads->Size = System::Drawing::Size(177, 106);
+            this->fcggroupBoxThreads->Size = System::Drawing::Size(177, 98);
             this->fcggroupBoxThreads->TabIndex = 15;
             this->fcggroupBoxThreads->TabStop = false;
             // 
             // fcgLBLookaheadThreads
             // 
             this->fcgLBLookaheadThreads->AutoSize = true;
-            this->fcgLBLookaheadThreads->Location = System::Drawing::Point(16, 51);
+            this->fcgLBLookaheadThreads->Location = System::Drawing::Point(16, 45);
             this->fcgLBLookaheadThreads->Name = L"fcgLBLookaheadThreads";
             this->fcgLBLookaheadThreads->Size = System::Drawing::Size(65, 14);
             this->fcgLBLookaheadThreads->TabIndex = 31;
@@ -1559,7 +1566,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             // fcgNULookaheadThreads
             // 
-            this->fcgNULookaheadThreads->Location = System::Drawing::Point(95, 49);
+            this->fcgNULookaheadThreads->Location = System::Drawing::Point(95, 43);
             this->fcgNULookaheadThreads->Name = L"fcgNULookaheadThreads";
             this->fcgNULookaheadThreads->Size = System::Drawing::Size(64, 21);
             this->fcgNULookaheadThreads->TabIndex = 1;
@@ -1569,7 +1576,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgCBSlicedThreads
             // 
             this->fcgCBSlicedThreads->AutoSize = true;
-            this->fcgCBSlicedThreads->Location = System::Drawing::Point(17, 79);
+            this->fcgCBSlicedThreads->Location = System::Drawing::Point(17, 71);
             this->fcgCBSlicedThreads->Name = L"fcgCBSlicedThreads";
             this->fcgCBSlicedThreads->Size = System::Drawing::Size(140, 18);
             this->fcgCBSlicedThreads->TabIndex = 2;
@@ -1580,7 +1587,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBThreads
             // 
             this->fcgLBThreads->AutoSize = true;
-            this->fcgLBThreads->Location = System::Drawing::Point(33, 21);
+            this->fcgLBThreads->Location = System::Drawing::Point(33, 17);
             this->fcgLBThreads->Name = L"fcgLBThreads";
             this->fcgLBThreads->Size = System::Drawing::Size(48, 14);
             this->fcgLBThreads->TabIndex = 29;
@@ -1588,7 +1595,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             // fcgNUThreads
             // 
-            this->fcgNUThreads->Location = System::Drawing::Point(95, 19);
+            this->fcgNUThreads->Location = System::Drawing::Point(95, 15);
             this->fcgNUThreads->Name = L"fcgNUThreads";
             this->fcgNUThreads->Size = System::Drawing::Size(64, 21);
             this->fcgNUThreads->TabIndex = 0;
@@ -1862,16 +1869,16 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcggroupBoxPreset->Controls->Add(this->fcgLBProfile);
             this->fcggroupBoxPreset->Controls->Add(this->fcgLBX264TUNE);
             this->fcggroupBoxPreset->Controls->Add(this->fcgLBX264Preset);
-            this->fcggroupBoxPreset->Location = System::Drawing::Point(7, 305);
+            this->fcggroupBoxPreset->Location = System::Drawing::Point(7, 325);
             this->fcggroupBoxPreset->Name = L"fcggroupBoxPreset";
-            this->fcggroupBoxPreset->Size = System::Drawing::Size(182, 183);
+            this->fcggroupBoxPreset->Size = System::Drawing::Size(182, 163);
             this->fcggroupBoxPreset->TabIndex = 14;
             this->fcggroupBoxPreset->TabStop = false;
             this->fcggroupBoxPreset->Text = L"プリセットのロード";
             // 
             // fcgBTApplyPreset
             // 
-            this->fcgBTApplyPreset->Location = System::Drawing::Point(73, 138);
+            this->fcgBTApplyPreset->Location = System::Drawing::Point(73, 122);
             this->fcgBTApplyPreset->Name = L"fcgBTApplyPreset";
             this->fcgBTApplyPreset->Size = System::Drawing::Size(94, 32);
             this->fcgBTApplyPreset->TabIndex = 3;
@@ -1883,7 +1890,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             this->fcgCXProfile->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXProfile->FormattingEnabled = true;
-            this->fcgCXProfile->Location = System::Drawing::Point(73, 98);
+            this->fcgCXProfile->Location = System::Drawing::Point(73, 86);
             this->fcgCXProfile->Name = L"fcgCXProfile";
             this->fcgCXProfile->Size = System::Drawing::Size(94, 22);
             this->fcgCXProfile->TabIndex = 2;
@@ -1893,7 +1900,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             this->fcgCXTune->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXTune->FormattingEnabled = true;
-            this->fcgCXTune->Location = System::Drawing::Point(73, 62);
+            this->fcgCXTune->Location = System::Drawing::Point(73, 54);
             this->fcgCXTune->Name = L"fcgCXTune";
             this->fcgCXTune->Size = System::Drawing::Size(94, 22);
             this->fcgCXTune->TabIndex = 1;
@@ -1903,7 +1910,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // 
             this->fcgCXPreset->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXPreset->FormattingEnabled = true;
-            this->fcgCXPreset->Location = System::Drawing::Point(73, 26);
+            this->fcgCXPreset->Location = System::Drawing::Point(73, 22);
             this->fcgCXPreset->Name = L"fcgCXPreset";
             this->fcgCXPreset->Size = System::Drawing::Size(94, 22);
             this->fcgCXPreset->TabIndex = 0;
@@ -1912,7 +1919,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBProfile
             // 
             this->fcgLBProfile->AutoSize = true;
-            this->fcgLBProfile->Location = System::Drawing::Point(9, 101);
+            this->fcgLBProfile->Location = System::Drawing::Point(9, 89);
             this->fcgLBProfile->Name = L"fcgLBProfile";
             this->fcgLBProfile->Size = System::Drawing::Size(53, 14);
             this->fcgLBProfile->TabIndex = 2;
@@ -1921,7 +1928,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBX264TUNE
             // 
             this->fcgLBX264TUNE->AutoSize = true;
-            this->fcgLBX264TUNE->Location = System::Drawing::Point(9, 65);
+            this->fcgLBX264TUNE->Location = System::Drawing::Point(9, 57);
             this->fcgLBX264TUNE->Name = L"fcgLBX264TUNE";
             this->fcgLBX264TUNE->Size = System::Drawing::Size(56, 14);
             this->fcgLBX264TUNE->TabIndex = 1;
@@ -1930,7 +1937,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             // fcgLBX264Preset
             // 
             this->fcgLBX264Preset->AutoSize = true;
-            this->fcgLBX264Preset->Location = System::Drawing::Point(9, 29);
+            this->fcgLBX264Preset->Location = System::Drawing::Point(9, 25);
             this->fcgLBX264Preset->Name = L"fcgLBX264Preset";
             this->fcgLBX264Preset->Size = System::Drawing::Size(29, 14);
             this->fcgLBX264Preset->TabIndex = 0;
@@ -4655,6 +4662,28 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             this->fcgLBAudioPriority->TabIndex = 46;
             this->fcgLBAudioPriority->Text = L"音声優先度";
             // 
+            // fcgNUAMPLimitBitrateLower
+            // 
+            this->fcgNUAMPLimitBitrateLower->DecimalPlaces = 1;
+            this->fcgNUAMPLimitBitrateLower->Location = System::Drawing::Point(290, 119);
+            this->fcgNUAMPLimitBitrateLower->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
+            this->fcgNUAMPLimitBitrateLower->Name = L"fcgNUAMPLimitBitrateLower";
+            this->fcgNUAMPLimitBitrateLower->Size = System::Drawing::Size(78, 21);
+            this->fcgNUAMPLimitBitrateLower->TabIndex = 49;
+            this->fcgNUAMPLimitBitrateLower->Tag = L"chValue";
+            this->fcgNUAMPLimitBitrateLower->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+            // 
+            // fcgCBAMPLimitBitrateLower
+            // 
+            this->fcgCBAMPLimitBitrateLower->AutoSize = true;
+            this->fcgCBAMPLimitBitrateLower->Location = System::Drawing::Point(30, 120);
+            this->fcgCBAMPLimitBitrateLower->Name = L"fcgCBAMPLimitBitrateLower";
+            this->fcgCBAMPLimitBitrateLower->Size = System::Drawing::Size(221, 18);
+            this->fcgCBAMPLimitBitrateLower->TabIndex = 48;
+            this->fcgCBAMPLimitBitrateLower->Tag = L"chValue";
+            this->fcgCBAMPLimitBitrateLower->Text = L"下限ファイルビットレート(映像+音声, kbps)";
+            this->fcgCBAMPLimitBitrateLower->UseVisualStyleBackColor = true;
+            // 
             // frmConfig
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
@@ -4689,7 +4718,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->EndInit();
             this->fcgPNX264Mode->ResumeLayout(false);
             this->fcgPNX264Mode->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrate))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->EndInit();
             this->fcggroupBoxX264Out->ResumeLayout(false);
@@ -4783,6 +4812,7 @@ private: System::Windows::Forms::Label^  fcgLBAudioPriority;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->EndInit();
             this->fcgtabPageAudioOther->ResumeLayout(false);
             this->fcgtabPageAudioOther->PerformLayout();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->EndInit();
             this->ResumeLayout(false);
             this->PerformLayout();
 
