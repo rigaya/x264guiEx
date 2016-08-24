@@ -823,12 +823,14 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
         const AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud[conf->aud.encoder];
         if ((oip->flag & OUTPUT_INFO_FLAG_AUDIO)
             && aud_stg->mode[conf->aud.enc_mode].bitrate
+            && 8.0 < conf->aud.bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi
+            && conf->aud.bitrate * (1.0 / 16.0) < conf->aud.bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi
             && bitrate_delta + 1.0 < conf->aud.bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi
             && str_has_char(pe->muxed_vid_filename)
             && PathFileExists(pe->muxed_vid_filename)) {
             //音声の再エンコードで修正
             amp_result = 2;
-            conf->aud.bitrate -= (int)(bitrate_delta + 1.5);
+            conf->aud.bitrate -= (int)((std::max)(bitrate_delta, (std::max)(8.0, conf->aud.bitrate * (1.0 / 16.0))) + 1.5);
 
             //動画のみファイルをもとの位置へ
             remove(pe->temp_filename);
