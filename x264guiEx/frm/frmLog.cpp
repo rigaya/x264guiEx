@@ -119,8 +119,8 @@ void log_process_events() {
 }
 //現在のログの長さを返す
 [STAThreadAttribute]
-int get_current_log_len(int current_pass) {
-    return frmLog::Instance::get()->GetLogStringLen(current_pass);
+int get_current_log_len(bool first_pass) {
+    return frmLog::Instance::get()->GetLogStringLen(first_pass);
 }
 
 #pragma warning( push )

@@ -203,9 +203,9 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, c
     return check;
 }
 
-void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int current_pass, int total_pass) {
+void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int current_pass, int total_pass, bool amp_crf_reenc) {
     char mes[MAX_PATH_LEN + 512];
-    char *newLine = (get_current_log_len(current_pass)) ? "\r\n\r\n" : ""; //必要なら行送り
+    char *newLine = (get_current_log_len(current_pass == 1 && !amp_crf_reenc)) ? "\r\n\r\n" : ""; //必要なら行送り
     static const char *SEPARATOR = "------------------------------------------------------------------------------------------------------------------------------";
     if (total_pass < 2 || current_pass > total_pass)
         sprintf_s(mes, sizeof(mes), "%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile, SEPARATOR);
@@ -829,6 +829,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     BOOL retry = (status && pe->current_x264_pass < pe->amp_x264_pass_limit);
     BOOL show_header = FALSE;
     int amp_result = 0;
+    bool amp_crf_reenc = false;
     //再エンコードを行う
     if (retry) {
         //muxerを再設定する
@@ -897,6 +898,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 conf->x264.bitrate = (bitrate_delta < 0) ? -1 : 0;
                 //自動マルチパスの1pass目には本来ヘッダーが表示されないので、 ここで表示しておく
                 show_header = TRUE;
+                amp_crf_reenc = true;
             } else {
                 //再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
                 //上限を4通りの方法で計算してみる
@@ -914,7 +916,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, pe->current_x264_pass - conf->x264.auto_npass, (amp_result == 2) ? conf->aud.bitrate : conf->x264.bitrate);
 
     if (show_header)
-        open_log_window(oip->savefile, sys_dat, pe->current_x264_pass, pe->total_x264_pass);
+        open_log_window(oip->savefile, sys_dat, pe->current_x264_pass, pe->total_x264_pass, amp_crf_reenc);
 
     return amp_result;
 }

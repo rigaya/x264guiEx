@@ -621,8 +621,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             this->Text = title;
         }
     public:
-        System::Int32 GetLogStringLen(int current_pass) {
-            if (current_pass == 1) {
+        System::Int32 GetLogStringLen(bool first_pass) {
+            if (first_pass) {
                 LastLogLen = (closed) ? 0 : this->richTextLog->Text->Length;
                 return LastLogLen;
             } else {

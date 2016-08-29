@@ -71,7 +71,7 @@ void disable_x264_control();
 void set_prevent_log_close(BOOL prevent);
 void auto_save_log_file(const char *log_filepath);
 void log_process_events();
-int  get_current_log_len(int current_pass);
+int  get_current_log_len(bool first_pass);
 void log_reload_settings();
 
 int init_log_cache(LOG_CACHE *log_cache); //LOG_CACHEの初期化、linesのメモリ確保、成功->0, 失敗->1
