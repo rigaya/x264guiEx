@@ -219,7 +219,7 @@ const WCHAR * const x264_encodemode_desc[] = {
     L"マルチパス - 1pass",
     L"マルチパス - Npass",
     L"自動マルチパス",
-    L"上限確認付 品質基準VBR(可変レート)",
+    L"サイズ確認付 品質基準VBR(可変レート)",
     NULL
 };
 
