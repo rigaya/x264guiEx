@@ -102,7 +102,7 @@ void error_amp_target_bitrate_too_small(DWORD target_limit) {
 }
 
 void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit) {
-    if (bitrate_old >= 0) {
+    if (bitrate_old > 0) {
         write_log_auo_line_fmt(LOG_WARNING, (bitrate_old > bitrate_new)
             ? "上限%sの設定を守るには、指定された目標ビットレートは大きすぎます。"
             : "下限%sの設定を守るには、指定された目標ビットレートは小さすぎます。",
@@ -381,7 +381,7 @@ void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_
     if (status && amp_result)
         if (amp_result == 2)
             write_log_auo_line_fmt(log_index, "音声目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
-        else if (new_bitrate >= 0) //-1, 0は上限確認付crfで使用する
+        else if (new_bitrate > 0) //-1, 0は上限確認付crfで使用する
             write_log_auo_line_fmt(log_index, "映像目標ビットレートを %d kbpsに変更し、再エンコードを行います。", new_bitrate);
 
     if (!status)

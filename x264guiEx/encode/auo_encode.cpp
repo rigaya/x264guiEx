@@ -892,9 +892,9 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 conf->x264.rc_mode = X264_RC_BITRATE;
                 conf->x264.slow_first_pass = FALSE;
                 conf->x264.nul_out = TRUE;
-                //ここでは目標ビットレートには-1を指定しておき、
+                //ここでは目標ビットレートを上限を上回った場合には-1、下限を下回った場合には0に指定しておき、
                 //後段のcheck_ampで上限/下限設定をもとに修正させる
-                conf->x264.bitrate = -1;
+                conf->x264.bitrate = (bitrate_delta < 0) ? -1 : 0;
                 //自動マルチパスの1pass目には本来ヘッダーが表示されないので、 ここで表示しておく
                 show_header = TRUE;
             } else {
