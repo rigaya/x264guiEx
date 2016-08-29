@@ -1776,7 +1776,7 @@ System::Void frmConfig::SetHelpToolTips() {
         + L"エンコード終了後にも確認を行い、ファイルビットレートが下限設定を\n"
         + L"下回ってしまった場合には、再エンコードを行います。\n"
         + L"\n"
-        + L"上限設定はチェックボックスによりオン/オフできます。";
+        + L"下限設定はチェックボックスによりオン/オフできます。";
     fcgTTEx->SetToolTip(fcgCBAMPLimitBitrateUpper, AMP_LimitBitrateUpper);
     fcgTTEx->SetToolTip(fcgNUAMPLimitBitrateUpper, AMP_LimitBitrateUpper);
     fcgTTEx->SetToolTip(fcgCBAMPLimitBitrateLower, AMP_LimitBitrateLower);
