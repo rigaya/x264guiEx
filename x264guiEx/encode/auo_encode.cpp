@@ -773,7 +773,8 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
 }
 
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
-    return base_bitrate * clamp(1.0 - margin_multi / sqrt(max(base_bitrate, 1.0) / 100.0), 0.8, 1.0);
+    double clamp_offset = (margin_multi < 0.0) ? 0.2 : 0.0;
+    return base_bitrate * clamp(1.0 - margin_multi / sqrt(max(base_bitrate, 1.0) / 100.0), 0.8 + clamp_offset, 1.0 + clamp_offset);
 }
 
 static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
@@ -902,7 +903,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
             } else {
                 //再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
                 //上限を4通りの方法で計算してみる
-                double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * (status & (AMPLIMIT_FILE_SIZE | AMPLIMIT_BITRATE_UPPER)) ? 0.5 : -0.5);
+                double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * (status & (AMPLIMIT_FILE_SIZE | AMPLIMIT_BITRATE_UPPER)) ? 0.5 : -4.0);
                 double bitrate_limit_upper = (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) ? conf->x264.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate_upper) : conf->x264.bitrate;
                 double bitrate_limit_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->x264.bitrate + 0.5 * (conf->vid.amp_limit_bitrate_lower - file_bitrate) : conf->x264.bitrate;
                 double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - 0.5 * ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;

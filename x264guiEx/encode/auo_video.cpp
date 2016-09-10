@@ -1092,7 +1092,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
         conf->x264.bitrate = (int)((std::max)(required_vid_bitrate_upper, limit_bitrate_lower) + 0.5);
     } else {
         //あとから下限のほうもチェック
-        const double required_vid_bitrate_lower = get_amp_margin_bitrate(conf->vid.amp_limit_bitrate_lower - aud_bitrate, -1.0 * sys_dat->exstg->s_local.amp_bitrate_margin_multi);
+        const double required_vid_bitrate_lower = get_amp_margin_bitrate(conf->vid.amp_limit_bitrate_lower - aud_bitrate, (std::max)(-0.2, -4.0 * sys_dat->exstg->s_local.amp_bitrate_margin_multi));
         if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && conf->x264.bitrate < required_vid_bitrate_lower) {
             //上限のほうもぎりぎり超えないよう確認
             const double limit_bitrate_upper = (target_limit) ? required_file_bitrate - aud_bitrate : DBL_MAX;
