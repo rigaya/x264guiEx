@@ -789,6 +789,108 @@ static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
     return (rename(muxout, filename) == 0) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
 }
 
+static double get_audio_bitrate(const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration) {
+    UINT64 aud_filesize = 0;
+    if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+        for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
+            char aud_file[MAX_PATH_LEN];
+            apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud[i_aud]);
+            if (!PathFileExists(aud_file)) {
+                error_no_aud_file();
+                return AUO_RESULT_ERROR;
+            }
+            UINT64 filesize_tmp = 0;
+            if (!GetFileSizeUInt64(aud_file, &filesize_tmp)) {
+                warning_failed_get_aud_size(); warning_amp_failed();
+                return AUO_RESULT_ERROR;
+            }
+            aud_filesize += filesize_tmp;
+        }
+    }
+    return (aud_filesize * 8.0) / 1000.0 / duration;
+}
+
+static void amp_adjust_lower_bitrate_set_default(CONF_X264 *cnf_x264) {
+    CONF_X264 x264_default = { 0 };
+    get_default_conf_x264(&x264_default, cnf_x264->use_highbit_depth);
+    //すべてをデフォルトに戻すとcolormatrixなどのパラメータも戻ってしまうので、
+    //エンコード速度に関係していそうなパラメータのみをデフォルトに戻す
+    cnf_x264->me = (std::min)(cnf_x264->me, x264_default.me);
+    cnf_x264->me_range = (std::min)(cnf_x264->me_range, x264_default.me_range);
+    cnf_x264->subme = (std::min)(cnf_x264->subme, x264_default.subme);
+    cnf_x264->ref_frames = (std::min)(cnf_x264->ref_frames, x264_default.ref_frames);
+    cnf_x264->trellis = (std::min)(cnf_x264->trellis, x264_default.trellis);
+    cnf_x264->mb_partition &= x264_default.mb_partition;
+    cnf_x264->no_dct_decimate = x264_default.no_dct_decimate;
+    cnf_x264->no_fast_pskip = x264_default.no_fast_pskip;
+}
+
+static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const CONF_VIDEO *conf_vid, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration, double file_bitrate) {
+    const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
+    const double vid_bitrate = file_bitrate - aud_bitrate;
+    //ビットレート倍率 = 今回のビットレート / 下限ビットレート
+    const double vid_ratio = vid_bitrate / (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate);
+    //QPをいっぱいまで下げた時、このままの設定で下限ビットレートをクリアできそうなビットレート倍率
+    //実際には動画によってcrfとビットレートの関係は異なるので、2次関数だと思って適当に近似計算
+    const double est_max_vid_ratio = (std::min)(0.99, pow2(51.0 - cnf_x264->crf * 0.01) / pow2(51.0));
+    //QPを最大限引き下げられるように
+    cnf_x264->qp_min = 0;
+    //デフォルトパラメータの一部を反映し、設定を軽くする
+    if (vid_ratio < est_max_vid_ratio) {
+        amp_adjust_lower_bitrate_set_default(cnf_x264);
+    }
+    //キーフレーム間隔自動を反映
+    if (cnf_x264->keyint_max <= 0) {
+        cnf_x264->keyint_max = -1; //set_guiEx_auto_keyint()は -1 としておかないと自動設定を行わない
+        set_guiEx_auto_keyint(cnf_x264, oip->rate, oip->scale);
+    }
+#define CEIL5(x) ((((x) + 4) / 5) * 5)
+#define ADJUST_KEYINT(keyint_div, min_keyint) cnf_x264->keyint_max = (std::min)((std::max)((min_keyint), CEIL5(cnf_x264->keyint_max / (keyint_div))), cnf_x264->keyint_max)
+#define ADJUST(preset_idx, keyint_div, min_keyint) { \
+    if (cnf_x264->preset > (preset_idx)) { \
+        cnf_x264->preset = (preset_idx); \
+        ADJUST_KEYINT((keyint_div), (min_keyint)); \
+        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s, キーフレーム間隔:%d を適用します。", sys_dat->exstg->s_x264.preset.name[preset_idx].name, cnf_x264->keyint_max); \
+    } else { \
+        ADJUST_KEYINT((keyint_div), (min_keyint)); \
+        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、keyint:%d を適用します。", cnf_x264->keyint_max); \
+    } \
+}
+
+    //HD解像度の静止画動画では、キーフレームの比重が大きいため、キーフレーム追加はやや控えめに
+    bool bHD = oip->w * oip->h >= 1280 * 720;
+    //「いい感じ」(試行錯誤の結果)(つまり適当) にプリセットとキーフレーム間隔を調整する
+    if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.025 : 0.05)) {
+        ADJUST(0, 60, 5);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.05 : 0.10)) {
+        ADJUST(0, 30, 5);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.10 : 0.20)) {
+        ADJUST(0, 20, 10);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.20 : 0.30)) {
+        ADJUST(0, 15, 10);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.30 : 0.40)) {
+        ADJUST(0, 10, 10);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.40 : 0.50)) {
+        ADJUST(1, 5, 15);
+    } else if (vid_ratio < est_max_vid_ratio * ((bHD) ? 0.50 : 0.75)) {
+        ADJUST(2, 4, 15);
+    } else if (vid_ratio < est_max_vid_ratio) {
+        ADJUST(3, 4, 15);
+    } else if (vid_ratio < (std::min)(0.85, est_max_vid_ratio * 1.5)) {
+        ADJUST(3, 3, 30);
+    } else if (vid_ratio < (std::min)(0.90, est_max_vid_ratio * 1.5)) {
+        ADJUST(3, 2, 30);
+    } else if (vid_ratio < (std::min)(0.98, est_max_vid_ratio * 1.5)) {
+        cnf_x264->preset = (std::min)(cnf_x264->preset, 3);
+        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s を適用します。", sys_dat->exstg->s_x264.preset.name[3].name);
+    }
+    apply_presets(cnf_x264);
+#undef ADJUST
+#undef ADJUST_KEYINT
+#undef CEIL5
+    return AUO_RESULT_SUCCESS;
+}
+
 //戻り値
 //  0 … チェック完了
 // -1 … チェックできない(エラー)
@@ -900,9 +1002,16 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 //自動マルチパスの1pass目には本来ヘッダーが表示されないので、 ここで表示しておく
                 show_header = TRUE;
                 amp_crf_reenc = true;
+                //下限を下回った場合
+                if (bitrate_delta > 0) {
+                    //下限を大きく下回っていたら、単に2passエンコするだけでは不十分
+                    if (amp_adjust_lower_bitrate_from_crf(&conf->x264, &conf->vid, sys_dat, pe, oip, duration, file_bitrate) != AUO_RESULT_SUCCESS) {
+                        return -1;
+                    }
+                }
             } else {
                 //再エンコ時は現在の目標ビットレートより少し下げたレートでエンコーダを行う
-                //上限を4通りの方法で計算してみる
+                //新しい目標ビットレートを4通りの方法で計算してみる
                 double margin_bitrate = get_amp_margin_bitrate(conf->x264.bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi * (status & (AMPLIMIT_FILE_SIZE | AMPLIMIT_BITRATE_UPPER)) ? 0.5 : -4.0);
                 double bitrate_limit_upper = (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) ? conf->x264.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate_upper) : conf->x264.bitrate;
                 double bitrate_limit_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->x264.bitrate + 0.5 * (conf->vid.amp_limit_bitrate_lower - file_bitrate) : conf->x264.bitrate;

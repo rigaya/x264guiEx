@@ -1149,7 +1149,7 @@ static void set_x264guiEx_auto_vbv(CONF_X264 *cx, int width, int height, int fps
     }
 }
 
-static void set_guiEx_auto_keyint(CONF_X264 *cx, int fps_num, int fps_den) {
+void set_guiEx_auto_keyint(CONF_X264 *cx, int fps_num, int fps_den) {
     if (cx->keyint_max < 0) {
         cx->keyint_max = (int)((fps_num + (fps_den - 1)) / fps_den) * 10; // 60000/1001 fpsの時に 600になるように最後に10倍する (599とか嫌すぎる)
     }
