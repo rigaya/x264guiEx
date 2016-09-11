@@ -789,6 +789,15 @@ static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
     return (rename(muxout, filename) == 0) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
 }
 
+static double get_vid_ratio(double actual_vid_bitrate, double vid_lower_limit_bitrate) {
+    double vid_rate = actual_vid_bitrate / vid_lower_limit_bitrate;
+    if (vid_lower_limit_bitrate < 1600) {
+        //下限ビットレートが低い場合は、割り引いて考える
+        vid_rate = 1.0 - (1.0 - vid_rate) / std::sqrt(1600.0 / vid_lower_limit_bitrate);
+    }
+    return vid_rate;
+}
+
 static double get_audio_bitrate(const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration) {
     UINT64 aud_filesize = 0;
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
@@ -857,7 +866,7 @@ static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const C
     const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
     const double vid_bitrate = file_bitrate - aud_bitrate;
     //ビットレート倍率 = 今回のビットレート / 下限ビットレート
-    const double vid_ratio = vid_bitrate / (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate);
+    const double vid_ratio = get_vid_ratio(vid_bitrate, (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate));
     //QPをいっぱいまで下げた時、このままの設定で下限ビットレートをクリアできそうなビットレート倍率
     //実際には動画によってcrfとビットレートの関係は異なるので、2次関数だと思って適当に近似計算
     const double est_max_vid_ratio = (std::min)(0.99, pow2(51.0 - cnf_x264->crf * 0.01) / pow2(51.0));
@@ -907,7 +916,7 @@ static AUO_RESULT amp_adjust_lower_bitrate_from_bitrate(CONF_X264 *cnf_x264, con
     const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
     const double vid_bitrate = file_bitrate - aud_bitrate;
     //ビットレート倍率 = 今回のビットレート / 下限ビットレート
-    const double vid_ratio = vid_bitrate / (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate);
+    const double vid_ratio = get_vid_ratio(vid_bitrate, (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate));
     if (vid_ratio < 0.95) {
         amp_adjust_lower_bitrate_set_default(cnf_x264);
     }
