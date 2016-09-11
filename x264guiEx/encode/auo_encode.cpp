@@ -825,6 +825,34 @@ static void amp_adjust_lower_bitrate_set_default(CONF_X264 *cnf_x264) {
     cnf_x264->no_fast_pskip = x264_default.no_fast_pskip;
 }
 
+#define CEIL5(x) ((((x) + 4) / 5) * 5)
+#define ADJUST_KEYINT(keyint_div, min_keyint) cnf_x264->keyint_max = (std::min)((std::max)((min_keyint), CEIL5(cnf_x264->keyint_max / (keyint_div))), cnf_x264->keyint_max)
+#define ADJUST_PRESET(preset_idx) { \
+    const int preset_adjust_new = (std::max)(preset_idx, 0); \
+    if (cnf_x264->preset > preset_adjust_new) { \
+        cnf_x264->preset = preset_adjust_new; \
+        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s を適用します。", sys_dat->exstg->s_x264.preset.name[cnf_x264->preset].name); \
+    } \
+}
+#define ADJUST(preset_idx, keyint_div, min_keyint) { \
+    const int old_keyint = cnf_x264->keyint_max; \
+    const int preset_new = (std::max)(preset_idx, 0); \
+    if (cnf_x264->preset > (preset_new)) { \
+        ADJUST_KEYINT((keyint_div), (min_keyint)); \
+        if (old_keyint != cnf_x264->keyint_max) { \
+            cnf_x264->preset = (preset_new); \
+            write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s, キーフレーム間隔:%d を適用します。", sys_dat->exstg->s_x264.preset.name[preset_new].name, cnf_x264->keyint_max); \
+        } else { \
+            ADJUST_PRESET(preset_new); \
+        } \
+    } else { \
+        ADJUST_KEYINT((keyint_div), (min_keyint)); \
+        if (old_keyint != cnf_x264->keyint_max) { \
+            write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、keyint:%d を適用します。", cnf_x264->keyint_max); \
+        } \
+    } \
+}
+
 static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const CONF_VIDEO *conf_vid, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration, double file_bitrate) {
     const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
     const double vid_bitrate = file_bitrate - aud_bitrate;
@@ -844,18 +872,6 @@ static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const C
         cnf_x264->keyint_max = -1; //set_guiEx_auto_keyint()は -1 としておかないと自動設定を行わない
         set_guiEx_auto_keyint(cnf_x264, oip->rate, oip->scale);
     }
-#define CEIL5(x) ((((x) + 4) / 5) * 5)
-#define ADJUST_KEYINT(keyint_div, min_keyint) cnf_x264->keyint_max = (std::min)((std::max)((min_keyint), CEIL5(cnf_x264->keyint_max / (keyint_div))), cnf_x264->keyint_max)
-#define ADJUST(preset_idx, keyint_div, min_keyint) { \
-    if (cnf_x264->preset > (preset_idx)) { \
-        cnf_x264->preset = (preset_idx); \
-        ADJUST_KEYINT((keyint_div), (min_keyint)); \
-        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s, キーフレーム間隔:%d を適用します。", sys_dat->exstg->s_x264.preset.name[preset_idx].name, cnf_x264->keyint_max); \
-    } else { \
-        ADJUST_KEYINT((keyint_div), (min_keyint)); \
-        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、keyint:%d を適用します。", cnf_x264->keyint_max); \
-    } \
-}
 
     //HD解像度の静止画動画では、キーフレームの比重が大きいため、キーフレーム追加はやや控えめに
     bool bHD = oip->w * oip->h >= 1280 * 720;
@@ -881,15 +897,45 @@ static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const C
     } else if (vid_ratio < (std::min)(0.90, est_max_vid_ratio * 1.5)) {
         ADJUST(3, 2, 30);
     } else if (vid_ratio < (std::min)(0.98, est_max_vid_ratio * 1.5)) {
-        cnf_x264->preset = (std::min)(cnf_x264->preset, 3);
-        write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s を適用します。", sys_dat->exstg->s_x264.preset.name[3].name);
+        ADJUST_PRESET(3);
     }
     apply_presets(cnf_x264);
-#undef ADJUST
-#undef ADJUST_KEYINT
-#undef CEIL5
     return AUO_RESULT_SUCCESS;
 }
+
+static AUO_RESULT amp_adjust_lower_bitrate_from_bitrate(CONF_X264 *cnf_x264, const CONF_VIDEO *conf_vid, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip, double duration, double file_bitrate) {
+    const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
+    const double vid_bitrate = file_bitrate - aud_bitrate;
+    //ビットレート倍率 = 今回のビットレート / 下限ビットレート
+    const double vid_ratio = vid_bitrate / (std::max)(1.0, conf_vid->amp_limit_bitrate_lower - aud_bitrate);
+    if (vid_ratio < 0.95) {
+        amp_adjust_lower_bitrate_set_default(cnf_x264);
+    }
+    AUO_RESULT ret = AUO_RESULT_SUCCESS;
+    if (vid_ratio < 0.80 + (std::max)(3 - cnf_x264->preset, 0) * 0.05) {
+        //キーフレーム数を増やして1pass目からやり直す
+        pe->total_x264_pass--;
+        pe->current_x264_pass = 1;
+        cnf_x264->slow_first_pass = FALSE;
+        cnf_x264->nul_out = TRUE;
+        //ここでは目標ビットレートを0に指定しておき、後段のcheck_ampで上限/下限設定をもとに修正させる
+        cnf_x264->bitrate = 0;
+        cnf_x264->crf = 2;
+        ret = amp_adjust_lower_bitrate_from_crf(cnf_x264, conf_vid, sys_dat, pe, oip, duration, file_bitrate);
+        if (ret == AUO_RESULT_SUCCESS) {
+            ret = AUO_RESULT_WARNING;
+        }
+    } else if (vid_ratio < 0.90) {
+        ADJUST_PRESET(cnf_x264->preset - 2);
+    } else if (vid_ratio < 0.95) {
+        ADJUST_PRESET(cnf_x264->preset - 1);
+    }
+    return ret;
+}
+#undef ADJUST
+#undef ADJUST_PRESET
+#undef ADJUST_KEYINT
+#undef CEIL5
 
 //戻り値
 //  0 … チェック完了
@@ -1017,6 +1063,16 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 double bitrate_limit_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->x264.bitrate + 0.5 * (conf->vid.amp_limit_bitrate_lower - file_bitrate) : conf->x264.bitrate;
                 double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->x264.bitrate - 0.5 * ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->x264.bitrate;
                 conf->x264.bitrate = (int)(0.5 + max(min(margin_bitrate, min(filesize_limit, bitrate_limit_upper)), bitrate_limit_lower));
+                if (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) {
+                    AUO_RESULT ret = amp_adjust_lower_bitrate_from_bitrate(&conf->x264, &conf->vid, sys_dat, pe, oip, duration, file_bitrate);
+                    if (ret == AUO_RESULT_WARNING) {
+                        //1pass目からやり直し
+                        show_header = TRUE;
+                        amp_crf_reenc = true;
+                    } else if (ret != AUO_RESULT_SUCCESS) {
+                        return -1;
+                    }
+                }
             }
             //必要なら、今回作成した動画を待避
             if (sys_dat->exstg->s_local.amp_keep_old_file)
