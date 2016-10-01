@@ -237,7 +237,9 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
     if (tmp_dir_index == TMP_DIR_CUSTOM) {
         //指定されたフォルダ
         if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_tmp_dir)) {
-            strcpy_s(pe->temp_filename, _countof(pe->temp_filename), sys_dat->exstg->s_local.custom_tmp_dir);
+            if (sys_dat->exstg->s_local.custom_tmp_dir == GetFullPath(sys_dat->exstg->s_local.custom_tmp_dir, pe->temp_filename, _countof(pe->temp_filename))) {
+                strcpy_s(pe->temp_filename, _countof(pe->temp_filename), sys_dat->exstg->s_local.custom_tmp_dir);
+            }
             PathRemoveBackslash(pe->temp_filename);
             write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
         } else {
@@ -311,12 +313,14 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     if (conf->aud.aud_temp_dir) {
         if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_audio_tmp_dir)) {
             cus_aud_tdir = sys_dat->exstg->s_local.custom_audio_tmp_dir;
-            write_log_auo_line_fmt(LOG_INFO, "音声一時フォルダ : %s", cus_aud_tdir);
+            write_log_auo_line_fmt(LOG_INFO, "音声一時フォルダ : %s", GetFullPath(cus_aud_tdir, pe->aud_temp_dir, _countof(pe->aud_temp_dir)));
         } else {
             warning_no_aud_temp_root(sys_dat->exstg->s_local.custom_audio_tmp_dir);
         }
     }
-    strcpy_s(pe->aud_temp_dir, _countof(pe->aud_temp_dir), cus_aud_tdir);
+    if (cus_aud_tdir == GetFullPath(cus_aud_tdir, pe->aud_temp_dir, _countof(pe->aud_temp_dir))) {
+        strcpy_s(pe->aud_temp_dir, cus_aud_tdir);
+    }
 
     //ファイル名置換を行い、一時ファイル名を作成
     strcpy_s(filename_replace, _countof(filename_replace), PathFindFileName(oip->savefile));
