@@ -98,12 +98,14 @@ static const char *const AUDIO_DELAY_CUT_MODE[] = {
     NULL
 };
 
+#pragma pack(push,4)
 typedef struct {
     BOOL   afs;                      //自動フィールドシフトの使用
     BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
     BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
     DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
     int    priority;                 //x264のCPU優先度(インデックス)
+    int    reserved;
     char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
     char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
     char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
@@ -113,8 +115,10 @@ typedef struct {
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
     double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
     BOOL   input_as_lw48;            //LW48モード
+    int    reserved2;
     double amp_limit_bitrate_lower;  //自動マルチパス時のビットレート下限(kbps)
 } CONF_VIDEO; //動画用設定(x264以外)
+#pragma pack(pop)
 
 typedef struct {
     int   encoder;             //使用する音声エンコーダ

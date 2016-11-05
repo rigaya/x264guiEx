@@ -255,6 +255,7 @@ typedef struct {
     float y;
 } FLOAT2;
 
+#pragma pack(push,4)
 //x264パラメータ構造体
 //guiExで使いやすいよう、適当に
 //並び順に意味はない
@@ -264,7 +265,7 @@ typedef struct {
     int     pass;
     BOOL    slow_first_pass;
     BOOL    use_auto_npass;
-    int        auto_npass;
+    int     auto_npass;
     BOOL    nul_out;
     int     preset;
     int     tune;
@@ -339,6 +340,7 @@ typedef struct {
     BOOL    disable_progress;
     int     lookahead_threads;
 } CONF_X264;
+#pragma pack(pop)
 
 typedef struct {
     char *long_name;
