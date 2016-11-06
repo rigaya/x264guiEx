@@ -105,13 +105,13 @@ typedef struct {
     BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
     DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
     int    priority;                 //x264のCPU優先度(インデックス)
-    int    reserved;
     char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
     char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
     char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
     char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
     int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
     DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
+    int    reserved;
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
     double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
     BOOL   input_as_lw48;            //LW48モード
