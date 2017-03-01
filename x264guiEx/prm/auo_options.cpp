@@ -1217,3 +1217,12 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
     free(cmd);
     return ret;
 }
+
+int get_list_index(const X264_OPTION_STR *list, const char *name) {
+    for (int i = 0; list[i].name; i++) {
+        if (stristr(list[i].name, name)) {
+            return i;
+        }
+    }
+    return 0;
+}

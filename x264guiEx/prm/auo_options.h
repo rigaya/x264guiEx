@@ -387,5 +387,6 @@ void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num
 const X264_OPTION_STR * get_option_list(const char *option_name);
 void set_ex_stg_ptr(guiEx_settings *_ex_stg);
 int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize);
+int get_list_index(const X264_OPTION_STR *list, const char *name);
 
 #endif //_AUO_OPTIONS_H_
