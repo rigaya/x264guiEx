@@ -28,8 +28,8 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION          0,2,48,0
-#define AUO_VERSION_STR      "2.48"
+#define AUO_VERSION          0,2,49,0
+#define AUO_VERSION_STR      "2.49"
 #define AUO_NAME_WITHOUT_EXT "x264guiEx"
 #define AUO_NAME             "x264guiEx.auo"
 #define AUO_NAME_W          L"x264guiEx.auo"
@@ -37,6 +37,10 @@
 #define AUO_VERSION_NAME     "拡張 x264 出力(GUI) Ex " AUO_VERSION_STR
 #define AUO_VERSION_INFO     "拡張 x264 出力(GUI) Ex (x264guiEx) " AUO_VERSION_STR " by rigaya"
 #define AUO_EXT_FILTER       "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
+
+#define AUOSETUP_EVENT_ABORT "AUOSETUP_EVENT_ABORT"
+
+#define ENABLE_AUOSETUP 1
 
 #ifdef DEBUG
 #define VER_DEBUG   VS_FF_DEBUG

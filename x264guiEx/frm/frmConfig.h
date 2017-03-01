@@ -41,6 +41,9 @@
 #include "transparentLabel.h"
 
 #include "frmConfig_helper.h"
+#if ENABLE_AUOSETUP
+#include "frmUpdate.h"
+#endif
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -83,6 +86,11 @@ namespace x264guiEx {
         /// </summary>
         ~frmConfig()
         {
+#if ENABLE_AUOSETUP
+            if (nullptr != frmExeUpdate) {
+                delete frmExeUpdate;
+            }
+#endif
             if (components)
             {
                 delete components;
@@ -691,6 +699,8 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioPriority;
 private: System::Windows::Forms::Label^  fcgLBAudioPriority;
 private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateLower;
 private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
 
 
 
@@ -765,6 +775,8 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgBTTBQualityAdd = (gcnew System::Windows::Forms::Button());
             this->fcgTBQuality = (gcnew System::Windows::Forms::TrackBar());
             this->fcgPNX264Mode = (gcnew System::Windows::Forms::Panel());
+            this->fcgNUAMPLimitBitrateLower = (gcnew System::Windows::Forms::NumericUpDown());
+            this->fcgCBAMPLimitBitrateLower = (gcnew System::Windows::Forms::CheckBox());
             this->fcgNUAMPLimitBitrateUpper = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgNUAMPLimitFileSize = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgCXX264Mode = (gcnew System::Windows::Forms::ComboBox());
@@ -1077,14 +1089,15 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgCBRunBatBeforeAudio = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCXAudioPriority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBAudioPriority = (gcnew System::Windows::Forms::Label());
-            this->fcgNUAMPLimitBitrateLower = (gcnew System::Windows::Forms::NumericUpDown());
-            this->fcgCBAMPLimitBitrateLower = (gcnew System::Windows::Forms::CheckBox());
+            this->fcgTSBUpdate = (gcnew System::Windows::Forms::ToolStripButton());
+            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgtabControlVideo->SuspendLayout();
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
             this->fcgPNBitrate->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->BeginInit();
             this->fcgPNX264Mode->SuspendLayout();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->BeginInit();
@@ -1151,7 +1164,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgtabPageAudioMain->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->BeginInit();
             this->fcgtabPageAudioOther->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->BeginInit();
             this->SuspendLayout();
             // 
             // fcgtabControlVideo
@@ -1348,6 +1360,28 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgPNX264Mode->Name = L"fcgPNX264Mode";
             this->fcgPNX264Mode->Size = System::Drawing::Size(376, 146);
             this->fcgPNX264Mode->TabIndex = 47;
+            // 
+            // fcgNUAMPLimitBitrateLower
+            // 
+            this->fcgNUAMPLimitBitrateLower->DecimalPlaces = 1;
+            this->fcgNUAMPLimitBitrateLower->Location = System::Drawing::Point(290, 119);
+            this->fcgNUAMPLimitBitrateLower->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
+            this->fcgNUAMPLimitBitrateLower->Name = L"fcgNUAMPLimitBitrateLower";
+            this->fcgNUAMPLimitBitrateLower->Size = System::Drawing::Size(78, 21);
+            this->fcgNUAMPLimitBitrateLower->TabIndex = 49;
+            this->fcgNUAMPLimitBitrateLower->Tag = L"chValue";
+            this->fcgNUAMPLimitBitrateLower->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+            // 
+            // fcgCBAMPLimitBitrateLower
+            // 
+            this->fcgCBAMPLimitBitrateLower->AutoSize = true;
+            this->fcgCBAMPLimitBitrateLower->Location = System::Drawing::Point(30, 120);
+            this->fcgCBAMPLimitBitrateLower->Name = L"fcgCBAMPLimitBitrateLower";
+            this->fcgCBAMPLimitBitrateLower->Size = System::Drawing::Size(221, 18);
+            this->fcgCBAMPLimitBitrateLower->TabIndex = 48;
+            this->fcgCBAMPLimitBitrateLower->Tag = L"chValue";
+            this->fcgCBAMPLimitBitrateLower->Text = L"下限ファイルビットレート(映像+音声, kbps)";
+            this->fcgCBAMPLimitBitrateLower->UseVisualStyleBackColor = true;
             // 
             // fcgNUAMPLimitBitrateUpper
             // 
@@ -3397,11 +3431,11 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgtoolStripSettings->ImageScalingSize = System::Drawing::Size(18, 18);
-            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(13) {
+            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(15) {
                 this->fcgTSBSave,
                     this->fcgTSBSaveNew, this->fcgTSBDelete, this->fcgtoolStripSeparator1, this->fcgTSSettings, this->fcgTSBCMDOnly, this->toolStripSeparator3,
-                    this->fcgTSBBitrateCalc, this->toolStripSeparator2, this->fcgTSBOtherSettings, this->fcgTSLSettingsNotes, this->fcgTSTSettingsNotes,
-                    this->toolStripSeparator4
+                    this->fcgTSBBitrateCalc, this->toolStripSeparator5, this->fcgTSBUpdate, this->toolStripSeparator2, this->fcgTSBOtherSettings,
+                    this->fcgTSLSettingsNotes, this->fcgTSTSettingsNotes, this->toolStripSeparator4
             });
             this->fcgtoolStripSettings->Location = System::Drawing::Point(0, 0);
             this->fcgtoolStripSettings->Name = L"fcgtoolStripSettings";
@@ -4679,27 +4713,23 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->fcgLBAudioPriority->TabIndex = 46;
             this->fcgLBAudioPriority->Text = L"音声優先度";
             // 
-            // fcgNUAMPLimitBitrateLower
+            // fcgTSBUpdate
             // 
-            this->fcgNUAMPLimitBitrateLower->DecimalPlaces = 1;
-            this->fcgNUAMPLimitBitrateLower->Location = System::Drawing::Point(290, 119);
-            this->fcgNUAMPLimitBitrateLower->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
-            this->fcgNUAMPLimitBitrateLower->Name = L"fcgNUAMPLimitBitrateLower";
-            this->fcgNUAMPLimitBitrateLower->Size = System::Drawing::Size(78, 21);
-            this->fcgNUAMPLimitBitrateLower->TabIndex = 49;
-            this->fcgNUAMPLimitBitrateLower->Tag = L"chValue";
-            this->fcgNUAMPLimitBitrateLower->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
+            this->fcgTSBUpdate->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSBUpdate->CheckOnClick = true;
+            this->fcgTSBUpdate->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSBUpdate->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBUpdate.Image")));
+            this->fcgTSBUpdate->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBUpdate->Name = L"fcgTSBUpdate";
+            this->fcgTSBUpdate->Size = System::Drawing::Size(35, 22);
+            this->fcgTSBUpdate->Text = L"更新";
+            this->fcgTSBUpdate->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBUpdate_CheckedChanged);
             // 
-            // fcgCBAMPLimitBitrateLower
+            // toolStripSeparator5
             // 
-            this->fcgCBAMPLimitBitrateLower->AutoSize = true;
-            this->fcgCBAMPLimitBitrateLower->Location = System::Drawing::Point(30, 120);
-            this->fcgCBAMPLimitBitrateLower->Name = L"fcgCBAMPLimitBitrateLower";
-            this->fcgCBAMPLimitBitrateLower->Size = System::Drawing::Size(221, 18);
-            this->fcgCBAMPLimitBitrateLower->TabIndex = 48;
-            this->fcgCBAMPLimitBitrateLower->Tag = L"chValue";
-            this->fcgCBAMPLimitBitrateLower->Text = L"下限ファイルビットレート(映像+音声, kbps)";
-            this->fcgCBAMPLimitBitrateLower->UseVisualStyleBackColor = true;
+            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator5->Name = L"toolStripSeparator5";
+            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
             // 
             // frmConfig
             // 
@@ -4724,6 +4754,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             this->Name = L"frmConfig";
             this->ShowIcon = false;
             this->Text = L"Aviutl 出力 プラグイン";
+            this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmConfig::frmConfig_FormClosing);
             this->Load += gcnew System::EventHandler(this, &frmConfig::frmConfig_Load);
             this->fcgtabControlVideo->ResumeLayout(false);
             this->fcgtabPageX264Main->ResumeLayout(false);
@@ -4735,6 +4766,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->EndInit();
             this->fcgPNX264Mode->ResumeLayout(false);
             this->fcgPNX264Mode->PerformLayout();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->EndInit();
@@ -4829,7 +4861,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->EndInit();
             this->fcgtabPageAudioOther->ResumeLayout(false);
             this->fcgtabPageAudioOther->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->EndInit();
             this->ResumeLayout(false);
             this->PerformLayout();
 
@@ -4849,6 +4880,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
         ToolStripMenuItem^ CheckedStgMenuItem;
         CONF_GUIEX *cnf_stgSelected;
         String^ lastQualityStr;
+#if ENABLE_AUOSETUP
+        frmUpdate^ frmExeUpdate;
+#endif
     private:
         System::Int32 GetCurrentAudioDefaultBitrate();
         delegate System::Void qualityTimerChangeDelegate();
@@ -4925,11 +4959,16 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
         System::Void fcgTXQuality_Enter(System::Object^  sender, System::EventArgs^  e);
         System::Void fcgCheckAMPAutoBitrateEvent(System::Object^  sender, System::EventArgs^  e);
         System::Void AddCheckAMPAutoBitrateEvent();
+        System::Void initUpdater();
+        System::Void fcgTSBUpdate_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
+        System::Void fcgTSBUpdate_UpdateFinished(String^ mes);
+        System::Void fcgTSBUpdate_CheckFinished(String^ mes);
     public:
         System::Void InitData(CONF_GUIEX *set_config, const SYSTEM_DATA *system_data);
         System::Void SetVideoBitrate(int bitrate);
         System::Void SetAudioBitrate(int bitrate);
         System::Void InformfbcClosed();
+        System::Void InformfruClosed();
     private:
         System::Void AddfcgLBAMPAutoBitrate() {
             //fcgLBAMPAutoBitrateには拡張した簡易透過ラベルを使用する(背景透過&マウスイベント透過)
@@ -5332,6 +5371,13 @@ private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
     private: 
         System::Void frmConfig_Load(System::Object^  sender, System::EventArgs^  e) {
             InitForm();
+        }
+    private:
+        System::Void frmConfig_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
+#if ENABLE_AUOSETUP
+            if (frmExeUpdate->waitingForUpdateFinishes())
+                e->Cancel = true;
+#endif
         }
     private: 
         System::Void fcgBTOK_Click(System::Object^  sender, System::EventArgs^  e) {

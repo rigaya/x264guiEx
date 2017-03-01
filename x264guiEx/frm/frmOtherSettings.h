@@ -153,6 +153,8 @@ namespace x264guiEx {
     private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
 private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
+private: System::Windows::Forms::TabPage^  fostabPageUpdate;
+private: System::Windows::Forms::CheckBox^  fosCBUpdateOverwrite;
 
 
 
@@ -204,6 +206,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosCXDefaultOutExt = (gcnew System::Windows::Forms::ComboBox());
             this->fosLBDefaultOutExt = (gcnew System::Windows::Forms::Label());
             this->fostabPageGUI = (gcnew System::Windows::Forms::TabPage());
+            this->fosCBOutputMoreLog = (gcnew System::Windows::Forms::CheckBox());
             this->fosCBWineCompat = (gcnew System::Windows::Forms::CheckBox());
             this->fosCBGetRelativePath = (gcnew System::Windows::Forms::CheckBox());
             this->fosBTSetFont = (gcnew System::Windows::Forms::Button());
@@ -236,7 +239,8 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
             this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
             this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
-            this->fosCBOutputMoreLog = (gcnew System::Windows::Forms::CheckBox());
+            this->fostabPageUpdate = (gcnew System::Windows::Forms::TabPage());
+            this->fosCBUpdateOverwrite = (gcnew System::Windows::Forms::CheckBox());
             this->fosTabControl->SuspendLayout();
             this->fostabPageGeneral->SuspendLayout();
             this->fostabPageGUI->SuspendLayout();
@@ -245,6 +249,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosGroupBoxAMPLimitMarginExample->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosNUAMPLimitMargin))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosTBAMPLimitMarginMulti))->BeginInit();
+            this->fostabPageUpdate->SuspendLayout();
             this->SuspendLayout();
             // 
             // fosCBCancel
@@ -307,6 +312,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosTabControl->Controls->Add(this->fostabPageGeneral);
             this->fosTabControl->Controls->Add(this->fostabPageGUI);
             this->fosTabControl->Controls->Add(this->fostabPageAMP);
+            this->fosTabControl->Controls->Add(this->fostabPageUpdate);
             this->fosTabControl->Location = System::Drawing::Point(1, 1);
             this->fosTabControl->Name = L"fosTabControl";
             this->fosTabControl->SelectedIndex = 0;
@@ -443,6 +449,16 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fostabPageGUI->TabIndex = 2;
             this->fostabPageGUI->Text = L"ログ・設定画面";
             this->fostabPageGUI->UseVisualStyleBackColor = true;
+            // 
+            // fosCBOutputMoreLog
+            // 
+            this->fosCBOutputMoreLog->AutoSize = true;
+            this->fosCBOutputMoreLog->Location = System::Drawing::Point(20, 294);
+            this->fosCBOutputMoreLog->Name = L"fosCBOutputMoreLog";
+            this->fosCBOutputMoreLog->Size = System::Drawing::Size(143, 19);
+            this->fosCBOutputMoreLog->TabIndex = 26;
+            this->fosCBOutputMoreLog->Text = L"音声・muxのログも表示";
+            this->fosCBOutputMoreLog->UseVisualStyleBackColor = true;
             // 
             // fosCBWineCompat
             // 
@@ -778,15 +794,25 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
             this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
             // 
-            // fosCBOutputMoreLog
+            // fostabPageUpdate
             // 
-            this->fosCBOutputMoreLog->AutoSize = true;
-            this->fosCBOutputMoreLog->Location = System::Drawing::Point(20, 294);
-            this->fosCBOutputMoreLog->Name = L"fosCBOutputMoreLog";
-            this->fosCBOutputMoreLog->Size = System::Drawing::Size(143, 19);
-            this->fosCBOutputMoreLog->TabIndex = 26;
-            this->fosCBOutputMoreLog->Text = L"音声・muxのログも表示";
-            this->fosCBOutputMoreLog->UseVisualStyleBackColor = true;
+            this->fostabPageUpdate->Controls->Add(this->fosCBUpdateOverwrite);
+            this->fostabPageUpdate->Location = System::Drawing::Point(4, 24);
+            this->fostabPageUpdate->Name = L"fostabPageUpdate";
+            this->fostabPageUpdate->Size = System::Drawing::Size(384, 374);
+            this->fostabPageUpdate->TabIndex = 3;
+            this->fostabPageUpdate->Text = L"更新";
+            this->fostabPageUpdate->UseVisualStyleBackColor = true;
+            // 
+            // fosCBUpdateOverwrite
+            // 
+            this->fosCBUpdateOverwrite->AutoSize = true;
+            this->fosCBUpdateOverwrite->Location = System::Drawing::Point(18, 25);
+            this->fosCBUpdateOverwrite->Name = L"fosCBUpdateOverwrite";
+            this->fosCBUpdateOverwrite->Size = System::Drawing::Size(178, 19);
+            this->fosCBUpdateOverwrite->TabIndex = 18;
+            this->fosCBUpdateOverwrite->Text = L"更新時、古いファイルを削除する";
+            this->fosCBUpdateOverwrite->UseVisualStyleBackColor = true;
             // 
             // frmOtherSettings
             // 
@@ -821,6 +847,8 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosGroupBoxAMPLimitMarginExample->PerformLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosNUAMPLimitMargin))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosTBAMPLimitMarginMulti))->EndInit();
+            this->fostabPageUpdate->ResumeLayout(false);
+            this->fostabPageUpdate->PerformLayout();
             this->ResumeLayout(false);
 
         }
@@ -853,6 +881,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             fos_ex_stg->s_local.default_output_ext        = fosCXDefaultOutExt->SelectedIndex;
             fos_ex_stg->s_local.run_bat_minimized         = fosCBRunBatMinimized->Checked;
             fos_ex_stg->s_local.default_audio_encoder     = fosCXDefaultAudioEncoder->SelectedIndex;
+            fos_ex_stg->s_local.update_overwrite           = fosCBUpdateOverwrite->Checked;
             fos_ex_stg->save_local();
             fos_ex_stg->save_log_win();
             this->Close();
@@ -897,6 +926,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             fosCBGetRelativePath->Checked           = fos_ex_stg->s_local.get_relative_path != 0;
             fosCXDefaultOutExt->SelectedIndex       = fos_ex_stg->s_local.default_output_ext;
             fosCBRunBatMinimized->Checked           = fos_ex_stg->s_local.run_bat_minimized != 0;
+            fosCBUpdateOverwrite->Checked           = fos_ex_stg->s_local.update_overwrite != 0;
             fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder, 0, fosCXDefaultAudioEncoder->Items->Count);
             if (str_has_char(fos_ex_stg->s_local.conf_font.name))
                 SetFontFamilyToForm(this, gcnew FontFamily(String(fos_ex_stg->s_local.conf_font.name).ToString()), this->Font->FontFamily);

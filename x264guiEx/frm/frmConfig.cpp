@@ -184,6 +184,78 @@ System::Void frmConfig::InformfbcClosed() {
 
 
 /// -------------------------------------------------
+///     frmUpdate 関数
+/// -------------------------------------------------
+System::Void frmConfig::fcgTSBUpdate_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+#if ENABLE_AUOSETUP
+    if (fcgTSBUpdate->Checked)
+        frmExeUpdate->Show();
+    else
+        frmExeUpdate->Visible = false; //Close()してしまうとfrmExeUpdateがDisposeされてしまう
+#endif
+}
+
+System::Void frmConfig::fcgTSBUpdate_CheckFinished(String^ mes) {
+#if ENABLE_AUOSETUP
+    //更新をチェックした時間を保存する
+    if (this->InvokeRequired) {
+        this->Invoke(gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_CheckFinished), mes);
+        return;
+    }
+
+    guiEx_settings stg;
+    stg.load_encode_stg();
+    GetCHARfromString(stg.s_local.last_update_check, _countof(stg.s_local.last_update_check), DateTime::Now.ToString());
+    stg.save_local();
+
+    if (auoSetupControl::checkIfUpdateAvailable(mes)) {
+        fcgTSBUpdate->Text = L"更新*";
+        fcgTSBUpdate->ForeColor = Color::MediumSlateBlue;
+    }
+#endif
+}
+
+System::Void frmConfig::fcgTSBUpdate_UpdateFinished(String^ mes) {
+#if ENABLE_AUOSETUP
+    if (this->InvokeRequired) {
+        this->Invoke(gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_UpdateFinished), mes);
+        return;
+    }
+
+    fcgTSBUpdate->Text = L"更新";
+    fcgTSBUpdate->ForeColor = SystemColors::ControlText;
+
+    //更新にしたがって表示を更新する
+    guiEx_settings stg;
+    stg.load_encode_stg();
+    LocalStg.x264Path        = String(stg.s_x264.fullpath).ToString();
+    LocalStg.MP4MuxerPath    = String(stg.s_mux[MUXER_MP4].fullpath).ToString();
+    LocalStg.TC2MP4Path      = String(stg.s_mux[MUXER_TC2MP4].fullpath).ToString();
+    LocalStg.MP4RawPath      = String(stg.s_mux[MUXER_MP4_RAW].fullpath).ToString();
+    LocalStg.audEncPath[DEFAULT_AUDIO_ENCODER] = String(stg.s_aud[DEFAULT_AUDIO_ENCODER].fullpath).ToString();
+
+    SetLocalStg();
+    if (DEFAULT_AUDIO_ENCODER == fcgCXAudioEncoder->SelectedIndex) {
+        fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
+    }
+#endif
+}
+
+System::Void frmConfig::InformfruClosed() {
+    fcgTSBUpdate->Checked = false;
+}
+
+#if ENABLE_AUOSETUP
+System::Void frmUpdate::frmUpdate_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
+    e->Cancel = true;
+    this->Visible = false; //Close()してしまうとfrmExeUpdateがDisposeされてしまう
+    frmConfig^ fcg = dynamic_cast<frmConfig^>(this->Owner);
+    if (fcg != nullptr)
+        fcg->InformfruClosed();
+}
+#endif
+
+/// -------------------------------------------------
 ///     frmConfig 関数
 /// -------------------------------------------------
 /////////////   LocalStg関連  //////////////////////
@@ -1216,7 +1288,32 @@ System::Void frmConfig::AdjustLocation() {
     }
 }
 
+System::Void frmConfig::initUpdater() {
+#if ENABLE_AUOSETUP
+    frmExeUpdate = gcnew frmUpdate();
+    frmExeUpdate->Owner = this;
+    frmExeUpdate->init(gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_CheckFinished),
+        gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_UpdateFinished));
+    if (str_has_char(sys_dat->exstg->s_local.last_update_check)) {
+        try {
+            DateTime dtLastUpdate = DateTime::Parse(String(sys_dat->exstg->s_local.last_update_check).ToString());
+            TimeSpan tsFromLastUpdate = DateTime::Now - dtLastUpdate;
+            //一週間以内に確認していれば自動的に更新チェック
+            if (tsFromLastUpdate < TimeSpan(7, 0, 0, 0)) {
+                return;
+            }
+        } catch (...) {
+            //そのまま下へ
+        }
+    }
+    frmExeUpdate->startCheck();
+#else
+    fcgTSBUpdate->Enabled = false;
+#endif
+}
+
 System::Void frmConfig::InitForm() {
+    initUpdater();
     //ローカル設定のロード
     LoadLocalStg();
     //ローカル設定の反映

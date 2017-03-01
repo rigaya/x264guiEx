@@ -264,6 +264,9 @@
     <ClInclude Include="prm\cpu_info.h">
       <Filter>ヘッダー ファイル\prm</Filter>
     </ClInclude>
+    <ClInclude Include="frm\frmUpdate.h">
+      <Filter>フォーム</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="auo_version.rc">
@@ -296,6 +299,9 @@
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
     <EmbeddedResource Include="frm\frmSetLogColor.resx">
+      <Filter>リソース ファイル</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm\frmUpdate.resx">
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
   </ItemGroup>

@@ -358,3 +358,72 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
             add_desc(idx);
     ptr[0] = '\0';
 }
+
+#define ZLIB_WINAPI
+#include "zlib.h"
+
+int create_auoSetup(const char *exePath) {
+    int ret = AUO_RESULT_SUCCESS;
+    //リソースを取り出し
+    HRSRC hResource = NULL;
+    HGLOBAL hResourceData = NULL;
+    const char *pDataPtr = NULL;
+    DWORD resourceSize = 0;
+    FILE *fp = NULL;
+    HMODULE hModule = GetModuleHandleA(AUO_NAME);
+
+    z_stream strm = { 0 };
+
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+
+    if (NULL == hModule
+        || NULL == (hResource = FindResource(hModule, "AUOSETUP", "EXE_DATA"))
+        || NULL == (hResourceData = LoadResource(hModule, hResource))
+        || NULL == (pDataPtr = (const char *)LockResource(hResourceData))
+        || 0    == (resourceSize = SizeofResource(hModule, hResource))) {
+        ret = AUO_RESULT_ERROR;
+    } else if (fopen_s(&fp, exePath, "wb") || NULL == fp) {
+        ret = AUO_RESULT_ERROR;
+    } else if (inflateInit2(&strm, 31) != Z_OK) {
+        ret = AUO_RESULT_ERROR;
+    } else {
+        static const size_t BUFFER_SIZE = 16 * 1024;
+        unsigned char buffer[BUFFER_SIZE];
+        strm.avail_in = resourceSize;
+        strm.next_in = (Bytef *)pDataPtr;
+
+        do {
+            strm.avail_out = sizeof(buffer);
+            strm.next_out = buffer;
+            switch (inflate(&strm, Z_NO_FLUSH)) {
+            case Z_NEED_DICT:
+            case Z_DATA_ERROR:
+            case Z_MEM_ERROR:
+                inflateEnd(&strm);
+                ret = AUO_RESULT_ERROR;
+                break;
+            default:
+                break;
+            }
+            if (ret == AUO_RESULT_ERROR) {
+                break;
+            }
+            size_t out_data_size = BUFFER_SIZE - strm.avail_out;
+            if (fwrite(buffer, 1, out_data_size, fp) != out_data_size || ferror(fp)) {
+                ret = AUO_RESULT_ERROR;
+                break;
+            }
+        } while (strm.avail_out == 0);
+
+        inflateEnd(&strm);
+    }
+
+    if (fp) {
+        fclose(fp);
+    }
+    return ret;
+}
