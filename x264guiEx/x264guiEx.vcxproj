@@ -405,7 +405,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\zlib\contrib\vstudio\vc14\zlibstat.vcxproj">
+    <ProjectReference Include="..\zlibstat.vcxproj">
       <Project>{745dec58-ebb3-47a9-a9b8-4c6627c01bf8}</Project>
     </ProjectReference>
   </ItemGroup>
