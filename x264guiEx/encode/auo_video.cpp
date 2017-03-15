@@ -1074,6 +1074,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
     if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && required_file_bitrate < conf->vid.amp_limit_bitrate_lower) {
         warning_amp_bitrate_confliction((int)conf->vid.amp_limit_bitrate_lower, (int)required_file_bitrate);
         conf->vid.amp_check &= ~AMPLIMIT_BITRATE_LOWER;
+        pe->amp_x264_pass_limit = pe->current_x264_pass + 1;
     }
     const double required_vid_bitrate_upper = get_amp_margin_bitrate(required_file_bitrate - aud_bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi);
     //あまりにも計算したビットレートが小さすぎたらエラーを出す
