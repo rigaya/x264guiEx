@@ -26,9 +26,16 @@
 // --------------------------------------------------------------------------------------------
 
 #include "auo.h"
-#include "auo_frm.h" 
+#include "auo_frm.h"
+#include "auo_version.h"
 #include "auo_pipe.h"
 #include "auo_chapter.h"
+
+void error_conf_not_initialized() {
+    write_log_auo_line(LOG_ERROR, "設定が正しく行われていません。");
+    write_log_auo_line(LOG_ERROR, "[プラグイン出力]>[" AUO_FULL_NAME "]の画面で「ビデオ圧縮」をクリックし、");
+    write_log_auo_line(LOG_ERROR, "開く設定画面で適切に設定を行ってください。");
+}
 
 void warning_failed_getting_temp_path() {
     write_log_auo_line(LOG_WARNING, "一時フォルダ名取得に失敗しました。一時フォルダ指定を解除しました。");

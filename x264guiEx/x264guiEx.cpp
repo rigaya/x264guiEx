@@ -157,7 +157,12 @@ BOOL func_output( OUTPUT_INFO *oip )
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     static const encode_task task[3][2] = { { video_output, audio_output }, { audio_output, video_output }, { audio_output_parallel, video_output }  };
     PRM_ENC pe = { 0 };
-    CONF_GUIEX conf_out = g_conf;
+    CONF_GUIEX conf_out = { 0 };
+    if (memcmp(&conf_out, &g_conf, sizeof(g_conf)) == 0) {
+        error_conf_not_initialized();
+        return FALSE;
+    }
+    conf_out = g_conf;
     const DWORD tm_start_enc = timeGetTime();
 
     //データの初期化
