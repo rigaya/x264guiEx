@@ -111,7 +111,7 @@ typedef struct {
     char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
     int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
     DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
-    int    reserved;
+    BOOL   ryzen_disable_avx2;       //RyzenではAVX2を使用しない
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
     double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
     BOOL   input_as_lw48;            //LW48モード

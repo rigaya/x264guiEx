@@ -67,14 +67,15 @@ static const BYTE UTF16_BE_BOM[] = { 0xFE, 0xFF };
 
 //SIMD
 enum {
-    AUO_SIMD_NONE  = 0x0000,
-    AUO_SIMD_SSE2  = 0x0001,
-    AUO_SIMD_SSE3  = 0x0002, //使用していない
-    AUO_SIMD_SSSE3 = 0x0004,
-    AUO_SIMD_SSE41 = 0x0008,
-    AUO_SIMD_SSE42 = 0x0010, //使用していない
-    AUO_SIMD_AVX   = 0x0020,
-    AUO_SIMD_AVX2  = 0x0040, //使用していない
+    AUO_SIMD_NONE     = 0x0000,
+    AUO_SIMD_SSE2     = 0x0001,
+    AUO_SIMD_SSE3     = 0x0002, //使用していない
+    AUO_SIMD_SSSE3    = 0x0004,
+    AUO_SIMD_SSE41    = 0x0008,
+    AUO_SIMD_SSE42    = 0x0010, //使用していない
+    AUO_SIMD_AVX      = 0x0020,
+    AUO_SIMD_AVX2     = 0x0040,
+    AUO_SIMD_AVX2FAST = 0x0080,
 };
 
 //関数マクロ
@@ -410,6 +411,17 @@ static DWORD get_availableSIMD() {
     __cpuid(CPUInfo, 7);
     if ((simd & AUO_SIMD_AVX) && (CPUInfo[1] & 0x00000020))
         simd |= AUO_SIMD_AVX2;
+    if (simd & AUO_SIMD_AVX2) {
+        __cpuid(CPUInfo, 0);
+        char vendor[16] = { 0 };
+        memcpy(vendor + 0, &CPUInfo[1], sizeof(CPUInfo[1]));
+        memcpy(vendor + 4, &CPUInfo[3], sizeof(CPUInfo[3]));
+        memcpy(vendor + 8, &CPUInfo[2], sizeof(CPUInfo[2]));
+        //if (strcmp(vendor, "GenuineIntel") == 0) {
+        if (strcmp(vendor, "AuthenticAMD") != 0) {
+            simd |= AUO_SIMD_AVX2FAST;
+        }
+    }
     return simd;
 }
 

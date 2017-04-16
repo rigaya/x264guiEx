@@ -701,6 +701,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateLower;
 private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
 private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
+private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
 
 
 
@@ -978,6 +979,8 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             this->fcgTSBCMDOnly = (gcnew System::Windows::Forms::ToolStripButton());
             this->toolStripSeparator3 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgTSBBitrateCalc = (gcnew System::Windows::Forms::ToolStripButton());
+            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSBUpdate = (gcnew System::Windows::Forms::ToolStripButton());
             this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgTSBOtherSettings = (gcnew System::Windows::Forms::ToolStripButton());
             this->fcgTSLSettingsNotes = (gcnew System::Windows::Forms::ToolStripLabel());
@@ -1089,8 +1092,7 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             this->fcgCBRunBatBeforeAudio = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCXAudioPriority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBAudioPriority = (gcnew System::Windows::Forms::Label());
-            this->fcgTSBUpdate = (gcnew System::Windows::Forms::ToolStripButton());
-            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgCBRyzenDisableAVX2 = (gcnew System::Windows::Forms::CheckBox());
             this->fcgtabControlVideo->SuspendLayout();
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
@@ -3332,6 +3334,7 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             // 
             // fcggroupBoxExSettings
             // 
+            this->fcggroupBoxExSettings->Controls->Add(this->fcgCBRyzenDisableAVX2);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBSetKeyframeAtChapter);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBInputAsLW48);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
@@ -3515,6 +3518,24 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             this->fcgTSBBitrateCalc->Size = System::Drawing::Size(97, 22);
             this->fcgTSBBitrateCalc->Text = L"ビットレート計算機";
             this->fcgTSBBitrateCalc->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBBitrateCalc_CheckedChanged);
+            // 
+            // toolStripSeparator5
+            // 
+            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator5->Name = L"toolStripSeparator5";
+            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgTSBUpdate
+            // 
+            this->fcgTSBUpdate->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSBUpdate->CheckOnClick = true;
+            this->fcgTSBUpdate->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSBUpdate->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBUpdate.Image")));
+            this->fcgTSBUpdate->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBUpdate->Name = L"fcgTSBUpdate";
+            this->fcgTSBUpdate->Size = System::Drawing::Size(35, 22);
+            this->fcgTSBUpdate->Text = L"更新";
+            this->fcgTSBUpdate->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBUpdate_CheckedChanged);
             // 
             // toolStripSeparator2
             // 
@@ -4713,23 +4734,16 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             this->fcgLBAudioPriority->TabIndex = 46;
             this->fcgLBAudioPriority->Text = L"音声優先度";
             // 
-            // fcgTSBUpdate
+            // fcgCBRyzenDisableAVX2
             // 
-            this->fcgTSBUpdate->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSBUpdate->CheckOnClick = true;
-            this->fcgTSBUpdate->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBUpdate->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBUpdate.Image")));
-            this->fcgTSBUpdate->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBUpdate->Name = L"fcgTSBUpdate";
-            this->fcgTSBUpdate->Size = System::Drawing::Size(35, 22);
-            this->fcgTSBUpdate->Text = L"更新";
-            this->fcgTSBUpdate->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBUpdate_CheckedChanged);
-            // 
-            // toolStripSeparator5
-            // 
-            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator5->Name = L"toolStripSeparator5";
-            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
+            this->fcgCBRyzenDisableAVX2->AutoSize = true;
+            this->fcgCBRyzenDisableAVX2->Location = System::Drawing::Point(18, 203);
+            this->fcgCBRyzenDisableAVX2->Name = L"fcgCBRyzenDisableAVX2";
+            this->fcgCBRyzenDisableAVX2->Size = System::Drawing::Size(162, 18);
+            this->fcgCBRyzenDisableAVX2->TabIndex = 6;
+            this->fcgCBRyzenDisableAVX2->Tag = L"chValue";
+            this->fcgCBRyzenDisableAVX2->Text = L"AMD RyzenではAVX2を使用しない";
+            this->fcgCBRyzenDisableAVX2->UseVisualStyleBackColor = true;
             // 
             // frmConfig
             // 

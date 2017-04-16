@@ -305,8 +305,8 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 #pragma warning( push )
 #pragma warning( disable: 4189 )
 //使用する関数を選択する
-func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOOL interlaced, int output_csp) {
-    const DWORD availableSIMD = get_availableSIMD();
+func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOOL interlaced, int output_csp, BOOL disable_avx2) {
+    const DWORD availableSIMD = get_availableSIMD() & ((disable_avx2) ? ~AVX2 : 0xffffffffu);
 
     const COVERT_FUNC_INFO *func_info = NULL;
     for (int i = 0; FUNC_TABLE[i].func; i++) {
