@@ -416,7 +416,7 @@ static DWORD CountSetBits(ULONG_PTR bitMask) {
 
 typedef void (WINAPI *RtlGetVersion_FUNC)(OSVERSIONINFOEXW*);
 
-static int getRealWindowsVersion(DWORD *major, DWORD *minor) {
+static int getRealWindowsVersion(DWORD *major, DWORD *minor, DWORD *build) {
     *major = 0;
     *minor = 0;
     OSVERSIONINFOEXW osver;
@@ -428,6 +428,7 @@ static int getRealWindowsVersion(DWORD *major, DWORD *minor) {
         func(&osver);
         *major = osver.dwMajorVersion;
         *minor = osver.dwMinorVersion;
+        *build = osver.dwBuildNumber;
         ret = 0;
     }
     if (hModule) {
@@ -436,7 +437,7 @@ static int getRealWindowsVersion(DWORD *major, DWORD *minor) {
     return ret;
 }
 
-const TCHAR *getOSVersion() {
+const TCHAR *getOSVersion(DWORD *buildNumber) {
     const TCHAR *ptr = _T("Unknown");
     OSVERSIONINFO info = { 0 };
     info.dwOSVersionInfoSize = sizeof(info);
@@ -454,7 +455,7 @@ const TCHAR *getOSVersion() {
         break;
     case VER_PLATFORM_WIN32_NT:
         if (info.dwMajorVersion == 6) {
-            getRealWindowsVersion(&info.dwMajorVersion, &info.dwMinorVersion);
+            getRealWindowsVersion(&info.dwMajorVersion, &info.dwMinorVersion, &info.dwBuildNumber);
         }
         switch (info.dwMajorVersion) {
         case 3:
@@ -504,6 +505,9 @@ const TCHAR *getOSVersion() {
         break;
     default:
         break;
+    }
+    if (buildNumber) {
+        *buildNumber = info.dwBuildNumber;
     }
     return ptr;
 }
