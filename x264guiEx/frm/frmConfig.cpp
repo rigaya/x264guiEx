@@ -233,9 +233,11 @@ System::Void frmConfig::fcgTSBUpdate_UpdateFinished(String^ mes) {
     LocalStg.TC2MP4Path      = String(stg.s_mux[MUXER_TC2MP4].fullpath).ToString();
     LocalStg.MP4RawPath      = String(stg.s_mux[MUXER_MP4_RAW].fullpath).ToString();
     LocalStg.audEncPath[DEFAULT_AUDIO_ENCODER] = String(stg.s_aud[DEFAULT_AUDIO_ENCODER].fullpath).ToString();
+    LocalStg.audEncPath[DEFAULT_AUDIO_ENCODER+1] = String(stg.s_aud[DEFAULT_AUDIO_ENCODER+1].fullpath).ToString();
 
     SetLocalStg();
-    if (DEFAULT_AUDIO_ENCODER == fcgCXAudioEncoder->SelectedIndex) {
+    if (fcgCXAudioEncoder->SelectedIndex == DEFAULT_AUDIO_ENCODER
+        || fcgCXAudioEncoder->SelectedIndex == (DEFAULT_AUDIO_ENCODER+1)) {
         fcgTXAudioEncoderPath->Text = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
     }
 #endif
