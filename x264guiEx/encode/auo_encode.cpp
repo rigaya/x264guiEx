@@ -300,6 +300,8 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     pe->video_out_type = check_video_ouput(conf, oip);
     pe->total_x264_pass = get_total_path(conf);
     pe->amp_x264_pass_limit = pe->total_x264_pass + sys_dat->exstg->s_local.amp_retry_limit;
+    pe->amp_reset_pass_count = 0;
+    pe->amp_reset_pass_limit = sys_dat->exstg->s_local.amp_retry_limit;
     pe->current_x264_pass = 1;
     pe->drop_count = 0;
     memcpy(&pe->append, &sys_dat->exstg->s_append, sizeof(FILE_APPENDIX));
@@ -873,6 +875,10 @@ static void amp_adjust_lower_bitrate(CONF_X264 *cnf_x264, int preset_idx, int pr
 }
 
 static AUO_RESULT amp_adjust_lower_bitrate_from_crf(CONF_X264 *cnf_x264, const CONF_VIDEO *conf_vid, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration, double file_bitrate) {
+    //もし、もう設定を下げる余地がなければエラーを返す
+    if (cnf_x264->keyint_max == 1 && cnf_x264->preset == 0) {
+        return AUO_RESULT_ERROR;
+    }
     const double aud_bitrate = get_audio_bitrate(pe, oip, duration);
     const double vid_bitrate = file_bitrate - aud_bitrate;
     //ビットレート倍率 = 今回のビットレート / 下限ビットレート
@@ -940,6 +946,7 @@ static AUO_RESULT amp_adjust_lower_bitrate_from_bitrate(CONF_X264 *cnf_x264, con
     }
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     //キーフレーム数を増やして1pass目からやり直す
+    pe->amp_reset_pass_count++;
     pe->total_x264_pass--;
     pe->current_x264_pass = 1;
     cnf_x264->qp_min = (std::min)(cnf_x264->qp_min, 0);
@@ -993,7 +1000,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && file_bitrate < conf->vid.amp_limit_bitrate_lower)
         status |= AMPLIMIT_BITRATE_LOWER;
 
-    BOOL retry = (status && pe->current_x264_pass < pe->amp_x264_pass_limit);
+    BOOL retry = (status && pe->current_x264_pass < pe->amp_x264_pass_limit && pe->amp_reset_pass_count < pe->amp_reset_pass_limit);
     BOOL show_header = FALSE;
     int amp_result = 0;
     bool amp_crf_reenc = false;
@@ -1070,8 +1077,10 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 //下限を下回った場合
                 if (bitrate_delta > 0) {
                     //下限を大きく下回っていたら、単に2passエンコするだけでは不十分
+                    pe->amp_reset_pass_count++;
                     if (amp_adjust_lower_bitrate_from_crf(&conf->x264, &conf->vid, sys_dat, pe, oip, duration, file_bitrate) != AUO_RESULT_SUCCESS) {
-                        return -1;
+                        retry = FALSE;
+                        amp_result = 0;
                     }
                 }
             } else {
@@ -1089,7 +1098,8 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                         show_header = TRUE;
                         amp_crf_reenc = true;
                     } else if (ret != AUO_RESULT_SUCCESS) {
-                        return -1;
+                        retry = FALSE;
+                        amp_result = 0;
                     }
                 }
             }
@@ -1098,7 +1108,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 amp_move_old_file(muxout, oip->savefile);
         }
     }
-    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, pe->current_x264_pass - conf->x264.auto_npass, (amp_result == 2) ? conf->aud.bitrate : conf->x264.bitrate);
+    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, (std::max)(pe->amp_reset_pass_count, pe->current_x264_pass - conf->x264.auto_npass), (amp_result == 2) ? conf->aud.bitrate : conf->x264.bitrate);
 
     if (show_header)
         open_log_window(oip->savefile, sys_dat, pe->current_x264_pass, pe->total_x264_pass, amp_crf_reenc);
