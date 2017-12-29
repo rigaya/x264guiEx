@@ -94,41 +94,43 @@ namespace x264guiEx {
             this->fruDGExeFiles->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
             this->fruDGExeFiles->BackgroundColor = System::Drawing::SystemColors::Control;
             this->fruDGExeFiles->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-            this->fruDGExeFiles->Location = System::Drawing::Point(14, 52);
-            this->fruDGExeFiles->Margin = System::Windows::Forms::Padding(3, 4, 3, 4);
+            this->fruDGExeFiles->Location = System::Drawing::Point(18, 65);
+            this->fruDGExeFiles->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
             this->fruDGExeFiles->Name = L"fruDGExeFiles";
             this->fruDGExeFiles->ReadOnly = true;
             this->fruDGExeFiles->RowTemplate->Height = 21;
-            this->fruDGExeFiles->Size = System::Drawing::Size(415, 127);
+            this->fruDGExeFiles->Size = System::Drawing::Size(519, 159);
             this->fruDGExeFiles->TabIndex = 0;
             // 
             // fruPBUpdate
             // 
             this->fruPBUpdate->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left)
                 | System::Windows::Forms::AnchorStyles::Right));
-            this->fruPBUpdate->Location = System::Drawing::Point(14, 373);
-            this->fruPBUpdate->Margin = System::Windows::Forms::Padding(3, 4, 3, 4);
+            this->fruPBUpdate->Location = System::Drawing::Point(18, 466);
+            this->fruPBUpdate->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
             this->fruPBUpdate->Name = L"fruPBUpdate";
-            this->fruPBUpdate->Size = System::Drawing::Size(260, 29);
+            this->fruPBUpdate->Size = System::Drawing::Size(325, 36);
             this->fruPBUpdate->TabIndex = 30;
             this->fruPBUpdate->Visible = false;
             // 
             // fruLBUpdate
             // 
             this->fruLBUpdate->AutoSize = true;
-            this->fruLBUpdate->Location = System::Drawing::Point(14, 18);
+            this->fruLBUpdate->Location = System::Drawing::Point(18, 22);
+            this->fruLBUpdate->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
             this->fruLBUpdate->Name = L"fruLBUpdate";
-            this->fruLBUpdate->Size = System::Drawing::Size(224, 15);
+            this->fruLBUpdate->Size = System::Drawing::Size(277, 19);
             this->fruLBUpdate->TabIndex = 29;
             this->fruLBUpdate->Text = L"各種実行ファイルの更新を行うことができます。";
             // 
             // fruBTUpdate
             // 
-            this->fruBTUpdate->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-            this->fruBTUpdate->Location = System::Drawing::Point(284, 363);
-            this->fruBTUpdate->Margin = System::Windows::Forms::Padding(3, 4, 3, 4);
+            this->fruBTUpdate->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left)
+                | System::Windows::Forms::AnchorStyles::Right));
+            this->fruBTUpdate->Location = System::Drawing::Point(355, 454);
+            this->fruBTUpdate->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
             this->fruBTUpdate->Name = L"fruBTUpdate";
-            this->fruBTUpdate->Size = System::Drawing::Size(145, 45);
+            this->fruBTUpdate->Size = System::Drawing::Size(181, 56);
             this->fruBTUpdate->TabIndex = 28;
             this->fruBTUpdate->Text = L"更新チェック";
             this->fruBTUpdate->UseVisualStyleBackColor = true;
@@ -138,20 +140,20 @@ namespace x264guiEx {
             // 
             this->fruTXUpdate->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left)
                 | System::Windows::Forms::AnchorStyles::Right));
-            this->fruTXUpdate->Location = System::Drawing::Point(14, 187);
-            this->fruTXUpdate->Margin = System::Windows::Forms::Padding(3, 4, 3, 4);
+            this->fruTXUpdate->Location = System::Drawing::Point(18, 234);
+            this->fruTXUpdate->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
             this->fruTXUpdate->Multiline = true;
             this->fruTXUpdate->Name = L"fruTXUpdate";
             this->fruTXUpdate->ReadOnly = true;
             this->fruTXUpdate->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-            this->fruTXUpdate->Size = System::Drawing::Size(413, 168);
+            this->fruTXUpdate->Size = System::Drawing::Size(515, 209);
             this->fruTXUpdate->TabIndex = 31;
             // 
             // frmUpdate
             // 
-            this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+            this->AutoScaleDimensions = System::Drawing::SizeF(120, 120);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
-            this->ClientSize = System::Drawing::Size(442, 423);
+            this->ClientSize = System::Drawing::Size(552, 529);
             this->Controls->Add(this->fruTXUpdate);
             this->Controls->Add(this->fruPBUpdate);
             this->Controls->Add(this->fruLBUpdate);
@@ -159,7 +161,7 @@ namespace x264guiEx {
             this->Controls->Add(this->fruDGExeFiles);
             this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
-            this->Margin = System::Windows::Forms::Padding(3, 4, 3, 4);
+            this->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
             this->Name = L"frmUpdate";
             this->Text = L"実行ファイルのアップデート";
             this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmUpdate::frmUpdate_FormClosing);
