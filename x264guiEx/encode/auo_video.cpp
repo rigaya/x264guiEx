@@ -715,7 +715,6 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     char x264cmd[MAX_CMD_LEN]  = { 0 };
     char x264args[MAX_CMD_LEN] = { 0 };
     char x264dir[MAX_PATH_LEN] = { 0 };
-    char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
     
     const DWORD simd_avail = get_availableSIMD();
     const BOOL afs = conf->vid.afs != 0;
@@ -731,11 +730,11 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     DWORD set_priority = (pe->h_p_aviutl || conf->vid.priority != AVIUTLSYNC_PRIORITY_CLASS) ? priority_table[conf->vid.priority].value : NORMAL_PRIORITY_CLASS;
 
     //プロセス用情報準備
-    if (!PathFileExists(x264fullpath)) {
-        ret |= AUO_RESULT_ERROR; error_no_exe_file("x264", x264fullpath);
+    if (!PathFileExists(sys_dat->exstg->s_x264.fullpath)) {
+        ret |= AUO_RESULT_ERROR; error_no_exe_file("x264", sys_dat->exstg->s_x264.fullpath);
         return ret;
     }
-    PathGetDirectory(x264dir, _countof(x264dir), x264fullpath);
+    PathGetDirectory(x264dir, _countof(x264dir), sys_dat->exstg->s_x264.fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
     const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
@@ -757,7 +756,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     pipes.stdIn.bufferSize = pixel_data.total_size * 2;
 
     //x264バージョン情報表示・チェック
-    if (AUO_RESULT_ERROR == write_log_x264_version(x264fullpath)) {
+    if (AUO_RESULT_ERROR == write_log_x264_version(sys_dat->exstg->s_x264.fullpath)) {
         return (ret | AUO_RESULT_ERROR);
     }
 
@@ -765,7 +764,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
     write_log_auo_line(LOG_INFO, "x264 options...");
     write_args(x264cmd);
-    sprintf_s(x264args, _countof(x264args), "\"%s\" %s", x264fullpath, x264cmd);
+    sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_x264.fullpath, x264cmd);
     remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
     
     if (conf->vid.afs && conf->x264.interlaced) {

@@ -58,6 +58,7 @@ enum {
     OPTION_TYPE_CQM,
     OPTION_TYPE_TCFILE_IN,
     OPTION_TYPE_INPUT_DEPTH,
+    OPTION_TYPE_OUTPUT_DEPTH,
     OPTION_TYPE_PASS,
     OPTION_TYPE_MB_PARTITION,
     OPTION_TYPE_TFF,
@@ -86,6 +87,7 @@ static guiEx_settings *ex_stg;
 
 static X264_OPTIONS x264_options_table[] = {
     { "input-depth",      "",   OPTION_TYPE_INPUT_DEPTH,   NULL,                 offsetof(CONF_X264, use_highbit_depth) },
+    { "output-depth",     "",   OPTION_TYPE_OUTPUT_DEPTH,  NULL,                 offsetof(CONF_X264, use_highbit_depth) },
     { "output-csp",       "",   OPTION_TYPE_LIST,          list_output_csp,      offsetof(CONF_X264, output_csp     ) },
     { "pass",             "p",  OPTION_TYPE_PASS,          NULL,                 offsetof(CONF_X264, pass           ) },
     { "slow-firstpass",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, slow_first_pass) },
@@ -435,6 +437,10 @@ static BOOL set_input_depth(void *b, const char *value, const X264_OPTION_STR *l
     *(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
     return TRUE;
 }
+static BOOL set_output_depth(void *b, const char *value, const X264_OPTION_STR *list) {
+    *(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
+    return TRUE;
+}
 static BOOL set_mb_partitions(void *cx, const char *value, const X264_OPTION_STR *list) {
     BOOL ret = TRUE;
     *(DWORD*)cx = MB_PARTITION_NONE;
@@ -730,7 +736,7 @@ static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, 
 }
 static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_highbit_depth)
-        return strcpy_s(cmd, nSize, " --input-depth 16");
+        return strcpy_s(cmd, nSize, " --input-depth 16 --output-depth 10");
     return 0;
 }
 static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {    
@@ -797,6 +803,7 @@ const SET_VALUE set_value[] = {
     set_list,
     set_do_nothing,
     set_input_depth,
+    set_output_depth,
     set_int,
     set_mb_partitions,
     set_tff,
@@ -830,6 +837,7 @@ const WRITE_CMD write_cmd[] = {
     write_cqm,
     write_tcfilein,
     write_input_depth,
+    write_do_nothing,
     write_do_nothing,
     write_mb_partitions,
     write_tff,

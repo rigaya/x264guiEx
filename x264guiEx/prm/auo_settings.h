@@ -228,7 +228,6 @@ typedef struct {
 typedef struct {
     char *filename;                      //x264のファイル名
     char fullpath[MAX_PATH_LEN];         //x264の場所(フルパス)
-    char fullpath_highbit[MAX_PATH_LEN]; //x264の場所(フルパス) highbit用
     char *default_cmd;                   //デフォルト設定用コマンドライン
     char *default_cmd_highbit;           //highbit depthデフォルト設定用追加コマンドライン
     char *help_cmd;                      //ヘルプ表示用cmd

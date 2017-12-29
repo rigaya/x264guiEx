@@ -158,9 +158,8 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, c
     //必要な実行ファイル
     //x264
     if (!conf->oth.disable_guicmd) {
-        const char *x264fullpath = (conf->x264.use_highbit_depth) ? exstg->s_x264.fullpath_highbit : exstg->s_x264.fullpath;
-        if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(x264fullpath)) {
-            error_no_exe_file("x264.exe", x264fullpath);
+        if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(exstg->s_x264.fullpath)) {
+            error_no_exe_file("x264.exe", exstg->s_x264.fullpath);
             check = FALSE;
         }
     }
@@ -332,8 +331,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
     if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
-        char *x264fullpath = (conf->x264.use_highbit_depth) ? sys_dat->exstg->s_x264.fullpath_highbit : sys_dat->exstg->s_x264.fullpath;
-        if (!check_x264_mp4_output(x264fullpath, pe->temp_filename)) {
+        if (!check_x264_mp4_output(sys_dat->exstg->s_x264.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
             change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
             warning_x264_mp4_output_not_supported();
@@ -545,7 +543,6 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
 
     char fullpath[MAX_PATH_LEN];
     replace(cmd, nSize, "%{x264path}",     GetFullPath(sys_dat->exstg->s_x264.fullpath,                   fullpath, _countof(fullpath)));
-    replace(cmd, nSize, "%{x264_10path}",  GetFullPath(sys_dat->exstg->s_x264.fullpath_highbit,           fullpath, _countof(fullpath)));
     replace(cmd, nSize, "%{audencpath}",   GetFullPath(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, fullpath, _countof(fullpath)));
     replace(cmd, nSize, "%{mp4muxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         fullpath, _countof(fullpath)));
     replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPath(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         fullpath, _countof(fullpath)));
