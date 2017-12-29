@@ -194,6 +194,7 @@ const X264_OPTION_STR list_transfer[] = {
     { "bt2020-12",    L"bt2020-12"    },
     { "smpte2084",    L"smpte2084"    },
     { "smpte428",     L"smpte428"     },
+    { "arib-std-b67", L"arib-std-b67" },
     { NULL, NULL }
 };
 const X264_OPTION_STR list_colormatrix[] = {
@@ -209,6 +210,9 @@ const X264_OPTION_STR list_colormatrix[] = {
     { "bt2020nc",  L"bt2020nc"  },
     { "bt2020c",   L"bt2020c"   },
     { "smpte2085", L"smpte2085" },
+    { "chroma-derived-nc", L"chroma-derived-nc" },
+    { "chroma-derived-c",  L"chroma-derived-c" },
+    { "ICtCp",     L"ICtCp" },
     { NULL, NULL }
 };
 const X264_OPTION_STR list_videoformat[] = {
