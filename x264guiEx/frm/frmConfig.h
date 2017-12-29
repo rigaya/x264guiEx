@@ -1173,7 +1173,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabControlVideo->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgtabControlVideo->Location = System::Drawing::Point(0, 31);
-            this->fcgtabControlVideo->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabControlVideo->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabControlVideo->Name = L"fcgtabControlVideo";
             this->fcgtabControlVideo->SelectedIndex = 0;
             this->fcgtabControlVideo->Size = System::Drawing::Size(770, 650);
@@ -1208,9 +1208,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxPreset);
             this->fcgtabPageX264Main->Controls->Add(this->fcgLBOutputCF);
             this->fcgtabPageX264Main->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageX264Main->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageX264Main->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageX264Main->Name = L"fcgtabPageX264Main";
-            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageX264Main->Size = System::Drawing::Size(762, 619);
             this->fcgtabPageX264Main->TabIndex = 0;
             this->fcgtabPageX264Main->Text = L" x264 ";
@@ -1222,7 +1222,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgPNStatusFile->Controls->Add(this->fcgTXStatusFile);
             this->fcgPNStatusFile->Controls->Add(this->fcgBTStatusFile);
             this->fcgPNStatusFile->Location = System::Drawing::Point(6, 364);
-            this->fcgPNStatusFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgPNStatusFile->Margin = System::Windows::Forms::Padding(4);
             this->fcgPNStatusFile->Name = L"fcgPNStatusFile";
             this->fcgPNStatusFile->Size = System::Drawing::Size(470, 40);
             this->fcgPNStatusFile->TabIndex = 49;
@@ -1240,7 +1240,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXStatusFile
             // 
             this->fcgTXStatusFile->Location = System::Drawing::Point(118, 9);
-            this->fcgTXStatusFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXStatusFile->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXStatusFile->Name = L"fcgTXStatusFile";
             this->fcgTXStatusFile->Size = System::Drawing::Size(315, 25);
             this->fcgTXStatusFile->TabIndex = 12;
@@ -1249,7 +1249,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTStatusFile
             // 
             this->fcgBTStatusFile->Location = System::Drawing::Point(434, 8);
-            this->fcgBTStatusFile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTStatusFile->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTStatusFile->Name = L"fcgBTStatusFile";
             this->fcgBTStatusFile->Size = System::Drawing::Size(34, 28);
             this->fcgBTStatusFile->TabIndex = 13;
@@ -1267,7 +1267,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgPNBitrate->Controls->Add(this->fcgBTTBQualityAdd);
             this->fcgPNBitrate->Controls->Add(this->fcgTBQuality);
             this->fcgPNBitrate->Location = System::Drawing::Point(6, 264);
-            this->fcgPNBitrate->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgPNBitrate->Margin = System::Windows::Forms::Padding(4);
             this->fcgPNBitrate->Name = L"fcgPNBitrate";
             this->fcgPNBitrate->Size = System::Drawing::Size(470, 105);
             this->fcgPNBitrate->TabIndex = 48;
@@ -1305,7 +1305,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXQuality
             // 
             this->fcgTXQuality->Location = System::Drawing::Point(362, 10);
-            this->fcgTXQuality->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXQuality->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXQuality->Name = L"fcgTXQuality";
             this->fcgTXQuality->Size = System::Drawing::Size(94, 25);
             this->fcgTXQuality->TabIndex = 8;
@@ -1319,7 +1319,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgBTTBQualitySubtract->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgBTTBQualitySubtract.Image")));
             this->fcgBTTBQualitySubtract->Location = System::Drawing::Point(0, 41);
-            this->fcgBTTBQualitySubtract->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTTBQualitySubtract->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTTBQualitySubtract->Name = L"fcgBTTBQualitySubtract";
             this->fcgBTTBQualitySubtract->Size = System::Drawing::Size(26, 29);
             this->fcgBTTBQualitySubtract->TabIndex = 9;
@@ -1332,7 +1332,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgBTTBQualityAdd->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgBTTBQualityAdd.Image")));
             this->fcgBTTBQualityAdd->Location = System::Drawing::Point(440, 42);
-            this->fcgBTTBQualityAdd->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTTBQualityAdd->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTTBQualityAdd->Name = L"fcgBTTBQualityAdd";
             this->fcgBTTBQualityAdd->Size = System::Drawing::Size(26, 29);
             this->fcgBTTBQualityAdd->TabIndex = 11;
@@ -1346,7 +1346,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgTBQuality->AutoSize = false;
             this->fcgTBQuality->BackColor = System::Drawing::SystemColors::Window;
             this->fcgTBQuality->Location = System::Drawing::Point(19, 44);
-            this->fcgTBQuality->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTBQuality->Margin = System::Windows::Forms::Padding(4);
             this->fcgTBQuality->Maximum = 54000;
             this->fcgTBQuality->Name = L"fcgTBQuality";
             this->fcgTBQuality->Size = System::Drawing::Size(424, 31);
@@ -1369,7 +1369,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgPNX264Mode->Controls->Add(this->fcgCBAMPLimitFileSize);
             this->fcgPNX264Mode->Controls->Add(this->fcgLBAutoNpass);
             this->fcgPNX264Mode->Location = System::Drawing::Point(6, 84);
-            this->fcgPNX264Mode->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgPNX264Mode->Margin = System::Windows::Forms::Padding(4);
             this->fcgPNX264Mode->Name = L"fcgPNX264Mode";
             this->fcgPNX264Mode->Size = System::Drawing::Size(470, 182);
             this->fcgPNX264Mode->TabIndex = 47;
@@ -1378,7 +1378,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUAMPLimitBitrateLower->DecimalPlaces = 1;
             this->fcgNUAMPLimitBitrateLower->Location = System::Drawing::Point(362, 149);
-            this->fcgNUAMPLimitBitrateLower->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAMPLimitBitrateLower->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAMPLimitBitrateLower->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
             this->fcgNUAMPLimitBitrateLower->Name = L"fcgNUAMPLimitBitrateLower";
             this->fcgNUAMPLimitBitrateLower->Size = System::Drawing::Size(98, 25);
@@ -1390,7 +1390,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAMPLimitBitrateLower->AutoSize = true;
             this->fcgCBAMPLimitBitrateLower->Location = System::Drawing::Point(38, 150);
-            this->fcgCBAMPLimitBitrateLower->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAMPLimitBitrateLower->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAMPLimitBitrateLower->Name = L"fcgCBAMPLimitBitrateLower";
             this->fcgCBAMPLimitBitrateLower->Size = System::Drawing::Size(278, 22);
             this->fcgCBAMPLimitBitrateLower->TabIndex = 48;
@@ -1402,7 +1402,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUAMPLimitBitrateUpper->DecimalPlaces = 1;
             this->fcgNUAMPLimitBitrateUpper->Location = System::Drawing::Point(362, 118);
-            this->fcgNUAMPLimitBitrateUpper->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAMPLimitBitrateUpper->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAMPLimitBitrateUpper->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
             this->fcgNUAMPLimitBitrateUpper->Name = L"fcgNUAMPLimitBitrateUpper";
             this->fcgNUAMPLimitBitrateUpper->Size = System::Drawing::Size(98, 25);
@@ -1414,7 +1414,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUAMPLimitFileSize->DecimalPlaces = 1;
             this->fcgNUAMPLimitFileSize->Location = System::Drawing::Point(362, 86);
-            this->fcgNUAMPLimitFileSize->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAMPLimitFileSize->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAMPLimitFileSize->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16384, 0, 0, 0 });
             this->fcgNUAMPLimitFileSize->Name = L"fcgNUAMPLimitFileSize";
             this->fcgNUAMPLimitFileSize->Size = System::Drawing::Size(98, 25);
@@ -1427,7 +1427,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXX264Mode->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXX264Mode->FormattingEnabled = true;
             this->fcgCXX264Mode->Location = System::Drawing::Point(8, 9);
-            this->fcgCXX264Mode->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXX264Mode->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXX264Mode->Name = L"fcgCXX264Mode";
             this->fcgCXX264Mode->Size = System::Drawing::Size(452, 26);
             this->fcgCXX264Mode->TabIndex = 4;
@@ -1438,7 +1438,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBNulOut->AutoSize = true;
             this->fcgCBNulOut->Location = System::Drawing::Point(8, 49);
-            this->fcgCBNulOut->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBNulOut->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBNulOut->Name = L"fcgCBNulOut";
             this->fcgCBNulOut->Size = System::Drawing::Size(80, 22);
             this->fcgCBNulOut->TabIndex = 5;
@@ -1451,7 +1451,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAMPLimitBitrateUpper->AutoSize = true;
             this->fcgCBAMPLimitBitrateUpper->Location = System::Drawing::Point(38, 119);
-            this->fcgCBAMPLimitBitrateUpper->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAMPLimitBitrateUpper->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAMPLimitBitrateUpper->Name = L"fcgCBAMPLimitBitrateUpper";
             this->fcgCBAMPLimitBitrateUpper->Size = System::Drawing::Size(278, 22);
             this->fcgCBAMPLimitBitrateUpper->TabIndex = 45;
@@ -1463,7 +1463,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBFastFirstPass->AutoSize = true;
             this->fcgCBFastFirstPass->Location = System::Drawing::Point(108, 49);
-            this->fcgCBFastFirstPass->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBFastFirstPass->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBFastFirstPass->Name = L"fcgCBFastFirstPass";
             this->fcgCBFastFirstPass->Size = System::Drawing::Size(127, 22);
             this->fcgCBFastFirstPass->TabIndex = 6;
@@ -1475,7 +1475,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUAutoNPass
             // 
             this->fcgNUAutoNPass->Location = System::Drawing::Point(391, 48);
-            this->fcgNUAutoNPass->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAutoNPass->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAutoNPass->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
             this->fcgNUAutoNPass->Name = L"fcgNUAutoNPass";
             this->fcgNUAutoNPass->Size = System::Drawing::Size(69, 25);
@@ -1488,7 +1488,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAMPLimitFileSize->AutoSize = true;
             this->fcgCBAMPLimitFileSize->Location = System::Drawing::Point(38, 88);
-            this->fcgCBAMPLimitFileSize->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAMPLimitFileSize->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAMPLimitFileSize->Name = L"fcgCBAMPLimitFileSize";
             this->fcgCBAMPLimitFileSize->Size = System::Drawing::Size(238, 22);
             this->fcgCBAMPLimitFileSize->TabIndex = 43;
@@ -1511,7 +1511,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXNalHrd->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXNalHrd->FormattingEnabled = true;
             this->fcgCXNalHrd->Location = System::Drawing::Point(619, 315);
-            this->fcgCXNalHrd->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXNalHrd->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXNalHrd->Name = L"fcgCXNalHrd";
             this->fcgCXNalHrd->Size = System::Drawing::Size(118, 26);
             this->fcgCXNalHrd->TabIndex = 26;
@@ -1531,7 +1531,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBPicStruct->AutoSize = true;
             this->fcgCBPicStruct->Location = System::Drawing::Point(524, 268);
-            this->fcgCBPicStruct->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBPicStruct->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBPicStruct->Name = L"fcgCBPicStruct";
             this->fcgCBPicStruct->Size = System::Drawing::Size(95, 22);
             this->fcgCBPicStruct->TabIndex = 25;
@@ -1546,9 +1546,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxX264Out->Controls->Add(this->fcgCXLogLevel);
             this->fcggroupBoxX264Out->Controls->Add(this->fcgLBLog);
             this->fcggroupBoxX264Out->Location = System::Drawing::Point(245, 529);
-            this->fcggroupBoxX264Out->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxX264Out->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxX264Out->Name = L"fcggroupBoxX264Out";
-            this->fcggroupBoxX264Out->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxX264Out->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxX264Out->Size = System::Drawing::Size(221, 81);
             this->fcggroupBoxX264Out->TabIndex = 16;
             this->fcggroupBoxX264Out->TabStop = false;
@@ -1557,7 +1557,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBSSIM->AutoSize = true;
             this->fcgCBSSIM->Location = System::Drawing::Point(132, 51);
-            this->fcgCBSSIM->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBSSIM->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBSSIM->Name = L"fcgCBSSIM";
             this->fcgCBSSIM->Size = System::Drawing::Size(66, 22);
             this->fcgCBSSIM->TabIndex = 2;
@@ -1569,7 +1569,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBPSNR->AutoSize = true;
             this->fcgCBPSNR->Location = System::Drawing::Point(21, 51);
-            this->fcgCBPSNR->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBPSNR->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBPSNR->Name = L"fcgCBPSNR";
             this->fcgCBPSNR->Size = System::Drawing::Size(67, 22);
             this->fcgCBPSNR->TabIndex = 1;
@@ -1582,7 +1582,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXLogLevel->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXLogLevel->FormattingEnabled = true;
             this->fcgCXLogLevel->Location = System::Drawing::Point(88, 18);
-            this->fcgCXLogLevel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXLogLevel->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXLogLevel->Name = L"fcgCXLogLevel";
             this->fcgCXLogLevel->Size = System::Drawing::Size(115, 26);
             this->fcgCXLogLevel->TabIndex = 0;
@@ -1601,7 +1601,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUSlices
             // 
             this->fcgNUSlices->Location = System::Drawing::Point(668, 352);
-            this->fcgNUSlices->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUSlices->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUSlices->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16, 0, 0, 0 });
             this->fcgNUSlices->Name = L"fcgNUSlices";
             this->fcgNUSlices->Size = System::Drawing::Size(68, 25);
@@ -1624,7 +1624,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXOutputCsp->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXOutputCsp->FormattingEnabled = true;
             this->fcgCXOutputCsp->Location = System::Drawing::Point(618, 390);
-            this->fcgCXOutputCsp->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXOutputCsp->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXOutputCsp->Name = L"fcgCXOutputCsp";
             this->fcgCXOutputCsp->Size = System::Drawing::Size(118, 26);
             this->fcgCXOutputCsp->TabIndex = 28;
@@ -1638,9 +1638,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxThreads->Controls->Add(this->fcgLBThreads);
             this->fcggroupBoxThreads->Controls->Add(this->fcgNUThreads);
             this->fcggroupBoxThreads->Location = System::Drawing::Point(245, 406);
-            this->fcggroupBoxThreads->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxThreads->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxThreads->Name = L"fcggroupBoxThreads";
-            this->fcggroupBoxThreads->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxThreads->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxThreads->Size = System::Drawing::Size(221, 122);
             this->fcggroupBoxThreads->TabIndex = 15;
             this->fcggroupBoxThreads->TabStop = false;
@@ -1658,7 +1658,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNULookaheadThreads
             // 
             this->fcgNULookaheadThreads->Location = System::Drawing::Point(119, 54);
-            this->fcgNULookaheadThreads->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNULookaheadThreads->Margin = System::Windows::Forms::Padding(4);
             this->fcgNULookaheadThreads->Name = L"fcgNULookaheadThreads";
             this->fcgNULookaheadThreads->Size = System::Drawing::Size(80, 25);
             this->fcgNULookaheadThreads->TabIndex = 1;
@@ -1669,7 +1669,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBSlicedThreads->AutoSize = true;
             this->fcgCBSlicedThreads->Location = System::Drawing::Point(21, 89);
-            this->fcgCBSlicedThreads->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBSlicedThreads->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBSlicedThreads->Name = L"fcgCBSlicedThreads";
             this->fcgCBSlicedThreads->Size = System::Drawing::Size(178, 22);
             this->fcgCBSlicedThreads->TabIndex = 2;
@@ -1690,7 +1690,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUThreads
             // 
             this->fcgNUThreads->Location = System::Drawing::Point(119, 19);
-            this->fcgNUThreads->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUThreads->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUThreads->Name = L"fcgNUThreads";
             this->fcgNUThreads->Size = System::Drawing::Size(80, 25);
             this->fcgNUThreads->TabIndex = 0;
@@ -1701,7 +1701,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBUsehighbit->AutoSize = true;
             this->fcgCBUsehighbit->Location = System::Drawing::Point(346, 12);
-            this->fcgCBUsehighbit->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBUsehighbit->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBUsehighbit->Name = L"fcgCBUsehighbit";
             this->fcgCBUsehighbit->Size = System::Drawing::Size(123, 22);
             this->fcgCBUsehighbit->TabIndex = 1;
@@ -1714,7 +1714,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBBlurayCompat->AutoSize = true;
             this->fcgCBBlurayCompat->Location = System::Drawing::Point(630, 229);
-            this->fcgCBBlurayCompat->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBBlurayCompat->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBBlurayCompat->Name = L"fcgCBBlurayCompat";
             this->fcgCBBlurayCompat->Size = System::Drawing::Size(108, 22);
             this->fcgCBBlurayCompat->TabIndex = 24;
@@ -1726,7 +1726,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAud->AutoSize = true;
             this->fcgCBAud->Location = System::Drawing::Point(524, 229);
-            this->fcgCBAud->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAud->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAud->Name = L"fcgCBAud";
             this->fcgCBAud->Size = System::Drawing::Size(84, 22);
             this->fcgCBAud->TabIndex = 23;
@@ -1739,7 +1739,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXVideoFormat->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXVideoFormat->FormattingEnabled = true;
             this->fcgCXVideoFormat->Location = System::Drawing::Point(616, 186);
-            this->fcgCXVideoFormat->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXVideoFormat->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXVideoFormat->Name = L"fcgCXVideoFormat";
             this->fcgCXVideoFormat->Size = System::Drawing::Size(118, 26);
             this->fcgCXVideoFormat->TabIndex = 22;
@@ -1770,7 +1770,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXLevel->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXLevel->FormattingEnabled = true;
             this->fcgCXLevel->Location = System::Drawing::Point(616, 146);
-            this->fcgCXLevel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXLevel->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXLevel->Name = L"fcgCXLevel";
             this->fcgCXLevel->Size = System::Drawing::Size(118, 26);
             this->fcgCXLevel->TabIndex = 21;
@@ -1786,11 +1786,11 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBTransfer);
             this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBColorPrim);
             this->fcggroupBoxColorMatrix->Controls->Add(this->fcgLBColorMatrix);
-            this->fcggroupBoxColorMatrix->Location = System::Drawing::Point(490, 429);
-            this->fcggroupBoxColorMatrix->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxColorMatrix->Location = System::Drawing::Point(482, 429);
+            this->fcggroupBoxColorMatrix->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxColorMatrix->Name = L"fcggroupBoxColorMatrix";
-            this->fcggroupBoxColorMatrix->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
-            this->fcggroupBoxColorMatrix->Size = System::Drawing::Size(261, 181);
+            this->fcggroupBoxColorMatrix->Padding = System::Windows::Forms::Padding(4);
+            this->fcggroupBoxColorMatrix->Size = System::Drawing::Size(273, 181);
             this->fcggroupBoxColorMatrix->TabIndex = 30;
             this->fcggroupBoxColorMatrix->TabStop = false;
             this->fcggroupBoxColorMatrix->Text = L"色空間";
@@ -1799,17 +1799,17 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCXInputRange->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXInputRange->FormattingEnabled = true;
-            this->fcgCXInputRange->Location = System::Drawing::Point(131, 142);
-            this->fcgCXInputRange->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXInputRange->Location = System::Drawing::Point(103, 142);
+            this->fcgCXInputRange->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXInputRange->Name = L"fcgCXInputRange";
-            this->fcgCXInputRange->Size = System::Drawing::Size(114, 26);
+            this->fcgCXInputRange->Size = System::Drawing::Size(163, 26);
             this->fcgCXInputRange->TabIndex = 4;
             this->fcgCXInputRange->Tag = L"reCmd";
             // 
             // fcgLBInputRange
             // 
             this->fcgLBInputRange->AutoSize = true;
-            this->fcgLBInputRange->Location = System::Drawing::Point(22, 146);
+            this->fcgLBInputRange->Location = System::Drawing::Point(10, 146);
             this->fcgLBInputRange->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
             this->fcgLBInputRange->Name = L"fcgLBInputRange";
             this->fcgLBInputRange->Size = System::Drawing::Size(88, 18);
@@ -1820,10 +1820,10 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCXTransfer->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXTransfer->FormattingEnabled = true;
-            this->fcgCXTransfer->Location = System::Drawing::Point(131, 104);
-            this->fcgCXTransfer->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXTransfer->Location = System::Drawing::Point(103, 104);
+            this->fcgCXTransfer->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXTransfer->Name = L"fcgCXTransfer";
-            this->fcgCXTransfer->Size = System::Drawing::Size(114, 26);
+            this->fcgCXTransfer->Size = System::Drawing::Size(163, 26);
             this->fcgCXTransfer->TabIndex = 2;
             this->fcgCXTransfer->Tag = L"reCmd";
             // 
@@ -1831,10 +1831,10 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCXColorPrim->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXColorPrim->FormattingEnabled = true;
-            this->fcgCXColorPrim->Location = System::Drawing::Point(131, 64);
-            this->fcgCXColorPrim->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXColorPrim->Location = System::Drawing::Point(103, 64);
+            this->fcgCXColorPrim->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXColorPrim->Name = L"fcgCXColorPrim";
-            this->fcgCXColorPrim->Size = System::Drawing::Size(114, 26);
+            this->fcgCXColorPrim->Size = System::Drawing::Size(163, 26);
             this->fcgCXColorPrim->TabIndex = 1;
             this->fcgCXColorPrim->Tag = L"reCmd";
             // 
@@ -1842,17 +1842,17 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCXColorMatrix->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXColorMatrix->FormattingEnabled = true;
-            this->fcgCXColorMatrix->Location = System::Drawing::Point(131, 25);
-            this->fcgCXColorMatrix->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXColorMatrix->Location = System::Drawing::Point(103, 25);
+            this->fcgCXColorMatrix->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXColorMatrix->Name = L"fcgCXColorMatrix";
-            this->fcgCXColorMatrix->Size = System::Drawing::Size(114, 26);
+            this->fcgCXColorMatrix->Size = System::Drawing::Size(163, 26);
             this->fcgCXColorMatrix->TabIndex = 0;
             this->fcgCXColorMatrix->Tag = L"reCmd";
             // 
             // fcgLBTransfer
             // 
             this->fcgLBTransfer->AutoSize = true;
-            this->fcgLBTransfer->Location = System::Drawing::Point(22, 108);
+            this->fcgLBTransfer->Location = System::Drawing::Point(10, 108);
             this->fcgLBTransfer->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
             this->fcgLBTransfer->Name = L"fcgLBTransfer";
             this->fcgLBTransfer->Size = System::Drawing::Size(62, 18);
@@ -1862,7 +1862,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgLBColorPrim
             // 
             this->fcgLBColorPrim->AutoSize = true;
-            this->fcgLBColorPrim->Location = System::Drawing::Point(22, 68);
+            this->fcgLBColorPrim->Location = System::Drawing::Point(10, 68);
             this->fcgLBColorPrim->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
             this->fcgLBColorPrim->Name = L"fcgLBColorPrim";
             this->fcgLBColorPrim->Size = System::Drawing::Size(73, 18);
@@ -1872,7 +1872,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgLBColorMatrix
             // 
             this->fcgLBColorMatrix->AutoSize = true;
-            this->fcgLBColorMatrix->Location = System::Drawing::Point(22, 29);
+            this->fcgLBColorMatrix->Location = System::Drawing::Point(10, 29);
             this->fcgLBColorMatrix->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
             this->fcgLBColorMatrix->Name = L"fcgLBColorMatrix";
             this->fcgLBColorMatrix->Size = System::Drawing::Size(85, 18);
@@ -1886,9 +1886,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxAepectRatio->Controls->Add(this->fcgNUAspectRatioX);
             this->fcggroupBoxAepectRatio->Controls->Add(this->fcgCXAspectRatio);
             this->fcggroupBoxAepectRatio->Location = System::Drawing::Point(495, 8);
-            this->fcggroupBoxAepectRatio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxAepectRatio->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxAepectRatio->Name = L"fcggroupBoxAepectRatio";
-            this->fcggroupBoxAepectRatio->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxAepectRatio->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxAepectRatio->Size = System::Drawing::Size(256, 118);
             this->fcggroupBoxAepectRatio->TabIndex = 20;
             this->fcggroupBoxAepectRatio->TabStop = false;
@@ -1897,7 +1897,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUAspectRatioY
             // 
             this->fcgNUAspectRatioY->Location = System::Drawing::Point(158, 71);
-            this->fcgNUAspectRatioY->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAspectRatioY->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAspectRatioY->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000, 0, 0, 0 });
             this->fcgNUAspectRatioY->Name = L"fcgNUAspectRatioY";
             this->fcgNUAspectRatioY->Size = System::Drawing::Size(75, 25);
@@ -1918,7 +1918,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUAspectRatioX
             // 
             this->fcgNUAspectRatioX->Location = System::Drawing::Point(52, 71);
-            this->fcgNUAspectRatioX->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAspectRatioX->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAspectRatioX->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000, 0, 0, 0 });
             this->fcgNUAspectRatioX->Name = L"fcgNUAspectRatioX";
             this->fcgNUAspectRatioX->Size = System::Drawing::Size(75, 25);
@@ -1931,7 +1931,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAspectRatio->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAspectRatio->FormattingEnabled = true;
             this->fcgCXAspectRatio->Location = System::Drawing::Point(19, 36);
-            this->fcgCXAspectRatio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAspectRatio->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAspectRatio->Name = L"fcgCXAspectRatio";
             this->fcgCXAspectRatio->Size = System::Drawing::Size(213, 26);
             this->fcgCXAspectRatio->TabIndex = 0;
@@ -1941,7 +1941,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgpictureBoxX264->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgpictureBoxX264.Image")));
             this->fcgpictureBoxX264->Location = System::Drawing::Point(5, 15);
-            this->fcgpictureBoxX264->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgpictureBoxX264->Margin = System::Windows::Forms::Padding(4);
             this->fcgpictureBoxX264->Name = L"fcgpictureBoxX264";
             this->fcgpictureBoxX264->Size = System::Drawing::Size(138, 55);
             this->fcgpictureBoxX264->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
@@ -1951,7 +1951,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTX264Path
             // 
             this->fcgBTX264Path->Location = System::Drawing::Point(442, 42);
-            this->fcgBTX264Path->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTX264Path->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTX264Path->Name = L"fcgBTX264Path";
             this->fcgBTX264Path->Size = System::Drawing::Size(34, 28);
             this->fcgBTX264Path->TabIndex = 3;
@@ -1963,7 +1963,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXX264Path->AllowDrop = true;
             this->fcgTXX264Path->Location = System::Drawing::Point(149, 44);
-            this->fcgTXX264Path->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXX264Path->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXX264Path->Name = L"fcgTXX264Path";
             this->fcgTXX264Path->Size = System::Drawing::Size(293, 25);
             this->fcgTXX264Path->TabIndex = 2;
@@ -1992,9 +1992,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxPreset->Controls->Add(this->fcgLBX264TUNE);
             this->fcggroupBoxPreset->Controls->Add(this->fcgLBX264Preset);
             this->fcggroupBoxPreset->Location = System::Drawing::Point(9, 406);
-            this->fcggroupBoxPreset->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxPreset->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxPreset->Name = L"fcggroupBoxPreset";
-            this->fcggroupBoxPreset->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxPreset->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxPreset->Size = System::Drawing::Size(228, 204);
             this->fcggroupBoxPreset->TabIndex = 14;
             this->fcggroupBoxPreset->TabStop = false;
@@ -2003,7 +2003,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTApplyPreset
             // 
             this->fcgBTApplyPreset->Location = System::Drawing::Point(91, 152);
-            this->fcgBTApplyPreset->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTApplyPreset->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTApplyPreset->Name = L"fcgBTApplyPreset";
             this->fcgBTApplyPreset->Size = System::Drawing::Size(118, 40);
             this->fcgBTApplyPreset->TabIndex = 3;
@@ -2016,7 +2016,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXProfile->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXProfile->FormattingEnabled = true;
             this->fcgCXProfile->Location = System::Drawing::Point(91, 108);
-            this->fcgCXProfile->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXProfile->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXProfile->Name = L"fcgCXProfile";
             this->fcgCXProfile->Size = System::Drawing::Size(116, 26);
             this->fcgCXProfile->TabIndex = 2;
@@ -2027,7 +2027,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXTune->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXTune->FormattingEnabled = true;
             this->fcgCXTune->Location = System::Drawing::Point(91, 68);
-            this->fcgCXTune->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXTune->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXTune->Name = L"fcgCXTune";
             this->fcgCXTune->Size = System::Drawing::Size(116, 26);
             this->fcgCXTune->TabIndex = 1;
@@ -2038,7 +2038,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXPreset->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXPreset->FormattingEnabled = true;
             this->fcgCXPreset->Location = System::Drawing::Point(91, 28);
-            this->fcgCXPreset->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXPreset->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXPreset->Name = L"fcgCXPreset";
             this->fcgCXPreset->Size = System::Drawing::Size(116, 26);
             this->fcgCXPreset->TabIndex = 0;
@@ -2101,9 +2101,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264RC->Controls->Add(this->fcgCBMBTree);
             this->fcgtabPageX264RC->Controls->Add(this->fcggroupBoxQP);
             this->fcgtabPageX264RC->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageX264RC->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageX264RC->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageX264RC->Name = L"fcgtabPageX264RC";
-            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageX264RC->Size = System::Drawing::Size(762, 619);
             this->fcgtabPageX264RC->TabIndex = 1;
             this->fcgtabPageX264RC->Text = L" レート・QP制御";
@@ -2122,7 +2122,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUTimebaseDen
             // 
             this->fcgNUTimebaseDen->Location = System::Drawing::Point(316, 562);
-            this->fcgNUTimebaseDen->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUTimebaseDen->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUTimebaseDen->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2000000000, 0, 0, 0 });
             this->fcgNUTimebaseDen->Name = L"fcgNUTimebaseDen";
             this->fcgNUTimebaseDen->Size = System::Drawing::Size(150, 25);
@@ -2133,7 +2133,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUTimebaseNum
             // 
             this->fcgNUTimebaseNum->Location = System::Drawing::Point(169, 562);
-            this->fcgNUTimebaseNum->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUTimebaseNum->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUTimebaseNum->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2000000000, 0, 0, 0 });
             this->fcgNUTimebaseNum->Name = L"fcgNUTimebaseNum";
             this->fcgNUTimebaseNum->Size = System::Drawing::Size(118, 25);
@@ -2144,7 +2144,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTTCIN
             // 
             this->fcgBTTCIN->Location = System::Drawing::Point(452, 524);
-            this->fcgBTTCIN->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTTCIN->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTTCIN->Name = L"fcgBTTCIN";
             this->fcgBTTCIN->Size = System::Drawing::Size(42, 29);
             this->fcgBTTCIN->TabIndex = 8;
@@ -2155,7 +2155,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXTCIN
             // 
             this->fcgTXTCIN->Location = System::Drawing::Point(169, 525);
-            this->fcgTXTCIN->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXTCIN->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXTCIN->Name = L"fcgTXTCIN";
             this->fcgTXTCIN->Size = System::Drawing::Size(275, 25);
             this->fcgTXTCIN->TabIndex = 7;
@@ -2165,7 +2165,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBTimeBase->AutoSize = true;
             this->fcgCBTimeBase->Location = System::Drawing::Point(30, 564);
-            this->fcgCBTimeBase->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBTimeBase->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBTimeBase->Name = L"fcgCBTimeBase";
             this->fcgCBTimeBase->Size = System::Drawing::Size(114, 22);
             this->fcgCBTimeBase->TabIndex = 9;
@@ -2178,7 +2178,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBTCIN->AutoSize = true;
             this->fcgCBTCIN->Location = System::Drawing::Point(30, 528);
-            this->fcgCBTCIN->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBTCIN->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBTCIN->Name = L"fcgCBTCIN";
             this->fcgCBTCIN->Size = System::Drawing::Size(120, 22);
             this->fcgCBTCIN->TabIndex = 6;
@@ -2194,9 +2194,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxAQ->Controls->Add(this->fcgCXAQMode);
             this->fcggroupBoxAQ->Controls->Add(this->fcgLBAQMode);
             this->fcggroupBoxAQ->Location = System::Drawing::Point(10, 322);
-            this->fcggroupBoxAQ->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxAQ->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxAQ->Name = L"fcggroupBoxAQ";
-            this->fcggroupBoxAQ->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxAQ->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxAQ->Size = System::Drawing::Size(301, 126);
             this->fcggroupBoxAQ->TabIndex = 4;
             this->fcggroupBoxAQ->TabStop = false;
@@ -2207,7 +2207,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgNUAQStrength->DecimalPlaces = 2;
             this->fcgNUAQStrength->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 5, 0, 0, 131072 });
             this->fcgNUAQStrength->Location = System::Drawing::Point(150, 84);
-            this->fcgNUAQStrength->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAQStrength->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAQStrength->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 3, 0, 0, 0 });
             this->fcgNUAQStrength->Name = L"fcgNUAQStrength";
             this->fcgNUAQStrength->Size = System::Drawing::Size(94, 25);
@@ -2230,7 +2230,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAQMode->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAQMode->FormattingEnabled = true;
             this->fcgCXAQMode->Location = System::Drawing::Point(150, 35);
-            this->fcgCXAQMode->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAQMode->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAQMode->Name = L"fcgCXAQMode";
             this->fcgCXAQMode->Size = System::Drawing::Size(93, 26);
             this->fcgCXAQMode->TabIndex = 0;
@@ -2253,9 +2253,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxPsyRd->Controls->Add(this->fcgLBPsyTrellis);
             this->fcggroupBoxPsyRd->Controls->Add(this->fcgLBPsyRDO);
             this->fcggroupBoxPsyRd->Location = System::Drawing::Point(355, 322);
-            this->fcggroupBoxPsyRd->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxPsyRd->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxPsyRd->Name = L"fcggroupBoxPsyRd";
-            this->fcggroupBoxPsyRd->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxPsyRd->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxPsyRd->Size = System::Drawing::Size(290, 126);
             this->fcggroupBoxPsyRd->TabIndex = 5;
             this->fcggroupBoxPsyRd->TabStop = false;
@@ -2266,7 +2266,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgNUPsyTrellis->DecimalPlaces = 2;
             this->fcgNUPsyTrellis->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 5, 0, 0, 131072 });
             this->fcgNUPsyTrellis->Location = System::Drawing::Point(151, 80);
-            this->fcgNUPsyTrellis->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUPsyTrellis->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUPsyTrellis->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
             this->fcgNUPsyTrellis->Name = L"fcgNUPsyTrellis";
             this->fcgNUPsyTrellis->Size = System::Drawing::Size(94, 25);
@@ -2279,7 +2279,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgNUPsyRDO->DecimalPlaces = 2;
             this->fcgNUPsyRDO->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 5, 0, 0, 131072 });
             this->fcgNUPsyRDO->Location = System::Drawing::Point(151, 35);
-            this->fcgNUPsyRDO->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUPsyRDO->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUPsyRDO->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
             this->fcgNUPsyRDO->Name = L"fcgNUPsyRDO";
             this->fcgNUPsyRDO->Size = System::Drawing::Size(94, 25);
@@ -2315,9 +2315,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxVbv->Controls->Add(this->fcgLBVBVbuf);
             this->fcggroupBoxVbv->Controls->Add(this->fcgLBVBVmax);
             this->fcggroupBoxVbv->Location = System::Drawing::Point(355, 142);
-            this->fcggroupBoxVbv->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxVbv->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxVbv->Name = L"fcggroupBoxVbv";
-            this->fcggroupBoxVbv->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxVbv->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxVbv->Size = System::Drawing::Size(290, 164);
             this->fcggroupBoxVbv->TabIndex = 3;
             this->fcggroupBoxVbv->TabStop = false;
@@ -2336,7 +2336,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUVBVbuf
             // 
             this->fcgNUVBVbuf->Location = System::Drawing::Point(151, 71);
-            this->fcgNUVBVbuf->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUVBVbuf->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUVBVbuf->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000000, 0, 0, 0 });
             this->fcgNUVBVbuf->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, System::Int32::MinValue });
             this->fcgNUVBVbuf->Name = L"fcgNUVBVbuf";
@@ -2348,7 +2348,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUVBVmax
             // 
             this->fcgNUVBVmax->Location = System::Drawing::Point(151, 34);
-            this->fcgNUVBVmax->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUVBVmax->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUVBVmax->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000000, 0, 0, 0 });
             this->fcgNUVBVmax->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, System::Int32::MinValue });
             this->fcgNUVBVmax->Name = L"fcgNUVBVmax";
@@ -2381,7 +2381,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNURCLookahead->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
             this->fcgNURCLookahead->Location = System::Drawing::Point(448, 95);
-            this->fcgNURCLookahead->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNURCLookahead->Margin = System::Windows::Forms::Padding(4);
             this->fcgNURCLookahead->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 250, 0, 0, 0 });
             this->fcgNURCLookahead->Name = L"fcgNURCLookahead";
             this->fcgNURCLookahead->Size = System::Drawing::Size(89, 25);
@@ -2403,7 +2403,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMBTree->AutoSize = true;
             this->fcgCBMBTree->Location = System::Drawing::Point(415, 24);
-            this->fcgCBMBTree->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMBTree->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMBTree->Name = L"fcgCBMBTree";
             this->fcgCBMBTree->Size = System::Drawing::Size(144, 22);
             this->fcgCBMBTree->TabIndex = 1;
@@ -2428,9 +2428,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxQP->Controls->Add(this->fcgLBPBRatio);
             this->fcggroupBoxQP->Controls->Add(this->fcgLBIPRatio);
             this->fcggroupBoxQP->Location = System::Drawing::Point(10, 8);
-            this->fcggroupBoxQP->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxQP->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxQP->Name = L"fcggroupBoxQP";
-            this->fcggroupBoxQP->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxQP->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxQP->Size = System::Drawing::Size(301, 299);
             this->fcggroupBoxQP->TabIndex = 0;
             this->fcggroupBoxQP->TabStop = false;
@@ -2439,7 +2439,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUChromaQp
             // 
             this->fcgNUChromaQp->Location = System::Drawing::Point(206, 256);
-            this->fcgNUChromaQp->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUChromaQp->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUChromaQp->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 81, 0, 0, 0 });
             this->fcgNUChromaQp->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 81, 0, 0, System::Int32::MinValue });
             this->fcgNUChromaQp->Name = L"fcgNUChromaQp";
@@ -2451,7 +2451,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUQpstep
             // 
             this->fcgNUQpstep->Location = System::Drawing::Point(206, 219);
-            this->fcgNUQpstep->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUQpstep->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUQpstep->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 81, 0, 0, 0 });
             this->fcgNUQpstep->Name = L"fcgNUQpstep";
             this->fcgNUQpstep->Size = System::Drawing::Size(69, 25);
@@ -2462,7 +2462,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUQpmax
             // 
             this->fcgNUQpmax->Location = System::Drawing::Point(206, 181);
-            this->fcgNUQpmax->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUQpmax->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUQpmax->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 69, 0, 0, 0 });
             this->fcgNUQpmax->Name = L"fcgNUQpmax";
             this->fcgNUQpmax->Size = System::Drawing::Size(69, 25);
@@ -2473,7 +2473,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUQpmin
             // 
             this->fcgNUQpmin->Location = System::Drawing::Point(206, 144);
-            this->fcgNUQpmin->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUQpmin->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUQpmin->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 81, 0, 0, 0 });
             this->fcgNUQpmin->Name = L"fcgNUQpmin";
             this->fcgNUQpmin->Size = System::Drawing::Size(69, 25);
@@ -2484,7 +2484,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUQcomp
             // 
             this->fcgNUQcomp->Location = System::Drawing::Point(206, 106);
-            this->fcgNUQcomp->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUQcomp->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUQcomp->Name = L"fcgNUQcomp";
             this->fcgNUQcomp->Size = System::Drawing::Size(69, 25);
             this->fcgNUQcomp->TabIndex = 2;
@@ -2494,7 +2494,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUPBRatio
             // 
             this->fcgNUPBRatio->Location = System::Drawing::Point(206, 69);
-            this->fcgNUPBRatio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUPBRatio->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUPBRatio->Name = L"fcgNUPBRatio";
             this->fcgNUPBRatio->Size = System::Drawing::Size(69, 25);
             this->fcgNUPBRatio->TabIndex = 1;
@@ -2504,7 +2504,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUIPRatio
             // 
             this->fcgNUIPRatio->Location = System::Drawing::Point(206, 31);
-            this->fcgNUIPRatio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUIPRatio->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUIPRatio->Name = L"fcgNUIPRatio";
             this->fcgNUIPRatio->Size = System::Drawing::Size(69, 25);
             this->fcgNUIPRatio->TabIndex = 0;
@@ -2598,7 +2598,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264Frame->Controls->Add(this->fcggroupBoxGOP);
             this->fcgtabPageX264Frame->Controls->Add(this->fcggroupBoxDeblock);
             this->fcgtabPageX264Frame->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageX264Frame->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageX264Frame->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageX264Frame->Name = L"fcgtabPageX264Frame";
             this->fcgtabPageX264Frame->Size = System::Drawing::Size(762, 619);
             this->fcgtabPageX264Frame->TabIndex = 4;
@@ -2609,7 +2609,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBDeblock->AutoSize = true;
             this->fcgCBDeblock->Location = System::Drawing::Point(484, 180);
-            this->fcgCBDeblock->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBDeblock->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBDeblock->Name = L"fcgCBDeblock";
             this->fcgCBDeblock->Size = System::Drawing::Size(176, 22);
             this->fcgCBDeblock->TabIndex = 7;
@@ -2623,7 +2623,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXInterlaced->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXInterlaced->FormattingEnabled = true;
             this->fcgCXInterlaced->Location = System::Drawing::Point(602, 306);
-            this->fcgCXInterlaced->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXInterlaced->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXInterlaced->Name = L"fcgCXInterlaced";
             this->fcgCXInterlaced->Size = System::Drawing::Size(139, 26);
             this->fcgCXInterlaced->TabIndex = 9;
@@ -2647,9 +2647,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxX264Other->Controls->Add(this->fcgLBCQM);
             this->fcggroupBoxX264Other->Controls->Add(this->fcgLBTrellis);
             this->fcggroupBoxX264Other->Location = System::Drawing::Point(350, 460);
-            this->fcggroupBoxX264Other->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxX264Other->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxX264Other->Name = L"fcggroupBoxX264Other";
-            this->fcggroupBoxX264Other->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxX264Other->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxX264Other->Size = System::Drawing::Size(400, 124);
             this->fcggroupBoxX264Other->TabIndex = 14;
             this->fcggroupBoxX264Other->TabStop = false;
@@ -2660,7 +2660,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgBTMatrix->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 6, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgBTMatrix->Location = System::Drawing::Point(332, 71);
-            this->fcgBTMatrix->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMatrix->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMatrix->Name = L"fcgBTMatrix";
             this->fcgBTMatrix->Size = System::Drawing::Size(22, 29);
             this->fcgBTMatrix->TabIndex = 2;
@@ -2671,7 +2671,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXCQM
             // 
             this->fcgTXCQM->Location = System::Drawing::Point(139, 72);
-            this->fcgTXCQM->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXCQM->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXCQM->Name = L"fcgTXCQM";
             this->fcgTXCQM->Size = System::Drawing::Size(185, 25);
             this->fcgTXCQM->TabIndex = 1;
@@ -2682,7 +2682,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXTrellis->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXTrellis->FormattingEnabled = true;
             this->fcgCXTrellis->Location = System::Drawing::Point(139, 31);
-            this->fcgCXTrellis->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXTrellis->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXTrellis->Name = L"fcgCXTrellis";
             this->fcgCXTrellis->Size = System::Drawing::Size(214, 26);
             this->fcgCXTrellis->TabIndex = 0;
@@ -2712,7 +2712,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBDctDecimate->AutoSize = true;
             this->fcgCBDctDecimate->Location = System::Drawing::Point(470, 430);
-            this->fcgCBDctDecimate->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBDctDecimate->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBDctDecimate->Name = L"fcgCBDctDecimate";
             this->fcgCBDctDecimate->Size = System::Drawing::Size(125, 22);
             this->fcgCBDctDecimate->TabIndex = 12;
@@ -2724,7 +2724,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBfastpskip->AutoSize = true;
             this->fcgCBfastpskip->Location = System::Drawing::Point(625, 430);
-            this->fcgCBfastpskip->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBfastpskip->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBfastpskip->Name = L"fcgCBfastpskip";
             this->fcgCBfastpskip->Size = System::Drawing::Size(120, 22);
             this->fcgCBfastpskip->TabIndex = 13;
@@ -2749,9 +2749,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxME->Controls->Add(this->fcgLBSubME);
             this->fcggroupBoxME->Controls->Add(this->fcgLBME);
             this->fcggroupBoxME->Location = System::Drawing::Point(6, 5);
-            this->fcggroupBoxME->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxME->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxME->Name = L"fcggroupBoxME";
-            this->fcggroupBoxME->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxME->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxME->Size = System::Drawing::Size(450, 226);
             this->fcggroupBoxME->TabIndex = 0;
             this->fcggroupBoxME->TabStop = false;
@@ -2761,7 +2761,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMixedRef->AutoSize = true;
             this->fcgCBMixedRef->Location = System::Drawing::Point(342, 184);
-            this->fcgCBMixedRef->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMixedRef->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMixedRef->Name = L"fcgCBMixedRef";
             this->fcgCBMixedRef->Size = System::Drawing::Size(18, 17);
             this->fcgCBMixedRef->TabIndex = 6;
@@ -2772,7 +2772,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBChromaME->AutoSize = true;
             this->fcgCBChromaME->Location = System::Drawing::Point(366, 105);
-            this->fcgCBChromaME->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBChromaME->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBChromaME->Name = L"fcgCBChromaME";
             this->fcgCBChromaME->Size = System::Drawing::Size(18, 17);
             this->fcgCBChromaME->TabIndex = 3;
@@ -2782,7 +2782,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNURef
             // 
             this->fcgNURef->Location = System::Drawing::Point(165, 179);
-            this->fcgNURef->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNURef->Margin = System::Windows::Forms::Padding(4);
             this->fcgNURef->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16, 0, 0, 0 });
             this->fcgNURef->Name = L"fcgNURef";
             this->fcgNURef->Size = System::Drawing::Size(81, 25);
@@ -2794,7 +2794,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUMERange->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16, 0, 0, 0 });
             this->fcgNUMERange->Location = System::Drawing::Point(165, 101);
-            this->fcgNUMERange->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUMERange->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUMERange->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 64, 0, 0, 0 });
             this->fcgNUMERange->Name = L"fcgNUMERange";
             this->fcgNUMERange->Size = System::Drawing::Size(81, 25);
@@ -2807,7 +2807,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXDirectME->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXDirectME->FormattingEnabled = true;
             this->fcgCXDirectME->Location = System::Drawing::Point(165, 139);
-            this->fcgCXDirectME->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXDirectME->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXDirectME->Name = L"fcgCXDirectME";
             this->fcgCXDirectME->Size = System::Drawing::Size(238, 26);
             this->fcgCXDirectME->TabIndex = 4;
@@ -2818,7 +2818,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXSubME->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXSubME->FormattingEnabled = true;
             this->fcgCXSubME->Location = System::Drawing::Point(165, 61);
-            this->fcgCXSubME->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXSubME->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXSubME->Name = L"fcgCXSubME";
             this->fcgCXSubME->Size = System::Drawing::Size(273, 26);
             this->fcgCXSubME->TabIndex = 1;
@@ -2829,7 +2829,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXME->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXME->FormattingEnabled = true;
             this->fcgCXME->Location = System::Drawing::Point(165, 22);
-            this->fcgCXME->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXME->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXME->Name = L"fcgCXME";
             this->fcgCXME->Size = System::Drawing::Size(273, 26);
             this->fcgCXME->TabIndex = 0;
@@ -2914,9 +2914,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxMBTypes->Controls->Add(this->fcgCBp8x8);
             this->fcggroupBoxMBTypes->Controls->Add(this->fcgCB8x8dct);
             this->fcggroupBoxMBTypes->Location = System::Drawing::Point(6, 460);
-            this->fcggroupBoxMBTypes->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxMBTypes->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxMBTypes->Name = L"fcggroupBoxMBTypes";
-            this->fcggroupBoxMBTypes->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxMBTypes->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxMBTypes->Size = System::Drawing::Size(305, 124);
             this->fcggroupBoxMBTypes->TabIndex = 2;
             this->fcggroupBoxMBTypes->TabStop = false;
@@ -2926,7 +2926,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBi4x4->AutoSize = true;
             this->fcgCBi4x4->Location = System::Drawing::Point(119, 89);
-            this->fcgCBi4x4->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBi4x4->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBi4x4->Name = L"fcgCBi4x4";
             this->fcgCBi4x4->Size = System::Drawing::Size(60, 22);
             this->fcgCBi4x4->TabIndex = 5;
@@ -2938,7 +2938,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBp4x4->AutoSize = true;
             this->fcgCBp4x4->Location = System::Drawing::Point(219, 58);
-            this->fcgCBp4x4->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBp4x4->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBp4x4->Name = L"fcgCBp4x4";
             this->fcgCBp4x4->Size = System::Drawing::Size(65, 22);
             this->fcgCBp4x4->TabIndex = 3;
@@ -2950,7 +2950,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBi8x8->AutoSize = true;
             this->fcgCBi8x8->Location = System::Drawing::Point(16, 89);
-            this->fcgCBi8x8->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBi8x8->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBi8x8->Name = L"fcgCBi8x8";
             this->fcgCBi8x8->Size = System::Drawing::Size(60, 22);
             this->fcgCBi8x8->TabIndex = 4;
@@ -2962,7 +2962,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBb8x8->AutoSize = true;
             this->fcgCBb8x8->Location = System::Drawing::Point(119, 58);
-            this->fcgCBb8x8->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBb8x8->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBb8x8->Name = L"fcgCBb8x8";
             this->fcgCBb8x8->Size = System::Drawing::Size(65, 22);
             this->fcgCBb8x8->TabIndex = 2;
@@ -2974,7 +2974,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBp8x8->AutoSize = true;
             this->fcgCBp8x8->Location = System::Drawing::Point(16, 58);
-            this->fcgCBp8x8->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBp8x8->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBp8x8->Name = L"fcgCBp8x8";
             this->fcgCBp8x8->Size = System::Drawing::Size(65, 22);
             this->fcgCBp8x8->TabIndex = 1;
@@ -2986,7 +2986,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCB8x8dct->AutoSize = true;
             this->fcgCB8x8dct->Location = System::Drawing::Point(16, 25);
-            this->fcgCB8x8dct->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCB8x8dct->Margin = System::Windows::Forms::Padding(4);
             this->fcgCB8x8dct->Name = L"fcgCB8x8dct";
             this->fcgCB8x8dct->Size = System::Drawing::Size(158, 22);
             this->fcgCB8x8dct->TabIndex = 0;
@@ -2999,7 +2999,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXWeightP->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXWeightP->FormattingEnabled = true;
             this->fcgCXWeightP->Location = System::Drawing::Point(602, 344);
-            this->fcgCXWeightP->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXWeightP->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXWeightP->Name = L"fcgCXWeightP";
             this->fcgCXWeightP->Size = System::Drawing::Size(139, 26);
             this->fcgCXWeightP->TabIndex = 10;
@@ -3028,9 +3028,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxBframes->Controls->Add(this->fcgLBBAdapt);
             this->fcggroupBoxBframes->Controls->Add(this->fcgLBBframes);
             this->fcggroupBoxBframes->Location = System::Drawing::Point(6, 239);
-            this->fcggroupBoxBframes->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxBframes->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxBframes->Name = L"fcggroupBoxBframes";
-            this->fcggroupBoxBframes->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxBframes->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxBframes->Size = System::Drawing::Size(305, 214);
             this->fcggroupBoxBframes->TabIndex = 1;
             this->fcggroupBoxBframes->TabStop = false;
@@ -3041,7 +3041,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXBpyramid->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXBpyramid->FormattingEnabled = true;
             this->fcgCXBpyramid->Location = System::Drawing::Point(194, 141);
-            this->fcgCXBpyramid->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXBpyramid->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXBpyramid->Name = L"fcgCXBpyramid";
             this->fcgCXBpyramid->Size = System::Drawing::Size(88, 26);
             this->fcgCXBpyramid->TabIndex = 3;
@@ -3052,7 +3052,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXBAdpapt->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXBAdpapt->FormattingEnabled = true;
             this->fcgCXBAdpapt->Location = System::Drawing::Point(194, 68);
-            this->fcgCXBAdpapt->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXBAdpapt->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXBAdpapt->Name = L"fcgCXBAdpapt";
             this->fcgCXBAdpapt->Size = System::Drawing::Size(88, 26);
             this->fcgCXBAdpapt->TabIndex = 1;
@@ -3062,7 +3062,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBWeightB->AutoSize = true;
             this->fcgCBWeightB->Location = System::Drawing::Point(264, 184);
-            this->fcgCBWeightB->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBWeightB->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBWeightB->Name = L"fcgCBWeightB";
             this->fcgCBWeightB->Size = System::Drawing::Size(18, 17);
             this->fcgCBWeightB->TabIndex = 4;
@@ -3073,7 +3073,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUBBias->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 5, 0, 0, 0 });
             this->fcgNUBBias->Location = System::Drawing::Point(215, 106);
-            this->fcgNUBBias->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUBBias->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUBBias->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 100, 0, 0, System::Int32::MinValue });
             this->fcgNUBBias->Name = L"fcgNUBBias";
             this->fcgNUBBias->Size = System::Drawing::Size(68, 25);
@@ -3084,7 +3084,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUBframes
             // 
             this->fcgNUBframes->Location = System::Drawing::Point(215, 29);
-            this->fcgNUBframes->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUBframes->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUBframes->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16, 0, 0, 0 });
             this->fcgNUBframes->Name = L"fcgNUBframes";
             this->fcgNUBframes->Size = System::Drawing::Size(68, 25);
@@ -3146,7 +3146,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBCABAC->AutoSize = true;
             this->fcgCBCABAC->Location = System::Drawing::Point(470, 392);
-            this->fcgCBCABAC->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBCABAC->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBCABAC->Name = L"fcgCBCABAC";
             this->fcgCBCABAC->Size = System::Drawing::Size(75, 22);
             this->fcgCBCABAC->TabIndex = 11;
@@ -3165,9 +3165,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxGOP->Controls->Add(this->fcgNUScenecut);
             this->fcggroupBoxGOP->Controls->Add(this->fcgLBScenecut);
             this->fcggroupBoxGOP->Location = System::Drawing::Point(470, 4);
-            this->fcggroupBoxGOP->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxGOP->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxGOP->Name = L"fcggroupBoxGOP";
-            this->fcggroupBoxGOP->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxGOP->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxGOP->Size = System::Drawing::Size(280, 166);
             this->fcggroupBoxGOP->TabIndex = 6;
             this->fcggroupBoxGOP->TabStop = false;
@@ -3187,7 +3187,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBOpenGOP->AutoSize = true;
             this->fcgCBOpenGOP->Location = System::Drawing::Point(244, 136);
-            this->fcgCBOpenGOP->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBOpenGOP->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBOpenGOP->Name = L"fcgCBOpenGOP";
             this->fcgCBOpenGOP->Size = System::Drawing::Size(18, 17);
             this->fcgCBOpenGOP->TabIndex = 3;
@@ -3198,7 +3198,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgNUKeyint->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
             this->fcgNUKeyint->Location = System::Drawing::Point(194, 99);
-            this->fcgNUKeyint->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUKeyint->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUKeyint->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 3000, 0, 0, 0 });
             this->fcgNUKeyint->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, System::Int32::MinValue });
             this->fcgNUKeyint->Name = L"fcgNUKeyint";
@@ -3220,7 +3220,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUMinKeyint
             // 
             this->fcgNUMinKeyint->Location = System::Drawing::Point(194, 62);
-            this->fcgNUMinKeyint->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUMinKeyint->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUMinKeyint->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 300, 0, 0, 0 });
             this->fcgNUMinKeyint->Name = L"fcgNUMinKeyint";
             this->fcgNUMinKeyint->Size = System::Drawing::Size(69, 25);
@@ -3241,7 +3241,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUScenecut
             // 
             this->fcgNUScenecut->Location = System::Drawing::Point(194, 28);
-            this->fcgNUScenecut->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUScenecut->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUScenecut->Name = L"fcgNUScenecut";
             this->fcgNUScenecut->Size = System::Drawing::Size(69, 25);
             this->fcgNUScenecut->TabIndex = 0;
@@ -3265,9 +3265,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxDeblock->Controls->Add(this->fcgLBDeblockThreshold);
             this->fcggroupBoxDeblock->Controls->Add(this->fcgLBDeblockStrength);
             this->fcggroupBoxDeblock->Location = System::Drawing::Point(470, 182);
-            this->fcggroupBoxDeblock->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxDeblock->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxDeblock->Name = L"fcggroupBoxDeblock";
-            this->fcggroupBoxDeblock->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxDeblock->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxDeblock->Size = System::Drawing::Size(280, 106);
             this->fcggroupBoxDeblock->TabIndex = 8;
             this->fcggroupBoxDeblock->TabStop = false;
@@ -3275,7 +3275,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUDeblockThreshold
             // 
             this->fcgNUDeblockThreshold->Location = System::Drawing::Point(194, 66);
-            this->fcgNUDeblockThreshold->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUDeblockThreshold->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUDeblockThreshold->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 6, 0, 0, 0 });
             this->fcgNUDeblockThreshold->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 6, 0, 0, System::Int32::MinValue });
             this->fcgNUDeblockThreshold->Name = L"fcgNUDeblockThreshold";
@@ -3287,7 +3287,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUDeblockStrength
             // 
             this->fcgNUDeblockStrength->Location = System::Drawing::Point(194, 30);
-            this->fcgNUDeblockStrength->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUDeblockStrength->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUDeblockStrength->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 6, 0, 0, 0 });
             this->fcgNUDeblockStrength->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 6, 0, 0, System::Int32::MinValue });
             this->fcgNUDeblockStrength->Name = L"fcgNUDeblockStrength";
@@ -3330,7 +3330,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageExSettings->Controls->Add(this->fcgLBX264Priority);
             this->fcgtabPageExSettings->Controls->Add(this->fcggroupBoxExSettings);
             this->fcgtabPageExSettings->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageExSettings->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageExSettings->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageExSettings->Name = L"fcgtabPageExSettings";
             this->fcgtabPageExSettings->Size = System::Drawing::Size(762, 619);
             this->fcgtabPageExSettings->TabIndex = 3;
@@ -3340,7 +3340,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTX264PathSub
             // 
             this->fcgBTX264PathSub->Location = System::Drawing::Point(719, 41);
-            this->fcgBTX264PathSub->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTX264PathSub->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTX264PathSub->Name = L"fcgBTX264PathSub";
             this->fcgBTX264PathSub->Size = System::Drawing::Size(34, 28);
             this->fcgBTX264PathSub->TabIndex = 2;
@@ -3352,7 +3352,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXX264PathSub->AllowDrop = true;
             this->fcgTXX264PathSub->Location = System::Drawing::Point(471, 42);
-            this->fcgTXX264PathSub->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXX264PathSub->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXX264PathSub->Name = L"fcgTXX264PathSub";
             this->fcgTXX264PathSub->Size = System::Drawing::Size(242, 25);
             this->fcgTXX264PathSub->TabIndex = 1;
@@ -3382,7 +3382,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTCustomTempDir
             // 
             this->fcgBTCustomTempDir->Location = System::Drawing::Point(702, 259);
-            this->fcgBTCustomTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTCustomTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTCustomTempDir->Name = L"fcgBTCustomTempDir";
             this->fcgBTCustomTempDir->Size = System::Drawing::Size(36, 29);
             this->fcgBTCustomTempDir->TabIndex = 6;
@@ -3397,9 +3397,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxCmdEx->Controls->Add(this->fcgBTCmdEx);
             this->fcggroupBoxCmdEx->Controls->Add(this->fcgTXCmdEx);
             this->fcggroupBoxCmdEx->Location = System::Drawing::Point(10, 304);
-            this->fcggroupBoxCmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxCmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxCmdEx->Name = L"fcggroupBoxCmdEx";
-            this->fcggroupBoxCmdEx->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxCmdEx->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxCmdEx->Size = System::Drawing::Size(736, 291);
             this->fcggroupBoxCmdEx->TabIndex = 7;
             this->fcggroupBoxCmdEx->TabStop = false;
@@ -3410,7 +3410,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXCmdExInsert->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXCmdExInsert->FormattingEnabled = true;
             this->fcgCXCmdExInsert->Location = System::Drawing::Point(246, 255);
-            this->fcgCXCmdExInsert->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXCmdExInsert->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXCmdExInsert->Name = L"fcgCXCmdExInsert";
             this->fcgCXCmdExInsert->Size = System::Drawing::Size(209, 26);
             this->fcgCXCmdExInsert->TabIndex = 4;
@@ -3421,7 +3421,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBNulOutCLI->AutoSize = true;
             this->fcgCBNulOutCLI->Location = System::Drawing::Point(22, 258);
-            this->fcgCBNulOutCLI->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBNulOutCLI->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBNulOutCLI->Name = L"fcgCBNulOutCLI";
             this->fcgCBNulOutCLI->Size = System::Drawing::Size(80, 22);
             this->fcgCBNulOutCLI->TabIndex = 2;
@@ -3432,7 +3432,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTCmdEx
             // 
             this->fcgBTCmdEx->Location = System::Drawing::Point(602, 255);
-            this->fcgBTCmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTCmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTCmdEx->Name = L"fcgBTCmdEx";
             this->fcgBTCmdEx->Size = System::Drawing::Size(121, 29);
             this->fcgBTCmdEx->TabIndex = 1;
@@ -3446,7 +3446,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgTXCmdEx->Font = (gcnew System::Drawing::Font(L"ＭＳ ゴシック", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgTXCmdEx->Location = System::Drawing::Point(8, 25);
-            this->fcgTXCmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXCmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXCmdEx->Multiline = true;
             this->fcgTXCmdEx->Name = L"fcgTXCmdEx";
             this->fcgTXCmdEx->Size = System::Drawing::Size(720, 224);
@@ -3459,7 +3459,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXCustomTempDir
             // 
             this->fcgTXCustomTempDir->Location = System::Drawing::Point(471, 260);
-            this->fcgTXCustomTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXCustomTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXCustomTempDir->Name = L"fcgTXCustomTempDir";
             this->fcgTXCustomTempDir->Size = System::Drawing::Size(226, 25);
             this->fcgTXCustomTempDir->TabIndex = 5;
@@ -3471,7 +3471,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXTempDir->FormattingEnabled = true;
             this->fcgCXTempDir->Location = System::Drawing::Point(456, 225);
-            this->fcgCXTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXTempDir->Name = L"fcgCXTempDir";
             this->fcgCXTempDir->Size = System::Drawing::Size(260, 26);
             this->fcgCXTempDir->TabIndex = 4;
@@ -3482,7 +3482,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXX264Priority->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXX264Priority->FormattingEnabled = true;
             this->fcgCXX264Priority->Location = System::Drawing::Point(544, 125);
-            this->fcgCXX264Priority->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXX264Priority->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXX264Priority->Name = L"fcgCXX264Priority";
             this->fcgCXX264Priority->Size = System::Drawing::Size(189, 26);
             this->fcgCXX264Priority->TabIndex = 3;
@@ -3508,9 +3508,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFSBitrateCorrection);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBAFS);
             this->fcggroupBoxExSettings->Location = System::Drawing::Point(10, 4);
-            this->fcggroupBoxExSettings->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxExSettings->Margin = System::Windows::Forms::Padding(4);
             this->fcggroupBoxExSettings->Name = L"fcggroupBoxExSettings";
-            this->fcggroupBoxExSettings->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcggroupBoxExSettings->Padding = System::Windows::Forms::Padding(4);
             this->fcggroupBoxExSettings->Size = System::Drawing::Size(404, 292);
             this->fcggroupBoxExSettings->TabIndex = 0;
             this->fcggroupBoxExSettings->TabStop = false;
@@ -3520,7 +3520,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBRyzenDisableAVX2->AutoSize = true;
             this->fcgCBRyzenDisableAVX2->Location = System::Drawing::Point(22, 254);
-            this->fcgCBRyzenDisableAVX2->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBRyzenDisableAVX2->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBRyzenDisableAVX2->Name = L"fcgCBRyzenDisableAVX2";
             this->fcgCBRyzenDisableAVX2->Size = System::Drawing::Size(240, 22);
             this->fcgCBRyzenDisableAVX2->TabIndex = 6;
@@ -3532,7 +3532,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBSetKeyframeAtChapter->AutoSize = true;
             this->fcgCBSetKeyframeAtChapter->Location = System::Drawing::Point(22, 175);
-            this->fcgCBSetKeyframeAtChapter->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBSetKeyframeAtChapter->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBSetKeyframeAtChapter->Name = L"fcgCBSetKeyframeAtChapter";
             this->fcgCBSetKeyframeAtChapter->Size = System::Drawing::Size(336, 22);
             this->fcgCBSetKeyframeAtChapter->TabIndex = 5;
@@ -3544,7 +3544,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBInputAsLW48->AutoSize = true;
             this->fcgCBInputAsLW48->Location = System::Drawing::Point(22, 224);
-            this->fcgCBInputAsLW48->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBInputAsLW48->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBInputAsLW48->Name = L"fcgCBInputAsLW48";
             this->fcgCBInputAsLW48->Size = System::Drawing::Size(101, 22);
             this->fcgCBInputAsLW48->TabIndex = 4;
@@ -3556,7 +3556,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBCheckKeyframes->AutoSize = true;
             this->fcgCBCheckKeyframes->Location = System::Drawing::Point(22, 145);
-            this->fcgCBCheckKeyframes->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBCheckKeyframes->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBCheckKeyframes->Name = L"fcgCBCheckKeyframes";
             this->fcgCBCheckKeyframes->Size = System::Drawing::Size(234, 22);
             this->fcgCBCheckKeyframes->TabIndex = 3;
@@ -3568,7 +3568,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAuoTcfileout->AutoSize = true;
             this->fcgCBAuoTcfileout->Location = System::Drawing::Point(22, 115);
-            this->fcgCBAuoTcfileout->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAuoTcfileout->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAuoTcfileout->Name = L"fcgCBAuoTcfileout";
             this->fcgCBAuoTcfileout->Size = System::Drawing::Size(120, 22);
             this->fcgCBAuoTcfileout->TabIndex = 2;
@@ -3580,7 +3580,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAFSBitrateCorrection->AutoSize = true;
             this->fcgCBAFSBitrateCorrection->Location = System::Drawing::Point(42, 66);
-            this->fcgCBAFSBitrateCorrection->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAFSBitrateCorrection->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAFSBitrateCorrection->Name = L"fcgCBAFSBitrateCorrection";
             this->fcgCBAFSBitrateCorrection->Size = System::Drawing::Size(354, 22);
             this->fcgCBAFSBitrateCorrection->TabIndex = 1;
@@ -3592,7 +3592,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAFS->AutoSize = true;
             this->fcgCBAFS->Location = System::Drawing::Point(22, 36);
-            this->fcgCBAFS->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAFS->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAFS->Name = L"fcgCBAFS";
             this->fcgCBAFS->Size = System::Drawing::Size(231, 22);
             this->fcgCBAFS->TabIndex = 0;
@@ -3782,7 +3782,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabControlMux->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgtabControlMux->Location = System::Drawing::Point(778, 414);
-            this->fcgtabControlMux->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabControlMux->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabControlMux->Name = L"fcgtabControlMux";
             this->fcgtabControlMux->SelectedIndex = 0;
             this->fcgtabControlMux->Size = System::Drawing::Size(480, 268);
@@ -3808,9 +3808,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMP4->Controls->Add(this->fcgCXMP4BoxTempDir);
             this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4BoxTempDir);
             this->fcgtabPageMP4->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageMP4->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMP4->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageMP4->Name = L"fcgtabPageMP4";
-            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageMP4->Size = System::Drawing::Size(472, 237);
             this->fcgtabPageMP4->TabIndex = 0;
             this->fcgtabPageMP4->Text = L"mp4";
@@ -3820,7 +3820,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMP4MuxApple->AutoSize = true;
             this->fcgCBMP4MuxApple->Location = System::Drawing::Point(326, 46);
-            this->fcgCBMP4MuxApple->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMP4MuxApple->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMP4MuxApple->Name = L"fcgCBMP4MuxApple";
             this->fcgCBMP4MuxApple->Size = System::Drawing::Size(136, 22);
             this->fcgCBMP4MuxApple->TabIndex = 2;
@@ -3831,7 +3831,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTTC2MP4Path
             // 
             this->fcgBTTC2MP4Path->Location = System::Drawing::Point(425, 109);
-            this->fcgBTTC2MP4Path->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTTC2MP4Path->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTTC2MP4Path->Name = L"fcgBTTC2MP4Path";
             this->fcgBTTC2MP4Path->Size = System::Drawing::Size(38, 29);
             this->fcgBTTC2MP4Path->TabIndex = 6;
@@ -3843,7 +3843,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXTC2MP4Path->AllowDrop = true;
             this->fcgTXTC2MP4Path->Location = System::Drawing::Point(170, 110);
-            this->fcgTXTC2MP4Path->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXTC2MP4Path->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXTC2MP4Path->Name = L"fcgTXTC2MP4Path";
             this->fcgTXTC2MP4Path->Size = System::Drawing::Size(252, 25);
             this->fcgTXTC2MP4Path->TabIndex = 5;
@@ -3854,7 +3854,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTMP4MuxerPath
             // 
             this->fcgBTMP4MuxerPath->Location = System::Drawing::Point(425, 81);
-            this->fcgBTMP4MuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMP4MuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMP4MuxerPath->Name = L"fcgBTMP4MuxerPath";
             this->fcgBTMP4MuxerPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTMP4MuxerPath->TabIndex = 4;
@@ -3866,7 +3866,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXMP4MuxerPath->AllowDrop = true;
             this->fcgTXMP4MuxerPath->Location = System::Drawing::Point(170, 82);
-            this->fcgTXMP4MuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXMP4MuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXMP4MuxerPath->Name = L"fcgTXMP4MuxerPath";
             this->fcgTXMP4MuxerPath->Size = System::Drawing::Size(252, 25);
             this->fcgTXMP4MuxerPath->TabIndex = 3;
@@ -3900,7 +3900,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXMP4CmdEx->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMP4CmdEx->FormattingEnabled = true;
             this->fcgCXMP4CmdEx->Location = System::Drawing::Point(266, 11);
-            this->fcgCXMP4CmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXMP4CmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXMP4CmdEx->Name = L"fcgCXMP4CmdEx";
             this->fcgCXMP4CmdEx->Size = System::Drawing::Size(195, 26);
             this->fcgCXMP4CmdEx->TabIndex = 1;
@@ -3920,7 +3920,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMP4MuxerExt->AutoSize = true;
             this->fcgCBMP4MuxerExt->Location = System::Drawing::Point(12, 14);
-            this->fcgCBMP4MuxerExt->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMP4MuxerExt->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMP4MuxerExt->Name = L"fcgCBMP4MuxerExt";
             this->fcgCBMP4MuxerExt->Size = System::Drawing::Size(141, 22);
             this->fcgCBMP4MuxerExt->TabIndex = 0;
@@ -3931,7 +3931,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTMP4RawPath
             // 
             this->fcgBTMP4RawPath->Location = System::Drawing::Point(425, 136);
-            this->fcgBTMP4RawPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMP4RawPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMP4RawPath->Name = L"fcgBTMP4RawPath";
             this->fcgBTMP4RawPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTMP4RawPath->TabIndex = 8;
@@ -3943,7 +3943,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXMP4RawPath->AllowDrop = true;
             this->fcgTXMP4RawPath->Location = System::Drawing::Point(170, 138);
-            this->fcgTXMP4RawPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXMP4RawPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXMP4RawPath->Name = L"fcgTXMP4RawPath";
             this->fcgTXMP4RawPath->Size = System::Drawing::Size(252, 25);
             this->fcgTXMP4RawPath->TabIndex = 7;
@@ -3964,7 +3964,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTMP4BoxTempDir
             // 
             this->fcgBTMP4BoxTempDir->Location = System::Drawing::Point(425, 199);
-            this->fcgBTMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMP4BoxTempDir->Name = L"fcgBTMP4BoxTempDir";
             this->fcgBTMP4BoxTempDir->Size = System::Drawing::Size(38, 29);
             this->fcgBTMP4BoxTempDir->TabIndex = 11;
@@ -3975,7 +3975,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXMP4BoxTempDir
             // 
             this->fcgTXMP4BoxTempDir->Location = System::Drawing::Point(134, 200);
-            this->fcgTXMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXMP4BoxTempDir->Name = L"fcgTXMP4BoxTempDir";
             this->fcgTXMP4BoxTempDir->Size = System::Drawing::Size(283, 25);
             this->fcgTXMP4BoxTempDir->TabIndex = 10;
@@ -3986,7 +3986,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXMP4BoxTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMP4BoxTempDir->FormattingEnabled = true;
             this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(181, 165);
-            this->fcgCXMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXMP4BoxTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXMP4BoxTempDir->Name = L"fcgCXMP4BoxTempDir";
             this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(256, 26);
             this->fcgCXMP4BoxTempDir->TabIndex = 9;
@@ -4011,9 +4011,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMKV->Controls->Add(this->fcgLBMKVMuxerCmdEx);
             this->fcgtabPageMKV->Controls->Add(this->fcgCBMKVMuxerExt);
             this->fcgtabPageMKV->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageMKV->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMKV->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageMKV->Name = L"fcgtabPageMKV";
-            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageMKV->Size = System::Drawing::Size(472, 237);
             this->fcgtabPageMKV->TabIndex = 1;
             this->fcgtabPageMKV->Text = L"mkv";
@@ -4022,7 +4022,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTMKVMuxerPath
             // 
             this->fcgBTMKVMuxerPath->Location = System::Drawing::Point(425, 95);
-            this->fcgBTMKVMuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMKVMuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMKVMuxerPath->Name = L"fcgBTMKVMuxerPath";
             this->fcgBTMKVMuxerPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTMKVMuxerPath->TabIndex = 3;
@@ -4033,7 +4033,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXMKVMuxerPath
             // 
             this->fcgTXMKVMuxerPath->Location = System::Drawing::Point(164, 96);
-            this->fcgTXMKVMuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXMKVMuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXMKVMuxerPath->Name = L"fcgTXMKVMuxerPath";
             this->fcgTXMKVMuxerPath->Size = System::Drawing::Size(258, 25);
             this->fcgTXMKVMuxerPath->TabIndex = 2;
@@ -4056,7 +4056,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXMKVCmdEx->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMKVCmdEx->FormattingEnabled = true;
             this->fcgCXMKVCmdEx->Location = System::Drawing::Point(266, 54);
-            this->fcgCXMKVCmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXMKVCmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXMKVCmdEx->Name = L"fcgCXMKVCmdEx";
             this->fcgCXMKVCmdEx->Size = System::Drawing::Size(195, 26);
             this->fcgCXMKVCmdEx->TabIndex = 1;
@@ -4076,7 +4076,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMKVMuxerExt->AutoSize = true;
             this->fcgCBMKVMuxerExt->Location = System::Drawing::Point(12, 56);
-            this->fcgCBMKVMuxerExt->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMKVMuxerExt->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMKVMuxerExt->Name = L"fcgCBMKVMuxerExt";
             this->fcgCBMKVMuxerExt->Size = System::Drawing::Size(141, 22);
             this->fcgCBMKVMuxerExt->TabIndex = 0;
@@ -4093,7 +4093,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMPG->Controls->Add(this->fcgLBMPGMuxerCmdEx);
             this->fcgtabPageMPG->Controls->Add(this->fcgCBMPGMuxerExt);
             this->fcgtabPageMPG->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageMPG->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMPG->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageMPG->Name = L"fcgtabPageMPG";
             this->fcgtabPageMPG->Size = System::Drawing::Size(472, 237);
             this->fcgtabPageMPG->TabIndex = 4;
@@ -4103,7 +4103,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTMPGMuxerPath
             // 
             this->fcgBTMPGMuxerPath->Location = System::Drawing::Point(426, 122);
-            this->fcgBTMPGMuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTMPGMuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTMPGMuxerPath->Name = L"fcgBTMPGMuxerPath";
             this->fcgBTMPGMuxerPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTMPGMuxerPath->TabIndex = 23;
@@ -4114,7 +4114,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXMPGMuxerPath
             // 
             this->fcgTXMPGMuxerPath->Location = System::Drawing::Point(165, 124);
-            this->fcgTXMPGMuxerPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXMPGMuxerPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXMPGMuxerPath->Name = L"fcgTXMPGMuxerPath";
             this->fcgTXMPGMuxerPath->Size = System::Drawing::Size(258, 25);
             this->fcgTXMPGMuxerPath->TabIndex = 22;
@@ -4137,7 +4137,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXMPGCmdEx->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMPGCmdEx->FormattingEnabled = true;
             this->fcgCXMPGCmdEx->Location = System::Drawing::Point(268, 81);
-            this->fcgCXMPGCmdEx->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXMPGCmdEx->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXMPGCmdEx->Name = L"fcgCXMPGCmdEx";
             this->fcgCXMPGCmdEx->Size = System::Drawing::Size(195, 26);
             this->fcgCXMPGCmdEx->TabIndex = 21;
@@ -4157,7 +4157,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBMPGMuxerExt->AutoSize = true;
             this->fcgCBMPGMuxerExt->Location = System::Drawing::Point(14, 84);
-            this->fcgCBMPGMuxerExt->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBMPGMuxerExt->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBMPGMuxerExt->Name = L"fcgCBMPGMuxerExt";
             this->fcgCBMPGMuxerExt->Size = System::Drawing::Size(141, 22);
             this->fcgCBMPGMuxerExt->TabIndex = 20;
@@ -4170,7 +4170,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMux->Controls->Add(this->fcgCXMuxPriority);
             this->fcgtabPageMux->Controls->Add(this->fcgLBMuxPriority);
             this->fcgtabPageMux->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageMux->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageMux->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageMux->Name = L"fcgtabPageMux";
             this->fcgtabPageMux->Size = System::Drawing::Size(472, 237);
             this->fcgtabPageMux->TabIndex = 2;
@@ -4182,7 +4182,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXMuxPriority->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMuxPriority->FormattingEnabled = true;
             this->fcgCXMuxPriority->Location = System::Drawing::Point(128, 80);
-            this->fcgCXMuxPriority->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXMuxPriority->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXMuxPriority->Name = L"fcgCXMuxPriority";
             this->fcgCXMuxPriority->Size = System::Drawing::Size(246, 26);
             this->fcgCXMuxPriority->TabIndex = 1;
@@ -4214,7 +4214,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageBat->Controls->Add(this->fcgCBWaitForBatBefore);
             this->fcgtabPageBat->Controls->Add(this->fcgCBRunBatBefore);
             this->fcgtabPageBat->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageBat->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageBat->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageBat->Name = L"fcgtabPageBat";
             this->fcgtabPageBat->Size = System::Drawing::Size(472, 237);
             this->fcgtabPageBat->TabIndex = 3;
@@ -4252,7 +4252,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTBatAfterPath
             // 
             this->fcgBTBatAfterPath->Location = System::Drawing::Point(412, 192);
-            this->fcgBTBatAfterPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTBatAfterPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTBatAfterPath->Name = L"fcgBTBatAfterPath";
             this->fcgBTBatAfterPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTBatAfterPath->TabIndex = 11;
@@ -4265,7 +4265,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXBatAfterPath->AllowDrop = true;
             this->fcgTXBatAfterPath->Location = System::Drawing::Point(158, 194);
-            this->fcgTXBatAfterPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXBatAfterPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXBatAfterPath->Name = L"fcgTXBatAfterPath";
             this->fcgTXBatAfterPath->Size = System::Drawing::Size(252, 25);
             this->fcgTXBatAfterPath->TabIndex = 10;
@@ -4287,7 +4287,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBWaitForBatAfter->AutoSize = true;
             this->fcgCBWaitForBatAfter->Location = System::Drawing::Point(50, 161);
-            this->fcgCBWaitForBatAfter->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBWaitForBatAfter->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBWaitForBatAfter->Name = L"fcgCBWaitForBatAfter";
             this->fcgCBWaitForBatAfter->Size = System::Drawing::Size(190, 22);
             this->fcgCBWaitForBatAfter->TabIndex = 8;
@@ -4299,7 +4299,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBRunBatAfter->AutoSize = true;
             this->fcgCBRunBatAfter->Location = System::Drawing::Point(22, 131);
-            this->fcgCBRunBatAfter->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBRunBatAfter->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBRunBatAfter->Name = L"fcgCBRunBatAfter";
             this->fcgCBRunBatAfter->Size = System::Drawing::Size(226, 22);
             this->fcgCBRunBatAfter->TabIndex = 7;
@@ -4311,7 +4311,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgPNSeparator->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
             this->fcgPNSeparator->Location = System::Drawing::Point(22, 118);
-            this->fcgPNSeparator->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgPNSeparator->Margin = System::Windows::Forms::Padding(4);
             this->fcgPNSeparator->Name = L"fcgPNSeparator";
             this->fcgPNSeparator->Size = System::Drawing::Size(427, 1);
             this->fcgPNSeparator->TabIndex = 6;
@@ -4319,7 +4319,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTBatBeforePath
             // 
             this->fcgBTBatBeforePath->Location = System::Drawing::Point(412, 76);
-            this->fcgBTBatBeforePath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTBatBeforePath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTBatBeforePath->Name = L"fcgBTBatBeforePath";
             this->fcgBTBatBeforePath->Size = System::Drawing::Size(38, 29);
             this->fcgBTBatBeforePath->TabIndex = 5;
@@ -4332,7 +4332,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXBatBeforePath->AllowDrop = true;
             this->fcgTXBatBeforePath->Location = System::Drawing::Point(158, 78);
-            this->fcgTXBatBeforePath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXBatBeforePath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXBatBeforePath->Name = L"fcgTXBatBeforePath";
             this->fcgTXBatBeforePath->Size = System::Drawing::Size(252, 25);
             this->fcgTXBatBeforePath->TabIndex = 4;
@@ -4354,7 +4354,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBWaitForBatBefore->AutoSize = true;
             this->fcgCBWaitForBatBefore->Location = System::Drawing::Point(50, 45);
-            this->fcgCBWaitForBatBefore->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBWaitForBatBefore->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBWaitForBatBefore->Name = L"fcgCBWaitForBatBefore";
             this->fcgCBWaitForBatBefore->Size = System::Drawing::Size(190, 22);
             this->fcgCBWaitForBatBefore->TabIndex = 1;
@@ -4366,7 +4366,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBRunBatBefore->AutoSize = true;
             this->fcgCBRunBatBefore->Location = System::Drawing::Point(22, 15);
-            this->fcgCBRunBatBefore->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBRunBatBefore->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBRunBatBefore->Name = L"fcgCBRunBatBefore";
             this->fcgCBRunBatBefore->Size = System::Drawing::Size(226, 22);
             this->fcgCBRunBatBefore->TabIndex = 0;
@@ -4382,7 +4382,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgTXCmd->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgTXCmd->Location = System::Drawing::Point(11, 684);
-            this->fcgTXCmd->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXCmd->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXCmd->Name = L"fcgTXCmd";
             this->fcgTXCmd->ReadOnly = true;
             this->fcgTXCmd->Size = System::Drawing::Size(1239, 25);
@@ -4393,7 +4393,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgBTCancel->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
             this->fcgBTCancel->Location = System::Drawing::Point(964, 712);
-            this->fcgBTCancel->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTCancel->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTCancel->Name = L"fcgBTCancel";
             this->fcgBTCancel->Size = System::Drawing::Size(105, 35);
             this->fcgBTCancel->TabIndex = 5;
@@ -4405,7 +4405,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgBTOK->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
             this->fcgBTOK->Location = System::Drawing::Point(1116, 712);
-            this->fcgBTOK->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTOK->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTOK->Name = L"fcgBTOK";
             this->fcgBTOK->Size = System::Drawing::Size(105, 35);
             this->fcgBTOK->TabIndex = 6;
@@ -4417,7 +4417,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgBTDefault->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
             this->fcgBTDefault->Location = System::Drawing::Point(11, 715);
-            this->fcgBTDefault->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTDefault->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTDefault->Name = L"fcgBTDefault";
             this->fcgBTDefault->Size = System::Drawing::Size(140, 35);
             this->fcgBTDefault->TabIndex = 7;
@@ -4562,7 +4562,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabControlAudio->Controls->Add(this->fcgtabPageAudioOther);
             this->fcgtabControlAudio->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F));
             this->fcgtabControlAudio->Location = System::Drawing::Point(778, 31);
-            this->fcgtabControlAudio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabControlAudio->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabControlAudio->Name = L"fcgtabControlAudio";
             this->fcgtabControlAudio->SelectedIndex = 0;
             this->fcgtabControlAudio->Size = System::Drawing::Size(480, 370);
@@ -4592,9 +4592,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageAudioMain->Controls->Add(this->fcgLBAudioEncoder);
             this->fcgtabPageAudioMain->Controls->Add(this->fcgLBAudioTemp);
             this->fcgtabPageAudioMain->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageAudioMain->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageAudioMain->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageAudioMain->Name = L"fcgtabPageAudioMain";
-            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageAudioMain->Size = System::Drawing::Size(472, 339);
             this->fcgtabPageAudioMain->TabIndex = 0;
             this->fcgtabPageAudioMain->Text = L"音声";
@@ -4605,7 +4605,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioDelayCut->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioDelayCut->FormattingEnabled = true;
             this->fcgCXAudioDelayCut->Location = System::Drawing::Point(364, 166);
-            this->fcgCXAudioDelayCut->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioDelayCut->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioDelayCut->Name = L"fcgCXAudioDelayCut";
             this->fcgCXAudioDelayCut->Size = System::Drawing::Size(86, 26);
             this->fcgCXAudioDelayCut->TabIndex = 43;
@@ -4636,7 +4636,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioEncTiming->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioEncTiming->FormattingEnabled = true;
             this->fcgCXAudioEncTiming->Location = System::Drawing::Point(358, 64);
-            this->fcgCXAudioEncTiming->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioEncTiming->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioEncTiming->Name = L"fcgCXAudioEncTiming";
             this->fcgCXAudioEncTiming->Size = System::Drawing::Size(84, 26);
             this->fcgCXAudioEncTiming->TabIndex = 52;
@@ -4647,7 +4647,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioTempDir->FormattingEnabled = true;
             this->fcgCXAudioTempDir->Location = System::Drawing::Point(169, 260);
-            this->fcgCXAudioTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioTempDir->Name = L"fcgCXAudioTempDir";
             this->fcgCXAudioTempDir->Size = System::Drawing::Size(186, 26);
             this->fcgCXAudioTempDir->TabIndex = 46;
@@ -4656,7 +4656,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgTXCustomAudioTempDir
             // 
             this->fcgTXCustomAudioTempDir->Location = System::Drawing::Point(80, 295);
-            this->fcgTXCustomAudioTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXCustomAudioTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXCustomAudioTempDir->Name = L"fcgTXCustomAudioTempDir";
             this->fcgTXCustomAudioTempDir->Size = System::Drawing::Size(305, 25);
             this->fcgTXCustomAudioTempDir->TabIndex = 47;
@@ -4665,7 +4665,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTCustomAudioTempDir
             // 
             this->fcgBTCustomAudioTempDir->Location = System::Drawing::Point(395, 292);
-            this->fcgBTCustomAudioTempDir->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTCustomAudioTempDir->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTCustomAudioTempDir->Name = L"fcgBTCustomAudioTempDir";
             this->fcgBTCustomAudioTempDir->Size = System::Drawing::Size(36, 29);
             this->fcgBTCustomAudioTempDir->TabIndex = 49;
@@ -4677,7 +4677,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAudioUsePipe->AutoSize = true;
             this->fcgCBAudioUsePipe->Location = System::Drawing::Point(162, 168);
-            this->fcgCBAudioUsePipe->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAudioUsePipe->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAudioUsePipe->Name = L"fcgCBAudioUsePipe";
             this->fcgCBAudioUsePipe->Size = System::Drawing::Size(91, 22);
             this->fcgCBAudioUsePipe->TabIndex = 42;
@@ -4698,7 +4698,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgNUAudioBitrate
             // 
             this->fcgNUAudioBitrate->Location = System::Drawing::Point(265, 196);
-            this->fcgNUAudioBitrate->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgNUAudioBitrate->Margin = System::Windows::Forms::Padding(4);
             this->fcgNUAudioBitrate->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1536, 0, 0, 0 });
             this->fcgNUAudioBitrate->Name = L"fcgNUAudioBitrate";
             this->fcgNUAudioBitrate->Size = System::Drawing::Size(81, 25);
@@ -4710,7 +4710,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBAudio2pass->AutoSize = true;
             this->fcgCBAudio2pass->Location = System::Drawing::Point(74, 168);
-            this->fcgCBAudio2pass->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAudio2pass->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAudio2pass->Name = L"fcgCBAudio2pass";
             this->fcgCBAudio2pass->Size = System::Drawing::Size(70, 22);
             this->fcgCBAudio2pass->TabIndex = 41;
@@ -4724,7 +4724,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioEncMode->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioEncMode->FormattingEnabled = true;
             this->fcgCXAudioEncMode->Location = System::Drawing::Point(20, 195);
-            this->fcgCXAudioEncMode->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioEncMode->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioEncMode->Name = L"fcgCXAudioEncMode";
             this->fcgCXAudioEncMode->Size = System::Drawing::Size(235, 26);
             this->fcgCXAudioEncMode->TabIndex = 39;
@@ -4744,7 +4744,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTAudioEncoderPath
             // 
             this->fcgBTAudioEncoderPath->Location = System::Drawing::Point(405, 112);
-            this->fcgBTAudioEncoderPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTAudioEncoderPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTAudioEncoderPath->Name = L"fcgBTAudioEncoderPath";
             this->fcgBTAudioEncoderPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTAudioEncoderPath->TabIndex = 38;
@@ -4756,7 +4756,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXAudioEncoderPath->AllowDrop = true;
             this->fcgTXAudioEncoderPath->Location = System::Drawing::Point(20, 115);
-            this->fcgTXAudioEncoderPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXAudioEncoderPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXAudioEncoderPath->Name = L"fcgTXAudioEncoderPath";
             this->fcgTXAudioEncoderPath->Size = System::Drawing::Size(378, 25);
             this->fcgTXAudioEncoderPath->TabIndex = 37;
@@ -4779,7 +4779,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCBAudioOnly->AutoSize = true;
             this->fcgCBAudioOnly->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgCBAudioOnly->Location = System::Drawing::Point(315, 6);
-            this->fcgCBAudioOnly->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBAudioOnly->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBAudioOnly->Name = L"fcgCBAudioOnly";
             this->fcgCBAudioOnly->Size = System::Drawing::Size(109, 22);
             this->fcgCBAudioOnly->TabIndex = 34;
@@ -4791,7 +4791,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBFAWCheck->AutoSize = true;
             this->fcgCBFAWCheck->Location = System::Drawing::Point(315, 35);
-            this->fcgCBFAWCheck->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBFAWCheck->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBFAWCheck->Name = L"fcgCBFAWCheck";
             this->fcgCBFAWCheck->Size = System::Drawing::Size(101, 22);
             this->fcgCBFAWCheck->TabIndex = 36;
@@ -4804,7 +4804,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioEncoder->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioEncoder->FormattingEnabled = true;
             this->fcgCXAudioEncoder->Location = System::Drawing::Point(21, 42);
-            this->fcgCXAudioEncoder->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioEncoder->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioEncoder->Name = L"fcgCXAudioEncoder";
             this->fcgCXAudioEncoder->Size = System::Drawing::Size(214, 26);
             this->fcgCXAudioEncoder->TabIndex = 32;
@@ -4848,9 +4848,9 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageAudioOther->Controls->Add(this->fcgCXAudioPriority);
             this->fcgtabPageAudioOther->Controls->Add(this->fcgLBAudioPriority);
             this->fcgtabPageAudioOther->Location = System::Drawing::Point(4, 27);
-            this->fcgtabPageAudioOther->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageAudioOther->Margin = System::Windows::Forms::Padding(4);
             this->fcgtabPageAudioOther->Name = L"fcgtabPageAudioOther";
-            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(4);
             this->fcgtabPageAudioOther->Size = System::Drawing::Size(472, 339);
             this->fcgtabPageAudioOther->TabIndex = 1;
             this->fcgtabPageAudioOther->Text = L"その他";
@@ -4860,7 +4860,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->panel2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
             this->panel2->Location = System::Drawing::Point(22, 158);
-            this->panel2->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->panel2->Margin = System::Windows::Forms::Padding(4);
             this->panel2->Name = L"panel2";
             this->panel2->Size = System::Drawing::Size(427, 1);
             this->panel2->TabIndex = 61;
@@ -4896,7 +4896,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTBatAfterAudioPath
             // 
             this->fcgBTBatAfterAudioPath->Location = System::Drawing::Point(412, 289);
-            this->fcgBTBatAfterAudioPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTBatAfterAudioPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTBatAfterAudioPath->Name = L"fcgBTBatAfterAudioPath";
             this->fcgBTBatAfterAudioPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTBatAfterAudioPath->TabIndex = 59;
@@ -4909,7 +4909,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXBatAfterAudioPath->AllowDrop = true;
             this->fcgTXBatAfterAudioPath->Location = System::Drawing::Point(158, 290);
-            this->fcgTXBatAfterAudioPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXBatAfterAudioPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXBatAfterAudioPath->Name = L"fcgTXBatAfterAudioPath";
             this->fcgTXBatAfterAudioPath->Size = System::Drawing::Size(252, 25);
             this->fcgTXBatAfterAudioPath->TabIndex = 58;
@@ -4931,7 +4931,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBRunBatAfterAudio->AutoSize = true;
             this->fcgCBRunBatAfterAudio->Location = System::Drawing::Point(22, 259);
-            this->fcgCBRunBatAfterAudio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBRunBatAfterAudio->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBRunBatAfterAudio->Name = L"fcgCBRunBatAfterAudio";
             this->fcgCBRunBatAfterAudio->Size = System::Drawing::Size(254, 22);
             this->fcgCBRunBatAfterAudio->TabIndex = 55;
@@ -4943,7 +4943,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
             this->panel1->Location = System::Drawing::Point(22, 245);
-            this->panel1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->panel1->Margin = System::Windows::Forms::Padding(4);
             this->panel1->Name = L"panel1";
             this->panel1->Size = System::Drawing::Size(427, 1);
             this->panel1->TabIndex = 54;
@@ -4951,7 +4951,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgBTBatBeforeAudioPath
             // 
             this->fcgBTBatBeforeAudioPath->Location = System::Drawing::Point(412, 205);
-            this->fcgBTBatBeforeAudioPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgBTBatBeforeAudioPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgBTBatBeforeAudioPath->Name = L"fcgBTBatBeforeAudioPath";
             this->fcgBTBatBeforeAudioPath->Size = System::Drawing::Size(38, 29);
             this->fcgBTBatBeforeAudioPath->TabIndex = 53;
@@ -4964,7 +4964,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTXBatBeforeAudioPath->AllowDrop = true;
             this->fcgTXBatBeforeAudioPath->Location = System::Drawing::Point(158, 205);
-            this->fcgTXBatBeforeAudioPath->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgTXBatBeforeAudioPath->Margin = System::Windows::Forms::Padding(4);
             this->fcgTXBatBeforeAudioPath->Name = L"fcgTXBatBeforeAudioPath";
             this->fcgTXBatBeforeAudioPath->Size = System::Drawing::Size(252, 25);
             this->fcgTXBatBeforeAudioPath->TabIndex = 52;
@@ -4986,7 +4986,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgCBRunBatBeforeAudio->AutoSize = true;
             this->fcgCBRunBatBeforeAudio->Location = System::Drawing::Point(22, 174);
-            this->fcgCBRunBatBeforeAudio->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCBRunBatBeforeAudio->Margin = System::Windows::Forms::Padding(4);
             this->fcgCBRunBatBeforeAudio->Name = L"fcgCBRunBatBeforeAudio";
             this->fcgCBRunBatBeforeAudio->Size = System::Drawing::Size(254, 22);
             this->fcgCBRunBatBeforeAudio->TabIndex = 48;
@@ -4999,7 +4999,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXAudioPriority->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioPriority->FormattingEnabled = true;
             this->fcgCXAudioPriority->Location = System::Drawing::Point(195, 25);
-            this->fcgCXAudioPriority->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->fcgCXAudioPriority->Margin = System::Windows::Forms::Padding(4);
             this->fcgCXAudioPriority->Name = L"fcgCXAudioPriority";
             this->fcgCXAudioPriority->Size = System::Drawing::Size(169, 26);
             this->fcgCXAudioPriority->TabIndex = 47;
@@ -5034,7 +5034,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
-            this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+            this->Margin = System::Windows::Forms::Padding(4);
             this->MaximizeBox = false;
             this->Name = L"frmConfig";
             this->ShowIcon = false;
