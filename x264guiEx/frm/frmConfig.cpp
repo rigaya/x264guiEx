@@ -1778,16 +1778,12 @@ System::Void frmConfig::SetHelpToolTipsColorMatrix(Control^ control, const char 
 System::Void frmConfig::SetHelpToolTips() {
     //x264基本
     fcgTTX264->SetToolTip(fcgCBUsehighbit, L"" 
-        + L"--input-depth 16\n"
+        + L"--input-depth 16 --output-depth 10\n"
         + L"\n"
-        + L"high bit-depthでエンコードを行います。\n"
-        + L"x264も10bit版など、high bit depthのものを使用してください。\n"
+        + L"10bit深度でエンコードを行います。\n"
         + L"通常のプレーヤーでは再生できないこともあるため、\n"
         + L"high bit depthエンコードがなにかを理解している場合にのみ、\n"
-        + L"使用してください。\n"
-        + L"\n"
-        + L"8bit用x264.exeとhigh bit depth用x264.exeは別々に設定でき、\n"
-        + L"このチェックボックスによって切り替わります。"
+        + L"使用してください。"
         );
     fcgTTX264->SetToolTip(fcgBTX264Path, L""
         + L"x264.exeの場所を指定します。\n"
