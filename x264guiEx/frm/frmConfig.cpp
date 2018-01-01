@@ -1266,7 +1266,7 @@ System::Void frmConfig::initUpdater() {
     frmExeUpdate = gcnew frmUpdate();
     frmExeUpdate->Owner = this;
     frmExeUpdate->init(gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_CheckFinished),
-        gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_UpdateFinished));
+                       gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_UpdateFinished));
     if (!sys_dat->exstg->s_local.update_check_auto) {
         return;
     }
@@ -2317,6 +2317,7 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path) {
     } else {
         mes = L"指定されたx264が存在しません。";
     }
+    fcgTTX264Version->SetToolTip(fcgTXX264Path, mes);
     fcgTTX264Version->SetToolTip(fcgTXX264PathSub, mes);
 }
 System::Void frmConfig::ShowExehelp(String^ ExePath, String^ args) {
