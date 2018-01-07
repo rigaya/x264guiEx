@@ -56,6 +56,9 @@ static const int H264_LEVEL_LIMITS[][LEVEL_COLUMNS] =
     { PROGRESSIVE,    589824,       22080,    110400,        135000,    135000,  NULL}, // 5
     { PROGRESSIVE,    983040,       36864,    184320,        240000,    240000,  NULL}, // 5.1
     { PROGRESSIVE,   2073600,       36864,    184320,        240000,    240000,  NULL}, // 5.2
+    { PROGRESSIVE,   4177920,      139264,    696320,        240000,    240000,  NULL}, // 6
+    { PROGRESSIVE,   8355840,      139264,    696320,        480000,    480000,  NULL}, // 6.1
+    { PROGRESSIVE,  16711680,      139264,    696320,        800000,    800000,  NULL}, // 6.2
     {        NULL,      NULL,        NULL,      NULL,          NULL,      NULL,  NULL}, // end
 };
 
