@@ -393,8 +393,15 @@ void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_
 
     if (!status)
         write_log_auo_line_fmt(log_index, "指定された上限/下限を満たしていることを確認しました。");
-    else if (!amp_result)
-        write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限/下限を満たせませんでした。目標ビットレートを見なおしてください。", retry_count);
+    else if (!amp_result) {
+        if (status & (AMPLIMIT_BITRATE_UPPER | AMPLIMIT_FILE_SIZE)) {
+            write_log_auo_line_fmt(log_index, "%d回トライしましたが、いずれも上限を満たせませんでした。目標ビットレートを見なおしてください。", retry_count);
+        } else if (status & AMPLIMIT_BITRATE_LOWER) {
+            write_log_auo_line_fmt(log_index, "%d回トライしましたが、下限設定を満たすことができませんでした。", retry_count);
+            write_log_auo_line_fmt(log_index, "この状況は、静止画に近い動きの少ない動画で多く見られます。");
+            write_log_auo_line_fmt(log_index, "一般にこうした動画では画質の劣化は起こりにくいため、このままアップロードすることをおすすめします。");
+        }
+    }
 }
 
 void warning_mux_chapter(int sts) {
