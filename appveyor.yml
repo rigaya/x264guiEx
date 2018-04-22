@@ -1,0 +1,29 @@
+# version format
+version: 2.56.{build}
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+image: Visual Studio 2015
+init:
+  - git config --global core.autocrlf input
+clone_folder: c:\projects\x264guiEx
+install:
+  - git submodule update --init --recursive
+
+matrix:
+  fast_finish: true
+
+platform: Win32
+configuration: Release
+build:
+  parallel: true
+  project: x264guiEx.sln
+  verbosity: quiet
+
