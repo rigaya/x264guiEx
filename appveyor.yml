@@ -1,29 +1,28 @@
-# version format
+# x264GuiEx
+# continuous integration settings
+
 version: 2.56.{build}
-
-# branches to build
-branches:
-  # whitelist
-  only:
-    - master
-
-#---------------------------------#
-#    environment configuration    #
-#---------------------------------#
-image: Visual Studio 2015
-init:
-  - git config --global core.autocrlf input
-clone_folder: c:\projects\x264guiEx
-install:
-  - git submodule update --init --recursive
-
-matrix:
-  fast_finish: true
+image: Visual Studio 2017
 
 platform: Win32
 configuration: Release
+
+init:
+  - git config --global core.autocrlf input
+
+install:
+  - git submodule update --init --recursive
+
 build:
   parallel: true
   project: x264guiEx.sln
-  verbosity: quiet
 
+after_build:
+  - mkdir auo
+  - copy Release\x264guiEx.auo auo\x264guiEx.auo
+  - copy Release\x264guiEx.ini auo\x264guiEx.ini
+  - 7z a -mx9 x264guiEx-latest.7z auo
+
+artifacts:
+  - path: x264guiEx-latest.7z
+    name: x264guiEx-latest
