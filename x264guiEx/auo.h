@@ -29,10 +29,6 @@
 #define _AUO_H_
 
 #include <Windows.h>
-// Needed for MSVC 2017
-#if (_MSC_VER >= 1910)
-    #include <intrin.h>
-#endif
 
 const int   MAX_PATH_LEN          = 1024; //NTFSでは32768文字らしいが...いらんやろ
 const int   MAX_APPENDIX_LEN      = 63; //適当

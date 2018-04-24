@@ -29,6 +29,11 @@
 #define _AUO_CONF_H_
 
 #include <Windows.h>
+// Needed for MSVC 2017
+#if (_MSC_VER >= 1910)
+    #include <intrin.h>
+#endif
+
 #include "auo.h"
 #include "auo_options.h"
 
