@@ -1,12 +1,15 @@
-# x264GuiEx
+# x264guiEx
 # continuous integration settings
 
-version: 2.56.{build}
 image: Visual Studio 2017
 
 platform: Win32
 configuration: Release
 skip_non_tags: true
+
+branches:
+  only:
+    - master
 
 init:
   - ps: Set-WinSystemLocale ja-JP
@@ -16,6 +19,23 @@ init:
 
 install:
   - git submodule update --init --recursive
+  
+before_build:
+  - ps: |
+      $version = $null
+      if (Test-Path Env:APPVEYOR_REPO_TAG_NAME)
+      {
+          $version = (Get-Item Env:APPVEYOR_REPO_TAG_NAME).Value
+      }
+      
+      if ([string]::IsNullOrEmpty($version))
+      {
+          $version = $env:APPVEYOR_BUILD_VERSION + '_Alpha'
+      }
+      $env:BUILD_VERSION=$version
+
+  - echo %BUILD_VERSION%
+  - appveyor UpdateBuild -Version "%BUILD_VERSION%"
 
 build:
   parallel: true
@@ -25,8 +45,19 @@ after_build:
   - mkdir auo
   - copy Release\x264guiEx.auo auo\x264guiEx.auo
   - copy Release\x264guiEx.ini auo\x264guiEx.ini
-  - 7z a -mx9 x264guiEx-latest.7z auo
+  - 7z a -mx9 x264guiEx_%BUILD_VERSION%.7z auo
 
 artifacts:
-  - path: x264guiEx-latest.7z
-    name: x264guiEx-latest
+  - path: x264guiEx_%BUILD_VERSION%.7z
+    name: x264guiEx_%BUILD_VERSION%
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: IDRwZWN1uQaTxb64SQnTDNJR5KPtCFPL3Mln9GrdZ7TSiyec/o1KXpOuh/50ZO5A
+  artifact: x264guiEx_%BUILD_VERSION%_%PLATFORM%
+  draft: false
+  prerelease: false
+  on:
+    branch: master
+    appveyor_repo_tag: true
