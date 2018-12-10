@@ -32,7 +32,7 @@
 #include <float.h>
 #include <Process.h>
 #include <mmsystem.h>
-#pragma comment(lib, "winmm.lib") 
+#pragma comment(lib, "winmm.lib")
 #include <limits.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
@@ -98,7 +98,14 @@ int get_aviutl_color_format(int use_highbit, int output_csp, int input_as_lw48) 
 
 static int calc_input_frame_size(int width, int height, int color_format) {
     width = (color_format == CF_RGB) ? (width+3) & ~3 : (width+1) & ~1;
-    return width * height * COLORFORMATS[color_format].size;
+    //widthが割り切れない場合、多めにアクセスが発生するので、そのぶんを確保しておく
+    const DWORD pixel_size = COLORFORMATS[color_format].size;
+    const DWORD simd_check = get_availableSIMD();
+    const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 64 : 32) : 1;
+#define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
+    const DWORD frame_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
+#undef ALIGN_NEXT
+    return frame_size;
 }
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUIEX *conf, PRM_ENC *pe) {
@@ -137,7 +144,7 @@ void close_afsvideo(PRM_ENC *pe) {
 static AUO_RESULT check_cmdex(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     DWORD ret = AUO_RESULT_SUCCESS;
     const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48); //現在の色形式を保存
-    if (conf->oth.disable_guicmd) 
+    if (conf->oth.disable_guicmd)
         get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
     //cmdexを適用
     set_cmd_to_conf(conf->vid.cmdex, &conf->x264);
@@ -582,7 +589,7 @@ static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
                     aud_p->buf_max_size = 0; //ここのmallocエラーは次の分岐でAUO_RESULT_ERRORに設定
             }
             void *data_ptr = NULL;
-            if (NULL == aud_p->buffer || 
+            if (NULL == aud_p->buffer ||
                 NULL == (data_ptr = oip->func_get_audio(aud_p->start, aud_p->get_length, &aud_p->get_length))) {
                 ret = AUO_RESULT_ERROR; //mallocエラーかget_audioのエラー
             } else {
@@ -715,14 +722,14 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     char x264cmd[MAX_CMD_LEN]  = { 0 };
     char x264args[MAX_CMD_LEN] = { 0 };
     char x264dir[MAX_PATH_LEN] = { 0 };
-    
+
     const DWORD simd_avail = get_availableSIMD();
     const BOOL afs = conf->vid.afs != 0;
     CONVERT_CF_DATA pixel_data = { 0 };
     video_output_thread_t thread_data = { 0 };
     thread_data.repeat = pe->delay_cut_additional_vframe;
     set_pixel_data(&pixel_data, conf, oip->w, oip->h);
-    
+
     int *jitter = NULL;
     int rp_ret = 0;
 
@@ -766,7 +773,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     write_args(x264cmd);
     sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_x264.fullpath, x264cmd);
     remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
-    
+
     if (conf->vid.afs && conf->x264.interlaced) {
         ret |= AUO_RESULT_ERROR; error_afs_interlace_stg();
     //jitter用領域確保
@@ -823,7 +830,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
                 //音声同時処理
                 ret |= aud_parallel_task(oip, pe);
-                
+
                 //上限をオーバーしていないかチェック
                 if (!(i & 63)
                     && amp_filesize_limit //上限設定が存在する
@@ -916,7 +923,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
         if (!(ret & AUO_RESULT_ERROR) && afs)
             write_log_auo_line_fmt(LOG_INFO, "drop %d / %d frames", pe->drop_count, i);
-        
+
         write_log_auo_line_fmt(LOG_INFO, "CPU使用率: Aviutl: %.2f%% / x264: %.2f%%", GetProcessAvgCPUUsage(pe->h_p_aviutl, &time_aviutl), GetProcessAvgCPUUsage(pi_enc.hProcess));
         write_log_auo_enc_time("x264エンコード時間", tm_vid_enc_fin - tm_vid_enc_start);
     }
@@ -1050,7 +1057,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
             }
             aud_filesize += filesize_tmp;
         }
-        if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) && 
+        if ((conf->vid.amp_check & AMPLIMIT_FILE_SIZE) &&
             aud_filesize >= conf->vid.amp_limit_file_size * 1024 * 1024) {
             error_amp_aud_too_big(AMPLIMIT_FILE_SIZE);
             return AUO_RESULT_ERROR;
