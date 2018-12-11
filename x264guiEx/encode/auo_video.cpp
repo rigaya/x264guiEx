@@ -96,16 +96,16 @@ int get_aviutl_color_format(int use_highbit, int output_csp, int input_as_lw48) 
     }
 }
 
-static int calc_input_frame_size(int width, int height, int color_format) {
+static int calc_input_frame_size(int width, int height, int color_format, int& buf_size) {
     width = (color_format == CF_RGB) ? (width+3) & ~3 : (width+1) & ~1;
     //widthが割り切れない場合、多めにアクセスが発生するので、そのぶんを確保しておく
     const DWORD pixel_size = COLORFORMATS[color_format].size;
     const DWORD simd_check = get_availableSIMD();
     const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 64 : 32) : 1;
 #define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
-    const DWORD frame_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
+    buf_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
 #undef ALIGN_NEXT
-    return frame_size;
+    return width * height * pixel_size;
 }
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUIEX *conf, PRM_ENC *pe) {
@@ -114,9 +114,10 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUI
         return TRUE;
 
     const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
-    const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format);
+    int buf_size;
+    const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format, buf_size);
     //Aviutl(自動フィールドシフト)からの映像入力
-    if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, COLORFORMATS[color_format].FOURCC)) {
+    if (afs_vbuf_setup((OUTPUT_INFO *)oip, conf->vid.afs, frame_size, buf_size, COLORFORMATS[color_format].FOURCC)) {
         pe->afs_init = TRUE;
         return TRUE;
     } else if (conf->vid.afs && sys_dat->exstg->s_local.auto_afs_disable) {
