@@ -51,6 +51,7 @@ build/
 *.VC.opendb
 
 # Visual C++ cache files
+.vs/
 ipch/
 *.aps
 *.ncb

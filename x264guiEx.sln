@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 11.0.50727.42
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x264guiEx", "x264guiEx\x264guiEx.vcxproj", "{1C2815CC-4078-4EBE-B7BA-FA807D246200}"
 EndProject
