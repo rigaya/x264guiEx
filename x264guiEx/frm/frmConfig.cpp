@@ -59,7 +59,7 @@ System::Boolean frmSaveNewStg::checkStgFileName(String^ stgName) {
     String^ fileName;
     if (stgName->Length == 0)
         return false;
-    
+
     if (!ValidiateFileName(stgName)) {
         MessageBox::Show(L"ファイル名に使用できない文字が含まれています。\n保存できません。", L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
         return false;
@@ -305,8 +305,8 @@ System::Boolean frmConfig::CheckLocalStg() {
     //音声エンコーダのチェック (実行ファイル名がない場合はチェックしない)
     if (LocalStg.audEncExeName[fcgCXAudioEncoder->SelectedIndex]->Length) {
         String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
-        if (!File::Exists(AudioEncoderPath) 
-            && (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index 
+        if (!File::Exists(AudioEncoderPath)
+            && (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index
                 || !check_if_faw2aac_exists()) ) {
             //音声実行ファイルがない かつ
             //選択された音声がfawでない または fawであってもfaw2aacがない
@@ -341,7 +341,7 @@ System::Boolean frmConfig::CheckLocalStg() {
             + L"適切に設定する必要があります。\n"
             + L"上限ビットレート、上限ファイルサイズの設定を見なおしてください。";
     }
-    if (error) 
+    if (error)
         MessageBox::Show(this, err, L"エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
     return error;
 }
@@ -779,7 +779,7 @@ System::Void frmConfig::fcgCXCmdExInsert_SelectedIndexChanged(System::Object^  s
     String^ insertStr;
     if (       0 == fcgCXCmdExInsert->SelectedIndex) {
         //何もしない
-    } else if (1 == fcgCXCmdExInsert->SelectedIndex) {            
+    } else if (1 == fcgCXCmdExInsert->SelectedIndex) {
         //WinXPにおいて、OpenFileDialogはCurrentDirctoryを勝手に変更しやがるので、
         //一度保存し、あとから再適用する
         String^ CurrentDir = Directory::GetCurrentDirectory();
@@ -971,8 +971,8 @@ ToolStripMenuItem^ frmConfig::fcgTSSettingsSearchItem(String^ stgPath, ToolStrip
         if (item != nullptr)
             return item;
         item = dynamic_cast<ToolStripMenuItem^>(DropDownItem->DropDownItems[i]);
-        if (item      != nullptr && 
-            item->Tag != nullptr && 
+        if (item      != nullptr &&
+            item->Tag != nullptr &&
             0 == String::Compare(item->Tag->ToString(), stgPath, true))
             return item;
     }
@@ -984,7 +984,7 @@ ToolStripMenuItem^ frmConfig::fcgTSSettingsSearchItem(String^ stgPath) {
 }
 
 System::Void frmConfig::SaveToStgFile(String^ stgName) {
-    size_t nameLen = CountStringBytes(stgName) + 1; 
+    size_t nameLen = CountStringBytes(stgName) + 1;
     char *stg_name = (char *)malloc(nameLen);
     GetCHARfromString(stg_name, nameLen, stgName);
     init_CONF_GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
@@ -1030,7 +1030,7 @@ System::Void frmConfig::fcgTSBSaveNew_Click(System::Object^  sender, System::Eve
 System::Void frmConfig::DeleteStgFile(ToolStripMenuItem^ mItem) {
     if (System::Windows::Forms::DialogResult::OK ==
         MessageBox::Show(L"設定ファイル " + mItem->Text + L" を削除してよろしいですか?",
-        L"エラー", MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation)) 
+        L"エラー", MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation))
     {
         File::Delete(mItem->Tag->ToString());
         RebuildStgFileDropDown(nullptr);
@@ -1431,7 +1431,7 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
     fcgCBCABAC->Checked = cx264->cabac != 0;
     SetNUValue(fcgNUSlices,           cx264->slice_n);
     SetCXIndex(fcgCXWeightP,          cx264->weight_p);
-    
+
     fcgCXInterlaced->SelectedIndex  = (!cx264->interlaced) ? 0 : ((cx264->tff) ? 1 : 2);
 
     SetNUValue(fcgNUBframes,          cx264->bframes);
@@ -1476,7 +1476,6 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
         fcgCBCheckKeyframes->Checked       =(cnf->vid.check_keyframe & CHECK_KEYFRAME_AVIUTL) != 0;
         fcgCBSetKeyframeAtChapter->Checked =(cnf->vid.check_keyframe & CHECK_KEYFRAME_CHAPTER) != 0;
         fcgCBInputAsLW48->Checked          = cnf->vid.input_as_lw48 != 0;
-        fcgCBRyzenDisableAVX2->Checked     = cnf->vid.ryzen_disable_avx2 != 0;
 
         SetCXIndex(fcgCXX264Priority,        cnf->vid.priority);
         SetCXIndex(fcgCXTempDir,             cnf->oth.temp_dir);
@@ -1645,7 +1644,6 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->vid.check_keyframe        |= (fcgCBSetKeyframeAtChapter->Checked) ? CHECK_KEYFRAME_CHAPTER : CHECK_KEYFRAME_NONE;
     cnf->vid.priority               = fcgCXX264Priority->SelectedIndex;
     cnf->vid.input_as_lw48          = fcgCBInputAsLW48->Checked;
-    cnf->vid.ryzen_disable_avx2     = fcgCBRyzenDisableAVX2->Checked;
     cnf->oth.temp_dir               = fcgCXTempDir->SelectedIndex;
     GetCHARfromString(cnf->vid.cmdex, fcgTXCmdEx->Text);
 
@@ -1777,7 +1775,7 @@ System::Void frmConfig::SetHelpToolTipsColorMatrix(Control^ control, const char 
 
 System::Void frmConfig::SetHelpToolTips() {
     //x264基本
-    fcgTTX264->SetToolTip(fcgCBUsehighbit, L"" 
+    fcgTTX264->SetToolTip(fcgCBUsehighbit, L""
         + L"--input-depth 16 --output-depth 10\n"
         + L"\n"
         + L"10bit深度でエンコードを行います。\n"

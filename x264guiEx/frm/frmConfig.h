@@ -701,7 +701,7 @@ private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateLower;
 private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
 private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
-private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
+
 
 
 
@@ -760,7 +760,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
         void InitializeComponent(void)
         {
             this->components = (gcnew System::ComponentModel::Container());
-            System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(frmConfig::typeid));
+            System::ComponentModel::ComponentResourceManager ^resources = (gcnew System::ComponentModel::ComponentResourceManager(frmConfig::typeid));
             this->fcgtabControlVideo = (gcnew System::Windows::Forms::TabControl());
             this->fcgtabPageX264Main = (gcnew System::Windows::Forms::TabPage());
             this->fcgPNStatusFile = (gcnew System::Windows::Forms::Panel());
@@ -958,7 +958,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
             this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
-            this->fcgCBRyzenDisableAVX2 = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBSetKeyframeAtChapter = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
@@ -1093,59 +1092,59 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
             this->fcgPNBitrate->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgTBQuality))->BeginInit();
             this->fcgPNX264Mode->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitBitrateLower))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitBitrateUpper))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitFileSize))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAutoNPass))->BeginInit();
             this->fcggroupBoxX264Out->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUSlices))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUSlices))->BeginInit();
             this->fcggroupBoxThreads->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNULookaheadThreads))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUThreads))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNULookaheadThreads))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUThreads))->BeginInit();
             this->fcggroupBoxColorMatrix->SuspendLayout();
             this->fcggroupBoxAepectRatio->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioY))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioX))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgpictureBoxX264))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAspectRatioY))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAspectRatioX))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgpictureBoxX264))->BeginInit();
             this->fcggroupBoxPreset->SuspendLayout();
             this->fcgtabPageX264RC->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUTimebaseDen))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUTimebaseNum))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUTimebaseDen))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUTimebaseNum))->BeginInit();
             this->fcggroupBoxAQ->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAQStrength))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAQStrength))->BeginInit();
             this->fcggroupBoxPsyRd->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPsyTrellis))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPsyRDO))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPsyTrellis))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPsyRDO))->BeginInit();
             this->fcggroupBoxVbv->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUVBVbuf))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUVBVmax))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNURCLookahead))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUVBVbuf))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUVBVmax))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNURCLookahead))->BeginInit();
             this->fcggroupBoxQP->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUChromaQp))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpstep))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpmax))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpmin))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQcomp))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPBRatio))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUIPRatio))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUChromaQp))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpstep))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpmax))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpmin))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQcomp))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPBRatio))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUIPRatio))->BeginInit();
             this->fcgtabPageX264Frame->SuspendLayout();
             this->fcggroupBoxX264Other->SuspendLayout();
             this->fcggroupBoxME->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNURef))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUMERange))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNURef))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUMERange))->BeginInit();
             this->fcggroupBoxMBTypes->SuspendLayout();
             this->fcggroupBoxBframes->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUBBias))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUBframes))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUBBias))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUBframes))->BeginInit();
             this->fcggroupBoxGOP->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUKeyint))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUMinKeyint))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUScenecut))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUKeyint))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUMinKeyint))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUScenecut))->BeginInit();
             this->fcggroupBoxDeblock->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUDeblockThreshold))->BeginInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUDeblockStrength))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUDeblockThreshold))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUDeblockStrength))->BeginInit();
             this->fcgtabPageExSettings->SuspendLayout();
             this->fcggroupBoxCmdEx->SuspendLayout();
             this->fcggroupBoxExSettings->SuspendLayout();
@@ -1160,7 +1159,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgCSCQM->SuspendLayout();
             this->fcgtabControlAudio->SuspendLayout();
             this->fcgtabPageAudioMain->SuspendLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->BeginInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAudioBitrate))->BeginInit();
             this->fcgtabPageAudioOther->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -1208,7 +1207,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264Main->Controls->Add(this->fcgLBOutputCF);
             this->fcgtabPageX264Main->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264Main->Name = L"fcgtabPageX264Main";
-            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageX264Main->Size = System::Drawing::Size(608, 493);
             this->fcgtabPageX264Main->TabIndex = 0;
             this->fcgtabPageX264Main->Text = L" x264 ";
@@ -1306,7 +1305,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgBTTBQualitySubtract
             // 
-            this->fcgBTTBQualitySubtract->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgBTTBQualitySubtract.Image")));
+            this->fcgBTTBQualitySubtract->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgBTTBQualitySubtract.Image")));
             this->fcgBTTBQualitySubtract->Location = System::Drawing::Point(0, 33);
             this->fcgBTTBQualitySubtract->Name = L"fcgBTTBQualitySubtract";
             this->fcgBTTBQualitySubtract->Size = System::Drawing::Size(21, 23);
@@ -1318,7 +1317,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgBTTBQualityAdd
             // 
-            this->fcgBTTBQualityAdd->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgBTTBQualityAdd.Image")));
+            this->fcgBTTBQualityAdd->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgBTTBQualityAdd.Image")));
             this->fcgBTTBQualityAdd->Location = System::Drawing::Point(352, 34);
             this->fcgBTTBQualityAdd->Name = L"fcgBTTBQualityAdd";
             this->fcgBTTBQualityAdd->Size = System::Drawing::Size(21, 23);
@@ -1871,7 +1870,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgpictureBoxX264
             // 
-            this->fcgpictureBoxX264->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgpictureBoxX264.Image")));
+            this->fcgpictureBoxX264->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgpictureBoxX264.Image")));
             this->fcgpictureBoxX264->Location = System::Drawing::Point(4, 12);
             this->fcgpictureBoxX264->Name = L"fcgpictureBoxX264";
             this->fcgpictureBoxX264->Size = System::Drawing::Size(110, 44);
@@ -2020,7 +2019,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageX264RC->Controls->Add(this->fcggroupBoxQP);
             this->fcgtabPageX264RC->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264RC->Name = L"fcgtabPageX264RC";
-            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageX264RC->Size = System::Drawing::Size(608, 493);
             this->fcgtabPageX264RC->TabIndex = 1;
             this->fcgtabPageX264RC->Text = L" レート・QP制御";
@@ -3288,7 +3287,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcggroupBoxExSettings
             // 
-            this->fcggroupBoxExSettings->Controls->Add(this->fcgCBRyzenDisableAVX2);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBSetKeyframeAtChapter);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBInputAsLW48);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
@@ -3301,17 +3299,6 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcggroupBoxExSettings->TabIndex = 0;
             this->fcggroupBoxExSettings->TabStop = false;
             this->fcggroupBoxExSettings->Text = L"拡張設定";
-            // 
-            // fcgCBRyzenDisableAVX2
-            // 
-            this->fcgCBRyzenDisableAVX2->AutoSize = true;
-            this->fcgCBRyzenDisableAVX2->Location = System::Drawing::Point(18, 203);
-            this->fcgCBRyzenDisableAVX2->Name = L"fcgCBRyzenDisableAVX2";
-            this->fcgCBRyzenDisableAVX2->Size = System::Drawing::Size(190, 18);
-            this->fcgCBRyzenDisableAVX2->TabIndex = 6;
-            this->fcgCBRyzenDisableAVX2->Tag = L"chValue";
-            this->fcgCBRyzenDisableAVX2->Text = L"AMD RyzenではAVX2を使用しない";
-            this->fcgCBRyzenDisableAVX2->UseVisualStyleBackColor = true;
             // 
             // fcgCBSetKeyframeAtChapter
             // 
@@ -3383,7 +3370,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgCSExeFiles
             // 
             this->fcgCSExeFiles->ImageScalingSize = System::Drawing::Size(18, 18);
-            this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->fcgTSExeFileshelp });
+            this->fcgCSExeFiles->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(1) { this->fcgTSExeFileshelp });
             this->fcgCSExeFiles->Name = L"fcgCSx264";
             this->fcgCSExeFiles->Size = System::Drawing::Size(131, 26);
             // 
@@ -3399,7 +3386,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->fcgtoolStripSettings->ImageScalingSize = System::Drawing::Size(18, 18);
-            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(15) {
+            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(15) {
                 this->fcgTSBSave,
                     this->fcgTSBSaveNew, this->fcgTSBDelete, this->fcgtoolStripSeparator1, this->fcgTSSettings, this->fcgTSBCMDOnly, this->toolStripSeparator3,
                     this->fcgTSBBitrateCalc, this->toolStripSeparator5, this->fcgTSBUpdate, this->toolStripSeparator2, this->fcgTSBOtherSettings,
@@ -3414,7 +3401,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgTSBSave
             // 
-            this->fcgTSBSave->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSave.Image")));
+            this->fcgTSBSave->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBSave.Image")));
             this->fcgTSBSave->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBSave->Name = L"fcgTSBSave";
             this->fcgTSBSave->Size = System::Drawing::Size(86, 22);
@@ -3423,7 +3410,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgTSBSaveNew
             // 
-            this->fcgTSBSaveNew->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSaveNew.Image")));
+            this->fcgTSBSaveNew->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBSaveNew.Image")));
             this->fcgTSBSaveNew->ImageTransparentColor = System::Drawing::Color::Black;
             this->fcgTSBSaveNew->Name = L"fcgTSBSaveNew";
             this->fcgTSBSaveNew->Size = System::Drawing::Size(77, 22);
@@ -3432,7 +3419,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgTSBDelete
             // 
-            this->fcgTSBDelete->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBDelete.Image")));
+            this->fcgTSBDelete->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBDelete.Image")));
             this->fcgTSBDelete->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBDelete->Name = L"fcgTSBDelete";
             this->fcgTSBDelete->Size = System::Drawing::Size(53, 22);
@@ -3446,7 +3433,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             // fcgTSSettings
             // 
-            this->fcgTSSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSSettings.Image")));
+            this->fcgTSSettings->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSSettings.Image")));
             this->fcgTSSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSSettings->Name = L"fcgTSSettings";
             this->fcgTSSettings->Size = System::Drawing::Size(79, 22);
@@ -3458,7 +3445,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTSBCMDOnly->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
             this->fcgTSBCMDOnly->CheckOnClick = true;
-            this->fcgTSBCMDOnly->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBCMDOnly.Image")));
+            this->fcgTSBCMDOnly->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBCMDOnly.Image")));
             this->fcgTSBCMDOnly->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBCMDOnly->Name = L"fcgTSBCMDOnly";
             this->fcgTSBCMDOnly->Size = System::Drawing::Size(76, 22);
@@ -3477,7 +3464,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgTSBBitrateCalc->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
             this->fcgTSBBitrateCalc->CheckOnClick = true;
             this->fcgTSBBitrateCalc->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBBitrateCalc->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBBitrateCalc.Image")));
+            this->fcgTSBBitrateCalc->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBBitrateCalc.Image")));
             this->fcgTSBBitrateCalc->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBBitrateCalc->Name = L"fcgTSBBitrateCalc";
             this->fcgTSBBitrateCalc->Size = System::Drawing::Size(97, 22);
@@ -3495,7 +3482,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgTSBUpdate->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
             this->fcgTSBUpdate->CheckOnClick = true;
             this->fcgTSBUpdate->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBUpdate->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBUpdate.Image")));
+            this->fcgTSBUpdate->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBUpdate.Image")));
             this->fcgTSBUpdate->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBUpdate->Name = L"fcgTSBUpdate";
             this->fcgTSBUpdate->Size = System::Drawing::Size(35, 22);
@@ -3512,7 +3499,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // 
             this->fcgTSBOtherSettings->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
             this->fcgTSBOtherSettings->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBOtherSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBOtherSettings.Image")));
+            this->fcgTSBOtherSettings->Image = (cli::safe_cast<System::Drawing::Image ^>(resources->GetObject(L"fcgTSBOtherSettings.Image")));
             this->fcgTSBOtherSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
             this->fcgTSBOtherSettings->Name = L"fcgTSBOtherSettings";
             this->fcgTSBOtherSettings->Size = System::Drawing::Size(76, 22);
@@ -3587,7 +3574,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4BoxTempDir);
             this->fcgtabPageMP4->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageMP4->Name = L"fcgtabPageMP4";
-            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageMP4->Size = System::Drawing::Size(376, 187);
             this->fcgtabPageMP4->TabIndex = 0;
             this->fcgtabPageMP4->Text = L"mp4";
@@ -3772,7 +3759,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageMKV->Controls->Add(this->fcgCBMKVMuxerExt);
             this->fcgtabPageMKV->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageMKV->Name = L"fcgtabPageMKV";
-            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageMKV->Size = System::Drawing::Size(376, 187);
             this->fcgtabPageMKV->TabIndex = 1;
             this->fcgtabPageMKV->Text = L"mkv";
@@ -4183,7 +4170,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             // fcgCSCQM
             // 
             this->fcgCSCQM->ImageScalingSize = System::Drawing::Size(18, 18);
-            this->fcgCSCQM->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+            this->fcgCSCQM->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem ^  >(4) {
                 this->fcgCSFlat, this->fcgCSJvt,
                     this->toolStripSeparator1, this->fcgCSCqmFile
             });
@@ -4314,7 +4301,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageAudioMain->Controls->Add(this->fcgLBAudioTemp);
             this->fcgtabPageAudioMain->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageAudioMain->Name = L"fcgtabPageAudioMain";
-            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageAudioMain->Size = System::Drawing::Size(376, 269);
             this->fcgtabPageAudioMain->TabIndex = 0;
             this->fcgtabPageAudioMain->Text = L"音声";
@@ -4548,7 +4535,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabPageAudioOther->Controls->Add(this->fcgLBAudioPriority);
             this->fcgtabPageAudioOther->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageAudioOther->Name = L"fcgtabPageAudioOther";
-            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
+            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(3);
             this->fcgtabPageAudioOther->Size = System::Drawing::Size(376, 269);
             this->fcgtabPageAudioOther->TabIndex = 1;
             this->fcgtabPageAudioOther->Text = L"その他";
@@ -4731,77 +4718,77 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgPNStatusFile->PerformLayout();
             this->fcgPNBitrate->ResumeLayout(false);
             this->fcgPNBitrate->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgTBQuality))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgTBQuality))->EndInit();
             this->fcgPNX264Mode->ResumeLayout(false);
             this->fcgPNX264Mode->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateLower))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitBitrateUpper))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAMPLimitFileSize))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAutoNPass))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitBitrateLower))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitBitrateUpper))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAMPLimitFileSize))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAutoNPass))->EndInit();
             this->fcggroupBoxX264Out->ResumeLayout(false);
             this->fcggroupBoxX264Out->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUSlices))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUSlices))->EndInit();
             this->fcggroupBoxThreads->ResumeLayout(false);
             this->fcggroupBoxThreads->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNULookaheadThreads))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUThreads))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNULookaheadThreads))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUThreads))->EndInit();
             this->fcggroupBoxColorMatrix->ResumeLayout(false);
             this->fcggroupBoxColorMatrix->PerformLayout();
             this->fcggroupBoxAepectRatio->ResumeLayout(false);
             this->fcggroupBoxAepectRatio->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioY))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioX))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgpictureBoxX264))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAspectRatioY))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAspectRatioX))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgpictureBoxX264))->EndInit();
             this->fcggroupBoxPreset->ResumeLayout(false);
             this->fcggroupBoxPreset->PerformLayout();
             this->fcgtabPageX264RC->ResumeLayout(false);
             this->fcgtabPageX264RC->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUTimebaseDen))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUTimebaseNum))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUTimebaseDen))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUTimebaseNum))->EndInit();
             this->fcggroupBoxAQ->ResumeLayout(false);
             this->fcggroupBoxAQ->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAQStrength))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAQStrength))->EndInit();
             this->fcggroupBoxPsyRd->ResumeLayout(false);
             this->fcggroupBoxPsyRd->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPsyTrellis))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPsyRDO))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPsyTrellis))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPsyRDO))->EndInit();
             this->fcggroupBoxVbv->ResumeLayout(false);
             this->fcggroupBoxVbv->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUVBVbuf))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUVBVmax))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNURCLookahead))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUVBVbuf))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUVBVmax))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNURCLookahead))->EndInit();
             this->fcggroupBoxQP->ResumeLayout(false);
             this->fcggroupBoxQP->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUChromaQp))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpstep))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpmax))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQpmin))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUQcomp))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUPBRatio))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUIPRatio))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUChromaQp))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpstep))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpmax))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQpmin))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUQcomp))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUPBRatio))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUIPRatio))->EndInit();
             this->fcgtabPageX264Frame->ResumeLayout(false);
             this->fcgtabPageX264Frame->PerformLayout();
             this->fcggroupBoxX264Other->ResumeLayout(false);
             this->fcggroupBoxX264Other->PerformLayout();
             this->fcggroupBoxME->ResumeLayout(false);
             this->fcggroupBoxME->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNURef))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUMERange))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNURef))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUMERange))->EndInit();
             this->fcggroupBoxMBTypes->ResumeLayout(false);
             this->fcggroupBoxMBTypes->PerformLayout();
             this->fcggroupBoxBframes->ResumeLayout(false);
             this->fcggroupBoxBframes->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUBBias))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUBframes))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUBBias))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUBframes))->EndInit();
             this->fcggroupBoxGOP->ResumeLayout(false);
             this->fcggroupBoxGOP->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUKeyint))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUMinKeyint))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUScenecut))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUKeyint))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUMinKeyint))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUScenecut))->EndInit();
             this->fcggroupBoxDeblock->ResumeLayout(false);
             this->fcggroupBoxDeblock->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUDeblockThreshold))->EndInit();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUDeblockStrength))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUDeblockThreshold))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUDeblockStrength))->EndInit();
             this->fcgtabPageExSettings->ResumeLayout(false);
             this->fcgtabPageExSettings->PerformLayout();
             this->fcggroupBoxCmdEx->ResumeLayout(false);
@@ -4826,7 +4813,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBRyzenDisableAVX2;
             this->fcgtabControlAudio->ResumeLayout(false);
             this->fcgtabPageAudioMain->ResumeLayout(false);
             this->fcgtabPageAudioMain->PerformLayout();
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->EndInit();
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize ^>(this->fcgNUAudioBitrate))->EndInit();
             this->fcgtabPageAudioOther->ResumeLayout(false);
             this->fcgtabPageAudioOther->PerformLayout();
             this->ResumeLayout(false);

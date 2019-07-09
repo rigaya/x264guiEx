@@ -519,12 +519,6 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
         int gcd = get_gcd(oip->rate, oip->scale);
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
     }
-    //RyzenではAVX2を使用しないほうが速い場合がある
-    const DWORD simd_avail = get_availableSIMD();
-    const BOOL disable_avx2 = ((simd_avail & (AUO_SIMD_AVX2 | AUO_SIMD_AVX2FAST)) == AUO_SIMD_AVX2) && conf->vid.ryzen_disable_avx2;
-    if (disable_avx2) {
-        sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --asm AVX");
-    }
     //出力ファイル
     const char * const outfile = (prm.x264.nul_out) ? "nul" : pe->temp_filename;
     sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -o \"%s\"", outfile);
@@ -746,8 +740,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
     const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
-    const BOOL disable_avx2 = ((simd_avail & (AUO_SIMD_AVX2 | AUO_SIMD_AVX2FAST)) == AUO_SIMD_AVX2) && conf->vid.ryzen_disable_avx2;
-    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp, disable_avx2);
+    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
     if (convert_frame == NULL) {
         ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
         return ret;
