@@ -20,6 +20,10 @@ init:
 
 install:
   - git submodule update --init --recursive
+  - mkdir c:\yasm
+  - if "%PLATFORM%" == "x64"   curl -o "c:\yasm\yasm.exe" http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win64.exe
+  - if "%PLATFORM%" == "Win32" curl -o "c:\yasm\yasm.exe" http://www.tortall.net/projects/yasm/releases/yasm-1.3.0-win32.exe
+  - set PATH=c:\yasm;%PATH%
   
 before_build:
   - ps: |
