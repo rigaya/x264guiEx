@@ -45,7 +45,7 @@ static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
 static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
 static const BOOL   DEFAULT_UPDATE_OVERWRITE      = 0;
-static const BOOL   DEFAULT_UPDATE_CHECK_AUTO     = 1;
+static const BOOL   DEFAULT_UPDATE_CHECK_AUTO     = 0;
 static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 0;
 static const BOOL   DEFAULT_CHAP_NERO_TO_UTF8     = 0;
 static const BOOL   DEFAULT_AUDIO_ENCODER         = 8;
@@ -290,7 +290,7 @@ typedef struct {
     BOOL   enable_stg_esc_key;                  //設定画面でEscキーを有効化する
     AUO_FONT_INFO conf_font;                    //設定画面のフォント
     BOOL   update_overwrite;                    //更新時、実行ファイルを上書きする
-    BOOL   update_check_auto;                   //自動的に更新を確認する
+    int    update_check_auto;                   //自動的に更新を確認する
     int    default_audio_encoder;               //デフォルトの音声エンコーダ
     int    amp_retry_limit;                     //自動マルチパス試行回数制限
     double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率

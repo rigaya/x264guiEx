@@ -1267,7 +1267,7 @@ System::Void frmConfig::initUpdater() {
     frmExeUpdate->Owner = this;
     frmExeUpdate->init(gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_CheckFinished),
                        gcnew x264guiEx::DelegateProcessFin(this, &frmConfig::fcgTSBUpdate_UpdateFinished));
-    if (!sys_dat->exstg->s_local.update_check_auto) {
+    if (sys_dat->exstg->s_local.update_check_auto < 2) {
         return;
     }
     if (str_has_char(sys_dat->exstg->s_local.last_update_check)) {
@@ -1275,7 +1275,7 @@ System::Void frmConfig::initUpdater() {
             DateTime dtLastUpdate = DateTime::Parse(String(sys_dat->exstg->s_local.last_update_check).ToString());
             TimeSpan tsFromLastUpdate = DateTime::Now - dtLastUpdate;
             //一週間以内に確認していれば自動的に更新チェック
-            if (tsFromLastUpdate < TimeSpan(7, 0, 0, 0)) {
+            if (tsFromLastUpdate < TimeSpan(31, 0, 0, 0)) {
                 return;
             }
         } catch (...) {
