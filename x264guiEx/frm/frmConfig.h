@@ -1384,7 +1384,7 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             // 
             this->fcgNUAMPLimitBitrateUpper->DecimalPlaces = 1;
             this->fcgNUAMPLimitBitrateUpper->Location = System::Drawing::Point(290, 94);
-            this->fcgNUAMPLimitBitrateUpper->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 128000, 0, 0, 0 });
+            this->fcgNUAMPLimitBitrateUpper->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 65536000, 0, 0, 0 });
             this->fcgNUAMPLimitBitrateUpper->Name = L"fcgNUAMPLimitBitrateUpper";
             this->fcgNUAMPLimitBitrateUpper->Size = System::Drawing::Size(78, 21);
             this->fcgNUAMPLimitBitrateUpper->TabIndex = 47;
@@ -1395,7 +1395,7 @@ private: System::Windows::Forms::ToolStripButton^  fcgTSBUpdate;
             // 
             this->fcgNUAMPLimitFileSize->DecimalPlaces = 1;
             this->fcgNUAMPLimitFileSize->Location = System::Drawing::Point(290, 69);
-            this->fcgNUAMPLimitFileSize->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 16384, 0, 0, 0 });
+            this->fcgNUAMPLimitFileSize->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1048576, 0, 0, 0 });
             this->fcgNUAMPLimitFileSize->Name = L"fcgNUAMPLimitFileSize";
             this->fcgNUAMPLimitFileSize->Size = System::Drawing::Size(78, 21);
             this->fcgNUAMPLimitFileSize->TabIndex = 46;

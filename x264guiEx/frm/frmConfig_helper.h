@@ -38,7 +38,7 @@ using namespace System::Diagnostics;
 
 namespace x264guiEx {
 
-    ref class LocalSettings 
+    ref class LocalSettings
     {
     public:
         String^ x264ExeName;
@@ -87,14 +87,15 @@ namespace x264guiEx {
         }
     public:
         TBValueBitrateConvert() {
-            data = gcnew array<TBData> { 
-                {     0,       5,   0 }, //    0 - 1000 までのstepは  5単位
-                {  1000,      50,   0 }, // 1000 - 2000 までのstepは 50単位
-                {  2000,     100,   0 }, //以下同様
-                {  4000,     200,   0 },
-                {  8000,    1000,   0 },
-                { 54000, INT_MAX,   0 },
-                { 54000, INT_MAX,   0 }
+            data = gcnew array<TBData> {
+                {      0,       5,   0 }, //    0 - 1000 までのstepは  5単位
+                {   1000,      50,   0 }, // 1000 - 2000 までのstepは 50単位
+                {   2000,     100,   0 }, //以下同様
+                {   4000,     200,   0 },
+                {   8000,    1000,   0 },
+                {  64000,    4000,   0 },
+                { 256000,   32000,   0 },
+                { 256000, INT_MAX,   0 }
             };
             //そこまでのカウント数を計算しておく
             for (int i = 0; i < data->Length - 2; i++)
@@ -566,18 +567,18 @@ namespace x264guiEx {
 //        }
 //
 //    public:
-//        stgFileController(String^ _stgDir) 
+//        stgFileController(String^ _stgDir)
 //        {
 //            stgDir = _stgDir;
 //            stgPath = gcnew List<String^>();
 //            stgName = gcnew List<String^>();
 //        }
-//        ~stgFileController() 
+//        ~stgFileController()
 //        {
 //            delete stgPath;
 //            delete stgName;
 //        }
-//        System::Void ReLoad() 
+//        System::Void ReLoad()
 //        {
 //            Clear();
 //            if (CheckStgDir()) {
@@ -586,7 +587,7 @@ namespace x264guiEx {
 //                    stgName->Add(Path::GetFileNameWithoutExtension(stgPath[i]));
 //            }
 //        }
-//        System::Void ReLoad(String^ _stgDir) 
+//        System::Void ReLoad(String^ _stgDir)
 //        {
 //            stgDir = _stgDir;
 //            ReLoad();
