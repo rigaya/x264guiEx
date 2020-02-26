@@ -304,9 +304,6 @@
     <ClInclude Include="frm\frmSetTransparency.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="frm\frmUpdate.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
     <ClInclude Include="output.h" />
     <ClInclude Include="encode\afs_client.h" />
     <ClInclude Include="encode\auo_audio.h" />
@@ -409,14 +406,6 @@
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">x264guiEx.frmSetTransparency.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">x264guiEx.frmSetTransparency.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm\frmUpdate.resx">
-      <DependentUpon>frm\frmUpdate.h</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\zlibstat.vcxproj">
-      <Project>{745dec58-ebb3-47a9-a9b8-4c6627c01bf8}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

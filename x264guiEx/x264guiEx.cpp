@@ -30,7 +30,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <mmsystem.h>
-#pragma comment(lib, "winmm.lib") 
+#pragma comment(lib, "winmm.lib")
 
 #include "output.h"
 #include "auo.h"
@@ -141,18 +141,18 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     //                        //    戻り値    : データへのポインタ
     //                        //              画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
 
-BOOL func_init() 
+BOOL func_init()
 {
     return TRUE;
 }
 
-BOOL func_exit() 
+BOOL func_exit()
 {
     delete_SYSTEM_DATA(&g_sys_dat);
     return TRUE;
 }
 
-BOOL func_output( OUTPUT_INFO *oip ) 
+BOOL func_output( OUTPUT_INFO *oip )
 {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     static const encode_task task[3][2] = { { video_output, audio_output }, { audio_output, video_output }, { audio_output_parallel, video_output }  };
@@ -301,10 +301,10 @@ void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
 //エンコード時間の表示
 void write_log_auo_enc_time(const char *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
-    write_log_auo_line_fmt(LOG_INFO, "%s : %d時間%2d分%2d.%1d秒", 
-        mes, 
+    write_log_auo_line_fmt(LOG_INFO, "%s : %d時間%2d分%2d.%1d秒",
+        mes,
         time / (60*60*1000),
-        (time % (60*60*1000)) / (60*1000), 
+        (time % (60*60*1000)) / (60*1000),
         (time % (60*1000)) / 1000,
         ((time % 1000)) / 100);
 }
@@ -314,7 +314,7 @@ void overwrite_aviutl_ini_file_filter(int idx) {
     get_aviutl_dir(ini_file, _countof(ini_file));
     PathAddBackSlashLong(ini_file);
     strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
-    
+
     char filefilter_ini[1024] = { 0 };
     make_file_filter(filefilter_ini, _countof(filefilter_ini), idx);
     WritePrivateProfileString(AUO_NAME, "filefilter", filefilter_ini, ini_file);
@@ -362,73 +362,4 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
         if (idx != default_index)
             add_desc(idx);
     ptr[0] = '\0';
-}
-
-#define ZLIB_WINAPI
-#include "zlib.h"
-
-int create_auoSetup(const char *exePath) {
-    int ret = AUO_RESULT_SUCCESS;
-    //リソースを取り出し
-    HRSRC hResource = NULL;
-    HGLOBAL hResourceData = NULL;
-    const char *pDataPtr = NULL;
-    DWORD resourceSize = 0;
-    FILE *fp = NULL;
-    HMODULE hModule = GetModuleHandleA(AUO_NAME);
-
-    z_stream strm = { 0 };
-
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-
-    if (NULL == hModule
-        || NULL == (hResource = FindResource(hModule, "AUOSETUP", "EXE_DATA"))
-        || NULL == (hResourceData = LoadResource(hModule, hResource))
-        || NULL == (pDataPtr = (const char *)LockResource(hResourceData))
-        || 0    == (resourceSize = SizeofResource(hModule, hResource))) {
-        ret = AUO_RESULT_ERROR;
-    } else if (fopen_s(&fp, exePath, "wb") || NULL == fp) {
-        ret = AUO_RESULT_ERROR;
-    } else if (inflateInit2(&strm, 31) != Z_OK) {
-        ret = AUO_RESULT_ERROR;
-    } else {
-        static const size_t BUFFER_SIZE = 16 * 1024;
-        unsigned char buffer[BUFFER_SIZE];
-        strm.avail_in = resourceSize;
-        strm.next_in = (Bytef *)pDataPtr;
-
-        do {
-            strm.avail_out = sizeof(buffer);
-            strm.next_out = buffer;
-            switch (inflate(&strm, Z_NO_FLUSH)) {
-            case Z_NEED_DICT:
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-                inflateEnd(&strm);
-                ret = AUO_RESULT_ERROR;
-                break;
-            default:
-                break;
-            }
-            if (ret == AUO_RESULT_ERROR) {
-                break;
-            }
-            size_t out_data_size = BUFFER_SIZE - strm.avail_out;
-            if (fwrite(buffer, 1, out_data_size, fp) != out_data_size || ferror(fp)) {
-                ret = AUO_RESULT_ERROR;
-                break;
-            }
-        } while (strm.avail_out == 0);
-
-        inflateEnd(&strm);
-    }
-
-    if (fp) {
-        fclose(fp);
-    }
-    return ret;
 }
