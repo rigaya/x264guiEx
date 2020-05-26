@@ -4,7 +4,7 @@ by rigaya
 
 拡張 x264 出力(GUI) Ex (x264guiEx) は、x264を使用してエンコードを行うAviutlの出力プラグインです。
 
-seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロセスとして実行できようにしたものです。
+seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロセスとして実行できるようにしたものです。
 
 ## ダウンロード & 更新履歴
 [rigayaの日記兼メモ帳＞＞](http://rigaya34589.blog135.fc2.com/blog-category-5.html)
