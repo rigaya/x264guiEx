@@ -298,13 +298,5 @@
     <EmbeddedResource Include="frm\frmSetLogColor.resx">
       <Filter>リソース ファイル</Filter>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm\frmUpdate.resx">
-      <Filter>リソース ファイル</Filter>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="prm\cpu_info_x86.asm">
-      <Filter>ソース ファイル</Filter>
-    </CustomBuild>
   </ItemGroup>
 </Project>

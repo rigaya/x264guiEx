@@ -183,21 +183,33 @@ bool get_cpu_info(cpu_info_t *cpu_info) {
 }
 
 const int TEST_COUNT = 5000;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern int runl_por(uint32_t loop_count);
-#ifdef __cplusplus
+__declspec(noinline)
+int64_t runl_por(int loop_count, int& dummy_dep) {
+    unsigned int dummy;
+    const auto ts = __rdtscp(&dummy);
+    int i = loop_count;
+#define ADD_XOR { i += loop_count; i ^= loop_count; }
+#define ADD_XOR4 {ADD_XOR;ADD_XOR;ADD_XOR;ADD_XOR;}
+#define ADD_XOR16 {ADD_XOR4;ADD_XOR4;ADD_XOR4;ADD_XOR4;}
+    do {
+        ADD_XOR16;
+        ADD_XOR16;
+        ADD_XOR16;
+        ADD_XOR16;
+        loop_count--;
+    } while (loop_count > 0);
+    const auto te = __rdtscp(&dummy);
+    dummy_dep = i;
+    return te - ts;
 }
-#endif
 
 static double get_tick_per_clock() {
     const int outer_loop_count = 1000;
     const int inner_loop_count = TEST_COUNT;
-    auto tick_min = runl_por(inner_loop_count);
+    int dummy = 0;
+    auto tick_min = runl_por(inner_loop_count, dummy);
     for (int i = 0; i < outer_loop_count; i++) {
-        auto ret = runl_por(inner_loop_count);
+        auto ret = runl_por(inner_loop_count, dummy);
         tick_min = min(tick_min, ret);
     }
     return tick_min / (128.0 * inner_loop_count);
@@ -206,9 +218,10 @@ static double get_tick_per_clock() {
 static double get_tick_per_sec() {
     const int nMul = 100;
     const int outer_loop_count = TEST_COUNT * nMul;
-    runl_por(outer_loop_count);
+    int dummy = 0;
+    runl_por(outer_loop_count, dummy);
     auto start = std::chrono::high_resolution_clock::now();
-    auto tick = runl_por(outer_loop_count);
+    auto tick = runl_por(outer_loop_count, dummy);
     auto fin = std::chrono::high_resolution_clock::now();
     double second = std::chrono::duration_cast<std::chrono::microseconds>(fin - start).count() * 1e-6;
     return tick / second;
