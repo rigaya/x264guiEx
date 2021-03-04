@@ -1,7 +1,7 @@
 # x264guiEx
 # continuous integration settings
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 platform: Win32
 configuration: Release
@@ -56,7 +56,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: IDRwZWN1uQaTxb64SQnTDNJR5KPtCFPL3Mln9GrdZ7TSiyec/o1KXpOuh/50ZO5A
-  artifact: x264guiEx_%BUILD_VERSION%_%PLATFORM%
+  artifact: x264guiEx_%BUILD_VERSION%
   draft: false
   prerelease: false
   on:
