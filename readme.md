@@ -9,8 +9,8 @@ seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロ�
 ## ダウンロード & 更新履歴
 [rigayaの日記兼メモ帳＞＞](http://rigaya34589.blog135.fc2.com/blog-category-5.html)
 
-## 基本動作環境
-Windows 10 (x86/x64)  
+## 想定動作環境
+Windows 10/11 (x86/x64)  
 Aviutl 1.00 以降
 
 WindowsXPでは動作しません。

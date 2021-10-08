@@ -437,11 +437,15 @@ static int getRealWindowsVersion(DWORD *major, DWORD *minor, DWORD *build) {
     return ret;
 }
 
+#pragma warning(push)
+#pragma warning(disable:4996) // warning C4996: 'GetVersionExW': が古い形式として宣言されました。
 const TCHAR *getOSVersion(DWORD *buildNumber) {
     const TCHAR *ptr = _T("Unknown");
-    OSVERSIONINFO info = { 0 };
+    OSVERSIONINFOW info = { 0 };
+    OSVERSIONINFOEXW infoex = { 0 };
     info.dwOSVersionInfoSize = sizeof(info);
-    GetVersionEx(&info);
+    infoex.dwOSVersionInfoSize = sizeof(infoex);
+    GetVersionExW(&info);
     switch (info.dwPlatformId) {
     case VER_PLATFORM_WIN32_WINDOWS:
         if (4 <= info.dwMajorVersion) {
@@ -454,12 +458,17 @@ const TCHAR *getOSVersion(DWORD *buildNumber) {
         }
         break;
     case VER_PLATFORM_WIN32_NT:
-        if (info.dwMajorVersion == 6) {
-            getRealWindowsVersion(&info.dwMajorVersion, &info.dwMinorVersion, &info.dwBuildNumber);
+        if (info.dwMajorVersion >= 6 || (info.dwMajorVersion == 5 && info.dwMinorVersion >= 2)) {
+            GetVersionExW((OSVERSIONINFOW *)&infoex);
+        } else {
+            memcpy(&infoex, &info, sizeof(info));
         }
-        switch (info.dwMajorVersion) {
+        if (info.dwMajorVersion == 6) {
+            getRealWindowsVersion(&infoex.dwMajorVersion, &infoex.dwMinorVersion, &infoex.dwBuildNumber);
+        }
+        switch (infoex.dwMajorVersion) {
         case 3:
-            switch (info.dwMinorVersion) {
+            switch (infoex.dwMinorVersion) {
             case 0:  ptr = _T("Windows NT 3"); break;
             case 1:  ptr = _T("Windows NT 3.1"); break;
             case 5:  ptr = _T("Windows NT 3.5"); break;
@@ -468,11 +477,11 @@ const TCHAR *getOSVersion(DWORD *buildNumber) {
             }
             break;
         case 4:
-            if (0 == info.dwMinorVersion)
+            if (0 == infoex.dwMinorVersion)
                 ptr = _T("Windows NT 4.0");
             break;
         case 5:
-            switch (info.dwMinorVersion) {
+            switch (infoex.dwMinorVersion) {
             case 0:  ptr = _T("Windows 2000"); break;
             case 1:  ptr = _T("Windows XP"); break;
             case 2:  ptr = _T("Windows Server 2003"); break;
@@ -480,25 +489,24 @@ const TCHAR *getOSVersion(DWORD *buildNumber) {
             }
             break;
         case 6:
-            switch (info.dwMinorVersion) {
-            case 0:  ptr = _T("Windows Vista"); break;
-            case 1:  ptr = _T("Windows 7"); break;
-            case 2:  ptr = _T("Windows 8"); break;
-            case 3:  ptr = _T("Windows 8.1"); break;
-            case 4:  ptr = _T("Windows 10"); break;
+            switch (infoex.dwMinorVersion) {
+            case 0:  ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? _T("Windows Vista") : _T("Windows Server 2008");    break;
+            case 1:  ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? _T("Windows 7")     : _T("Windows Server 2008 R2"); break;
+            case 2:  ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? _T("Windows 8")     : _T("Windows Server 2012");    break;
+            case 3:  ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? _T("Windows 8.1")   : _T("Windows Server 2012 R2"); break;
+            case 4:  ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? _T("Windows 10")    : _T("Windows Server 2016");    break;
             default:
-                if (5 <= info.dwMinorVersion) {
+                if (5 <= infoex.dwMinorVersion) {
                     ptr = _T("Later than Windows 10");
                 }
                 break;
             }
             break;
         case 10:
-            ptr = _T("Windows 10");
-            break;
+            ptr = (infoex.wProductType == VER_NT_WORKSTATION) ? ((infoex.dwBuildNumber >= 21996) ? _T("Windows 11") : _T("Windows 10")) : _T("Windows Server 2016"); break;
         default:
-            if (10 <= info.dwMajorVersion) {
-                ptr = _T("Later than Windows 10");
+            if (10 < infoex.dwMajorVersion) {
+                ptr = _T("Windows 11 or later");
             }
             break;
         }
@@ -507,7 +515,8 @@ const TCHAR *getOSVersion(DWORD *buildNumber) {
         break;
     }
     if (buildNumber) {
-        *buildNumber = info.dwBuildNumber;
+        *buildNumber = infoex.dwBuildNumber;
     }
     return ptr;
 }
+#pragma warning(pop)
