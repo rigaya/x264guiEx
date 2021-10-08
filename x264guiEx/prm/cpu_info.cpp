@@ -320,21 +320,21 @@ int getCPUInfo(TCHAR *buffer, size_t nSize) {
     if (getCPUName(buffer, nSize) || !get_cpu_info(&cpu_info)) {
         ret = 1;
     } else {
-        double defaultClock = getCPUDefaultClockFromCPUName();
+        const double defaultClock = getCPUDefaultClockFromCPUName();
         bool noDefaultClockInCPUName = (0.0 >= defaultClock);
-        if (noDefaultClockInCPUName)
-            defaultClock = getCPUDefaultClockOpenCL();
+        const double maxFrequency = getCPUMaxTurboClock();
         if (defaultClock > 0.0) {
             if (noDefaultClockInCPUName) {
                 _stprintf_s(buffer + _tcslen(buffer), nSize - _tcslen(buffer), _T(" @ %.2fGHz"), defaultClock);
             }
-            double maxFrequency = getCPUMaxTurboClock();
             //大きな違いがなければ、TurboBoostはないものとして表示しない
             if (maxFrequency / defaultClock > 1.01) {
                 _stprintf_s(buffer + _tcslen(buffer), nSize - _tcslen(buffer), _T(" [TB: %.2fGHz]"), maxFrequency);
             }
-            _stprintf_s(buffer + _tcslen(buffer), nSize - _tcslen(buffer), _T(" (%dC/%dT)"), cpu_info.physical_cores, cpu_info.logical_cores);
+        } else if (maxFrequency > 0.0) {
+            _stprintf_s(buffer + _tcslen(buffer), nSize - _tcslen(buffer), _T(" [%.2fGHz]"), maxFrequency);
         }
+        _stprintf_s(buffer + _tcslen(buffer), nSize - _tcslen(buffer), _T(" (%dC/%dT)"), cpu_info.physical_cores, cpu_info.logical_cores);
     }
     return ret;
 }
