@@ -280,9 +280,10 @@ static inline int countchr(const WCHAR *str, int ch) {
 }
 
 //文字列の末尾についている '\r' '\n' ' ' を削除する
-static inline size_t deleteCRLFSpace_at_End(WCHAR *str) {
-    WCHAR *pw = str + wcslen(str) - 1;
-    WCHAR * const qw = pw;
+static inline size_t deleteCRLFSpace_at_End(WCHAR* str) {
+    if (str == nullptr || wcslen(str) == 0) return 0;
+    WCHAR* pw = str + wcslen(str) - 1;
+    WCHAR* const qw = pw;
     while ((*pw == L'\n' || *pw == L'\r' || *pw == L' ') && pw >= str) {
         *pw = L'\0';
         pw--;
@@ -290,9 +291,10 @@ static inline size_t deleteCRLFSpace_at_End(WCHAR *str) {
     return qw - pw;
 }
 
-static inline size_t deleteCRLFSpace_at_End(char *str) {
-    char *pw = str + strlen(str) - 1;
-    char *qw = pw;
+static inline size_t deleteCRLFSpace_at_End(char* str) {
+    if (str == nullptr || strlen(str) == 0) return 0;
+    char* pw = str + strlen(str) - 1;
+    char* qw = pw;
     while ((*pw == '\n' || *pw == '\r' || *pw == ' ') && pw >= str) {
         *pw = '\0';
         pw--;
