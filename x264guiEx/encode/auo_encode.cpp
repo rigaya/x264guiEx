@@ -1304,7 +1304,10 @@ static std::vector<HANDLE> createProcessHandleList(const size_t pid, const wchar
 
     auto fNtQueryObject = (decltype(NtQueryObject) *)GetProcAddress(hNtDll, "NtQueryObject");
     auto fNtQuerySystemInformation = (decltype(NtQuerySystemInformation) *)GetProcAddress(hNtDll, "NtQuerySystemInformation");
-    if (fNtQueryObject == NULL || fNtQuerySystemInformation == NULL) return handle_list;
+    if (fNtQueryObject == nullptr || fNtQuerySystemInformation == nullptr) {
+        FreeLibrary(hNtDll);
+        return handle_list;
+    }
 
     //auto getObjectTypeNumber = [fNtQueryObject](wchar_t * TypeName) {
     //    static const auto ObjectTypesInformation = (OBJECT_INFORMATION_CLASS)3;
