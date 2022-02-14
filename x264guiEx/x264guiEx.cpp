@@ -158,19 +158,23 @@ BOOL func_output( OUTPUT_INFO *oip )
     static const encode_task task[3][2] = { { video_output, audio_output }, { audio_output, video_output }, { audio_output_parallel, video_output }  };
     PRM_ENC pe = { 0 };
     CONF_GUIEX conf_out = { 0 };
-    if (memcmp(&conf_out, &g_conf, sizeof(g_conf)) == 0) {
-        error_conf_not_initialized();
-        return FALSE;
-    }
-    conf_out = g_conf;
     const DWORD tm_start_enc = timeGetTime();
 
     //データの初期化
     init_SYSTEM_DATA(&g_sys_dat);
     if (!g_sys_dat.exstg->get_init_success()) return FALSE;
 
+    const bool conf_not_initialized = memcmp(&conf_out, &g_conf, sizeof(g_conf)) == 0;
+    if (conf_not_initialized) {
+        init_CONF_GUIEX(&g_conf, FALSE);
+    }
+    conf_out = g_conf;
+
     //ログウィンドウを開く
     open_log_window(oip->savefile, &g_sys_dat, 1, get_total_path(&conf_out));
+    if (conf_not_initialized) {
+        warning_conf_not_initialized();
+    }
     set_prevent_log_close(TRUE); //※1 start
 
     //各種設定を行う
@@ -274,6 +278,8 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     guiEx_config::write_conf_header(conf);
     get_default_conf_x264(&conf->x264, use_highbit);
     conf->aud.encoder = g_sys_dat.exstg->s_local.default_audio_encoder;
+    const AUDIO_SETTINGS *aud_stg = &g_sys_dat.exstg->s_aud[conf->aud.encoder];
+    conf->aud.bitrate = aud_stg->mode[conf->aud.enc_mode].bitrate_default;
     conf->size_all = CONF_INITIALIZED;
 }
 void write_log_line_fmt(int log_type_index, const char *format, ...) {
