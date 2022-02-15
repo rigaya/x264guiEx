@@ -1215,6 +1215,44 @@ void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_
     if (buffer) free(buffer);
 }
 
+
+#include <tlhelp32.h>
+#include <unordered_map>
+#include <memory>
+#include <functional>
+
+static bool check_parent(const size_t check_pid, const size_t target_pid, const std::unordered_map<size_t, size_t>& map_pid) {
+    if (check_pid == target_pid) return true;
+    if (check_pid == 0) return false;
+    auto key = map_pid.find(check_pid);
+    if (key == map_pid.end() || key->second == 0 || key->second == key->first) return false;
+    return check_parent(key->second, target_pid, map_pid);
+};
+
+using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
+
+static std::vector<size_t> createChildProcessIDList(const size_t target_pid) {
+    auto h = unique_handle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0), [](HANDLE h) { CloseHandle(h); });
+
+    PROCESSENTRY32 pe = { 0 };
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    std::unordered_map<size_t, size_t> map_pid;
+    if (Process32First(h.get(), &pe)) {
+        do {
+            map_pid[pe.th32ProcessID] = pe.th32ParentProcessID;
+        } while (Process32Next(h.get(), &pe));
+    }
+
+    std::vector<size_t> list_childs;
+    for (auto& [pid, parentpid] : map_pid) {
+        if (check_parent(parentpid, target_pid, map_pid)) {
+            list_childs.push_back(pid);
+        }
+    }
+    return list_childs;
+}
+
 // ----------------------------------------------------------------------------------------------------------------
 
 #include <winternl.h>
@@ -1292,20 +1330,19 @@ typedef struct _OBJECT_TYPES_INFORMATION {
 } OBJECT_TYPES_INFORMATION, *POBJECT_TYPES_INFORMATION;
 
 #ifndef STATUS_INFO_LENGTH_MISMATCH
-#define STATUS_INFO_LENGTH_MISMATCH      ((NTSTATUS)0xC0000004L)
+#define STATUS_INFO_LENGTH_MISMATCH ((NTSTATUS)0xC0000004L)
 #endif
 
 #define CEIL_INT(x, div) (((x + div - 1) / div) * div)
 
-static std::vector<HANDLE> createProcessHandleList(const size_t pid, const wchar_t *handle_type) {
-    std::vector<HANDLE> handle_list;
-    HMODULE hNtDll = LoadLibrary("ntdll.dll");
+static std::vector<unique_handle> createProcessHandleList(const std::vector<size_t>& list_pid, const wchar_t *handle_type) {
+    std::vector<unique_handle> handle_list;
+    std::unique_ptr<std::remove_pointer<HMODULE>::type, decltype(&FreeLibrary)> hNtDll(LoadLibrary(_T("ntdll.dll")), FreeLibrary);
     if (hNtDll == NULL) return handle_list;
 
-    auto fNtQueryObject = (decltype(NtQueryObject) *)GetProcAddress(hNtDll, "NtQueryObject");
-    auto fNtQuerySystemInformation = (decltype(NtQuerySystemInformation) *)GetProcAddress(hNtDll, "NtQuerySystemInformation");
+    auto fNtQueryObject = (decltype(NtQueryObject) *)GetProcAddress(hNtDll.get(), "NtQueryObject");
+    auto fNtQuerySystemInformation = (decltype(NtQuerySystemInformation) *)GetProcAddress(hNtDll.get(), "NtQuerySystemInformation");
     if (fNtQueryObject == nullptr || fNtQuerySystemInformation == nullptr) {
-        FreeLibrary(hNtDll);
         return handle_list;
     }
 
@@ -1335,52 +1372,68 @@ static std::vector<HANDLE> createProcessHandleList(const size_t pid, const wchar
     static const SYSTEM_INFORMATION_CLASS SystemExtendedHandleInformation = (SYSTEM_INFORMATION_CLASS)0x40;
     ULONG size = 0;
     fNtQuerySystemInformation(SystemExtendedHandleInformation, NULL, 0, &size);
-    std::vector<char> buffer;
+    std::vector<char> shibuffer;
     NTSTATUS status = STATUS_INFO_LENGTH_MISMATCH;
     do {
-        buffer.resize(size + 4096);
-        status = fNtQuerySystemInformation(SystemExtendedHandleInformation, buffer.data(), buffer.size(), &size);
+        shibuffer.resize(size + 16*1024);
+        status = fNtQuerySystemInformation(SystemExtendedHandleInformation, shibuffer.data(), shibuffer.size(), &size);
     } while (status == STATUS_INFO_LENGTH_MISMATCH);
 
     if (NT_SUCCESS(status)) {
-        const auto buf = (PSYSTEM_HANDLE_INFORMATION_EX)buffer.data();
-        for (decltype(buf->NumberOfHandles) i = 0; i < buf->NumberOfHandles; i++) {
-            if (buf->Handles[i].UniqueProcessId == pid) {
-                const HANDLE handle = (HANDLE)buf->Handles[i].HandleValue;
+        const auto currentPID = GetCurrentProcessId();
+        const auto currentProcessHandle = GetCurrentProcess();
+        const auto shi = (PSYSTEM_HANDLE_INFORMATION_EX)shibuffer.data();
+        for (decltype(shi->NumberOfHandles) i = 0; i < shi->NumberOfHandles; i++) {
+            const auto handlePID = shi->Handles[i].UniqueProcessId;
+            if (std::find(list_pid.begin(), list_pid.end(), handlePID) != list_pid.end()) {
+                auto handle = unique_handle((HANDLE)shi->Handles[i].HandleValue, []([[maybe_unused]] HANDLE h) { /*Do nothing*/ });
+                // handleValue はプロセスごとに存在する
+                // 自プロセスでなければ、DuplicateHandle で自プロセスでの調査用のhandleをつくる
+                // その場合は新たに作ったhandleなので CloseHandle が必要
+                if (shi->Handles[i].UniqueProcessId != currentPID) {
+                    const auto hProcess = std::unique_ptr<std::remove_pointer<HANDLE>::type, decltype(&CloseHandle)>(OpenProcess(PROCESS_DUP_HANDLE, FALSE, handlePID), CloseHandle);
+                    if (hProcess) {
+                        HANDLE handleDup = NULL;
+                        const BOOL ret = DuplicateHandle(hProcess.get(), (HANDLE)shi->Handles[i].HandleValue, currentProcessHandle, &handleDup, 0, FALSE, DUPLICATE_SAME_ACCESS);
+                        if (ret) {
+                            handle = unique_handle((HANDLE)handleDup, [](HANDLE h) { CloseHandle(h); });
+                        }
+                    }
+                }
                 if (handle_type) {
-                    status = fNtQueryObject(handle, ObjectTypeInformation, NULL, 0, &size);
-                    std::vector<char> buffer2(size, 0);
-                    status = fNtQueryObject(handle, ObjectTypeInformation, buffer2.data(), buffer2.size(), &size);
-                    const auto oti = (PPUBLIC_OBJECT_TYPE_INFORMATION)buffer2.data();
+                    // handleの種類を確認する
+                    status = fNtQueryObject(handle.get(), ObjectTypeInformation, NULL, 0, &size);
+                    std::vector<char> otibuffer(size, 0);
+                    status = fNtQueryObject(handle.get(), ObjectTypeInformation, otibuffer.data(), otibuffer.size(), &size);
+                    const auto oti = (PPUBLIC_OBJECT_TYPE_INFORMATION)otibuffer.data();
                     if (NT_SUCCESS(status) && oti->TypeName.Buffer && _wcsicmp(oti->TypeName.Buffer, handle_type) == 0) {
                         //static const OBJECT_INFORMATION_CLASS ObjectNameInformation = (OBJECT_INFORMATION_CLASS)1;
                         //status = fNtQueryObject(handle, ObjectNameInformation, NULL, 0, &size);
                         //std::vector<char> buffer3(size, 0);
                         //status = fNtQueryObject(handle, ObjectNameInformation, buffer3.data(), buffer3.size(), &size);
                         //POBJECT_NAME_INFORMATION oni = (POBJECT_NAME_INFORMATION)buffer3.data();
-                        handle_list.push_back(handle);
+                        handle_list.push_back(std::move(handle));
                     }
                 } else {
-                    handle_list.push_back(handle);
+                    handle_list.push_back(std::move(handle));
                 }
             }
         }
     }
-    if (hNtDll) FreeLibrary(hNtDll);
     return handle_list;
 }
 
 #include <filesystem>
 
-static std::vector<std::basic_string<TCHAR>> createProcessOpenedFileList(const size_t pid) {
-    const auto list_handle = createProcessHandleList(pid, L"File");
+static std::vector<std::basic_string<TCHAR>> createProcessOpenedFileList(const std::vector<size_t>& list_pid) {
+    const auto list_handle = createProcessHandleList(list_pid, L"File");
     std::vector<std::basic_string<TCHAR>> list_file;
     std::vector<TCHAR> filename(32768+1, 0);
-    for (const auto handle : list_handle) {
-        memset(filename.data(), 0, sizeof(filename[0]) * filename.size());
-        const auto fileType = GetFileType(handle);
+    for (const auto& handle : list_handle) {
+        const auto fileType = GetFileType(handle.get());
         if (fileType == FILE_TYPE_DISK) { //ハンドルがパイプだとGetFinalPathNameByHandleがフリーズするため使用不可
-            auto ret = GetFinalPathNameByHandle(handle, filename.data(), filename.size(), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+            memset(filename.data(), 0, sizeof(filename[0]) * filename.size());
+            auto ret = GetFinalPathNameByHandle(handle.get(), filename.data(), filename.size(), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
             if (ret != 0) {
                 try {
                     auto f = std::filesystem::canonical(filename.data());
@@ -1411,7 +1464,11 @@ static bool rgy_path_is_same(const TCHAR *path1, const TCHAR *path2) {
 }
 
 static void create_aviutl_opened_file_list(PRM_ENC *pe) {
-    const auto list_file = createProcessOpenedFileList(GetCurrentProcessId());
+    const auto pid_aviutl = GetCurrentProcessId();
+    auto list_pid = createChildProcessIDList(pid_aviutl);
+    list_pid.push_back(pid_aviutl);
+
+    const auto list_file = createProcessOpenedFileList(list_pid);
     pe->n_opened_aviutl_files = (int)list_file.size();
     if (pe->n_opened_aviutl_files > 0) {
         pe->opened_aviutl_files = (char **)calloc(1, sizeof(char *) * pe->n_opened_aviutl_files);
