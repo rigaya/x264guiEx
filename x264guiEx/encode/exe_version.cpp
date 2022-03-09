@@ -35,6 +35,21 @@ std::string ver_string(int ver[4]) {
     return str;
 }
 
+int get_x264_version_from_filename(const char *exe_path, int version[4]) {
+    const char *filename = PathFindFileNameA(exe_path);
+    
+    int rev = 0;
+    if (sscanf_s(filename, "x264_%d_x64.exe", &rev) == 1) {
+        version[2] = rev;
+        return 0;
+    }
+    if (sscanf_s(filename, "x264_%d_x86.exe", &rev) == 1) {
+        version[2] = rev;
+        return 0;
+    }
+    return -1;
+}
+
 int get_exe_version_info(const char *exe_path, int version[4]) {
     #pragma comment(lib, "version.lib")
     int ret = -1;
@@ -167,7 +182,8 @@ int get_x264_rev(const char *x264fullpath) {
         return ret;
 
     int version[4] = { 0 };
-    if (-1 == (ret = get_exe_version_info(x264fullpath, version)) || version[2] == 0) {
+    if (-1 == (ret = get_x264_version_from_filename(x264fullpath, version) || version[2] == 0)
+        -1 == (ret = get_exe_version_info(x264fullpath, version)) || version[2] == 0) {
         if (-1 == get_exe_version_from_cmd(x264fullpath, "--version", version) || version[2] == 0) {
             version[2] = -1;
         }
