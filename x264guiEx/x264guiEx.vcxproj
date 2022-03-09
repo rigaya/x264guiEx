@@ -14,7 +14,7 @@
     <ProjectGuid>{1C2815CC-4078-4EBE-B7BA-FA807D246200}</ProjectGuid>
     <RootNamespace>x264guiEx</RootNamespace>
     <Keyword>ManagedCProj</Keyword>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
