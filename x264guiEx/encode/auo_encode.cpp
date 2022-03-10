@@ -160,14 +160,18 @@ std::filesystem::path find_latest_x264(const std::vector<std::filesystem::path>&
     return ret;
 }
 
-static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const std::vector<std::filesystem::path>& exe_files) {
+static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const char *aviutl_dir, const BOOL get_relative_path, const std::vector<std::filesystem::path>& exe_files) {
     if (PathFileExists(muxer_stg->fullpath)) {
         info_use_exe_found(muxer_stg->dispname, muxer_stg->fullpath);
         return TRUE;
     }
     const auto targetExes = select_exe_file(find_target_exe_files(muxer_stg->filename, exe_files));
     if (targetExes.size() > 0) {
-        strcpy_s(muxer_stg->fullpath, targetExes.front().string().c_str());
+        if (get_relative_path) {
+            GetRelativePathTo(muxer_stg->fullpath, _countof(muxer_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+        } else {
+            strcpy_s(muxer_stg->fullpath, targetExes.front().string().c_str());
+        }
     }
     if (PathFileExists(muxer_stg->fullpath)) {
         info_use_exe_found(muxer_stg->dispname, muxer_stg->fullpath);
@@ -295,7 +299,11 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
             const auto targetExes = find_target_exe_files("x264", exeFiles);
             if (targetExes.size() > 0) {
                 const auto latestX264 = find_latest_x264(targetExes);
-                strcpy_s(exstg->s_x264.fullpath, latestX264.string().c_str());
+                if (exstg->s_local.get_relative_path) {
+                    GetRelativePathTo(exstg->s_x264.fullpath, _countof(exstg->s_x264.fullpath), latestX264.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                } else {
+                    strcpy_s(exstg->s_x264.fullpath, latestX264.string().c_str());
+                }
             }
             if (!PathFileExists(exstg->s_x264.fullpath)) {
                 error_no_exe_file("x264.exe", exstg->s_x264.fullpath);
@@ -327,7 +335,11 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                 {
                     const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                     if (targetExes.size() > 0) {
-                        strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                        if (exstg->s_local.get_relative_path) {
+                            GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                        } else {
+                            strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                        }
                     }
                 }
                 //みつからなければ、デフォルトエンコーダを探す
@@ -337,7 +349,11 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                     if (!PathFileExists(aud_stg->fullpath)) {
                         const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                         if (targetExes.size() > 0) {
-                            strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                            if (exstg->s_local.get_relative_path) {
+                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                            } else {
+                                strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                            }
                             warning_use_default_audio_encoder(aud_stg->dispname);
                         }
                     }
@@ -348,7 +364,11 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                     if (!PathFileExists(aud_stg->fullpath)) {
                         const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                         if (targetExes.size() > 0) {
-                            strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                            if (exstg->s_local.get_relative_path) {
+                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                            } else {
+                                strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                            }
                             warning_use_default_audio_encoder(aud_stg->dispname);
                         }
                     }
@@ -371,17 +391,17 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
     //muxer
     switch (pe->muxer_to_be_used) {
         case MUXER_TC2MP4:
-            check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], exeFiles);
+            check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             //下へフォールスルー
         case MUXER_MP4:
-            check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], exeFiles);
+            check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             if (str_has_char(exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
-                check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], exeFiles);
+                check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             }
             check &= check_muxer_matched_with_ini(exstg->s_mux);
             break;
         case MUXER_MKV:
-            check &= check_muxer_exist(&exstg->s_mux[pe->muxer_to_be_used], exeFiles);
+            check &= check_muxer_exist(&exstg->s_mux[pe->muxer_to_be_used], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             break;
         default:
             break;
