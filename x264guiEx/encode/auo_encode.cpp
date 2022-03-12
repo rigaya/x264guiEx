@@ -309,8 +309,8 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                 error_no_exe_file("x264.exe", exstg->s_x264.fullpath);
                 check = FALSE;
             }
-            info_use_exe_found("x264エンコーダ", exstg->s_x264.fullpath);
         }
+        info_use_exe_found("x264エンコーダ", exstg->s_x264.fullpath);
     }
 
     //音声エンコーダ
@@ -380,8 +380,8 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                         check = FALSE;
                     }
                 }
-                info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
             }
+            info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
         } else {
             error_invalid_ini_file();
             check = FALSE;
