@@ -1,5 +1,5 @@
 
-# 拡張 x264 出力(GUI) Ex  1.xx / 2.xx
+# 拡張 x264 出力(GUI) Ex  1.xx / 2.xx / 3.xx
 by rigaya
 
 拡張 x264 出力(GUI) Ex (x264guiEx) は、x264を使用してエンコードを行うAviutlの出力プラグインです。
@@ -10,7 +10,7 @@ seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロ�
 [rigayaの日記兼メモ帳＞＞](http://rigaya34589.blog135.fc2.com/blog-category-5.html)
 
 ## 想定動作環境
-Windows 10/11 (x86/x64)  
+Windows 8.1/10/11 (x86/x64)  
 Aviutl 1.00 以降
 
 WindowsXPでは動作しません。
@@ -18,13 +18,11 @@ WindowsXPでは動作しません。
 ## x264guiEx 使用にあたっての注意事項
 無保証です。自己責任で使用してください。  
 拡張 x264 出力(GUI) Exを使用したことによる、いかなる損害・トラブルについても責任を負いません。  
-つまり、こんなのってないよっていう状況に陥っても知りません。
 
 
 ## x264guiExの使用方法
-- [x264guiEx 1.xx/2.xx 導入＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-139.html)
-- [x264guiEx 2.xxの導入 (手動)＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-371.html)
-- [x264guiExのアンインストール＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-472.html)
+- [x264guiEx 3.xx 導入・更新＞＞](./install.md)
+- [x264guiEx 3.xx 削除＞＞](./uninstall.md)
 - [x264guiExのプロファイルについてのいろいろ＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-256.html)
 - [x264guiEx ログウィンドウについてる機能＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-290.html)
 - [MediaInfoによるx264のオプション表示の取り込み方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-266.html)
