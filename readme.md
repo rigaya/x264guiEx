@@ -21,8 +21,8 @@ WindowsXPでは動作しません。
 
 
 ## x264guiExの使用方法
-- [x264guiEx 3.xx 導入・更新＞＞](./install.md)
-- [x264guiEx 3.xx 削除＞＞](./uninstall.md)
+- [x264guiEx 3.xx 導入・更新＞＞](#x264guiEx-の-Aviutl-への導入・更新)
+- [x264guiEx 3.xx 削除＞＞](#x264guiEx-の-Aviutl-からの削除)
 - [x264guiExのプロファイルについてのいろいろ＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-256.html)
 - [x264guiEx ログウィンドウについてる機能＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-290.html)
 - [MediaInfoによるx264のオプション表示の取り込み方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-266.html)
@@ -30,6 +30,90 @@ WindowsXPでは動作しません。
 - [x264guiExでBluray用出力＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-333.html)
 - [x264guiExのアップデート方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-341.html)
 - [x264guiExのその他の設定＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-343.html)
+
+## x264guiEx の Aviutl への導入・更新
+
+### ダウンロード
+
+まず、x264guiExを[こちら](https://github.com/rigaya/x264guiEx/releases)からダウンロードします。
+
+### 導入・更新
+
+ダウンロードしたzipファイルをダブルクリックして開きます。中身はこんな感じです。
+
+![zipファイルの中身](./data/x264guiEx_3_00_install_02.png)
+
+中身をすべてAviutlフォルダにコピーします。
+
+![中身のコピー](./data/x264guiEx_3_00_install_03.png)
+
+更新時には、下記のように上書きするか聞いてくることがあります。
+
+その場合には「ファイルを置き換える」を選択して上書きしてください。
+
+![上書き](./data/x264guiEx_3_00_install_04.png)
+  
+  
+  
+このあとAviutlをダブルクリックして起動してください。
+
+初回起動時に必要に応じて下の図のようにx264guiExの使用準備をするというメッセージが出ます。環境によっては準備が不要な場合があり、その場合は表示されません。
+
+OKをクリックすると使用準備が開始されます。
+
+![初回起動時](./data/x264guiEx_3_00_install_05.png)
+  
+  
+  
+下の図のように、「この不明な発行元からのアプリがデバイスに変更を加えることを許可しますか?」というメッセージが表示されますので、「はい」をクリックしてください。
+
+![UAC](./data/x264guiEx_3_00_install_06.png)
+  
+  
+  
+下の図のようなウィンドウが表示され、x264guiExの使用に必要なモジュールがインストールされます。
+
+エラーなくインストールが完了すると下記のように表示されますので、右上の[x]ボタンでウィンドウを閉じてください。
+
+![auo_setup](./data/x264guiEx_3_00_install_11.png)
+
+これで使用準備は完了です。
+
+### 確認
+
+x264guiExがAviutlに認識されているか確認します。
+
+Aviutlの [その他] > [出力プラグイン情報]を選択します。
+
+![出力プラグイン情報](./data/x264guiEx_3_00_install_07.png)
+
+
+x264guiEx 3.xxが表示されていれば成功です。
+
+![確認](./data/x264guiEx_3_00_install_09.png)
+
+
+### エンコード
+[ ファイル ] > [ プラグイン出力 ] > [ 拡張 x264 出力 (GUI) Ex ] を選択し、出力ファイル名を入力して、「保存」をクリックしてください。
+
+![プラグイン出力](./data/x264guiEx_3_00_install_14.jpg)
+
+エンコードが開始されます。
+
+![エンコード](./data/x264guiEx_3_00_install_10.jpg)
+
+
+## x264guiEx の Aviutl からの削除
+
+x264guiEx の Aviutl から削除するには、"plugins" フォルダ内の下記ファイルとフォルダを削除してください。
+
+- [フォルダ] x264guiEx_stg
+- [ファイル] x264guiEx.auo
+- [ファイル] x264guiEx(.ini)
+- [ファイル] auo_setup.auf
+
+![削除](./data/x264guiEx_3_00_uninstall_01.png)
+
 
 ## 利用するx264について
 パイプ処理のため、多くの方のビルドしているx264.exeを使用できます。ただし、x264 r1673 (2010年 7月頃)以降が必須です。
