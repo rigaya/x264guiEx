@@ -223,14 +223,16 @@ System::Boolean frmConfig::CheckLocalStg() {
     bool error = false;
     String^ err = "";
     //x264のチェック
-    if (!File::Exists(LocalStg.x264Path)) {
+    if (LocalStg.x264Path->Length > 0
+        && !File::Exists(LocalStg.x264Path)) {
         error = true;
         err += L"指定された x264 は存在しません。\n [ " + LocalStg.x264Path + L" ]\n";
     }
     //音声エンコーダのチェック (実行ファイル名がない場合はチェックしない)
     if (LocalStg.audEncExeName[fcgCXAudioEncoder->SelectedIndex]->Length) {
         String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
-        if (!File::Exists(AudioEncoderPath)
+        if (AudioEncoderPath->Length > 0
+            && !File::Exists(AudioEncoderPath)
             && (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index
                 || !check_if_faw2aac_exists()) ) {
             //音声実行ファイルがない かつ
