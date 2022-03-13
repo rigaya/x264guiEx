@@ -1222,6 +1222,14 @@ System::Void frmConfig::InitForm() {
     fcgChangeEnabled(nullptr, nullptr);
     fcgCBAFS_CheckedChanged(nullptr, nullptr);
     EnableSettingsNoteChange(false);
+    fcgTXX264Path_Leave(nullptr, nullptr);
+    fcgTXX264PathSub_Leave(nullptr, nullptr);
+    fcgTXAudioEncoderPath_Leave(nullptr, nullptr);
+    fcgTXMP4MuxerPath_Leave(nullptr, nullptr);
+    fcgTXTC2MP4Path_Leave(nullptr, nullptr);
+    fcgTXMP4RawPath_Leave(nullptr, nullptr);
+    fcgTXMKVMuxerPath_Leave(nullptr, nullptr);
+    fcgTXMPGMuxerPath_Leave(nullptr, nullptr);
     //コマンドラインの更新
     fcgRebuildCmd(nullptr, nullptr);
     //表示位置の調整
@@ -1233,6 +1241,7 @@ System::Void frmConfig::InitForm() {
     //フォントの設定
     if (str_has_char(sys_dat->exstg->s_local.conf_font.name))
         SetFontFamilyToForm(this, gcnew FontFamily(String(sys_dat->exstg->s_local.conf_font.name).ToString()), this->Font->FontFamily);
+
 }
 
 /////////////         データ <-> GUI     /////////////
