@@ -50,6 +50,42 @@ int get_x264_version_from_filename(const char *exe_path, int version[4]) {
     return -1;
 }
 
+int get_x265_version_from_filename(const char *exe_path, int version[4]) {
+    const char *filename = PathFindFileNameA(exe_path);
+
+    int value[4] = { 0 };
+    memset(version, 0, sizeof(value));
+
+    int rev = 0;
+    if (   sscanf_s(filename, "x265_%d.%d+%d_x64.exe", &value[0], &value[1], &value[3]) == 3
+        || sscanf_s(filename, "x265_%d.%d+%d_x86.exe", &value[0], &value[1], &value[3]) == 3
+        || sscanf_s(filename, "x265_%d.%d_x64.exe",    &value[0], &value[1]) == 2
+        || sscanf_s(filename, "x265_%d.%d_x86.exe",    &value[0], &value[1]) == 2) {
+        memcpy(version, value, sizeof(value));
+        return 0;
+    }
+    return -1;
+}
+
+int get_svtav1_version_from_filename(const char *exe_path, int version[4]) {
+    const char *filename = PathFindFileNameA(exe_path);
+
+    int value[4] = { 0 };
+    memset(version, 0, sizeof(value));
+
+    int rev = 0;
+    if (   sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 3
+        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 3
+        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 3
+        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d+%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 3
+        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d_x64.exe",    &value[0], &value[1], &value[2]) == 2
+        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d_x86.exe",    &value[0], &value[1], &value[2]) == 2) {
+        memcpy(version, value, sizeof(value));
+        return 0;
+    }
+    return -1;
+}
+
 int get_exe_version_info(const char *exe_path, int version[4]) {
     #pragma comment(lib, "version.lib")
     int ret = -1;
@@ -182,13 +218,44 @@ int get_x264_rev(const char *x264fullpath) {
         return ret;
 
     int version[4] = { 0 };
-    if (-1 == (ret = get_x264_version_from_filename(x264fullpath, version) || version[2] == 0)
-        -1 == (ret = get_exe_version_info(x264fullpath, version)) || version[2] == 0) {
-        if (-1 == get_exe_version_from_cmd(x264fullpath, "--version", version) || version[2] == 0) {
-            version[2] = -1;
-        }
+    if (   ((ret = get_x264_version_from_filename(x264fullpath, version))        != -1 && version[2] != 0)
+        || ((ret = get_exe_version_info(x264fullpath, version))                  != -1 && version[2] != 0)
+        || ((ret = get_exe_version_from_cmd(x264fullpath, "--version", version)) != -1 && version[2] != 0)) {
+        return version[2];
     }
-    return version[2];
+    return 0;
+}
+
+int get_x265_rev(const char *x265fullpath, int version[4]) {
+    int ret = -1;
+    if (!PathFileExists(x265fullpath))
+        return ret;
+
+    int value[4] = { 0 };
+    memset(version, 0, sizeof(value));
+
+    if (((ret = get_x265_version_from_filename(x265fullpath, version))        != -1 && memcmp(version, value, sizeof(value)) != 0)
+    ||  ((ret = get_exe_version_info(x265fullpath, version))                  != -1 && memcmp(version, value, sizeof(value)) != 0)
+    ||  ((ret = get_exe_version_from_cmd(x265fullpath, "--version", version)) != -1 && memcmp(version, value, sizeof(value)) != 0)) {
+        memcpy(version, value, sizeof(value));
+        return 0;
+    }
+    return -1;
+}
+
+int get_svtav1_rev(const char *svtav1fullpath, int version[4]) {
+    int ret = -1;
+    if (!PathFileExists(svtav1fullpath))
+        return ret;
+
+    int value[4] = { 0 };
+    if (   ((ret = get_svtav1_version_from_filename(svtav1fullpath, value))      != -1 && memcmp(version, value, sizeof(value)) != 0)
+        || ((ret = get_exe_version_info(svtav1fullpath, value))                  != -1 && memcmp(version, value, sizeof(value)) != 0)
+        || ((ret = get_exe_version_from_cmd(svtav1fullpath, "--version", value)) != -1 && memcmp(version, value, sizeof(value)) != 0)) {
+        memcpy(version, value, sizeof(value));
+        return 0;
+    }
+    return -1;
 }
 
 int get_x265ver_from_txt(const char *txt, int v[4]) {
