@@ -61,6 +61,17 @@ void error_filename_too_long() {
     write_log_auo_line(LOG_ERROR, "出力ファイル名が長すぎます。もっと短くしてください。");
 }
 
+void error_savdir_do_not_exist(const char *savname, const char *savedir) {
+    write_log_auo_line(    LOG_ERROR, "出力先フォルダを認識できないため、出力できません。");
+    write_log_auo_line_fmt(LOG_ERROR, "  出力ファイル名: \"%s\"", savname);
+    write_log_auo_line_fmt(LOG_ERROR, "  出力先フォルダ: \"%s\"", savedir);
+    if (strchr(savedir, '?') != nullptr) {
+        write_log_auo_line(LOG_ERROR, "このエラーは、上記出力先のフォルダ名に環境依存文字を含む場合に発生することがあります。");
+        write_log_auo_line(LOG_ERROR, "  その場合は、\"?\"で表示されています。");
+        write_log_auo_line(LOG_ERROR, "  Cドライブ直下等の、環境依存文字を含まない出力先に変更して出力してみてください。");
+    }
+}
+
 void error_file_is_already_opened_by_aviutl() {
     write_log_auo_line(LOG_ERROR, "出力ファイルはすでにAviutlで開かれているため、出力できません。");
     write_log_auo_line(LOG_ERROR, "異なるファイル名を指定してやり直してください。");

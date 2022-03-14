@@ -248,6 +248,14 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
         check = FALSE;
     }
 
+    char savedir[MAX_PATH_LEN];
+    strcpy_s(savedir, oip->savefile);
+    PathRemoveFileSpecFixed(savedir);
+    if (PathIsDirectory(savedir)) {
+        error_savdir_do_not_exist(oip->savefile, savedir);
+        check = FALSE;
+    }
+
     if (check_file_is_aviutl_opened_file(oip->savefile, pe)) {
         error_file_is_already_opened_by_aviutl();
         check = FALSE;

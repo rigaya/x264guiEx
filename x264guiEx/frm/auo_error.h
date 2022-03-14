@@ -35,6 +35,7 @@ void warning_failed_getting_temp_path();
 void warning_no_temp_root(const char *dir);
 void warning_no_aud_temp_root(const char *dir);
 void error_filename_too_long();
+void error_savdir_do_not_exist(const char *savname, const char *savdir);
 void error_file_is_already_opened_by_aviutl();
 void error_nothing_to_output();
 void error_amp_bitrate_confliction();
