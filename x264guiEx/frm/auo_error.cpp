@@ -170,6 +170,11 @@ void error_invalid_ini_file() {
     write_log_auo_line(LOG_ERROR, "プラグイン(auo)とiniファイルの音声エンコーダの記述が一致しません。");
 }
 
+void error_unsupported_audio_format_by_muxer(const int video_out_type, const AUDIO_SETTINGS *aud_stg) {
+    write_log_auo_line_fmt(LOG_ERROR, "音声エンコーダ %s は、%s 形式での出力に対応していません。", aud_stg->dispname, OUTPUT_FILE_EXT[video_out_type] + 1);
+    write_log_auo_line(    LOG_ERROR, "他の音声エンコーダを選択して出力してください。");
+}
+
 void error_mp4_muxer_unmatch_of_ini_and_exe(BOOL exe_file_is_lsmash) {
     static const char *MUXER_TYPE[] = { "mp4box", "L-SMASH" };
     static const char *MUXER_STR1[] = { "mp4 muxの実行ファイル", "iniファイル" };

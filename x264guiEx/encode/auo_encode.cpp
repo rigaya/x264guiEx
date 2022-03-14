@@ -240,6 +240,20 @@ static BOOL check_amp(CONF_GUIEX *conf) {
     return check;
 }
 
+static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_SETTINGS *aud_stg) {
+    switch (muxer_to_be_used) {
+    case MUXER_TC2MP4:
+    case MUXER_MP4_RAW:
+    case MUXER_MP4:
+        return aud_stg->unsupported_mp4 == 0;
+    case MUXER_MKV:
+    case MUXER_MPG:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_settings *exstg) {
     BOOL check = TRUE;
     //ファイル名長さ
@@ -251,7 +265,7 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
     char savedir[MAX_PATH_LEN];
     strcpy_s(savedir, oip->savefile);
     PathRemoveFileSpecFixed(savedir);
-    if (PathIsDirectory(savedir)) {
+    if (!PathIsDirectory(savedir)) {
         error_savdir_do_not_exist(oip->savefile, savedir);
         check = FALSE;
     }
@@ -336,7 +350,7 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                 warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
             }
         }
-        if (conf->aud.encoder < exstg->s_aud_count) {
+        if (0 <= conf->aud.encoder && conf->aud.encoder < exstg->s_aud_count) {
             AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
             if (str_has_char(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
                 //とりあえず、exe_filesを探す
@@ -389,7 +403,13 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                     }
                 }
             }
-            info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
+            if (str_has_char(aud_stg->filename)) {
+                info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
+            }
+            if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
+                error_unsupported_audio_format_by_muxer(pe->video_out_type, aud_stg);
+                check = FALSE;
+            }
         } else {
             error_invalid_ini_file();
             check = FALSE;
