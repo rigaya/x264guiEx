@@ -699,7 +699,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
         }
     private:
         System::Void SaveLog(String^ SaveLogName) {
-            StreamWriter^ sw;
+            StreamWriter^ sw = nullptr;
             try {
                 sw = gcnew StreamWriter(SaveLogName, true, System::Text::Encoding::GetEncoding("shift_jis"));
                 System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder(richTextLog->Text->Substring(LastLogLen));
@@ -708,10 +708,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 sw->WriteLine(DateTime::Now.ToString("yyyy年M月d日 H時mm分 エンコード終了"));
                 sw->WriteLine(L"-------------------------------------------------------------------------------------");
                 sw->WriteLine();
-            } finally {
-                if (sw != nullptr) {
-                    sw->Close();
-                }
+                sw->Close();
+            } catch (Exception^ e) {
+                WriteLogAuoLine(L"ログの保存に失敗しました。", LOG_WARNING);
             }
         }
     public:
