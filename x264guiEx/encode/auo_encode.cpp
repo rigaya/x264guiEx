@@ -34,6 +34,9 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <unordered_map>
+#include <memory>
+#include <functional>
 
 #include "auo.h"
 #include "auo_version.h"
@@ -51,6 +54,8 @@
 #include "auo_faw2aac.h"
 #include "exe_version.h"
 #include "cpu_info.h"
+
+using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
 
 static void create_aviutl_opened_file_list(PRM_ENC *pe);
 static bool check_file_is_aviutl_opened_file(const char *filepath, const PRM_ENC *pe);
@@ -254,6 +259,87 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
     }
 }
 
+static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
+    DWORD err = ERROR_SUCCESS;
+    if (is_64bit_os()) {
+        //64bit OSでは、32bitアプリに対してはVirtualStoreが働く一方、
+        //64bitアプリに対してはVirtualStoreが働かない
+        //x264を64bitで実行することを考慮すると、
+        //Aviutl(32bit)からチェックしても意味がないので、64bitプロセスからのチェックを行う
+
+        PROCESS_INFORMATION pi;
+        PIPE_SET pipes;
+        InitPipes(&pipes);
+
+        char exe_path[MAX_PATH_LEN] = { 0 };
+        PathCombine(exe_path, defaultExeDir, "auo_check_fileopen.exe");
+        if (PathFileExists(exe_path)) {
+            char fullargs[4096] = { 0 };
+            sprintf_s(fullargs, "\"%s\" \"%s\"", exe_path, temp_filename);
+
+            int ret = 0;
+            if ((ret = RunProcess(fullargs, defaultExeDir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
+                WaitForSingleObject(pi.hProcess, INFINITE);
+                GetExitCodeProcess(pi.hProcess, &err);
+                CloseHandle(pi.hProcess);
+            }
+            if (err == ERROR_SUCCESS) {
+                return TRUE;
+            }
+        }
+    } else {
+        auto handle = unique_handle(CreateFile(temp_filename, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
+            [](HANDLE h) { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); });
+        if (handle.get() != INVALID_HANDLE_VALUE) {
+            handle.reset();
+            DeleteFile(temp_filename);
+            return TRUE;
+        }
+        err = GetLastError();
+    }
+    if (err != ERROR_ALREADY_EXISTS) {
+        char *mesBuffer = nullptr;
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPSTR)&mesBuffer, 0, NULL);
+        write_log_auo_line_fmt(LOG_ERROR, "映像の出力ファイル \"%s\" を開くことができません。", temp_filename);
+        write_log_auo_line_fmt(LOG_ERROR, "  %s", mesBuffer);
+        if (strchr(temp_filename, '?') != nullptr) {
+            write_log_auo_line(LOG_ERROR, "このエラーは、出力ファイル名に環境依存文字を含む場合に発生することがあります。");
+            write_log_auo_line(LOG_ERROR, "  該当文字は、\"?\"で表示されていますので該当文字を避けたファイル名で出力しなおしてください。");
+        } else if (err == ERROR_ACCESS_DENIED) {
+            char systemdrive_dir[MAX_PATH_LEN] = { 0 };
+            char systemroot_dir[MAX_PATH_LEN] = { 0 };
+            char programdata_dir[MAX_PATH_LEN] = { 0 };
+            char programfiles_dir[MAX_PATH_LEN] = { 0 };
+            //char programfilesx86_dir[MAX_PATH_LEN];
+            ExpandEnvironmentStrings("%SystemDrive%", systemdrive_dir, _countof(systemdrive_dir));
+            ExpandEnvironmentStrings("%SystemRoot%", systemroot_dir, _countof(systemroot_dir));
+            ExpandEnvironmentStrings("%PROGRAMDATA%", programdata_dir, _countof(programdata_dir));
+            ExpandEnvironmentStrings("%PROGRAMFILES%", programfiles_dir, _countof(programfiles_dir));
+            //ExpandEnvironmentStrings("%PROGRAMFILES(X86)%", programfilesx86_dir, _countof(programfilesx86_dir));
+            write_log_auo_line(LOG_ERROR, "このエラーは、アクセス権のないフォルダ、あるいはWindowsにより保護されたフォルダに");
+            write_log_auo_line(LOG_ERROR, "出力しようとすると発生することがあります。");
+            write_log_auo_line(LOG_ERROR, "出力先のフォルダを変更して出力しなおしてください。");
+            write_log_auo_line(LOG_ERROR, "なお、下記はWindowsにより保護されたフォルダですので、ここへの出力は避けてください。");
+            write_log_auo_line_fmt(LOG_ERROR, "例: %s ドライブ直下", systemdrive_dir);
+            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", systemroot_dir);
+            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programdata_dir);
+            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programfiles_dir);
+            //write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programfilesx86_dir);
+            write_log_auo_line(LOG_ERROR, "    など");
+            write_log_auo_line(LOG_ERROR, "");
+        } else {
+            write_log_auo_line(LOG_ERROR, "出力先のフォルダ・ファイル名を変更して出力しなおしてください。");
+        }
+        if (mesBuffer != nullptr) {
+            LocalFree(mesBuffer);
+        }
+    }
+    return FALSE;
+}
+
 BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_settings *exstg) {
     BOOL check = TRUE;
     //ファイル名長さ
@@ -262,11 +348,21 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
         check = FALSE;
     }
 
-    char savedir[MAX_PATH_LEN];
+    char aviutl_dir[MAX_PATH_LEN] = { 0 };
+    get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
+
+    char defaultExeDir[MAX_PATH_LEN] = { 0 };
+    PathCombineLong(defaultExeDir, _countof(defaultExeDir), aviutl_dir, DEFAULT_EXE_DIR);
+
+    //ダメ文字・環境依存文字チェック
+    char savedir[MAX_PATH_LEN] = { 0 };
     strcpy_s(savedir, oip->savefile);
     PathRemoveFileSpecFixed(savedir);
     if (!PathIsDirectory(savedir)) {
         error_savdir_do_not_exist(oip->savefile, savedir);
+        check = FALSE;
+    //一時ファイルを開けるかどうか
+    } else if (!check_temp_file_open(pe->temp_filename, defaultExeDir)) {
         check = FALSE;
     }
 
@@ -305,12 +401,6 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
 
     if (conf->oth.out_audio_only)
         write_log_auo_line(LOG_INFO, "音声のみ出力を行います。");
-
-    char aviutl_dir[MAX_PATH_LEN];
-    get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
-
-    char defaultExeDir[MAX_PATH_LEN];
-    PathCombineLong(defaultExeDir, _countof(defaultExeDir), aviutl_dir, DEFAULT_EXE_DIR);
 
     const auto exeFiles = find_exe_files(defaultExeDir);
 
@@ -1460,9 +1550,6 @@ void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_
 
 
 #include <tlhelp32.h>
-#include <unordered_map>
-#include <memory>
-#include <functional>
 
 static bool check_parent(size_t check_pid, const size_t target_pid, const std::unordered_map<size_t, size_t>& map_pid) {
     for (size_t i = 0; i < map_pid.size(); i++) { // 最大でもmap_pid.size()を超えてチェックする必要はないはず
@@ -1474,8 +1561,6 @@ static bool check_parent(size_t check_pid, const size_t target_pid, const std::u
     }
     return false;
 };
-
-using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
 
 static std::vector<size_t> createChildProcessIDList(const size_t target_pid) {
     auto h = unique_handle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0), [](HANDLE h) { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); });
