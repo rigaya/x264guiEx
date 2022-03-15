@@ -407,7 +407,13 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                 info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
             }
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
-                error_unsupported_audio_format_by_muxer(pe->video_out_type, aud_stg);
+                AUDIO_SETTINGS *aud_default = nullptr;
+                if (default_audenc_cnf_avail) {
+                    aud_default = &exstg->s_aud[exstg->s_local.default_audio_encoder];
+                } else if (default_audenc_auo_avail) {
+                    aud_default = &exstg->s_aud[DEFAULT_AUDIO_ENCODER];
+                }
+                error_unsupported_audio_format_by_muxer(pe->video_out_type, aud_stg->dispname, (aud_default) ? aud_default->dispname : nullptr);
                 check = FALSE;
             }
         } else {
