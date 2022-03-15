@@ -275,6 +275,13 @@ void error_x264_dead() {
     write_log_auo_line(LOG_ERROR, "x264が予期せず途中終了しました。x264に不正なパラメータ(オプション)が渡された可能性があります。");
 }
 
+void error_x264_dead_and_nodiskspace(const char *drive, uint64_t diskspace) {
+    write_log_auo_line(    LOG_ERROR, "x264が予期せず途中終了しました。");
+    write_log_auo_line_fmt(LOG_ERROR, "%sドライブの空き容量が残り %.2f MBしかありません。",   drive, (double)diskspace / (1024 * 1024));
+    write_log_auo_line_fmt(LOG_ERROR, "%sドライブの空き容量不足で失敗した可能性があります。", drive);
+    write_log_auo_line_fmt(LOG_ERROR, "%sドライブの空きをつくり、再度実行しなおしてください。", drive);
+}
+
 void error_x264_version(const char *required_ver, const char *current_ver) {
     write_log_line_fmt(LOG_ERROR, ""
         "auo [error]: x264のバージョンが古く、エンコードできません。\n"

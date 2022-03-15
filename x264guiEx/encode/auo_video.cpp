@@ -709,6 +709,29 @@ static void video_output_close_thread(video_output_thread_t *thread_data, AUO_RE
     memset(thread_data, 0, sizeof(thread_data[0]));
 }
 
+static void error_x264_failed(const PRM_ENC *pe) {
+    ULARGE_INTEGER temp_drive_avail_space = { 0 };
+    const uint64_t disk_warn_threshold = 4 * 1024 * 1024; //4MB
+    //指定されたドライブが存在するかどうか
+    char temp_root[MAX_PATH_LEN];
+    if (PathGetRoot(pe->temp_filename, temp_root, _countof(temp_root))
+        && PathIsDirectory(temp_root)
+        && GetDiskFreeSpaceEx(temp_root, &temp_drive_avail_space, NULL, NULL)
+        && temp_drive_avail_space.QuadPart <= disk_warn_threshold) {
+        char driveLetter[MAX_PATH_LEN];
+        strcpy_s(driveLetter, temp_root);
+        if (strlen(driveLetter) > 1 && driveLetter[strlen(driveLetter) - 1] == '\\') {
+            driveLetter[strlen(driveLetter) - 1] = '\0';
+        }
+        if (strlen(driveLetter) > 1 && driveLetter[strlen(driveLetter) - 1] == ':') {
+            driveLetter[strlen(driveLetter) - 1] = '\0';
+        }
+        error_x264_dead_and_nodiskspace(driveLetter, temp_drive_avail_space.QuadPart);
+    } else {
+        error_x264_dead();
+    }
+}
+
 static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     PIPE_SET pipes = { 0 };
@@ -815,7 +838,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
             //x264が実行中なら、メッセージを取得・ログウィンドウに表示
             if (ReadLogEnc(&pipes, pe->drop_count, i) < 0) {
                 //勝手に死んだ...
-                ret |= AUO_RESULT_ERROR; error_x264_dead();
+                ret |= AUO_RESULT_ERROR; error_x264_failed(pe);
                 break;
             }
 
