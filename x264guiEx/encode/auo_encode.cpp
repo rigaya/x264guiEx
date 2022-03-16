@@ -253,6 +253,7 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
         return aud_stg->unsupported_mp4 == 0;
     case MUXER_MKV:
     case MUXER_MPG:
+    case MUXER_DISABLED:
         return TRUE;
     default:
         return FALSE;
