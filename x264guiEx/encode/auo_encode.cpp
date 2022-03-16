@@ -272,15 +272,21 @@ BOOL check_if_exedit_is_used() {
 static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
     DWORD err = ERROR_SUCCESS;
 
+    const char *AUO_CHECK_FILEOPEN_NAME = "auo_check_fileopen.exe";
     char exe_path[MAX_PATH_LEN] = { 0 };
-    PathCombine(exe_path, defaultExeDir, "auo_check_fileopen.exe");
+    PathCombine(exe_path, defaultExeDir, AUO_CHECK_FILEOPEN_NAME);
+
+    if (is_64bit_os() && !PathFileExists(exe_path)) {
+        write_log_auo_line_fmt(LOG_WARNING, "映像の出力ファイルチェック用のサブプロセス %s が %s 以下に存在しません。",
+            AUO_CHECK_FILEOPEN_NAME, DEFAULT_EXE_DIR);
+        write_log_auo_line_fmt(LOG_WARNING, "同梱の %s フォルダをAviutlフォルダ内にすべてコピーできているか、再確認してください。", DEFAULT_EXE_DIR);
+    }
 
     if (is_64bit_os() && PathFileExists(exe_path)) {
         //64bit OSでは、32bitアプリに対してはVirtualStoreが働く一方、
         //64bitアプリに対してはVirtualStoreが働かない
         //x264を64bitで実行することを考慮すると、
         //Aviutl(32bit)からチェックしても意味がないので、64bitプロセスからのチェックを行う
-
         PROCESS_INFORMATION pi;
         PIPE_SET pipes;
         InitPipes(&pipes);
