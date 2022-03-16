@@ -261,7 +261,11 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
 
 static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
     DWORD err = ERROR_SUCCESS;
-    if (is_64bit_os()) {
+
+    char exe_path[MAX_PATH_LEN] = { 0 };
+    PathCombine(exe_path, defaultExeDir, "auo_check_fileopen.exe");
+
+    if (is_64bit_os() && PathFileExists(exe_path)) {
         //64bit OSでは、32bitアプリに対してはVirtualStoreが働く一方、
         //64bitアプリに対してはVirtualStoreが働かない
         //x264を64bitで実行することを考慮すると、
@@ -271,21 +275,17 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
         PIPE_SET pipes;
         InitPipes(&pipes);
 
-        char exe_path[MAX_PATH_LEN] = { 0 };
-        PathCombine(exe_path, defaultExeDir, "auo_check_fileopen.exe");
-        if (PathFileExists(exe_path)) {
-            char fullargs[4096] = { 0 };
-            sprintf_s(fullargs, "\"%s\" \"%s\"", exe_path, temp_filename);
+        char fullargs[4096] = { 0 };
+        sprintf_s(fullargs, "\"%s\" \"%s\"", exe_path, temp_filename);
 
-            int ret = 0;
-            if ((ret = RunProcess(fullargs, defaultExeDir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
-                WaitForSingleObject(pi.hProcess, INFINITE);
-                GetExitCodeProcess(pi.hProcess, &err);
-                CloseHandle(pi.hProcess);
-            }
-            if (err == ERROR_SUCCESS) {
-                return TRUE;
-            }
+        int ret = 0;
+        if ((ret = RunProcess(fullargs, defaultExeDir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
+            WaitForSingleObject(pi.hProcess, INFINITE);
+            GetExitCodeProcess(pi.hProcess, &err);
+            CloseHandle(pi.hProcess);
+        }
+        if (err == ERROR_SUCCESS) {
+            return TRUE;
         }
     } else {
         auto handle = unique_handle(CreateFile(temp_filename, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
