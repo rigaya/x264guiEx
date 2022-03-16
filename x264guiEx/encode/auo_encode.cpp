@@ -260,6 +260,15 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
     }
 }
 
+BOOL check_if_exedit_is_used() {
+    char name[256];
+    wsprintf(name, "exedit_%d_%d", '01', GetCurrentProcessId());
+    auto handle = unique_handle(OpenFileMapping(FILE_MAP_WRITE, FALSE, name),
+        [](HANDLE h) { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); });
+
+    return handle != nullptr;
+}
+
 static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
     DWORD err = ERROR_SUCCESS;
 
@@ -407,8 +416,8 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
 
     //必要な実行ファイル
     //x264
-    if (!conf->oth.disable_guicmd) {
-        if (pe->video_out_type != VIDEO_OUTPUT_DISABLED && !PathFileExists(exstg->s_x264.fullpath)) {
+    if (!conf->oth.disable_guicmd && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
+        if (!PathFileExists(exstg->s_x264.fullpath)) {
             const auto targetExes = find_target_exe_files("x264", exeFiles);
             if (targetExes.size() > 0) {
                 const auto latestX264 = find_latest_x264(targetExes);
