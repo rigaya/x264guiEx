@@ -272,14 +272,11 @@ BOOL check_if_exedit_is_used() {
 static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
     DWORD err = ERROR_SUCCESS;
 
-    const char *AUO_CHECK_FILEOPEN_NAME = "auo_check_fileopen.exe";
     char exe_path[MAX_PATH_LEN] = { 0 };
     PathCombine(exe_path, defaultExeDir, AUO_CHECK_FILEOPEN_NAME);
 
     if (is_64bit_os() && !PathFileExists(exe_path)) {
-        write_log_auo_line_fmt(LOG_WARNING, "映像の出力ファイルチェック用のサブプロセス %s が %s 以下に存在しません。",
-            AUO_CHECK_FILEOPEN_NAME, DEFAULT_EXE_DIR);
-        write_log_auo_line_fmt(LOG_WARNING, "同梱の %s フォルダをAviutlフォルダ内にすべてコピーできているか、再確認してください。", DEFAULT_EXE_DIR);
+        warning_no_auo_check_fileopen();
     }
 
     if (is_64bit_os() && PathFileExists(exe_path)) {
@@ -319,36 +316,7 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPSTR)&mesBuffer, 0, NULL);
-        write_log_auo_line_fmt(LOG_ERROR, "映像の出力ファイル \"%s\" を開くことができません。", temp_filename);
-        write_log_auo_line_fmt(LOG_ERROR, "  %s", mesBuffer);
-        if (strchr(temp_filename, '?') != nullptr) {
-            write_log_auo_line(LOG_ERROR, "このエラーは、出力ファイル名に環境依存文字を含む場合に発生することがあります。");
-            write_log_auo_line(LOG_ERROR, "  該当文字は、\"?\"で表示されていますので該当文字を避けたファイル名で出力しなおしてください。");
-        } else if (err == ERROR_ACCESS_DENIED) {
-            char systemdrive_dir[MAX_PATH_LEN] = { 0 };
-            char systemroot_dir[MAX_PATH_LEN] = { 0 };
-            char programdata_dir[MAX_PATH_LEN] = { 0 };
-            char programfiles_dir[MAX_PATH_LEN] = { 0 };
-            //char programfilesx86_dir[MAX_PATH_LEN];
-            ExpandEnvironmentStrings("%SystemDrive%", systemdrive_dir, _countof(systemdrive_dir));
-            ExpandEnvironmentStrings("%SystemRoot%", systemroot_dir, _countof(systemroot_dir));
-            ExpandEnvironmentStrings("%PROGRAMDATA%", programdata_dir, _countof(programdata_dir));
-            ExpandEnvironmentStrings("%PROGRAMFILES%", programfiles_dir, _countof(programfiles_dir));
-            //ExpandEnvironmentStrings("%PROGRAMFILES(X86)%", programfilesx86_dir, _countof(programfilesx86_dir));
-            write_log_auo_line(LOG_ERROR, "このエラーは、アクセス権のないフォルダ、あるいはWindowsにより保護されたフォルダに");
-            write_log_auo_line(LOG_ERROR, "出力しようとすると発生することがあります。");
-            write_log_auo_line(LOG_ERROR, "出力先のフォルダを変更して出力しなおしてください。");
-            write_log_auo_line(LOG_ERROR, "なお、下記はWindowsにより保護されたフォルダですので、ここへの出力は避けてください。");
-            write_log_auo_line_fmt(LOG_ERROR, "例: %s ドライブ直下", systemdrive_dir);
-            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", systemroot_dir);
-            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programdata_dir);
-            write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programfiles_dir);
-            //write_log_auo_line_fmt(LOG_ERROR, "    %s 以下", programfilesx86_dir);
-            write_log_auo_line(LOG_ERROR, "    など");
-            write_log_auo_line(LOG_ERROR, "");
-        } else {
-            write_log_auo_line(LOG_ERROR, "出力先のフォルダ・ファイル名を変更して出力しなおしてください。");
-        }
+        error_failed_to_open_tempfile(temp_filename, mesBuffer, err);
         if (mesBuffer != nullptr) {
             LocalFree(mesBuffer);
         }
