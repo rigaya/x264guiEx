@@ -38,6 +38,7 @@ void error_filename_too_long();
 void error_savdir_do_not_exist(const char *savname, const char *savdir);
 void error_file_is_already_opened_by_aviutl();
 void error_nothing_to_output();
+void error_output_zero_frames();
 void error_amp_bitrate_confliction();
 void warning_amp_bitrate_confliction(int lower, int upper);
 void error_amp_afs_audio_delay_confliction();
