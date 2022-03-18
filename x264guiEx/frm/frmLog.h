@@ -709,8 +709,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 sw->WriteLine(L"-------------------------------------------------------------------------------------");
                 sw->WriteLine();
                 sw->Close();
-            } catch (Exception^ e) {
-                WriteLogAuoLine(L"ログの保存に失敗しました。", LOG_WARNING);
+            } catch (IOException^ ex) {
+                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
+                WriteLogAuoLine(ex->Message, LOG_WARNING);
+            } catch (UnauthorizedAccessException^ ex) {
+                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
+                WriteLogAuoLine(ex->Message, LOG_WARNING);
+            } catch (...) {
+                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
             }
         }
     public:
