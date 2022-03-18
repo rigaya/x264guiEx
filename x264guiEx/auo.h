@@ -38,6 +38,8 @@ const int   MAX_CMD_LEN           = 8192; //コマンドラインの最大長は
 const DWORD AUDIO_BUFFER_DEFAULT  = 48000;
 const DWORD AUDIO_BUFFER_MAX      = AUDIO_BUFFER_DEFAULT * 30;
 
+static const char *ENCODER_NAME   = "x264";
+
 enum {
     VIDEO_OUTPUT_DISABLED = -2,
     VIDEO_OUTPUT_RAW      = -1,

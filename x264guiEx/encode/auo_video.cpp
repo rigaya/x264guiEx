@@ -433,7 +433,7 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
             char current_ver[128] = { 0 };
             sprintf_s(required_ver, _countof(required_ver), "Core:%4d, Rev: %4d", REQUIRED_X264_CORE, REQUIRED_X264_REV);
             sprintf_s(current_ver,  _countof(current_ver),  "Core:%4d, Rev: %4d", b, c);
-            error_x264_version(required_ver, current_ver);
+            error_videnc_version(required_ver, current_ver);
         }
     }
     return ret;
@@ -709,7 +709,7 @@ static void video_output_close_thread(video_output_thread_t *thread_data, AUO_RE
     memset(thread_data, 0, sizeof(thread_data[0]));
 }
 
-static void error_x264_failed(const PRM_ENC *pe) {
+static void error_videnc_failed(const PRM_ENC *pe) {
     ULARGE_INTEGER temp_drive_avail_space = { 0 };
     const uint64_t disk_warn_threshold = 4 * 1024 * 1024; //4MB
     //指定されたドライブが存在するかどうか
@@ -726,9 +726,9 @@ static void error_x264_failed(const PRM_ENC *pe) {
         if (strlen(driveLetter) > 1 && driveLetter[strlen(driveLetter) - 1] == ':') {
             driveLetter[strlen(driveLetter) - 1] = '\0';
         }
-        error_x264_dead_and_nodiskspace(driveLetter, temp_drive_avail_space.QuadPart);
+        error_videnc_dead_and_nodiskspace(driveLetter, temp_drive_avail_space.QuadPart);
     } else {
-        error_x264_dead();
+        error_videnc_dead();
     }
 }
 
@@ -838,7 +838,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
             //x264が実行中なら、メッセージを取得・ログウィンドウに表示
             if (ReadLogEnc(&pipes, pe->drop_count, i) < 0) {
                 //勝手に死んだ...
-                ret |= AUO_RESULT_ERROR; error_x264_failed(pe);
+                ret |= AUO_RESULT_ERROR; error_videnc_failed(pe);
                 break;
             }
 
