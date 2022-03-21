@@ -324,6 +324,17 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
     return FALSE;
 }
 
+BOOL audio_encoder_exe_exists(const CONF_GUIEX *conf, const guiEx_settings *exstg) {
+    AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
+    if (!str_has_char(aud_stg->filename)) {
+        return TRUE;
+    }
+    if (conf->aud.encoder == exstg->s_aud_faw_index && check_if_faw2aac_exists()) {
+        return TRUE;
+    }
+    return PathFileExists(aud_stg->fullpath);
+}
+
 BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_settings *exstg) {
     BOOL check = TRUE;
     //ファイル名長さ
@@ -430,7 +441,7 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
         }
         if (0 <= conf->aud.encoder && conf->aud.encoder < exstg->s_aud_count) {
             AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
-            if (str_has_char(aud_stg->filename) && !PathFileExists(aud_stg->fullpath)) {
+            if (!audio_encoder_exe_exists(conf, exstg)) {
                 //とりあえず、exe_filesを探す
                 {
                     const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
@@ -481,7 +492,7 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
                     }
                 }
             }
-            if (str_has_char(aud_stg->filename)) {
+            if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index || !check_if_faw2aac_exists())) {
                 info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
             }
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
