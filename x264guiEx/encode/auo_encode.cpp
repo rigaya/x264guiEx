@@ -335,7 +335,7 @@ BOOL audio_encoder_exe_exists(const CONF_GUIEX *conf, const guiEx_settings *exst
     return PathFileExists(aud_stg->fullpath);
 }
 
-BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_settings *exstg) {
+BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_settings *exstg) {
     BOOL check = TRUE;
     //ファイル名長さ
     if (strlen(oip->savefile) > (MAX_PATH_LEN - MAX_APPENDIX_LEN - 1)) {
@@ -426,6 +426,9 @@ BOOL check_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, g
 
     //音声エンコーダ
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+        //音声長さチェック
+        check_audio_length(oip);
+
         const bool default_audenc_cnf_avail = (exstg->s_local.default_audio_encoder < exstg->s_aud_count
             && str_has_char(exstg->s_aud[exstg->s_local.default_audio_encoder].filename));
         const bool default_audenc_auo_avail = (DEFAULT_AUDIO_ENCODER < exstg->s_aud_count

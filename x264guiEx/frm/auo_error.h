@@ -65,6 +65,7 @@ void error_video_output_thread_start();
 void warning_auto_qpfile_failed();
 void warning_auo_tcfile_failed();
 void error_open_wavfile();
+void info_audio_length_changed(const double video_length, const double audio_length, const BOOL exedit_is_used);
 void warning_audio_length(const double video_length, const double audio_length, const BOOL exedit_is_used);
 
 void error_malloc_pixel_data();
