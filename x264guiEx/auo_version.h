@@ -28,8 +28,8 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION          0,3,3,0
-#define AUO_VERSION_STR      "3.03"
+#define AUO_VERSION          0,3,4,0
+#define AUO_VERSION_STR      "3.04"
 #define AUO_NAME_WITHOUT_EXT "x264guiEx"
 #define AUO_NAME             "x264guiEx.auo"
 #define AUO_NAME_W          L"x264guiEx.auo"

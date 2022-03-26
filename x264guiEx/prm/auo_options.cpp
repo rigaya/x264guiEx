@@ -724,14 +724,20 @@ static int write_deblock(char *cmd, size_t nSize, const X264_OPTIONS *options, c
     return 0;
 }
 static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
-    if (cx->cqm < 2)
+    if (cx->cqm < 2) {
         return write_list(cmd, nSize, options, cx, def, vid, write_all);
-    else
-        return sprintf_s(cmd, nSize, " --cqmfile \"%s\"", vid->cqmfile);
+    } else {
+        char aviutl_dir[MAX_PATH_LEN] = { 0 };
+        get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
+        return sprintf_s(cmd, nSize, " --cqmfile \"%s\"", GetFullPathFrom(vid->cqmfile, aviutl_dir).c_str());
+    }
 }
 static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
-    if (cx->use_tcfilein)
-        return sprintf_s(cmd, nSize, " --tcfile-in \"%s\"", vid->tcfile_in);
+    if (cx->use_tcfilein) {
+        char aviutl_dir[MAX_PATH_LEN] = { 0 };
+        get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
+        return sprintf_s(cmd, nSize, " --tcfile-in \"%s\"", GetFullPathFrom(vid->tcfile_in, aviutl_dir).c_str());
+    }
     return 0;
 }
 static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
