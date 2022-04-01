@@ -1,5 +1,5 @@
 
-# 拡張 x264 出力(GUI) Ex  1.xx / 2.xx / 3.xx
+# 拡張 x264 出力(GUI) Ex  
 by rigaya
 
 拡張 x264 出力(GUI) Ex (x264guiEx) は、x264を使用してエンコードを行うAviutlの出力プラグインです。
@@ -7,7 +7,7 @@ by rigaya
 seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロセスとして実行できるようにしたものです。
 
 ## ダウンロード & 更新履歴
-[rigayaの日記兼メモ帳＞＞](http://rigaya34589.blog135.fc2.com/blog-category-5.html)
+[こちら＞＞](https://github.com/rigaya/x264guiEx/releases)
 
 ## 想定動作環境
 Windows 8.1/10/11 (x86/x64)  
@@ -23,6 +23,7 @@ WindowsXPでは動作しません。
 ## x264guiExの使用方法
 - [x264guiEx 3.xx 導入・更新＞＞](#x264guiEx-の-Aviutl-への導入・更新)
 - [x264guiEx 3.xx 削除＞＞](#x264guiEx-の-Aviutl-からの削除)
+- [x264guiExでよく発生するエラーと対処方法](./x264guiEx_errors.md)
 - [x264guiExのプロファイルについてのいろいろ＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-256.html)
 - [x264guiEx ログウィンドウについてる機能＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-290.html)
 - [MediaInfoによるx264のオプション表示の取り込み方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-266.html)
@@ -104,6 +105,8 @@ x264guiEx 3.xxが表示されていれば成功です。
 
 エンコードが完了するまで待ちます。お疲れ様でした。
 
+## エラーが起こったら
+x264guiExでよく発生するエラーと対処方法を[こちら](./x264guiEx_errors.md)にまとめましたので、エラーメッセージを参考に対処方法をご確認ください。
 
 ## 利用するx264について
 x264.exeは基本的に同梱のもので問題ありませんが、使用するx264.exeを差し替えることが可能です。ただし、x264 r1673 (2010年 7月頃)以降が必須です。
