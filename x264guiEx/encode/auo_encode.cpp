@@ -269,14 +269,22 @@ BOOL check_if_exedit_is_used() {
     return handle != nullptr;
 }
 
-static BOOL check_temp_file_open(const char *temp_filename, const char *defaultExeDir) {
+static BOOL check_temp_file_open(const char *target, const char *defaultExeDir, const bool check_dir, const bool auo_check_fileopen_warning) {
     DWORD err = ERROR_SUCCESS;
 
     char exe_path[MAX_PATH_LEN] = { 0 };
     PathCombine(exe_path, defaultExeDir, AUO_CHECK_FILEOPEN_NAME);
 
-    if (is_64bit_os() && !PathFileExists(exe_path)) {
+    if (is_64bit_os() && !PathFileExists(exe_path) && auo_check_fileopen_warning) {
         warning_no_auo_check_fileopen();
+    }
+
+    char test_filename[MAX_PATH_LEN];
+    if (check_dir) {
+        PathCombineLong(test_filename, _countof(test_filename), target, "auo_test_tempfile.tmp");
+        avoid_exsisting_tmp_file(test_filename, _countof(test_filename));
+    } else {
+        strcpy_s(test_filename, target);
     }
 
     if (is_64bit_os() && PathFileExists(exe_path)) {
@@ -289,7 +297,7 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
         InitPipes(&pipes);
 
         char fullargs[4096] = { 0 };
-        sprintf_s(fullargs, "\"%s\" \"%s\"", exe_path, temp_filename);
+        sprintf_s(fullargs, "\"%s\" \"%s\"", exe_path, test_filename);
 
         int ret = 0;
         if ((ret = RunProcess(fullargs, defaultExeDir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
@@ -301,11 +309,11 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
             return TRUE;
         }
     } else {
-        auto handle = unique_handle(CreateFile(temp_filename, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
+        auto handle = unique_handle(CreateFile(test_filename, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
             [](HANDLE h) { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); });
         if (handle.get() != INVALID_HANDLE_VALUE) {
             handle.reset();
-            DeleteFile(temp_filename);
+            DeleteFile(test_filename);
             return TRUE;
         }
         err = GetLastError();
@@ -316,7 +324,11 @@ static BOOL check_temp_file_open(const char *temp_filename, const char *defaultE
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPSTR)&mesBuffer, 0, NULL);
-        error_failed_to_open_tempfile(temp_filename, mesBuffer, err);
+        if (check_dir) {
+            error_failed_to_open_tempdir(target, mesBuffer, err);
+        } else {
+            error_failed_to_open_tempfile(target, mesBuffer, err);
+        }
         if (mesBuffer != nullptr) {
             LocalFree(mesBuffer);
         }
@@ -356,8 +368,11 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     if (!PathIsDirectory(savedir)) {
         error_savdir_do_not_exist(oip->savefile, savedir);
         check = FALSE;
+    //出力フォルダにファイルを開けるかどうか
+    } else if (!check_temp_file_open(savedir, defaultExeDir, true, true)) {
+        check = FALSE;
     //一時ファイルを開けるかどうか
-    } else if (!check_temp_file_open(pe->temp_filename, defaultExeDir)) {
+    } else if (!check_temp_file_open(pe->temp_filename, defaultExeDir, false, false)) {
         check = FALSE;
     }
 
@@ -583,7 +598,17 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
         if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_tmp_dir)) {
             strcpy_s(pe->temp_filename, GetFullPathFrom(sys_dat->exstg->s_local.custom_tmp_dir, sys_dat->aviutl_dir).c_str());
             PathRemoveBackslash(pe->temp_filename);
-            write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
+            
+            //指定された一時フォルダにファイルを作成できるか確認する
+            char defaultExeDir[MAX_PATH_LEN] = { 0 };
+            PathCombineLong(defaultExeDir, _countof(defaultExeDir), sys_dat->aviutl_dir, DEFAULT_EXE_DIR);
+
+            if (check_temp_file_open(pe->temp_filename, defaultExeDir, true, false)) {
+                write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
+            } else {
+                warning_unable_to_open_tempfile(sys_dat->exstg->s_local.custom_tmp_dir);
+                tmp_dir_index = TMP_DIR_OUTPUT;
+            }
         } else {
             warning_no_temp_root(sys_dat->exstg->s_local.custom_tmp_dir);
             tmp_dir_index = TMP_DIR_OUTPUT;
