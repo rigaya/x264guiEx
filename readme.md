@@ -164,6 +164,7 @@ x264guiEx の Aviutl から削除するには、"plugins" フォルダ内の下�
 
 - [フォルダ] x264guiEx_stg
 - [ファイル] x264guiEx.auo
+- [ファイル] x264guiEx.conf (存在する場合のみ)
 - [ファイル] x264guiEx(.ini)
 - [ファイル] auo_setup.auf
 
