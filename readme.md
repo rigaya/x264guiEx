@@ -23,13 +23,12 @@ WindowsXPでは動作しません。
 ## x264guiExの使用方法
 - [x264guiEx 3.xx 導入・更新＞＞](#x264guiEx-の-Aviutl-への導入・更新)
 - [x264guiEx 3.xx 削除＞＞](#x264guiEx-の-Aviutl-からの削除)
-- [x264guiExでよく発生するエラーと対処方法](./x264guiEx_errors.md)
+- [x264guiExでよく発生するエラーと対処方法＞＞](./x264guiEx_errors.md)
 - [x264guiExのプロファイルについてのいろいろ＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-256.html)
 - [x264guiEx ログウィンドウについてる機能＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-290.html)
 - [MediaInfoによるx264のオプション表示の取り込み方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-266.html)
 - [x264guiExの上限設定＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-329.html)
 - [x264guiExでBluray用出力＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-333.html)
-- [x264guiExのアップデート方法＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-341.html)
 - [x264guiExのその他の設定＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-343.html)
 
 ## x264guiEx の Aviutl への導入・更新
