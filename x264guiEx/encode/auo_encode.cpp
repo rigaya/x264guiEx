@@ -60,6 +60,23 @@ using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::fu
 static void create_aviutl_opened_file_list(PRM_ENC *pe);
 static bool check_file_is_aviutl_opened_file(const char *filepath, const PRM_ENC *pe);
 
+static void avoid_exsisting_tmp_file(char *buf, size_t size) {
+    if (!PathFileExists(buf)) {
+        return;
+    }
+    char tmp[MAX_PATH_LEN];
+    for (int i = 0; i < 1000000; i++) {
+        char new_ext[32];
+        sprintf_s(new_ext, ".%d%s", i, PathFindExtension(buf));
+        strcpy_s(tmp, buf);
+        change_ext(tmp, size, new_ext);
+        if (!PathFileExists(tmp)) {
+            strcpy_s(buf, size, tmp);
+            return;
+        }
+    }
+}
+
 #pragma warning (push)
 #pragma warning (disable: 4244)
 #pragma warning (disable: 4996)
@@ -652,23 +669,6 @@ int get_total_path(const CONF_GUIEX *conf) {
          && conf->x264.rc_mode == X264_RC_BITRATE
          && !conf->oth.disable_guicmd)
          ? conf->x264.auto_npass : 1;
-}
-
-void avoid_exsisting_tmp_file(char *buf, size_t size) {
-    if (!PathFileExists(buf)) {
-        return;
-    }
-    char tmp[MAX_PATH_LEN];
-    for (int i = 0; i < 1000000; i++) {
-        char new_ext[32];
-        sprintf_s(new_ext, ".%d%s", i, PathFindExtension(buf));
-        strcpy_s(tmp, buf);
-        change_ext(tmp, size, new_ext);
-        if (!PathFileExists(tmp)) {
-            strcpy_s(buf, size, tmp);
-            return;
-        }
-    }
 }
 
 void free_enc_prm(PRM_ENC *pe) {
