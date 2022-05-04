@@ -33,6 +33,9 @@ WindowsXPでは動作しません。
 
 ## x264guiEx の Aviutl への導入・更新
 
+動画版は下記画像をクリック。  
+[![](https://img.youtube.com/vi/pTfFv_V2Isc/0.jpg)](https://www.youtube.com/watch?v=pTfFv_V2Isc)
+
 ### ダウンロード
 
 まず、x264guiExを[こちら](https://github.com/rigaya/x264guiEx/releases)からダウンロードします。
