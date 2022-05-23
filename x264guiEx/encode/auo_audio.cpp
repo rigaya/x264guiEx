@@ -46,6 +46,7 @@
 #include "fawcheck.h"
 #include "auo_faw2aac.h"
 #include "auo_runbat.h"
+#include "auo_mes.h"
 
 #include "auo_audio_parallel.h"
 #include "auo_encode.h"
@@ -74,7 +75,7 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
     if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
         return;
     if (ex_stg->s_aud_faw_index == FAW_INDEX_ERROR) {
-        write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s.iniからのFAWの情報取得に失敗したため、判定を中止しました。", AUO_NAME_WITHOUT_EXT);
+        write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_FAW_INDEX_ERR));
         return;
     }
     int n = 0;
@@ -94,11 +95,11 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
             write_log_auo_line_fmt(LOG_INFO, "FAWCheck : FAW, %s", FAW_TYPE_NAME[ret]);
             break;
         case FAWCHECK_ERROR_TOO_SHORT:
-            write_log_auo_line(LOG_WARNING, "FAWCheck : 音声が短すぎ、判定できません。");
+            write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_TOO_SHORT));
             break;
         case FAWCHECK_ERROR_OTHER:
         default:
-            write_log_auo_line(LOG_WARNING, "FAWCheck : エラーが発生し、判定できません。");
+            write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_OTHER));
             break;
     }
 }
@@ -230,21 +231,21 @@ static void build_audcmd(aud_data_t *aud_dat, const CONF_GUIEX *conf, const AUDI
 static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_mode) {
     char mes[1024];
     if (use_pipe)
-        sprintf_s(mes, _countof(mes), "%s でエンコード中...", enc_name);
+        sprintf_s(mes, _countof(mes), "%s %s", enc_name, g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_ENCODE));
     else
-        strcpy_s(mes, _countof(mes), "wav出力中...");
+        strcpy_s(mes, _countof(mes), g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_WAV_OUT));
     set_window_title(mes, progress_mode);
 }
 
 static void show_audio_delay_cut_info(int delay_cut, const PRM_ENC *pe) {
     if (AUDIO_DELAY_CUT_EDTS == delay_cut) {
-        write_log_auo_line_fmt(LOG_INFO, "音声エンコードディレイカット - %s", AUDIO_DELAY_CUT_MODE[AUDIO_DELAY_CUT_EDTS]);
+        write_log_auo_line_fmt(LOG_INFO, "%s - %s", g_auo_mes.get(AUO_AUDIO_DELAY_CUT), AUDIO_DELAY_CUT_MODE[AUDIO_DELAY_CUT_EDTS]);
     } else if (0 != pe->delay_cut_additional_aframe || 0 != pe->delay_cut_additional_vframe) {
         char message[1024] = { 0 };
         int mes_len = 0;
-        mes_len += sprintf_s(message, _countof(message), "音声エンコードディレイカット - ");
+        mes_len += sprintf_s(message, _countof(message), "%s - ", g_auo_mes.get(AUO_AUDIO_DELAY_CUT));
         if (pe->delay_cut_additional_vframe) {
-            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "映像: %s%dframe%s",
+            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "%s%dframe%s",
                 (0  < pe->delay_cut_additional_vframe) ? "+" : "",
                 pe->delay_cut_additional_vframe,
                 (1 < abs(pe->delay_cut_additional_vframe)) ? "s" : "");
@@ -253,7 +254,7 @@ static void show_audio_delay_cut_info(int delay_cut, const PRM_ENC *pe) {
             mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, ", ");
         }
         if (pe->delay_cut_additional_aframe) {
-            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "音声: %s%dsample%s",
+            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "%s%dsample%s",
                 (0  < pe->delay_cut_additional_aframe) ? "+" : "",
                 pe->delay_cut_additional_aframe,
                 (1 < abs(pe->delay_cut_additional_aframe)) ? "s" : "");
@@ -273,7 +274,7 @@ static void show_audio_enc_info(const AUDIO_SETTINGS *aud_stg, const CONF_AUDIO 
     if (aud_stg->mode[cnf_aud->enc_mode].bitrate)
         sprintf_s(bitrate, _countof(bitrate), ", %dkbps", cnf_aud->bitrate);
     char *use2pass = (cnf_aud->use_2pass) ? ", 2pass" : "";
-    write_log_auo_line_fmt(LOG_INFO, "%s%s で音声エンコードを行います。%s%s%s", aud_stg->dispname, ver_str.c_str(), aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
+    write_log_auo_line_fmt(LOG_INFO, "%s%s %s%s%s%s", aud_stg->dispname, ver_str.c_str(), g_auo_mes.get(AUO_AUDIO_START_ENCODE), aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
     show_audio_delay_cut_info(cnf_aud->delay_cut, pe);
     write_log_auo_line(LOG_MORE, aud_dat->args);
 }
@@ -492,7 +493,7 @@ static AUO_RESULT audio_finish_enc(AUO_RESULT ret, aud_data_t *aud_dat, const AU
             write_cached_lines(LOG_MORE, aud_stg->dispname, &aud_dat->log_line_cache);
         }
     }
-    write_log_auo_line_fmt(LOG_MORE, "%s CPU使用率: %.2f%%", aud_stg->dispname, GetProcessAvgCPUUsage(aud_dat->pi_aud.hProcess));
+    write_log_auo_line_fmt(LOG_MORE, "%s %s: %.2f%%", aud_stg->dispname, g_auo_mes.get(AUO_AUDIO_CPU_USAGE), GetProcessAvgCPUUsage(aud_dat->pi_aud.hProcess));
 
     CloseHandle(aud_dat->pi_aud.hProcess);
     CloseHandle(aud_dat->pi_aud.hThread);

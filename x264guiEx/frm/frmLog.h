@@ -36,6 +36,7 @@
 #include "auo_version.h"
 #include "auo_settings.h"
 #include "auo_win7_taskbar.h"
+#include "auo_mes.h"
 
 
 //以下部分的にwarning C4100を黙らせる
@@ -478,6 +479,29 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 
         }
 #pragma endregion
+    private:
+        System::Void LoadLangText() {
+            LOAD_CLI_TEXT(richTextLog);
+            LOAD_CLI_TEXT(toolStripMenuItemFileOpen);
+            LOAD_CLI_TEXT(toolStripMenuItemFilePathOpen);
+            LOAD_CLI_TEXT(ToolStripMenuItemx264Priority);
+            LOAD_CLI_TEXT(ToolStripMenuItemEncPause);
+            LOAD_CLI_TEXT(ToolStripMenuItemTransparent);
+            LOAD_CLI_TEXT(toolStripMenuItemTransparentValue);
+            LOAD_CLI_TEXT(toolStripMenuItemSetLogColor);
+            LOAD_CLI_TEXT(ToolStripMenuItemStartMinimized);
+            LOAD_CLI_TEXT(toolStripMenuItemSaveLogSize);
+            LOAD_CLI_TEXT(toolStripMenuItemAutoSave);
+            LOAD_CLI_TEXT(toolStripMenuItemAutoSaveSettings);
+            LOAD_CLI_TEXT(toolStripMenuItemShowStatus);
+            LOAD_CLI_TEXT(toolStripMenuItemTaskBarProgress);
+            LOAD_CLI_TEXT(toolStripMenuItemWindowFont);
+            LOAD_CLI_TEXT(statusStripLog);
+            LOAD_CLI_TEXT(toolStripStatusCurrentTask);
+            LOAD_CLI_TEXT(toolStripStatusElapsedTime);
+            LOAD_CLI_TEXT(toolStripStatusCurrentProgress);
+            LOAD_CLI_MAIN_TEXT(FrmLogMain);
+        }
     private: 
         System::Void frmLog_Load(System::Object^  sender, System::EventArgs^  e) {
             closed = false;
@@ -487,6 +511,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             exstg.load_log_win();
             SetWindowPos(exstg.s_log.log_pos[0], exstg.s_log.log_pos[1]);
 
+            LoadLangText();
             //timerの初期化
             timerResizeOrPos = gcnew System::Threading::Timer(
                 gcnew System::Threading::TimerCallback(this, &frmLog::timerResizeOrPosChange),
@@ -533,6 +558,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             toolStripMenuItemShowStatus->Checked     = exstg.s_log.show_status_bar != 0;
             ToolStripMenuItemStartMinimized->Checked = exstg.s_log.minimized != 0;
             toolStripMenuItemSaveLogSize->Checked    = exstg.s_log.save_log_size != 0;
+            LoadLangText();
         }
     public:
         System::Void SetWindowTitle(const char *chr) {
@@ -707,24 +733,25 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
         }
     private:
         System::Void SaveLog(String^ SaveLogName) {
+            System::String^ LogSaveError = LOAD_CLI_STRING(AUO_LOG_ERR_SAVE_LOG);
             StreamWriter^ sw = nullptr;
             try {
                 sw = gcnew StreamWriter(SaveLogName, true, System::Text::Encoding::GetEncoding("shift_jis"));
                 System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder(richTextLog->Text->Substring(LastLogLen));
                 sb->Replace(L"\n", L"\r\n");//改行コード変換
                 sw->WriteLine(sb->ToString());
-                sw->WriteLine(DateTime::Now.ToString("yyyy年M月d日 H時mm分 エンコード終了"));
+                sw->WriteLine(DateTime::Now.ToString(LOAD_CLI_STRING(AUO_LOG_ENCODE_FIN_TIME)));
                 sw->WriteLine(L"-------------------------------------------------------------------------------------");
                 sw->WriteLine();
                 sw->Close();
             } catch (IOException^ ex) {
-                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
+                WriteLogAuoLine(LogSaveError, LOG_WARNING);
                 WriteLogAuoLine(ex->Message, LOG_WARNING);
             } catch (UnauthorizedAccessException^ ex) {
-                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
+                WriteLogAuoLine(LogSaveError, LOG_WARNING);
                 WriteLogAuoLine(ex->Message, LOG_WARNING);
             } catch (...) {
-                WriteLogAuoLine("自動ログ保存に失敗しました。", LOG_WARNING);
+                WriteLogAuoLine(LogSaveError, LOG_WARNING);
             }
         }
     public:
@@ -1048,7 +1075,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 try {
                     System::Diagnostics::Process::Start(selectedPathbyMouse);
                 } catch (...) {
-                    MessageBox::Show(L"ファイルオープンでエラーが発生しました。", AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+                    MessageBox::Show(LOAD_CLI_STRING(AUO_LOG_ERR_FILE_OPEN), AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
                 }
             }
         }
@@ -1058,7 +1085,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 try {
                     System::Diagnostics::Process::Start(L"explorer.exe", L"/select," + selectedPathbyMouse);
                 } catch (...) {
-                    MessageBox::Show(L"ファイルの表示でエラーが発生しました。", AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+                    MessageBox::Show(LOAD_CLI_STRING(AUO_LOG_ERR_SHOW_FILE_PATH), AUO_NAME_W, MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
                 }
             }
         }

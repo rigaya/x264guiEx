@@ -100,4 +100,6 @@ void write_log_auo_enc_time(const char *mes, DWORD time);
 
 int create_auoSetup(const char *exePath);
 
+int load_lng(const char *lang);
+
 #endif //_AUO_H_

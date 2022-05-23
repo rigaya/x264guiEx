@@ -47,14 +47,17 @@
 #include "auo_mux.h"
 #include "auo_encode.h"
 #include "auo_runbat.h"
+#include "auo_mes.h"
 
 //---------------------------------------------------------------------
 //        出力プラグイン内部変数
 //---------------------------------------------------------------------
 
+static HMODULE g_dll_module = NULL;
 static CONF_GUIEX g_conf = { 0 };
 static SYSTEM_DATA g_sys_dat = { 0 };
 static char g_auo_filefilter[1024] = { 0 };
+AuoMessages g_auo_mes;
 
 //---------------------------------------------------------------------
 //        出力プラグイン構造体定義
@@ -141,6 +144,16 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     //                        //    戻り値    : データへのポインタ
     //                        //              画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
 
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+    UNREFERENCED_PARAMETER(lpReserved);
+    switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH:
+        g_dll_module = hModule;
+        break;
+    }
+    return TRUE;
+}
+
 BOOL func_init()
 {
     return TRUE;
@@ -204,7 +217,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 
         ret |= move_temporary_files(&conf_out, &pe, &g_sys_dat, oip, ret);
 
-        write_log_auo_enc_time("総エンコード時間  ", timeGetTime() - tm_start_enc);
+        write_log_auo_enc_time(g_auo_mes.get(AUO_X264GUIEX_TOTAL_TIME), timeGetTime() - tm_start_enc);
 
         close_afsvideo(&pe); //※3 end
 
@@ -276,6 +289,7 @@ void init_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
     get_aviutl_dir(sys_dat->aviutl_dir, _countof(sys_dat->aviutl_dir));
     sys_dat->exstg = new guiEx_settings();
     set_ex_stg_ptr(sys_dat->exstg);
+    load_lng(g_sys_dat.exstg->get_lang());
     sys_dat->init = TRUE;
 }
 void delete_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
@@ -321,12 +335,12 @@ void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
 //エンコード時間の表示
 void write_log_auo_enc_time(const char *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
-    write_log_auo_line_fmt(LOG_INFO, "%s : %d時間%2d分%2d.%1d秒",
+    write_log_auo_line_fmt(LOG_INFO, "%s : %d%s%2d%s%2d.%1d%s",
         mes,
-        time / (60*60*1000),
-        (time % (60*60*1000)) / (60*1000),
+        time / (60*60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_HOUR),
+        (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_MIN),
         (time % (60*1000)) / 1000,
-        ((time % 1000)) / 100);
+        ((time % 1000)) / 100, g_auo_mes.get(AUO_X264GUIEX_TIME_SEC));
 }
 
 void overwrite_aviutl_ini_file_filter(int idx) {
@@ -341,7 +355,8 @@ void overwrite_aviutl_ini_file_filter(int idx) {
 }
 
 void make_file_filter(char *filter, size_t nSize, int default_index) {
-    static const char *const TOP = "All Support Formats (*.*)";
+    char TOP[256];
+    sprintf_s(TOP, "%s (*.*)", g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS));
     const char separator = (filter) ? '\\' : '\0';
     if (filter == NULL) {
         filter = g_auo_filefilter;
@@ -382,4 +397,50 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
         if (idx != default_index)
             add_desc(idx);
     ptr[0] = '\0';
+}
+
+static int getEmbeddedResource(void **data, const TCHAR *name, const TCHAR *type, HMODULE hModule) {
+    *data = nullptr;
+    //埋め込みデータを使用する
+    if (hModule == NULL) {
+        hModule = GetModuleHandle(NULL);
+    }
+    if (hModule == NULL) {
+        return 0;
+    }
+    HRSRC hResource = FindResource(hModule, name, type);
+    if (hResource == NULL) {
+        return 0;
+    }
+    HGLOBAL hResourceData = LoadResource(hModule, hResource);
+    if (hResourceData == NULL) {
+        return 0;
+    }
+    *data = LockResource(hResourceData);
+    return (int)SizeofResource(hModule, hResource);
+}
+
+int load_lng(const char *lang) {
+    if (g_auo_mes.isLang(lang)) {
+        return 0;
+    }
+    const char *resource = "X264GUI_EX_JP_LNG";
+    if (lang && str_has_char(lang)) {
+        if (stricmp(lang, "jp") == 0 || stricmp(lang, "ja") == 0) {
+            resource = "X264GUI_EX_JP_LNG";
+        } else if (stricmp(lang, "en") == 0) {
+            resource = "X264GUI_EX_EN_LNG";
+        } else if (PathFileExists(lang)) {
+            return g_auo_mes.read(lang);
+        }
+    }
+    char *data = nullptr;
+    int size = getEmbeddedResource((void **)&data, resource, "EXE_DATA", g_dll_module);
+    if (size == 0) {
+        return 1;
+    }
+    if (g_auo_mes.read(lang, data, size)) {
+        return 1;
+    }
+    return 0;
 }

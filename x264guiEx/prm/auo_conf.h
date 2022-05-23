@@ -35,6 +35,7 @@
 #endif
 
 #include "auo.h"
+#include "auo_mes.h"
 #include "auo_options.h"
 
 const int CONF_INITIALIZED = 1;
@@ -97,12 +98,12 @@ enum {
     AUDIO_DELAY_CUT_EDTS         = 3, //音声エンコード遅延の削除をedtsを用いて行う
 };
 
-static const char *const AUDIO_DELAY_CUT_MODE[] = {
-    "補正なし",
-    "音声カット",
-    "映像追加",
-    "edts",
-    NULL
+static const X264_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
+    { NULL, AUO_CONF_AUDIO_DELAY_NONE,      L"補正なし"   },
+    { NULL, AUO_CONF_AUDIO_DELAY_CUT_AUDIO, L"音声カット" },
+    { NULL, AUO_CONF_AUDIO_DELAY_ADD_VIDEO, L"映像追加"   },
+    { NULL, AUO_CONF_AUDIO_DELAY_EDTS,      L"edts"       },
+    { NULL, AUO_MES_UNKNOWN,                NULL          },
 };
 
 #pragma pack(push,4)

@@ -31,31 +31,33 @@
 #include "auo.h"
 #include "auo_settings.h"
 #include "auo_options.h"
+#include "auo_mes.h"
 
-const X264_OPTION_STR list_x264guiEx_level[] = { 
-    { "auto", L"自動" },
-    { "1",    L"1"    },
-    { "1b",   L"1b"   },
-    { "1.1",  L"1.1"  },
-    { "1.2",  L"1.2"  },
-    { "1.3",  L"1.3"  },
-    { "2",    L"2"    },
-    { "2.1",  L"2.1"  },
-    { "2.2",  L"2.2"  },
-    { "3",    L"3"    },
-    { "3.1",  L"3.1"  },
-    { "3.2",  L"3.2"  },
-    { "4",    L"4"    },
-    { "4.1",  L"4.1"  },
-    { "4.2",  L"4.2"  },
-    { "5",    L"5"    },
-    { "5.1",  L"5.1"  },
-    { "5.2",  L"5.2"  },
-    { "6",    L"6"    },
-    { "6.1",  L"6.1"  },
-    { "6.2",  L"6.2"  },
-    { NULL, NULL }
+static const X264_OPTION_STR list_x264guiEx_level[] = {
+    { "auto", AUO_OPTION_LEVEL_AUTO, L"自動" },
+    { "1",    AUO_MES_UNKNOWN, L"1"    },
+    { "1b",   AUO_MES_UNKNOWN, L"1b"   },
+    { "1.1",  AUO_MES_UNKNOWN, L"1.1"  },
+    { "1.2",  AUO_MES_UNKNOWN, L"1.2"  },
+    { "1.3",  AUO_MES_UNKNOWN, L"1.3"  },
+    { "2",    AUO_MES_UNKNOWN, L"2"    },
+    { "2.1",  AUO_MES_UNKNOWN, L"2.1"  },
+    { "2.2",  AUO_MES_UNKNOWN, L"2.2"  },
+    { "3",    AUO_MES_UNKNOWN, L"3"    },
+    { "3.1",  AUO_MES_UNKNOWN, L"3.1"  },
+    { "3.2",  AUO_MES_UNKNOWN, L"3.2"  },
+    { "4",    AUO_MES_UNKNOWN, L"4"    },
+    { "4.1",  AUO_MES_UNKNOWN, L"4.1"  },
+    { "4.2",  AUO_MES_UNKNOWN, L"4.2"  },
+    { "5",    AUO_MES_UNKNOWN, L"5"    },
+    { "5.1",  AUO_MES_UNKNOWN, L"5.1"  },
+    { "5.2",  AUO_MES_UNKNOWN, L"5.2"  },
+    { "6",    AUO_MES_UNKNOWN, L"6"    },
+    { "6.1",  AUO_MES_UNKNOWN, L"6.1"  },
+    { "6.2",  AUO_MES_UNKNOWN, L"6.2"  },
+    { NULL,   AUO_MES_UNKNOWN, NULL }
 };
+
 
 int calc_auto_level(int width, int height, int ref, BOOL interlaced, int fps_num, int fps_den, int vbv_max, int vbv_buf);
 void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int use_highbit, guiEx_settings *ex_stg);

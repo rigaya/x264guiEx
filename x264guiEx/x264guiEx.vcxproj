@@ -81,7 +81,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y x264guiEx.ini "$(OutDir)"</Command>
+      <Command>copy /y x264guiEx.ini "$(OutDir)"
+copy /y x264guiEx.en.ini "$(OutDir)"</Command>
     </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>
@@ -184,6 +185,10 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="frm\auo_mes.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
     <ClCompile Include="prm\auo_conf_convert.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
@@ -282,8 +287,11 @@
     <ClCompile Include="frm\frmLog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\x264guiEx.jp.lng" />
     <None Include="x264guiEx.def" />
     <None Include="image\folder_open.ico" />
+    <None Include="x264guiEx.en.ini" />
+    <None Include="x264guiEx.en.lng" />
     <None Include="x264guiEx.ini" />
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +299,7 @@
     <ClInclude Include="auo_version.h" />
     <ClInclude Include="encode\convert_simd.h" />
     <ClInclude Include="encode\exe_version.h" />
+    <ClInclude Include="frm\auo_mes.h" />
     <ClInclude Include="frm\frmSetLogColor.h">
       <FileType>CppForm</FileType>
     </ClInclude>

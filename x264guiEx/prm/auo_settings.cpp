@@ -189,14 +189,25 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
     ZeroMemory(&s_local, sizeof(s_local));
     ZeroMemory(&s_log, sizeof(s_log));
     ZeroMemory(&s_append, sizeof(s_append));
+    ZeroMemory(&language, sizeof(language));
     s_aud_faw_index = FAW_INDEX_ERROR;
+    load_lang();
     if (!init) {
         if (_auo_path == NULL)
             get_auo_path(auo_path, _countof(auo_path));
         else
             strcpy_s(auo_path, _countof(auo_path), _auo_path);
         strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
-        apply_appendix(ini_fileName,  _countof(ini_fileName),  auo_path, INI_APPENDIX);
+        if (strcmp(language, AUO_LANGUAGE_EN) == 0) {
+            char ini_append[64];
+            sprintf_s(ini_append, ".%s%s", language, INI_APPENDIX);
+            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
+            if (!PathFileExists(ini_fileName)) {
+                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+            }
+        } else {
+            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+        }
         apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
         init = check_inifile() && !disable_loading;
         GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(blog_url), ini_fileName);
@@ -210,6 +221,10 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
 }
 
 guiEx_settings::~guiEx_settings() {
+    clear_all();
+}
+
+void guiEx_settings::clear_all() {
     clear_aud();
     clear_mux();
     clear_x264();
@@ -253,11 +268,36 @@ int guiEx_settings::get_faw_index() {
     return FAW_INDEX_ERROR;
 }
 
+const char *guiEx_settings::get_lang() const {
+    return language;
+}
+
+void guiEx_settings::set_and_save_lang(const char *lang) {
+    if (strcmp(language, lang) != 0) {
+        strcpy_s(language, lang);
+        save_lang();
+
+        //強制リロード
+        char tmp_auo_path[_countof(auo_path)];
+        char tmp_section_main[_countof(ini_section_main)];
+        strcpy_s(tmp_auo_path, auo_path);
+        strcpy_s(tmp_section_main, ini_section_main);
+        clear_all();
+
+        init = FALSE;
+        initialize(FALSE, tmp_auo_path, tmp_section_main);
+    }
+}
+
 void guiEx_settings::load_encode_stg() {
     load_aud();
     load_mux();
     load_x264();
     load_local(); //fullpathの情報がきちんと格納されるよう、最後に呼ぶ
+}
+
+void guiEx_settings::load_lang() {
+    GetPrivateProfileString(ini_section_main, "language", AUO_LANGUAGE_DEFAULT, language, _countof(language), conf_fileName);
 }
 
 void guiEx_settings::load_aud() {
@@ -562,7 +602,7 @@ void guiEx_settings::load_local() {
         strcpy_s(s_local.stg_dir, _countof(s_local.stg_dir), default_stg_dir);
 
     s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
-
+    
     GetPrivateProfileString(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,         _countof(s_x264.fullpath),         conf_fileName);
     for (int i = 0; i < s_aud_count; i++)
         GetPrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName);
@@ -707,6 +747,10 @@ void guiEx_settings::save_fbc() {
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_fps",             s_fbc.last_fps,             DEFAULT_FBC_LAST_FPS,             conf_fileName);
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_time_in_sec",     s_fbc.last_time_in_sec,     DEFAULT_FBC_LAST_TIME_IN_SEC,     conf_fileName);
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "initial_size",         s_fbc.initial_size,         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
+}
+
+void guiEx_settings::save_lang() {
+    WritePrivateProfileString(ini_section_main, "language", language, conf_fileName);
 }
 
 BOOL guiEx_settings::get_reset_s_x264_referesh() {

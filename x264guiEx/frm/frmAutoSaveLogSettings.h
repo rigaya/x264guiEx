@@ -29,6 +29,7 @@
 
 #include "auo_util.h"
 #include "auo_clrutil.h"
+#include "auo_mes.h"
 #include "auo_settings.h"
 
 using namespace System;
@@ -64,6 +65,7 @@ namespace x264guiEx {
             //
             //TODO: ここにコンストラクタ コードを追加します
             //
+            LoadLangText();
         }
 
     protected:
@@ -212,6 +214,14 @@ namespace x264guiEx {
         }
 #pragma endregion
     private:
+        System::Void LoadLangText() {
+            LOAD_CLI_TEXT(fasLBAutoSaveLog);
+            LOAD_CLI_TEXT(fasBTAutoSaveLog);
+            LOAD_CLI_TEXT(fasBTCancel);
+            LOAD_CLI_TEXT(fasBTOK);
+            LOAD_CLI_MAIN_TEXT(fasMain);
+        }
+    private:
         System::Void SetCXIndex(ComboBox^ CX, int index) {
             CX->SelectedIndex = clamp(index, 0, CX->Items->Count - 1);
         }
@@ -225,6 +235,7 @@ namespace x264guiEx {
     private: 
         System::Void frmAutoSaveLogSettings_Load(System::Object^  sender, System::EventArgs^  e) {
             fas_ex_stg->load_log_win();
+            LoadLangText();
             SetCXIndex(fasCXAutoSaveLog, fas_ex_stg->s_log.auto_save_log_mode);
             fasTXAutoSaveLog->Text = String(fas_ex_stg->s_log.auto_save_log_path).ToString();
         }

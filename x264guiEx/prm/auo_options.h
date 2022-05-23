@@ -90,159 +90,159 @@ static const char * const specify_csp[] = {
 //文字列を引数にとるオプションの引数リスト
 //OUT_CSP_NV12, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
 const X264_OPTION_STR list_output_csp[] = {
-    { "i420", L"i420" },
-    { "i422", L"i422" },
-    { "i444", L"i444" },
-    { "rgb",  L"rgb"  },
-    { NULL, NULL }
+    { "i420", AUO_MES_UNKNOWN, L"i420" },
+    { "i422", AUO_MES_UNKNOWN, L"i422" },
+    { "i444", AUO_MES_UNKNOWN, L"i444" },
+    { "rgb",  AUO_MES_UNKNOWN, L"rgb"  },
+    { NULL,   AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_aq[] = { 
-    { NULL, L"none"    },
-    { NULL, L"VAQ"     },
-    { NULL, L"AutoVAQ" },
-    { NULL, L"MixAQ"   },
-    { NULL, NULL }
+    { NULL, AUO_MES_UNKNOWN, L"none"    },
+    { NULL, AUO_MES_UNKNOWN, L"VAQ"     },
+    { NULL, AUO_MES_UNKNOWN, L"AutoVAQ" },
+    { NULL, AUO_MES_UNKNOWN, L"MixAQ"   },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_weightp[] = { 
-    { NULL, L"Disabled" }, 
-    { NULL, L"Simple"   }, 
-    { NULL, L"Smart"    }, 
-    { NULL, NULL } 
+    { NULL, AUO_MES_UNKNOWN, L"Disabled" }, 
+    { NULL, AUO_MES_UNKNOWN, L"Simple"   }, 
+    { NULL, AUO_MES_UNKNOWN, L"Smart"    }, 
+    { NULL, AUO_MES_UNKNOWN, NULL } 
 };
 const X264_OPTION_STR list_b_adpat[] = {
-    { NULL, L"無効" },
-    { NULL, L"簡易" },
-    { NULL, L"完全" },
-    { NULL, NULL }
+    { NULL, AUO_OPTION_BADAPT_DISABLED, L"無効" },
+    { NULL, AUO_OPTION_BADAPT_SIMPLE,   L"簡易" },
+    { NULL, AUO_OPTION_BADAPT_FULL,     L"完全" },
+    { NULL, AUO_MES_UNKNOWN,            NULL }
 };
 const X264_OPTION_STR list_trellis[] = {
-    { NULL, L"Disabled"        },
-    { NULL, L"Final MB encode" },
-    { NULL, L"All"             },
-    { NULL, NULL }
+    { NULL, AUO_MES_UNKNOWN, L"Disabled"        },
+    { NULL, AUO_MES_UNKNOWN, L"Final MB encode" },
+    { NULL, AUO_MES_UNKNOWN, L"All"             },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_me[] = {
-    { "dia",  L"Diamond Search (高速)" },
-    { "hex",  L"Hexagonal Search"      },
-    { "umh",  L"Uneven Multi-Hexagon"  },
-    { "esa",  L"Exaustive Search"      },
-    { "tesa", L"Hadamard ESA (低速)"   },
-    { NULL, NULL }
+    { "dia",  AUO_OPTION_ME_DIA,  L"Diamond Search (高速)" },
+    { "hex",  AUO_OPTION_ME_HEX,  L"Hexagonal Search"      },
+    { "umh",  AUO_OPTION_ME_UMH,  L"Uneven Multi-Hexagon"  },
+    { "esa",  AUO_OPTION_ME_ESA,  L"Exaustive Search"      },
+    { "tesa", AUO_OPTION_ME_TESA, L"Hadamard ESA (低速)"   },
+    { NULL,   AUO_MES_UNKNOWN,    NULL }
 };
 const X264_OPTION_STR list_subme[] = {
-    { NULL, L" 0 (fullpell only)"                },
-    { NULL, L" 1 (高速)"                         },
-    { NULL, L" 2"                                },
-    { NULL, L" 3"                                },
-    { NULL, L" 4"                                },
-    { NULL, L" 5"                                },
-    { NULL, L" 6 (RDO for I/P frames)"           },
-    { NULL, L" 7 (RDO for all frames)"           },
-    { NULL, L" 8 (RD refinement for I/P frames)" },
-    { NULL, L" 9 (RD refinement for all frames)" },
-    { NULL, L"10 (QP-RD)"                        },
-    { NULL, L"11 (Full RD)"                      },
-    { NULL, NULL }
+    { NULL, AUO_OPTION_SUBME_00, L" 0 (fullpell only)"                },
+    { NULL, AUO_OPTION_SUBME_01, L" 1 (高速)"                         },
+    { NULL, AUO_OPTION_SUBME_02, L" 2"                                },
+    { NULL, AUO_OPTION_SUBME_03, L" 3"                                },
+    { NULL, AUO_OPTION_SUBME_04, L" 4"                                },
+    { NULL, AUO_OPTION_SUBME_05, L" 5"                                },
+    { NULL, AUO_OPTION_SUBME_06, L" 6 (RDO for I/P frames)"           },
+    { NULL, AUO_OPTION_SUBME_07, L" 7 (RDO for all frames)"           },
+    { NULL, AUO_OPTION_SUBME_08, L" 8 (RD refinement for I/P frames)" },
+    { NULL, AUO_OPTION_SUBME_09, L" 9 (RD refinement for all frames)" },
+    { NULL, AUO_OPTION_SUBME_10, L"10 (QP-RD)"                        },
+    { NULL, AUO_OPTION_SUBME_11, L"11 (Full RD)"                      },
+    { NULL, AUO_MES_UNKNOWN,     NULL }
 };
 const X264_OPTION_STR list_direct[] = {
-    { "none",     L"none"     },
-    { "spatial",  L"spatial"  },
-    { "temporal", L"temporal" },
-    { "auto",     L"auto"     },
-    { NULL, NULL }
+    { "none",     AUO_MES_UNKNOWN, L"none"     },
+    { "spatial",  AUO_MES_UNKNOWN, L"spatial"  },
+    { "temporal", AUO_MES_UNKNOWN, L"temporal" },
+    { "auto",     AUO_MES_UNKNOWN, L"auto"     },
+    { NULL,       AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_cqm[] = {
-    { "flat", NULL },
-    { "jvt",  NULL },
-    { NULL, NULL }
+    { "flat", AUO_MES_UNKNOWN, NULL },
+    { "jvt",  AUO_MES_UNKNOWN, NULL },
+    { NULL,   AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_input_range[] = {
-    { "auto", L"auto" },
-    { "pc",   L"pc" },
-    { NULL, NULL }
+    { "auto", AUO_MES_UNKNOWN, L"auto" },
+    { "pc",   AUO_MES_UNKNOWN, L"pc" },
+    { NULL,   AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_colorprim[] = {
-    { "undef",     L"指定なし"  },
-    { "auto",      L"自動"      },
-    { "bt709",     L"bt709"     },
-    { "smpte170m", L"smpte170m" },
-    { "bt470m",    L"bt470m"    },
-    { "bt470bg",   L"bt470bg"   },
-    { "smpte240m", L"smpte240m" },
-    { "film",      L"film"      },
-    { "bt2020",    L"bt2020"    },
-    { "smpte428",  L"smpte428"  },
-    { "smpte431",  L"smpte431"  },
-    { "smpte432",  L"smpte432"  },
-    { NULL, NULL }
+    { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
+    { "auto",      AUO_OPTION_VUI_AUTO, L"自動"      },
+    { "bt709",     AUO_MES_UNKNOWN, L"bt709"     },
+    { "smpte170m", AUO_MES_UNKNOWN, L"smpte170m" },
+    { "bt470m",    AUO_MES_UNKNOWN, L"bt470m"    },
+    { "bt470bg",   AUO_MES_UNKNOWN, L"bt470bg"   },
+    { "smpte240m", AUO_MES_UNKNOWN, L"smpte240m" },
+    { "film",      AUO_MES_UNKNOWN, L"film"      },
+    { "bt2020",    AUO_MES_UNKNOWN, L"bt2020"    },
+    { "smpte428",  AUO_MES_UNKNOWN, L"smpte428"  },
+    { "smpte431",  AUO_MES_UNKNOWN, L"smpte431"  },
+    { "smpte432",  AUO_MES_UNKNOWN, L"smpte432"  },
+    { NULL,        AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_transfer[] = {
-    { "undef",        L"指定なし"     },
-    { "auto",         L"自動"         },
-    { "bt709",        L"bt709"        },
-    { "smpte170m",    L"smpte170m"    },
-    { "bt470m",       L"bt470m"       },
-    { "bt470bg",      L"bt470bg"      },
-    { "smpte240m",    L"smpte240m"    },
-    { "linear",       L"linear"       },
-    { "log100",       L"log100"       },
-    { "log316",       L"log316"       },
-    { "iec61966-2-4", L"iec61966-2-4" },
-    { "bt1361e",      L"bt1361e"      },
-    { "iec61966-2-1", L"iec61966-2-1" },
-    { "bt2020-10",    L"bt2020-10"    },
-    { "bt2020-12",    L"bt2020-12"    },
-    { "smpte2084",    L"smpte2084"    },
-    { "smpte428",     L"smpte428"     },
-    { "arib-std-b67", L"arib-std-b67" },
-    { NULL, NULL }
+    { "undef",        AUO_OPTION_VUI_UNDEF, L"指定なし" },
+    { "auto",         AUO_OPTION_VUI_AUTO, L"自動"      },
+    { "bt709",        AUO_MES_UNKNOWN, L"bt709"        },
+    { "smpte170m",    AUO_MES_UNKNOWN, L"smpte170m"    },
+    { "bt470m",       AUO_MES_UNKNOWN, L"bt470m"       },
+    { "bt470bg",      AUO_MES_UNKNOWN, L"bt470bg"      },
+    { "smpte240m",    AUO_MES_UNKNOWN, L"smpte240m"    },
+    { "linear",       AUO_MES_UNKNOWN, L"linear"       },
+    { "log100",       AUO_MES_UNKNOWN, L"log100"       },
+    { "log316",       AUO_MES_UNKNOWN, L"log316"       },
+    { "iec61966-2-4", AUO_MES_UNKNOWN, L"iec61966-2-4" },
+    { "bt1361e",      AUO_MES_UNKNOWN, L"bt1361e"      },
+    { "iec61966-2-1", AUO_MES_UNKNOWN, L"iec61966-2-1" },
+    { "bt2020-10",    AUO_MES_UNKNOWN, L"bt2020-10"    },
+    { "bt2020-12",    AUO_MES_UNKNOWN, L"bt2020-12"    },
+    { "smpte2084",    AUO_MES_UNKNOWN, L"smpte2084"    },
+    { "smpte428",     AUO_MES_UNKNOWN, L"smpte428"     },
+    { "arib-std-b67", AUO_MES_UNKNOWN, L"arib-std-b67" },
+    { NULL, AUO_MES_UNKNOWN,NULL }
 };
 const X264_OPTION_STR list_colormatrix[] = {
-    { "undef",     L"指定なし"  },
-    { "auto",      L"自動"      },
-    { "bt709",     L"bt709"     },
-    { "smpte170m", L"smpte170m" },
-    { "bt470bg",   L"bt470bg"   },
-    { "smpte240m", L"smpte240m" },
-    { "YCgCo",     L"YCgCo"     },
-    { "fcc",       L"fcc"       },
-    { "GBR",       L"GBR"       },
-    { "bt2020nc",  L"bt2020nc"  },
-    { "bt2020c",   L"bt2020c"   },
-    { "smpte2085", L"smpte2085" },
-    { "chroma-derived-nc", L"chroma-derived-nc" },
-    { "chroma-derived-c",  L"chroma-derived-c" },
-    { "ICtCp",     L"ICtCp" },
-    { NULL, NULL }
+    { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
+    { "auto",      AUO_OPTION_VUI_AUTO, L"自動"      },
+    { "bt709",     AUO_MES_UNKNOWN, L"bt709"     },
+    { "smpte170m", AUO_MES_UNKNOWN, L"smpte170m" },
+    { "bt470bg",   AUO_MES_UNKNOWN, L"bt470bg"   },
+    { "smpte240m", AUO_MES_UNKNOWN, L"smpte240m" },
+    { "YCgCo",     AUO_MES_UNKNOWN, L"YCgCo"     },
+    { "fcc",       AUO_MES_UNKNOWN, L"fcc"       },
+    { "GBR",       AUO_MES_UNKNOWN, L"GBR"       },
+    { "bt2020nc",  AUO_MES_UNKNOWN, L"bt2020nc"  },
+    { "bt2020c",   AUO_MES_UNKNOWN, L"bt2020c"   },
+    { "smpte2085", AUO_MES_UNKNOWN, L"smpte2085" },
+    { "chroma-derived-nc", AUO_MES_UNKNOWN,L"chroma-derived-nc" },
+    { "chroma-derived-c",  AUO_MES_UNKNOWN,L"chroma-derived-c" },
+    { "ICtCp",     AUO_MES_UNKNOWN, L"ICtCp" },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_videoformat[] = {
-    { "undef",     L"指定なし"  },
-    { "ntsc",      L"ntsc"      },
-    { "component", L"component" },
-    { "pal",       L"pal"       },
-    { "secam",     L"secam"     },
-    { "mac",       L"mac"       },
-    { NULL, NULL } 
+    { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
+    { "ntsc",      AUO_MES_UNKNOWN, L"ntsc"      },
+    { "component", AUO_MES_UNKNOWN, L"component" },
+    { "pal",       AUO_MES_UNKNOWN, L"pal"       },
+    { "secam",     AUO_MES_UNKNOWN, L"secam"     },
+    { "mac",       AUO_MES_UNKNOWN, L"mac"       },
+    { NULL, AUO_MES_UNKNOWN, NULL } 
 };
 const X264_OPTION_STR list_log_type[] = {
-    { "none",    L"none"    },
-    { "error",   L"error"   },
-    { "warning", L"warning" },
-    { "info",    L"info"    },
-    { "debug",   L"debug"   },
-    { NULL, NULL }
+    { "none",    AUO_MES_UNKNOWN, L"none"    },
+    { "error",   AUO_MES_UNKNOWN, L"error"   },
+    { "warning", AUO_MES_UNKNOWN, L"warning" },
+    { "info",    AUO_MES_UNKNOWN, L"info"    },
+    { "debug",   AUO_MES_UNKNOWN, L"debug"   },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_b_pyramid[] = {
-    { "none",   L"none"   },
-    { "strict", L"strict" },
-    { "normal", L"normal" },
-    { NULL, NULL }
+    { "none",   AUO_MES_UNKNOWN, L"none"   },
+    { "strict", AUO_MES_UNKNOWN, L"strict" },
+    { "normal", AUO_MES_UNKNOWN, L"normal" },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 const X264_OPTION_STR list_nal_hrd[] = {
-    { "none",   L"使用しない" },
-    { "vbr",    L"vbr"        },
-    { "cbr",    L"cbr"        },
-    { NULL, NULL }
+    { "none",   AUO_MES_UNKNOWN, L"none" },
+    { "vbr",    AUO_MES_UNKNOWN, L"vbr"  },
+    { "cbr",    AUO_MES_UNKNOWN, L"cbr"  },
+    { NULL, AUO_MES_UNKNOWN,NULL }
 };
 
 //色についてのオプション設定(0がデフォルトとなるよう、x264とは並び順が異なる)
