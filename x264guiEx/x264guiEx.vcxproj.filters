@@ -140,7 +140,7 @@
     </None>
     <None Include="x264guiEx.ini" />
     <None Include="x264guiEx.en.lng" />
-    <None Include="..\x264guiEx.jp.lng" />
+    <None Include="..\x264guiEx.ja.lng" />
     <None Include="x264guiEx.en.ini" />
   </ItemGroup>
   <ItemGroup>

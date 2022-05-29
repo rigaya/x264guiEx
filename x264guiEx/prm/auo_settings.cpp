@@ -284,7 +284,7 @@ void guiEx_settings::get_default_lang() {
     const auto userSysLang = wstring_to_string(userSysLangW);
     const char *defaultLanguage = AUO_LANGUAGE_DEFAULT;
     for (int ilang = 0; ilang < _countof(list_language_code); ilang++) {
-        if (strcmp(userSysLang.c_str(), list_language_code[ilang])) {
+        if (strcmp(userSysLang.c_str(), list_language_code[ilang]) == 0) {
             defaultLanguage = list_language_code[ilang];
             break;
         }

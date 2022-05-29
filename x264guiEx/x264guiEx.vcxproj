@@ -288,7 +288,7 @@ copy /y x264guiEx.en.ini "$(OutDir)"</Command>
     <ClCompile Include="frm\frmLog.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\x264guiEx.jp.lng" />
+    <None Include="..\x264guiEx.ja.lng" />
     <None Include="x264guiEx.def" />
     <None Include="image\folder_open.ico" />
     <None Include="x264guiEx.en.ini" />

@@ -32,12 +32,12 @@
 #include <array>
 #include <string>
 
-static const char *AUO_LANGUAGE_JP = "jp";
+static const char *AUO_LANGUAGE_JA = "ja";
 static const char *AUO_LANGUAGE_EN = "en";
-static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_JP;
+static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_JA;
 
 static const char * const list_language_code[] = {
-    AUO_LANGUAGE_JP,
+    AUO_LANGUAGE_JA,
     AUO_LANGUAGE_EN
 };
 
