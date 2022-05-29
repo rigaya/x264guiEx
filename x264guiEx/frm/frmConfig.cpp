@@ -1065,6 +1065,7 @@ System::Void frmConfig::fcgTSLanguage_DropDownItemClicked(System::Object^  sende
     GetCHARfromString(language_text, sizeof(language_text), ClickedMenuItem->Tag->ToString());
     SaveSelectedLanguage(language_text);
     load_lng(language_text);
+    overwrite_aviutl_ini_auo_info();
     LoadLangText();
     CheckTSLanguageDropDownItem(ClickedMenuItem);
 }

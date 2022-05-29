@@ -130,7 +130,8 @@ copy /y x264guiEx.en.ini "$(OutDir)"</Command>
       <CLRThreadAttribute>STAThreadingAttribute</CLRThreadAttribute>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y x264guiEx.ini "$(OutDir)"</Command>
+      <Command>copy /y x264guiEx.ini "$(OutDir)"
+copy /y x264guiEx.en.ini "$(OutDir)"</Command>
     </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>

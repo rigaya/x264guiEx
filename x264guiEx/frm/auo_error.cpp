@@ -39,7 +39,7 @@ void warning_conf_not_initialized(const char *default_stg_file) {
     } else {
         write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_CONF_NOT_INIT1));
     }
-    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_CONF_NOT_INIT2), AUO_FULL_NAME);
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_CONF_NOT_INIT2));
     write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_CONF_NOT_INIT3));
 }
 

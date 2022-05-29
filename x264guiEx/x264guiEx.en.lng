@@ -5,6 +5,7 @@
 
 [AUO_X264GUIEX]
 AUO_X264GUIEX_LANG=en
+AUO_X264GUIEX_FULL_NAME=x264guiEx
 AUO_X264GUIEX_TOTAL_TIME=Total Encode time  
 AUO_X264GUIEX_TIME_HOUR=h
 AUO_X264GUIEX_TIME_MIN=m
@@ -16,7 +17,7 @@ AUO_X264GUIEX_DEFAULT=Default
 [AUO_ERR]
 AUO_ERR_CONF_NOT_INIT0=Previous configuration will be used as no configuration is done.
 AUO_ERR_CONF_NOT_INIT1=Default configuration will be used as no configuration is done.
-AUO_ERR_CONF_NOT_INIT2=To change configuration, please move to [Plugin output]>[%s]>[Video Compression],
+AUO_ERR_CONF_NOT_INIT2=To change configuration, please move to [Export with plugin]>[x264guiEx], enter [Video Encoding],
 AUO_ERR_CONF_NOT_INIT3=and click OK after changing the configuration.
 AUO_ERR_FAILED_GET_TEMP_PATH=Failed to get temporary directory name. Temporary directory setting will be canceled.
 AUO_ERR_UNABLE_OPEM_TEMP_FILE=File could not be created in "%s". Temporary directory setting will be canceled.
@@ -76,7 +77,7 @@ AUO_ERR_NO_EXE_FILE1=%s does not exist in %s.
 AUO_ERR_NO_EXE_FILE2=The path of %s is not specified.
 AUO_ERR_NO_EXE_FILE3=Please place %s and set it's path from the config windows.
 AUO_ERR_USE_DEFAULT_AUDIO_ENCODER=Default audio encoder will be used as audio encoder setting(s) is not set properly.
-AUO_ERR_INFO_USE_EXE_FOUND= "%s" will be used as %s.
+AUO_ERR_INFO_USE_EXE_FOUND= Using %s : "%s".
 AUO_ERR_INVALID_INI_FILE=Settings in plugin(auo) and ini file does not match.
 AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER1=Audio encoder %s is not supported in %s format.
 AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER2=Please select other audio encoder such as %s, and try again.

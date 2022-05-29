@@ -209,5 +209,6 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit); //初期化し、x264�
 void make_file_filter(char *filter, size_t nSize, int default_index);
 
 void overwrite_aviutl_ini_file_filter(int idx);
+void overwrite_aviutl_ini_auo_info();
 
 #endif //_AUO_CONF_H_

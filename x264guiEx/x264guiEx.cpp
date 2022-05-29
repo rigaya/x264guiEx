@@ -57,6 +57,8 @@ static HMODULE g_dll_module = NULL;
 static CONF_GUIEX g_conf = { 0 };
 static SYSTEM_DATA g_sys_dat = { 0 };
 static char g_auo_filefilter[1024] = { 0 };
+static char g_auo_fullname[1024] = { 0 };
+static char g_auo_version_info[1024] = { 0 };
 AuoMessages g_auo_mes;
 
 //---------------------------------------------------------------------
@@ -85,6 +87,7 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     make_file_filter(NULL, 0, g_sys_dat.exstg->s_local.default_output_ext);
     overwrite_aviutl_ini_file_filter(g_sys_dat.exstg->s_local.default_output_ext);
     output_plugin_table.filefilter = g_auo_filefilter;
+    overwrite_aviutl_ini_auo_info();
     return &output_plugin_table;
 }
 
@@ -352,6 +355,27 @@ void overwrite_aviutl_ini_file_filter(int idx) {
     char filefilter_ini[1024] = { 0 };
     make_file_filter(filefilter_ini, _countof(filefilter_ini), idx);
     WritePrivateProfileString(AUO_NAME, "filefilter", filefilter_ini, ini_file);
+}
+
+void overwrite_aviutl_ini_auo_info() {
+    char ini_file[1024];
+    get_aviutl_dir(ini_file, _countof(ini_file));
+    PathAddBackSlashLong(ini_file);
+    strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
+
+    const char *auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
+    if (auo_full_name && strlen(auo_full_name) > 0 && strcmp(auo_full_name, output_plugin_table.name) != 0) {
+        strcpy_s(g_auo_fullname, auo_full_name);
+        output_plugin_table.name = g_auo_fullname;
+        if (strcmp(auo_full_name, AUO_NAME_WITHOUT_EXT) != 0) {
+            sprintf_s(g_auo_version_info, "%s (%s) %s by rigaya", auo_full_name, AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        } else {
+            sprintf_s(g_auo_version_info, "%s %s by rigaya", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        }
+        output_plugin_table.information = g_auo_version_info;
+        WritePrivateProfileString(AUO_NAME, "name", output_plugin_table.name, ini_file);
+        WritePrivateProfileString(AUO_NAME, "information", output_plugin_table.information, ini_file);
+    }
 }
 
 void make_file_filter(char *filter, size_t nSize, int default_index) {
