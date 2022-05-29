@@ -338,6 +338,7 @@ private:
     static char  ini_fileName[MAX_PATH_LEN];  //iniファイル(読み込み用)の場所
     static char  conf_fileName[MAX_PATH_LEN]; //configファイル(読み書き用)の場所
     static DWORD ini_filesize;                //iniファイル(読み込み用)のサイズ
+    static char  default_lang[4];             //デフォルトの言語
     char language[MAX_PATH_LEN];              //言語設定
 
     void load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み
@@ -394,7 +395,7 @@ public:
     BOOL get_reset_s_x264_referesh(); //s_x264が更新されたか
     const char *get_lang() const;
     void set_and_save_lang(const char *lang);
-
+    void get_default_lang();
 private:
     void initialize(BOOL disable_loading);
     void initialize(BOOL disable_loading, const char *_auo_path, const char *main_section);

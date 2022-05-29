@@ -161,6 +161,7 @@ char  guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
 DWORD guiEx_settings::ini_filesize = 0;
+char  guiEx_settings::default_lang[4] = { 0 };
 
 char  guiEx_settings::blog_url[MAX_PATH_LEN] = { 0 };
 
@@ -191,24 +192,33 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
     ZeroMemory(&s_append, sizeof(s_append));
     ZeroMemory(&language, sizeof(language));
     s_aud_faw_index = FAW_INDEX_ERROR;
-    load_lang();
+    if (strlen(default_lang) == 0) {
+        get_default_lang();
+    }
     if (!init) {
-        if (_auo_path == NULL)
+        if (_auo_path == NULL) {
             get_auo_path(auo_path, _countof(auo_path));
-        else
-            strcpy_s(auo_path, _countof(auo_path), _auo_path);
-        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
-        if (strcmp(language, AUO_LANGUAGE_EN) == 0) {
-            char ini_append[64];
-            sprintf_s(ini_append, ".%s%s", language, INI_APPENDIX);
-            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
-            if (!PathFileExists(ini_fileName)) {
-                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
-            }
         } else {
-            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+            strcpy_s(auo_path, _countof(auo_path), _auo_path);
         }
         apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
+        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
+        load_lang();
+        bool language_ini_selected = false;
+        for (int ilang = 0; ilang < _countof(list_language_code); ilang++) {
+            if (   strcmp(language, list_language_code[ilang]) == 0
+                && strcmp(AUO_LANGUAGE_DEFAULT, list_language_code[ilang]) != 0) {
+                char ini_append[64];
+                sprintf_s(ini_append, ".%s%s", language, INI_APPENDIX);
+                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
+                if (PathFileExists(ini_fileName)) {
+                    language_ini_selected = true;
+                }
+            }
+        }
+        if (!language_ini_selected) {
+            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+        }
         init = check_inifile() && !disable_loading;
         GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(blog_url), ini_fileName);
         if (init) {
@@ -268,6 +278,20 @@ int guiEx_settings::get_faw_index() {
     return FAW_INDEX_ERROR;
 }
 
+void guiEx_settings::get_default_lang() {
+    WCHAR userSysLangW[LOCALE_NAME_MAX_LENGTH] = { 0 };
+    GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, userSysLangW, _countof(userSysLangW));
+    const auto userSysLang = wstring_to_string(userSysLangW);
+    const char *defaultLanguage = AUO_LANGUAGE_DEFAULT;
+    for (int ilang = 0; ilang < _countof(list_language_code); ilang++) {
+        if (strcmp(userSysLang.c_str(), list_language_code[ilang])) {
+            defaultLanguage = list_language_code[ilang];
+            break;
+        }
+    }
+    strcpy_s(default_lang, defaultLanguage);
+}
+
 const char *guiEx_settings::get_lang() const {
     return language;
 }
@@ -297,7 +321,7 @@ void guiEx_settings::load_encode_stg() {
 }
 
 void guiEx_settings::load_lang() {
-    GetPrivateProfileString(ini_section_main, "language", AUO_LANGUAGE_DEFAULT, language, _countof(language), conf_fileName);
+    GetPrivateProfileString(ini_section_main, "language", default_lang, language, _countof(language), conf_fileName);
 }
 
 void guiEx_settings::load_aud() {
