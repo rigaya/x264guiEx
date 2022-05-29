@@ -220,10 +220,36 @@ namespace x264guiEx {
             LOAD_CLI_TEXT(fasBTCancel);
             LOAD_CLI_TEXT(fasBTOK);
             LOAD_CLI_MAIN_TEXT(fasMain);
+
+            const AuoMes listCXMes[] = {AUO_AUTO_SAVE_LOG_SAME_AS_OUTPUT, AUO_AUTO_SAVE_LOG_CUSTOM, AUO_MES_UNKNOWN };
+            setComboBox(fasCXAutoSaveLog, listCXMes);
         }
     private:
         System::Void SetCXIndex(ComboBox^ CX, int index) {
-            CX->SelectedIndex = clamp(index, 0, CX->Items->Count - 1);
+            if (CX->Items->Count > 0) {
+                CX->SelectedIndex = clamp(index, 0, CX->Items->Count - 1);
+            }
+        }
+    private:
+        System::Void setComboBox(ComboBox^ CX, const AuoMes * list) {
+            const int itemCount = CX->Items->Count;
+            bool textExists = true;
+            for (int i = 0; i < itemCount; i++) {
+                if (list[i] == AUO_MES_UNKNOWN) {
+                    textExists = false;
+                    break;
+                }
+            }
+            if (!textExists) return;
+
+            CX->BeginUpdate();
+            const int prevIdx = CX->SelectedIndex;
+            CX->Items->Clear();
+            for (int i = 0; i < itemCount; i++) {
+                CX->Items->Add(LOAD_CLI_STRING(list[i]));
+            }
+            SetCXIndex(CX, prevIdx);
+            CX->EndUpdate();
         }
     private:
         System::Void SavefasToStg() {
@@ -263,7 +289,7 @@ namespace x264guiEx {
                 if (fileName != nullptr)
                     sfd->FileName = fileName;
             }
-            sfd->Filter = L"ログファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*";
+            sfd->Filter = LOAD_CLI_STRING(AUO_AUTO_SAVE_LOG_EXT_FILTER);
             if (sfd->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
                 fasTXAutoSaveLog->Text = sfd->FileName;
                 fasTXAutoSaveLog->SelectionStart = fasTXAutoSaveLog->Text->Length;

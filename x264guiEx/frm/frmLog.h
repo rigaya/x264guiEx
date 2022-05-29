@@ -101,8 +101,16 @@ namespace x264guiEx {
             for (int i = 0; priority_table[i].text; i++) {
                 if (wcscmp(priority_table[i].text, L"") != NULL) {
                     System::Windows::Forms::ToolStripMenuItem^ x264_priority = gcnew System::Windows::Forms::ToolStripMenuItem();
-                    x264_priority->Name = L"ToolStripItem" + String(priority_table[i].text).ToString();
-                    x264_priority->Text = String(priority_table[i].text).ToString();
+
+                    String^ priority_name = nullptr;
+                    if (priority_table[i].mes != AUO_MES_UNKNOWN) {
+                        priority_name = LOAD_CLI_STRING(priority_table[i].mes);
+                    }
+                    if (priority_name == nullptr || priority_name->Length == 0) {
+                        priority_name = String(priority_table[i].text).ToString();
+                    }
+                    x264_priority->Name = L"ToolStripItem" + priority_name;
+                    x264_priority->Text = priority_name;
                     x264_priority->Checked = (_x264_priority != NULL && *_x264_priority == priority_table[i].value) ? true : false;
                     this->ToolStripMenuItemx264Priority->DropDownItems->Add(x264_priority);
                 } else {

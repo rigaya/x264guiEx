@@ -742,7 +742,6 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     char x264args[MAX_CMD_LEN] = { 0 };
     char x264dir[MAX_PATH_LEN] = { 0 };
 
-    const DWORD simd_avail = get_availableSIMD();
     const BOOL afs = conf->vid.afs != 0;
     CONVERT_CF_DATA pixel_data = { 0 };
     video_output_thread_t thread_data = { 0 };
@@ -951,7 +950,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
         write_log_auo_line_fmt(LOG_INFO, "%s: Aviutl: %.2f%% / x264: %.2f%%", g_auo_mes.get(AUO_VIDEO_CPU_USAGE), GetProcessAvgCPUUsage(pe->h_p_aviutl, &time_aviutl), GetProcessAvgCPUUsage(pi_enc.hProcess));
         write_log_auo_line_fmt(LOG_INFO, "Aviutl %s: %.3f ms", g_auo_mes.get(AUO_VIDEO_AVIUTL_PROC_AVG_TIME), time_get_frame * 1000.0 / i);
-        write_log_auo_enc_time("x264%s", tm_vid_enc_fin - tm_vid_enc_start);
+        write_log_auo_enc_time(g_auo_mes.get(AUO_VIDEO_ENCODE_TIME), tm_vid_enc_fin - tm_vid_enc_start);
     }
 
     //解放処理

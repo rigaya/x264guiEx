@@ -973,13 +973,14 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgTSSettings = (gcnew System::Windows::Forms::ToolStripDropDownButton());
             this->fcgTSBCMDOnly = (gcnew System::Windows::Forms::ToolStripButton());
             this->toolStripSeparator3 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSLanguage = (gcnew System::Windows::Forms::ToolStripDropDownButton());
+            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgTSBBitrateCalc = (gcnew System::Windows::Forms::ToolStripButton());
             this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgTSBOtherSettings = (gcnew System::Windows::Forms::ToolStripButton());
             this->fcgTSLSettingsNotes = (gcnew System::Windows::Forms::ToolStripLabel());
             this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
             this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
-            this->fcgTSLanguage = (gcnew System::Windows::Forms::ToolStripDropDownButton());
             this->fcgtabControlMux = (gcnew System::Windows::Forms::TabControl());
             this->fcgtabPageMP4 = (gcnew System::Windows::Forms::TabPage());
             this->fcgCBMP4MuxApple = (gcnew System::Windows::Forms::CheckBox());
@@ -1086,7 +1087,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgCBRunBatBeforeAudio = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCXAudioPriority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBAudioPriority = (gcnew System::Windows::Forms::Label());
-            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgtabControlVideo->SuspendLayout();
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
@@ -3460,6 +3460,24 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->toolStripSeparator3->Name = L"toolStripSeparator3";
             this->toolStripSeparator3->Size = System::Drawing::Size(6, 25);
             // 
+            // fcgTSLanguage
+            // 
+            this->fcgTSLanguage->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSLanguage->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSLanguage->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSLanguage.Image")));
+            this->fcgTSLanguage->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSLanguage->Name = L"fcgTSLanguage";
+            this->fcgTSLanguage->Size = System::Drawing::Size(44, 22);
+            this->fcgTSLanguage->Text = L"言語";
+            this->fcgTSLanguage->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSLanguage_DropDownItemClicked);
+            // 
+            // toolStripSeparator5
+            // 
+            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator5->Name = L"toolStripSeparator5";
+            this->toolStripSeparator5->RightToLeft = System::Windows::Forms::RightToLeft::No;
+            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
+            // 
             // fcgTSBBitrateCalc
             // 
             this->fcgTSBBitrateCalc->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
@@ -3520,17 +3538,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->toolStripSeparator4->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
             this->toolStripSeparator4->Name = L"toolStripSeparator4";
             this->toolStripSeparator4->Size = System::Drawing::Size(6, 25);
-            // 
-            // fcgTSLanguage
-            // 
-            this->fcgTSLanguage->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSLanguage->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSLanguage->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSLanguage.Image")));
-            this->fcgTSLanguage->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSLanguage->Name = L"fcgTSLanguage";
-            this->fcgTSLanguage->Size = System::Drawing::Size(44, 22);
-            this->fcgTSLanguage->Text = L"言語";
-            this->fcgTSLanguage->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSLanguage_DropDownItemClicked);
             // 
             // fcgtabControlMux
             // 
@@ -4692,13 +4699,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgLBAudioPriority->TabIndex = 46;
             this->fcgLBAudioPriority->Text = L"音声優先度";
             // 
-            // toolStripSeparator5
-            // 
-            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator5->Name = L"toolStripSeparator5";
-            this->toolStripSeparator5->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
-            // 
             // frmConfig
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
@@ -5011,8 +5011,16 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             CX->BeginUpdate();
             const int prevIdx = CX->SelectedIndex;
             CX->Items->Clear();
-            for (int i = 0; priority_table[i].text; i++)
-                CX->Items->Add(String(priority_table[i].text).ToString());
+            for (int i = 0; priority_table[i].text; i++) {
+                String^ string = nullptr;
+                if (priority_table[i].mes != AUO_MES_UNKNOWN) {
+                    string = LOAD_CLI_STRING(priority_table[i].mes);
+                }
+                if (string == nullptr || string->Length == 0) {
+                    string = String(priority_table[i].text).ToString();
+                }
+                CX->Items->Add(string);
+            }
             SetCXIndex(CX, prevIdx);
             CX->EndUpdate();
         }

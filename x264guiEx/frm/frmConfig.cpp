@@ -753,15 +753,16 @@ System::Void frmConfig::InitCXCmdExInsert() {
     for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++)
         max_width_of_string = max(max_width_of_string, ds->MeasureString(String(REPLACE_STRINGS_LIST[i].string).ToString() + L" … ", fcgCXCmdExInsert->Font).Width);
     for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++) {
-        String^ AppenStr = LOAD_CLI_STRING(REPLACE_STRINGS_LIST[i].mes);
-        if (AppenStr->Length == 0) {
-            AppenStr = String(REPLACE_STRINGS_LIST[i].string).ToString();
-        }
+        String^ AppenStr = String(REPLACE_STRINGS_LIST[i].string).ToString();
         const int length_of_string = AppenStr->Length;
         AppenStr += L" … ";
         for (float current_width = 0.0; current_width < max_width_of_string; AppenStr = AppenStr->Insert(length_of_string, L" "))
             current_width = ds->MeasureString(AppenStr, fcgCXCmdExInsert->Font).Width;
-        AppenStr += String(REPLACE_STRINGS_LIST[i].desc).ToString();
+        String^ descStr = LOAD_CLI_STRING(REPLACE_STRINGS_LIST[i].mes);
+        if (descStr->Length == 0) {
+            descStr = String(REPLACE_STRINGS_LIST[i].desc).ToString();
+        }
+        AppenStr += descStr;
         fcgCXCmdExInsert->Items->Add(AppenStr);
     }
     delete ds;
@@ -1074,22 +1075,25 @@ System::Void frmConfig::InitLangList() {
     if (list_lng != nullptr) {
         delete list_lng;
     }
+#define ENABLE_LNG_FILE_DETECT 0
+#if ENABLE_LNG_FILE_DETECT
     auto lnglist = find_lng_files();
     list_lng = new std::vector<std::string>();
     for (const auto& lang : lnglist) {
         list_lng->push_back(lang);
     }
+#endif
 
     fcgTSLanguage->DropDownItems->Clear();
 
-    for (int i = 0; i < _countof(list_language_code); i++) {
-        String^ label = String(list_language_code[i]).ToString() + L" (" + String(list_language_name[i]).ToString() + L")";
+    for (const auto& auo_lang : list_auo_languages) {
+        String^ label = String(auo_lang.code).ToString() + L" (" + String(auo_lang.name).ToString() + L")";
         ToolStripMenuItem^ mItem = gcnew ToolStripMenuItem(label);
         mItem->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSLanguage_DropDownItemClicked);
-        mItem->Tag = String(list_language_code[i]).ToString();
+        mItem->Tag = String(auo_lang.code).ToString();
         fcgTSLanguage->DropDownItems->Add(mItem);
     }
-#if 0
+#if ENABLE_LNG_FILE_DETECT
     for (size_t i = 0; i < list_lng->size(); i++) {
         auto filename = String(PathFindFileNameA((*list_lng)[i].c_str())).ToString();
         ToolStripMenuItem^ mItem = gcnew ToolStripMenuItem(filename);
@@ -1272,16 +1276,10 @@ System::Void frmConfig::AdjustLocation() {
 System::Void frmConfig::InitForm() {
     //言語設定ファイルのロード
     InitLangList();
-    //ローカル設定のロード
-    LoadLocalStg();
     //設定ファイル集の初期化
     InitStgFileList();
     //言語表示
     LoadLangText();
-    //タイムコードのappendix(後付修飾子)を反映
-    fcgCBAuoTcfileout->Text = LOAD_CLI_STRING(AUO_CONFIG_TC_FILE_OUT) + L" (" + String(sys_dat->exstg->s_append.tc).ToString() + L")";
-    //タイトル表示
-    this->Text = String(AUO_FULL_NAME).ToString();
     //スレッド数上限
     int max_threads_set = (int)(cpu_core_count() * 1.5 + 0.51);
     fcgNUThreads->Maximum = max_threads_set;
@@ -1315,10 +1313,11 @@ System::Void frmConfig::InitForm() {
 
 
 System::Void frmConfig::LoadLangText() {
-    ExeTXPathEnter();
-    fcgTXMPGMuxerPath_Leave(nullptr, nullptr);
     //一度ウィンドウの再描画を完全に抑止する
     SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
+    //空白時にグレーで入れる文字列を言語変更のため一度空白に戻す
+    ExeTXPathEnter();
+    //言語更新開始
     LOAD_CLI_TEXT(fcgtabPageX264Main);
     LOAD_CLI_TEXT(fcgLBSTATUS);
     LOAD_CLI_TEXT(fcgBTStatusFile);
@@ -1522,6 +1521,8 @@ System::Void frmConfig::LoadLangText() {
     LOAD_CLI_TEXT(fcgLBAudioPriority);
     LOAD_CLI_MAIN_TEXT(fcgMain);
 
+    //ローカル設定のロード(ini変更を反映)
+    LoadLocalStg();
     //ローカル設定の反映
     SetLocalStg();
     //コンボボックスの値を設定
@@ -1530,10 +1531,16 @@ System::Void frmConfig::LoadLangText() {
     SetHelpToolTips();
     SetX264VersionToolTip(LocalStg.x264Path);
     ActivateToolTip(sys_dat->exstg->s_local.disable_tooltip_help == FALSE);
-    //バージョン情報,コンパイル日時
-    fcgLBVersion->Text = String(AUO_VERSION_NAME).ToString();
-    fcgLBVersionDate->Text = L"build " + String(__DATE__).ToString() + L" " + String(__TIME__).ToString();
-    //
+    //タイムコードのappendix(後付修飾子)を反映
+    fcgCBAuoTcfileout->Text = LOAD_CLI_STRING(AUO_CONFIG_TC_FILE_OUT) + L" (" + String(sys_dat->exstg->s_append.tc).ToString() + L")";
+    { //タイトル表示,バージョン情報,コンパイル日時
+        auto auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
+        if (auo_full_name == nullptr || strlen(auo_full_name) == 0) auo_full_name = AUO_FULL_NAME;
+        this->Text = String(auo_full_name).ToString();
+        fcgLBVersion->Text = String(auo_full_name).ToString() + L" " + String(AUO_VERSION_STR).ToString();
+        fcgLBVersionDate->Text = L"build " + String(__DATE__).ToString() + L" " + String(__TIME__).ToString();
+    }
+    //空白時にグレーで入れる文字列を言語に即して復活させる
     ExeTXPathLeave();
     //一度ウィンドウの再描画を再開し、強制的に再描画させる
     SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 1, 0);
@@ -2248,6 +2255,7 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path) {
     } else {
         mes = LOAD_CLI_STRING(AUO_CONFIG_ERR_EXE_NOT_FOUND);
     }
+    fcgTTX264Version->ToolTipTitle = LOAD_CLI_STRING(AuofrmTTfcgTTX264Version);
     fcgTTX264Version->SetToolTip(fcgTXX264Path, mes);
     fcgTTX264Version->SetToolTip(fcgTXX264PathSub, mes);
 }

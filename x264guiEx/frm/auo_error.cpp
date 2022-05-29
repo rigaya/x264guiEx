@@ -93,8 +93,8 @@ static void error_failed_to_open_temp_file_dir(const char *temp_filename, const 
     write_log_auo_line_fmt(LOG_ERROR, "  %s", mesBuffer);
     if (strchr(temp_filename, '?') != nullptr) {
         const char *target_name = (target_is_dir) ? g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_FOLDER) : g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_FILE);
-        write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_SPECIAL_CHAR1), target_name);
-        write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_SPECIAL_CHAR2), target_name);
+        write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_SPECIAL_CHAR1), target_name);
+        write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_SPECIAL_CHAR2), target_name);
     } else if (err == ERROR_ACCESS_DENIED) {
         char systemdrive_dir[MAX_PATH_LEN] = { 0 };
         char systemroot_dir[MAX_PATH_LEN] = { 0 };
@@ -110,7 +110,7 @@ static void error_failed_to_open_temp_file_dir(const char *temp_filename, const 
         write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED2));
         write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED3));
         write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED4));
-        write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED5));
+        write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED5), systemdrive_dir);
         write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED6), systemroot_dir);
         write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED6), programdata_dir);
         write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_OPEN_TEMP_FILE_DIR_ACCESS_DENIED6), programfiles_dir);
@@ -200,7 +200,8 @@ void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_l
 }
 
 void error_invalid_resolution(BOOL width, int mul, int w, int h) {
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_INVALID_RESOLUTION), mul, w, h);
+    const char *resolution_x_y = (width) ? g_auo_mes.get(AUO_ERR_INVALID_RESOLUTION_WIDTH) : g_auo_mes.get(AUO_ERR_INVALID_RESOLUTION_HEIGHT);
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_INVALID_RESOLUTION), resolution_x_y, mul, w, h);
 }
 
 void error_log_line_cache() {
@@ -243,11 +244,11 @@ void error_mp4box_ini() {
 }
 
 void warning_auto_afs_disable() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE1));
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE2));
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE3));
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE4));
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE5));
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE1));
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE2));
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE3));
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE4));
+    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AFS_AUTO_DISABLE5));
 }
 
 void error_afs_setup(BOOL afs, BOOL auto_afs_disable) {
@@ -309,27 +310,27 @@ void error_malloc_8bit() {
 }
 
 void error_afs_interlace_stg() {
-    write_log_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_INTERLACE_STG));
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AFS_INTERLACE_STG));
 }
 
 void warning_x264_mp4_output_not_supported() {
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED1), ENCODER_NAME);
-    write_log_auo_line(    LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED2));
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED3), ENCODER_NAME);
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED1));
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED2));
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED3));
 }
 
 void error_videnc_dead() {
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD), ENCODER_NAME, ENCODER_NAME);
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD));
 }
 
 void error_videnc_dead_and_nodiskspace(const char *drive, uint64_t diskspace) {
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE1), ENCODER_NAME);
+    write_log_auo_line(    LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE1));
     write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE2), drive, (double)diskspace / (1024 * 1024));
     write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE3), drive);
     write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE4), drive);
 }
 void error_videnc_version(const char *required_ver, const char *current_ver) {
-    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_VERSION1), ENCODER_NAME);
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_VERSION1));
     write_log_auo_line(    LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDENC_VERSION2));
     write_log_auo_line_fmt(LOG_ERROR, "%s: %s", g_auo_mes.get(AUO_ERR_VIDENC_VERSION3), required_ver);
     write_log_auo_line_fmt(LOG_ERROR, "%s: %s", g_auo_mes.get(AUO_ERR_VIDENC_VERSION4), current_ver);
@@ -363,10 +364,10 @@ static void message_audio_length_different(const double video_length, const doub
         write_log_auo_line_fmt(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT2),
             vid_h, vid_m, vid_s, vid_ms,
             aud_h, aud_m, aud_s, aud_ms);
-        write_log_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT3));
+        write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT3));
         if (exedit_is_used) {
-            write_log_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT4));
-            write_log_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT5));
+            write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT4));
+            write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT5));
         }
     } else {
         write_log_auo_line(    LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT1));
@@ -374,13 +375,13 @@ static void message_audio_length_different(const double video_length, const doub
             vid_h, vid_m, vid_s, vid_ms,
             aud_h, aud_m, aud_s, aud_ms);
         if (exedit_is_used) {
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT4));
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT5));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT4));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT5));
         } else {
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT6));
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT7));
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT8));
-            write_log_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT9));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT6));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT7));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT8));
+            write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT9));
         }
     }
 }

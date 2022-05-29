@@ -59,7 +59,7 @@ static void show_mux_info(const MUXER_SETTINGS *mux_stg, BOOL vidmux, BOOL audmu
         ver_str = " (" + ver_string(version) + ")";
     }
 
-    sprintf_s(mes, _countof(mes), "%s%s %s%s:%s, %s:%s, %s:%s, %s:%s, %s:%s", 
+    sprintf_s(mes, _countof(mes), "%s%s %s %s:%s, %s:%s, %s:%s, %s:%s, %s:%s", 
         mux_stg->dispname,
         ver_str.c_str(),
         g_auo_mes.get(AUO_MUX_RUN_START),

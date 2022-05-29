@@ -63,7 +63,7 @@ static const std::array<std::pair<const char *, AuoMes>, AUO_SECTION_FIN> AUO_ME
 };
 
 // sed -n '57,856p' auo_mes.h | tr -d \\r | awk '{print $1}' | grep -v ^$ | grep -v ^// | grep -v _SECTION_FIN,$ | sed 's/,$//g' | sed 's/[^ ]\+/"&"/g' | sed 's/$/,/g'
-static const const char * AUO_MES_ID_NAME_STR[] = {
+static const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_MES_UNKNOWN",
 "AUO_X264GUIEX_SECTION_START",
 "AUO_X264GUIEX_LANG",
@@ -132,6 +132,8 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_ERR_AMP_CHANGE_BITRATE_FROM_TO",
 "AUO_ERR_AMP_CHANGE_BITRATE_AUTO",
 "AUO_ERR_INVALID_RESOLUTION",
+"AUO_ERR_INVALID_RESOLUTION_WIDTH",
+"AUO_ERR_INVALID_RESOLUTION_HEIGHT",
 "AUO_ERR_LOG_LINE_CACHE",
 "AUO_ERR_NO_EXE_FILE1",
 "AUO_ERR_NO_EXE_FILE2",
@@ -264,6 +266,7 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_AUDIO_CPU_USAGE",
 "AUO_ENCODE_SECTION_START",
 "AUO_ENCODE_AUDIO_ONLY",
+"AUO_ENCODE_AUDIO_ENCODER",
 "AUO_ENCODE_TMP_FOLDER",
 "AUO_ENCODE_TMP_FOLDER_AUDIO",
 "AUO_ENCODE_ERROR_MOVE_CHAPTER_FILE",
@@ -284,11 +287,6 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_FAW2AAC_ERR_INIT",
 "AUO_FAW2AAC_RUN",
 "AUO_FAW2AAC_ERR_RUN",
-"AUO_CONF_SECTION_START",
-"AUO_CONF_AUDIO_DELAY_NONE",
-"AUO_CONF_AUDIO_DELAY_CUT_AUDIO",
-"AUO_CONF_AUDIO_DELAY_ADD_VIDEO",
-"AUO_CONF_AUDIO_DELAY_EDTS",
 "AUO_MUX_SECTION_START",
 "AUO_MUX_RUN_START",
 "AUO_MUX_RUN_VIDEO",
@@ -298,6 +296,13 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_MUX_RUN_EXT_MODE",
 "AUO_MUX_RUN",
 "AUO_MUX_CPU_USAGE",
+"AUO_CONF_SECTION_START",
+"AUO_CONF_PRIORITY_REALTIME",
+"AUO_CONF_AUDIO_DELAY_NONE",
+"AUO_CONF_AUDIO_DELAY_CUT_AUDIO",
+"AUO_CONF_AUDIO_DELAY_ADD_VIDEO",
+"AUO_CONF_AUDIO_DELAY_EDTS",
+"AUO_CONF_LAST_OUT_STG",
 "AUO_BAT_SECTION_START",
 "AUO_BAT_RUN",
 "AUO_VIDEO_SECTION_START",
@@ -647,6 +652,7 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AuofrmTTColorMatrix4",
 "AuofrmTTColorMatrix5",
 "AuofrmTTColorMatrix6",
+"AuofrmTTfcgTTX264Version",
 "AuofrmTTfcgCBUsehighbit",
 "AuofrmTTfcgBTX264Path",
 "AuofrmTTfcgCXX264ModeSinglePath",
@@ -734,7 +740,6 @@ static const const char * AUO_MES_ID_NAME_STR[] = {
 "AuofasBTCancel",
 "AuofasBTOK",
 "AuofasMain",
-"AUO_AUTO_SAVE_LOG_FILE_NAME",
 "AUO_AUTO_SAVE_LOG_SAME_AS_OUTPUT",
 "AUO_AUTO_SAVE_LOG_CUSTOM",
 "AUO_AUTO_SAVE_LOG_EXT_FILTER",
@@ -877,7 +882,7 @@ std::string str_replace(std::string str, const std::string& from, const std::str
 }
 
 AuoMesSections AuoMessages::getSectionId(const std::string& section) const {
-	for (int i = 0; i < AUO_MES_SECTIONS_STR.size(); i++) {
+	for (size_t i = 0; i < AUO_MES_SECTIONS_STR.size(); i++) {
 		if (strcmp(AUO_MES_SECTIONS_STR[i].first, section.c_str()) == 0) {
 			return (AuoMesSections)i;
 		}

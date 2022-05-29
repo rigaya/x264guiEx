@@ -70,25 +70,6 @@ enum {
 typedef DWORD AUO_RESULT;
 
 typedef struct {
-    WCHAR *text;
-    DWORD value;
-} PRIORITY_CLASS;
-
-const DWORD AVIUTLSYNC_PRIORITY_CLASS = 0;
-
-const PRIORITY_CLASS priority_table[] = {
-    {L"AviutlSync",       AVIUTLSYNC_PRIORITY_CLASS   },
-    {L"higher",           HIGH_PRIORITY_CLASS         },
-    {L"high",             ABOVE_NORMAL_PRIORITY_CLASS },
-    {L"normal",           NORMAL_PRIORITY_CLASS       },
-    {L"low",              BELOW_NORMAL_PRIORITY_CLASS },
-    {L"lower",            IDLE_PRIORITY_CLASS         },
-    {L"",                 NORMAL_PRIORITY_CLASS       },
-    {L"realtime(非推奨)", REALTIME_PRIORITY_CLASS     },
-    {NULL,                0                           }
-};
-
-typedef struct {
     char   name[256]; //フォント名(family name)
     double size;      //フォントサイズ
     int    style;     //フォントスタイル
@@ -101,5 +82,7 @@ void write_log_auo_enc_time(const char *mes, DWORD time);
 int create_auoSetup(const char *exePath);
 
 int load_lng(const char *lang);
+const char *get_auo_version_info();
+const char *get_last_out_stg_appendix();
 
 #endif //_AUO_H_

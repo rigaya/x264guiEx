@@ -28,8 +28,8 @@
 #include <winver.h>
 #include "auo_version.h"
 
-X264GUI_EX_JP_LNG EXE_DATA DISCARDABLE "x264guiEx.ja.lng"
-X264GUI_EX_EN_LNG EXE_DATA DISCARDABLE "x264guiEx.en.lng"
+X264GUIEX_JA_LNG EXE_DATA DISCARDABLE "x264guiEx.ja.lng"
+X264GUIEX_EN_LNG EXE_DATA DISCARDABLE "x264guiEx.en.lng"
 
 //
 // Version Information

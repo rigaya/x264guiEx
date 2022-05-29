@@ -70,6 +70,26 @@ const int CONF_HEAD_SIZE                 = (3 + CONF_BLOCK_MAX) * sizeof(int) + 
 
 static const char *const CONF_LAST_OUT   = "前回出力.stg";
 
+typedef struct {
+    WCHAR *text;
+    AuoMes mes;
+    DWORD value;
+} PRIORITY_CLASS;
+
+const DWORD AVIUTLSYNC_PRIORITY_CLASS = 0;
+
+const PRIORITY_CLASS priority_table[] = {
+    {L"AviutlSync",       AUO_MES_UNKNOWN, AVIUTLSYNC_PRIORITY_CLASS   },
+    {L"higher",           AUO_MES_UNKNOWN, HIGH_PRIORITY_CLASS         },
+    {L"high",             AUO_MES_UNKNOWN, ABOVE_NORMAL_PRIORITY_CLASS },
+    {L"normal",           AUO_MES_UNKNOWN, NORMAL_PRIORITY_CLASS       },
+    {L"low",              AUO_MES_UNKNOWN, BELOW_NORMAL_PRIORITY_CLASS },
+    {L"lower",            AUO_MES_UNKNOWN, IDLE_PRIORITY_CLASS         },
+    {L"",                 AUO_MES_UNKNOWN, NORMAL_PRIORITY_CLASS       },
+    {L"realtime(非推奨)", AUO_CONF_PRIORITY_REALTIME, REALTIME_PRIORITY_CLASS },
+    {NULL,                AUO_MES_UNKNOWN, 0                           }
+};
+
 enum {
     CONF_ERROR_NONE = 0,
     CONF_ERROR_FILE_OPEN,

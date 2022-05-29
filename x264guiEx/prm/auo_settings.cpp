@@ -205,9 +205,9 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
         strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
         load_lang();
         bool language_ini_selected = false;
-        for (int ilang = 0; ilang < _countof(list_language_code); ilang++) {
-            if (   strcmp(language, list_language_code[ilang]) == 0
-                && strcmp(AUO_LANGUAGE_DEFAULT, list_language_code[ilang]) != 0) {
+        for (const auto& auo_lang : list_auo_languages) {
+            if (   strcmp(language, auo_lang.code) == 0
+                && strcmp("ja", auo_lang.code) != 0) { // 日本語用x264guiEx.iniはx264guiEx.iniのまま
                 char ini_append[64];
                 sprintf_s(ini_append, ".%s%s", language, INI_APPENDIX);
                 apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
@@ -226,6 +226,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             load_fn_replace();
             load_log_win();
             load_append();
+            load_last_out_stg();
         }
     }
 }
@@ -283,11 +284,18 @@ void guiEx_settings::get_default_lang() {
     GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, userSysLangW, _countof(userSysLangW));
     const auto userSysLang = wstring_to_string(userSysLangW);
     const char *defaultLanguage = AUO_LANGUAGE_DEFAULT;
-    for (int ilang = 0; ilang < _countof(list_language_code); ilang++) {
-        if (strcmp(userSysLang.c_str(), list_language_code[ilang]) == 0) {
-            defaultLanguage = list_language_code[ilang];
+    for (const auto& auo_lang : list_auo_languages) {
+        if (stricmp(userSysLang.c_str(), auo_lang.code) == 0) {
+            defaultLanguage = auo_lang.code;
             break;
         }
+    }
+    //日本語のみ重ねてチェック
+    WCHAR userSysCountryW[LOCALE_NAME_MAX_LENGTH] = { 0 };
+    GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, userSysCountryW, _countof(userSysCountryW));
+    const auto userSysCountry = wstring_to_string(userSysCountryW);
+    if (stricmp(userSysCountry.c_str(), "JP") == 0) {
+        defaultLanguage = AUO_LANGUAGE_JA;
     }
     strcpy_s(default_lang, defaultLanguage);
 }
@@ -313,6 +321,14 @@ void guiEx_settings::set_and_save_lang(const char *lang) {
     }
 }
 
+const char *guiEx_settings::get_last_out_stg() const {
+    return last_out_stg;
+}
+
+void guiEx_settings::set_last_out_stg(const char *stg) {
+    strcpy_s(last_out_stg, stg);
+}
+
 void guiEx_settings::load_encode_stg() {
     load_aud();
     load_mux();
@@ -322,6 +338,10 @@ void guiEx_settings::load_encode_stg() {
 
 void guiEx_settings::load_lang() {
     GetPrivateProfileString(ini_section_main, "language", default_lang, language, _countof(language), conf_fileName);
+}
+
+void guiEx_settings::load_last_out_stg() {
+    GetPrivateProfileString(ini_section_main, "last_out_stg", "", last_out_stg, _countof(last_out_stg), conf_fileName);
 }
 
 void guiEx_settings::load_aud() {
@@ -775,6 +795,10 @@ void guiEx_settings::save_fbc() {
 
 void guiEx_settings::save_lang() {
     WritePrivateProfileString(ini_section_main, "language", language, conf_fileName);
+}
+
+void guiEx_settings::save_last_out_stg() {
+    WritePrivateProfileString(ini_section_main, "last_out_stg", last_out_stg, conf_fileName);
 }
 
 BOOL guiEx_settings::get_reset_s_x264_referesh() {

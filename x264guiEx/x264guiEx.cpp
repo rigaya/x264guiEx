@@ -183,7 +183,13 @@ BOOL func_output( OUTPUT_INFO *oip )
 
     const bool conf_not_initialized = memcmp(&conf_out, &g_conf, sizeof(g_conf)) == 0;
     if (conf_not_initialized) {
-        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, g_sys_dat.exstg->get_last_out_stg());
+        if (!PathFileExists(default_stg_file)) {
+            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
+        }
+        if (!PathFileExists(default_stg_file)) {
+            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        }
         if (!PathFileExists(default_stg_file)
             || guiEx_config::load_guiEx_conf(&g_conf, default_stg_file) != CONF_ERROR_NONE) {
             //前回出力した設定ファイルがない場合は、デフォルト設定をロード
@@ -241,8 +247,10 @@ BOOL func_output( OUTPUT_INFO *oip )
     // エラーが発生しなかった場合は設定を保存
     if (ret == AUO_RESULT_SUCCESS) {
         memset(default_stg_file, 0, sizeof(default_stg_file));
-        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
         guiEx_config::save_guiEx_conf(&conf_out, default_stg_file);
+        g_sys_dat.exstg->set_last_out_stg(PathFindFileName(default_stg_file));
+        g_sys_dat.exstg->save_last_out_stg();
     }
     free_enc_prm(&pe);
 
@@ -378,6 +386,15 @@ void overwrite_aviutl_ini_auo_info() {
     }
 }
 
+const char *get_last_out_stg_appendix() {
+    const char *appendix = g_auo_mes.get(AUO_CONF_LAST_OUT_STG);
+    return (appendix && strlen(appendix)) ? appendix : CONF_LAST_OUT;
+}
+
+const char *get_auo_version_info() {
+    return output_plugin_table.information;
+}
+
 void make_file_filter(char *filter, size_t nSize, int default_index) {
     char TOP[256];
     sprintf_s(TOP, "%s (*.*)", g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS));
@@ -448,14 +465,16 @@ int load_lng(const char *lang) {
     if (g_auo_mes.isLang(lang)) {
         return 0;
     }
-    const char *resource = "X264GUI_EX_JP_LNG";
+    const char *resource = "X264GUIEX_JA_LNG";
     if (lang && str_has_char(lang)) {
-        if (stricmp(lang, "jp") == 0 || stricmp(lang, "ja") == 0) {
-            resource = "X264GUI_EX_JP_LNG";
-        } else if (stricmp(lang, "en") == 0) {
-            resource = "X264GUI_EX_EN_LNG";
-        } else if (PathFileExists(lang)) {
+        if (PathFileExists(lang)) {
             return g_auo_mes.read(lang);
+        }
+        for (const auto& auo_lang : list_auo_languages) {
+            if (stricmp(auo_lang.code, lang) == 0) {
+                resource = auo_lang.resouce;
+                break;
+            }
         }
     }
     char *data = nullptr;

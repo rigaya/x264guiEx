@@ -71,11 +71,13 @@ AUO_ERR_AMP_CHANGE_BITRATE_TOO_BIG=Target bitrate is too big to keep upper %s se
 AUO_ERR_AMP_CHANGE_BITRATE_TOO_SMALL=Target bitrate is too small to keep lower %s settings.
 AUO_ERR_AMP_CHANGE_BITRATE_FROM_TO=Target bitrate will be changed: %d kbps -> %d kbps.
 AUO_ERR_AMP_CHANGE_BITRATE_AUTO=Target bitrate will be changed to %d kbps.
-AUO_ERR_INVALID_RESOLUTION=Input resolution cannot be divided by %d. Resolution : %dx%d
+AUO_ERR_INVALID_RESOLUTION=Input resolution(%s) cannot be divided by %d. Resolution : %dx%d
+AUO_ERR_INVALID_RESOLUTION_WIDTH=width
+AUO_ERR_INVALID_RESOLUTION_HEIGHT=height
 AUO_ERR_LOG_LINE_CACHE=Failed to allocate memory to save log data.
 AUO_ERR_NO_EXE_FILE1=%s does not exist in %s.
 AUO_ERR_NO_EXE_FILE2=The path of %s is not specified.
-AUO_ERR_NO_EXE_FILE3=Please place %s and set it's path from the config windows.
+AUO_ERR_NO_EXE_FILE3=Please place %s and set it's path from the config window.
 AUO_ERR_USE_DEFAULT_AUDIO_ENCODER=Default audio encoder will be used as audio encoder setting(s) is not set properly.
 AUO_ERR_INFO_USE_EXE_FOUND= Using %s : "%s".
 AUO_ERR_INVALID_INI_FILE=Settings in plugin(auo) and ini file does not match.
@@ -106,14 +108,14 @@ AUO_ERR_MALLOC_8BIT=Failed to allocate memory for 16bit->8bit audio conversion.
 AUO_ERR_AFS_INTERLACE_STG=There is confliction in video settings, Both auto field shift(afs) and interlace setting is on. Please remove confliction and try again.
 AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED1=x264.exe specified does not support mp4 output.
 AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED2=Extra mux process will use extra processing time.
-AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED3=It is recommended to use %s.exe supporting mp4 output.
-AUO_ERR_VIDENC_DEAD=%s has aborted unexpectedly. Invalid option may have been passed to %s.
-AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE1=%s has aborted unexpectedly.
+AUO_ERR_X264_MP4_OUTPUT_NOT_SUPPORTED3=It is recommended to use x264.exe supporting mp4 output.
+AUO_ERR_VIDENC_DEAD=x264 has aborted unexpectedly. Invalid option may have been passed to x264.exe.
+AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE1=x264.exe has aborted unexpectedly.
 AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE2=Free space on %s drive is %.2f MB.
 AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE3=Processing might have failed due to out of disk space of %s drive.
 AUO_ERR_VIDENC_DEAD_AND_NODISKSPACE4=Please create more free space on %s drive, and try again.
-AUO_ERR_VIDENC_VERSION1=Could not continue processing as version of %s is too old.
-AUO_ERR_VIDENC_VERSION2=Please update %s to the latest version.
+AUO_ERR_VIDENC_VERSION1=Could not continue processing as version of x264.exe is too old.
+AUO_ERR_VIDENC_VERSION2=Please update x264.exe to the latest version.
 AUO_ERR_VIDENC_VERSION3=Version required
 AUO_ERR_VIDENC_VERSION4=Version of exe file
 AUO_ERR_AFS_GET_FRAME=Failed to get frame from Aviutl.
@@ -202,7 +204,8 @@ AUO_AUDIO_START_ENCODE=encode
 AUO_AUDIO_CPU_USAGE=CPU Utilization
 
 [AUO_ENCODE]
-AUO_ENCODE_AUDIO_ONLY=Audio only output
+AUO_ENCODE_AUDIO_ONLY=Audio only output.
+AUO_ENCODE_AUDIO_ENCODER=Audio Encoder
 AUO_ENCODE_TMP_FOLDER=temporary directory
 AUO_ENCODE_TMP_FOLDER_AUDIO=Audio temporary directory
 AUO_ENCODE_ERROR_MOVE_CHAPTER_FILE=Failed to move chapter file.
@@ -227,8 +230,8 @@ AUO_FAW2AAC_ERR_RUN=Failed to run faw2aac.auo.
 
 [AUO_MUX]
 AUO_MUX_RUN_START=mux
-AUO_MUX_RUN_VIDEO=Video
-AUO_MUX_RUN_AUDIO=Audio
+AUO_MUX_RUN_VIDEO=video
+AUO_MUX_RUN_AUDIO=audio
 AUO_MUX_RUN_TC=tc
 AUO_MUX_RUN_CHAP=chap
 AUO_MUX_RUN_EXT_MODE=ext mode
@@ -236,10 +239,12 @@ AUO_MUX_RUN=mux...
 AUO_MUX_CPU_USAGE=CPU Utilization
 
 [AUO_CONF]
+AUO_CONF_PRIORITY_REALTIME=realtime (deprecated)
 AUO_CONF_AUDIO_DELAY_NONE=disabled
 AUO_CONF_AUDIO_DELAY_CUT_AUDIO=cut audio
 AUO_CONF_AUDIO_DELAY_ADD_VIDEO=add video
 AUO_CONF_AUDIO_DELAY_EDTS=edts
+AUO_CONF_LAST_OUT_STG=PreviousOutput.stg
 
 [AUO_BAT]
 AUO_BAT_RUN=bat file process
@@ -252,14 +257,14 @@ AUO_VIDEO_SET_KEYFRAME_NO_MUXER=Keyframe setting from chapter file is skipped, a
 AUO_VIDEO_SET_KEYFRAME_NO_CHAPTER=Chapter file does not exist.
 AUO_VIDEO_SET_KEYFRAME_CHAPTER_READ_ERROR=Could not read chapter from chapter file.
 AUO_VIDEO_SET_KEYFRAME_RESULT=%d keyframe(s) is set from chapter file.
-AUO_VIDEO_CHAPTER_AFS_ADJUST_START=Chapter adjust calculation(afs 24fps mode)...
+AUO_VIDEO_CHAPTER_AFS_ADJUST_START=Chapter adjust calculation (afs 24fps mode)...
 AUO_VIDEO_CHAPTER_AFS_ADJUST_FIN=Chapter adjust calculation(afs 24fps mode) completed.
 AUO_VIDEO_SET_KEYFRAME_NOT_DETECTED=Keyframe setting not detected.
 AUO_VIDEO_AFS_VBV_WARN=vbv setting(s) will not be applied correctly when using Auto field shift.
 AUO_VIDEO_AUDIO_PROC_WAIT=Waiting for audio process to finish...
 AUO_VIDEO_CPU_USAGE=CPU Utilization
-AUO_VIDEO_AVIUTL_PROC_AVG_TIME=Avg. Aviutl frame proc time
-AUO_VIDEO_ENCODE_TIME=encode time
+AUO_VIDEO_AVIUTL_PROC_AVG_TIME=Avg. frame proc time
+AUO_VIDEO_ENCODE_TIME=x264 encode time
 AUO_VIDEO_ENCODE=encode
 AUO_VIDEO_AUDIO_ENCODE=audio encode
 
@@ -354,7 +359,7 @@ AuofcgLBLog=loglevel
 AuofcgLBSlices=slices
 AuofcgLBLookaheadThreads=sub threads
 AuofcgCBSlicedThreads=sliced threads
-AuofcgLBThreads=Threads
+AuofcgLBThreads=threads
 AuofcgCBUsehighbit=highbit depth
 AuofcgCBBlurayCompat=bluray compat
 AuofcgCBAud=aud
@@ -597,6 +602,7 @@ AuofrmTTColorMatrix3=video height
 AuofrmTTColorMatrix4=over
 AuofrmTTColorMatrix5=less than
 AuofrmTTColorMatrix6=
+AuofrmTTfcgTTX264Version=x264 version info...
 AuofrmTTfcgCBUsehighbit=--input-depth 16 --output-depth 10\n\nEncode in 10bitdepth.\nPlease note that the output might not be able to\nplay on some players.
 AuofrmTTfcgBTX264Path=Set x264.exe path.\n\nThis setting is saved in 264guiEx.conf,\nand cannot be changed in each bat process.
 AuofrmTTfcgCXX264ModeSinglePath=Single Pass
@@ -674,11 +680,14 @@ AuofrmTTfcgTSBSave=Overwrite current settings to the profile selected.
 AuofrmTTfcgTSBSaveNew=Save current settings to a new profile.
 
 [AUO_AUTO_SAVE_LOG]
-AuofasLBAutoSaveLog=Auto save log file name
+AuofasLBAutoSaveLog=Log file name
 AuofasBTAutoSaveLog=..
 AuofasBTCancel=Cancel
 AuofasBTOK=OK
 AuofasMain=Auto save log
+AUO_AUTO_SAVE_LOG_SAME_AS_OUTPUT=Output dir
+AUO_AUTO_SAVE_LOG_CUSTOM=Custom
+AUO_AUTO_SAVE_LOG_EXT_FILTER=log files(*.txt)|*.txt|all files(*.*)|*.*
 
 [AUO_BITRATE_CALC]
 Auolabel1=Length
@@ -731,7 +740,7 @@ AuotoolStripStatusCurrentTask=Task
 AuotoolStripStatusElapsedTime=ElapsedTime
 AuotoolStripStatusCurrentProgress=Progress
 AuoFrmLogMain=x264guiEx Log
-AUO_LOG_ENCODE_FIN_TIME=yyyy/M/d H:mm finish encode
+AUO_LOG_ENCODE_FIN_TIME=M/d/yyyy H:mm finish encode
 AUO_LOG_ERR_SAVE_LOG=Failed to save log.
 AUO_LOG_ERR_FILE_OPEN=Failed to open file.
 AUO_LOG_ERR_SHOW_FILE_PATH=Failed to show file.

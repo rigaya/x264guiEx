@@ -32,20 +32,23 @@
 #include <array>
 #include <string>
 
+// 言語コードは2文字表記のiso639-1を用いる
 static const char *AUO_LANGUAGE_JA = "ja";
 static const char *AUO_LANGUAGE_EN = "en";
-static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_JA;
+// デフォルトは英語、ただしOSの言語設定および国コードで日本があらわれた場合、
+// 日本語をデフォルトとする (auo_settings.h/.cpp: guiEx_settings::get_default_lang())
+static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_EN;
 
-static const char * const list_language_code[] = {
-    AUO_LANGUAGE_JA,
-    AUO_LANGUAGE_EN
+struct AUO_LANGUAGE {
+    const char *code;
+    const char *name;
+    const char *resouce;
 };
 
-static const char * const list_language_name[] = {
-    "日本語",
-    "English"
+static const std::array<AUO_LANGUAGE, 2> list_auo_languages = {
+    AUO_LANGUAGE{ AUO_LANGUAGE_JA, "日本語",  "X264GUIEX_JA_LNG" }, // 日本語を第1項目とする
+    AUO_LANGUAGE{ AUO_LANGUAGE_EN, "English", "X264GUIEX_EN_LNG" }
 };
-static_assert(_countof(list_language_code) == _countof(list_language_name));
 
 enum AuoMesSections {
     AUO_SECTION_UNKNOWN = -1,
@@ -156,6 +159,8 @@ enum AuoMes {
     AUO_ERR_AMP_CHANGE_BITRATE_AUTO,
 
     AUO_ERR_INVALID_RESOLUTION,
+    AUO_ERR_INVALID_RESOLUTION_WIDTH,
+    AUO_ERR_INVALID_RESOLUTION_HEIGHT,
     AUO_ERR_LOG_LINE_CACHE,
 
     AUO_ERR_NO_EXE_FILE1,
@@ -311,6 +316,7 @@ enum AuoMes {
     //section = AUO_ENCODE
     AUO_ENCODE_SECTION_START = AUO_AUDIO_SECTION_FIN,
     AUO_ENCODE_AUDIO_ONLY,
+    AUO_ENCODE_AUDIO_ENCODER,
     AUO_ENCODE_TMP_FOLDER,
     AUO_ENCODE_TMP_FOLDER_AUDIO,
     AUO_ENCODE_ERROR_MOVE_CHAPTER_FILE,
@@ -351,10 +357,12 @@ enum AuoMes {
 
     //section = AUO_CONF
     AUO_CONF_SECTION_START = AUO_MUX_SECTION_FIN,
+    AUO_CONF_PRIORITY_REALTIME,
     AUO_CONF_AUDIO_DELAY_NONE,
     AUO_CONF_AUDIO_DELAY_CUT_AUDIO,
     AUO_CONF_AUDIO_DELAY_ADD_VIDEO,
     AUO_CONF_AUDIO_DELAY_EDTS,
+    AUO_CONF_LAST_OUT_STG,
     AUO_CONF_SECTION_FIN,
 
     //section = AUO_BAT
@@ -730,6 +738,7 @@ enum AuoMes {
             AuofrmTTColorMatrix5,
             AuofrmTTColorMatrix6,
 
+            AuofrmTTfcgTTX264Version,
             AuofrmTTfcgCBUsehighbit,
             AuofrmTTfcgBTX264Path,
             AuofrmTTfcgCXX264ModeSinglePath,
@@ -821,10 +830,9 @@ enum AuoMes {
         AuofasBTCancel,
         AuofasBTOK,
         AuofasMain,
-    AUO_AUTO_SAVE_LOG_FILE_NAME,
-    AUO_AUTO_SAVE_LOG_SAME_AS_OUTPUT,
-    AUO_AUTO_SAVE_LOG_CUSTOM,
-    AUO_AUTO_SAVE_LOG_EXT_FILTER,
+        AUO_AUTO_SAVE_LOG_SAME_AS_OUTPUT,
+        AUO_AUTO_SAVE_LOG_CUSTOM,
+        AUO_AUTO_SAVE_LOG_EXT_FILTER,
     AUO_AUTO_SAVE_LOG_SECTION_FIN,
 
     //section = AUO_BITRATE_CALC
