@@ -30,6 +30,7 @@
 #include "auo_frm.h"
 #include "auo_util.h"
 #include "auo_settings.h"
+#include "auo_mes.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -568,12 +569,36 @@ namespace x264guiEx {
         System::Void fbcBTABApply_Click(System::Object^  sender, System::EventArgs^  e);
         System::Void frmBitrateCalculator_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e);
         System::Void fbcRBCalcRate_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
+    private:
+        System::Void LoadLangText() {
+            LOAD_CLI_MAIN_TEXT(fbcMain);
+            LOAD_CLI_TEXT(label1);
+            LOAD_CLI_TEXT(label2);
+            LOAD_CLI_TEXT(label3);
+            LOAD_CLI_TEXT(label4);
+            LOAD_CLI_TEXT(fbcLBVideoBitrate);
+            LOAD_CLI_TEXT(fbcLBAudioBitrate);
+            LOAD_CLI_TEXT(fbcLBMovieSize);
+            LOAD_CLI_TEXT(fbcLBVideoBitrateKbps);
+            LOAD_CLI_TEXT(fbcLBAudioBitrateKbps);
+            LOAD_CLI_TEXT(label10);
+            LOAD_CLI_TEXT(fbcBTVBApply);
+            LOAD_CLI_TEXT(fbcBTABApply);
+            LOAD_CLI_TEXT(fbcLBMovieBitrateKbps);
+            LOAD_CLI_TEXT(fbcLBMovieBitrate);
+            LOAD_CLI_TEXT(fbcRBCalcRate);
+            LOAD_CLI_TEXT(fbcRBCalcSize);
+            LOAD_CLI_TEXT(fbcTXMovieFrameRate);
+            LOAD_CLI_TEXT(fbcLBFrames);
+            LOAD_CLI_TEXT(fbcLBMovieFrameRate);
+            LOAD_CLI_TEXT(fbcBTChangeLengthMode);
+        }
     public:
         System::Void Init(int VideoBitrate, int AudioBitrate, bool BTVBEnable, bool BTABEnable, int ab_max);
     private:
         System::Void fbcChangeTimeSetMode(bool use_frames) {
             fbcPNMovieFrames->Visible = use_frames;
-            fbcBTChangeLengthMode->Text = (use_frames) ? L"時間指定に変更" : L"フレーム数指定に変更";
+            fbcBTChangeLengthMode->Text = (use_frames) ? LOAD_CLI_STRING(AUO_FBC_LENGTH_MODE_TO_TIME) : LOAD_CLI_STRING(AUO_FBC_LENGTH_MODE_TO_FRAME_NUMBER);
         }
     private: 
         System::Void frmBitrateCalculator_Load(System::Object^  sender, System::EventArgs^  e) {
@@ -582,6 +607,7 @@ namespace x264guiEx {
             LastStr = L"";
             SetNUValue(fbcNUBitrateSum, fbcNUBitrateAudio->Value + fbcNUBitrateVideo->Value);
             fbcNULength_TextChanged(nullptr, nullptr);
+            LoadLangText();
             //フォントの設定
             guiEx_settings exstg;
             exstg.load_encode_stg();

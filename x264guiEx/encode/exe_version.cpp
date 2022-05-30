@@ -56,7 +56,6 @@ int get_x265_version_from_filename(const char *exe_path, int version[4]) {
     int value[4] = { 0 };
     memset(version, 0, sizeof(value));
 
-    int rev = 0;
     if (   sscanf_s(filename, "x265_%d.%d+%d_x64.exe", &value[0], &value[1], &value[3]) == 3
         || sscanf_s(filename, "x265_%d.%d+%d_x86.exe", &value[0], &value[1], &value[3]) == 3
         || sscanf_s(filename, "x265_%d.%d_x64.exe",    &value[0], &value[1]) == 2
@@ -73,7 +72,6 @@ int get_svtav1_version_from_filename(const char *exe_path, int version[4]) {
     int value[4] = { 0 };
     memset(version, 0, sizeof(value));
 
-    int rev = 0;
     if (   sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 3
         || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 3
         || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 3

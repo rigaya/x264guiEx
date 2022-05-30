@@ -43,6 +43,7 @@
 #include "auo_audio.h"
 #include "auo_audio_parallel.h"
 #include "auo_faw2aac.h"
+#include "auo_mes.h"
 
 typedef OUTPUT_PLUGIN_TABLE* (*func_get_auo_table)(void);
 
@@ -223,12 +224,12 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
     }
 
     if (hModule == NULL) {
-        ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_INFO, "faw2aac.auoが見つかりませんでした。");
+        ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_FAW2AAC_NOT_FOUND));
     } else if (
            NULL == (getFAW2AACTable = (func_get_auo_table)GetProcAddress(hModule, "GetOutputPluginTable")) 
         || NULL == (opt = getFAW2AACTable()) 
         || NULL ==  opt->func_output) {
-        ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "faw2aac.auoのロードに失敗しました。");
+        ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_NOT_LOADED));
     } else {
         OUTPUT_INFO oip_faw2aac = *oip;
         for (int i_aud = 0; !ret && i_aud < pe->aud_count; i_aud++) {
@@ -255,12 +256,12 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
 
             //開始
             if (opt->func_init && !opt->func_init()) {
-                ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "faw2aac.auoの初期化に失敗しました。");
+                ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_ERR_INIT));
             } else {
                 set_window_title("faw2aac", PROGRESSBAR_CONTINUOUS);
-                write_log_auo_line(LOG_INFO, "faw2aac で音声エンコードを行います。");
+                write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_FAW2AAC_RUN));
                 if (FALSE == opt->func_output(&oip_faw2aac)) {
-                    ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, "faw2aac.auoの実行に失敗しました。");
+                    ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_ERR_RUN));
                 }
                 if (opt->func_exit)
                     opt->func_exit();

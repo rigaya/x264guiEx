@@ -47,14 +47,19 @@
 #include "auo_mux.h"
 #include "auo_encode.h"
 #include "auo_runbat.h"
+#include "auo_mes.h"
 
 //---------------------------------------------------------------------
 //        出力プラグイン内部変数
 //---------------------------------------------------------------------
 
+static HMODULE g_dll_module = NULL;
 static CONF_GUIEX g_conf = { 0 };
 static SYSTEM_DATA g_sys_dat = { 0 };
 static char g_auo_filefilter[1024] = { 0 };
+static char g_auo_fullname[1024] = { 0 };
+static char g_auo_version_info[1024] = { 0 };
+AuoMessages g_auo_mes;
 
 //---------------------------------------------------------------------
 //        出力プラグイン構造体定義
@@ -82,6 +87,7 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     make_file_filter(NULL, 0, g_sys_dat.exstg->s_local.default_output_ext);
     overwrite_aviutl_ini_file_filter(g_sys_dat.exstg->s_local.default_output_ext);
     output_plugin_table.filefilter = g_auo_filefilter;
+    overwrite_aviutl_ini_auo_info();
     return &output_plugin_table;
 }
 
@@ -141,6 +147,16 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     //                        //    戻り値    : データへのポインタ
     //                        //              画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
 
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+    UNREFERENCED_PARAMETER(lpReserved);
+    switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH:
+        g_dll_module = hModule;
+        break;
+    }
+    return TRUE;
+}
+
 BOOL func_init()
 {
     return TRUE;
@@ -167,7 +183,13 @@ BOOL func_output( OUTPUT_INFO *oip )
 
     const bool conf_not_initialized = memcmp(&conf_out, &g_conf, sizeof(g_conf)) == 0;
     if (conf_not_initialized) {
-        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, g_sys_dat.exstg->get_last_out_stg());
+        if (!PathFileExists(default_stg_file)) {
+            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
+        }
+        if (!PathFileExists(default_stg_file)) {
+            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        }
         if (!PathFileExists(default_stg_file)
             || guiEx_config::load_guiEx_conf(&g_conf, default_stg_file) != CONF_ERROR_NONE) {
             //前回出力した設定ファイルがない場合は、デフォルト設定をロード
@@ -204,7 +226,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 
         ret |= move_temporary_files(&conf_out, &pe, &g_sys_dat, oip, ret);
 
-        write_log_auo_enc_time("総エンコード時間  ", timeGetTime() - tm_start_enc);
+        write_log_auo_enc_time(g_auo_mes.get(AUO_X264GUIEX_TOTAL_TIME), timeGetTime() - tm_start_enc);
 
         close_afsvideo(&pe); //※3 end
 
@@ -225,8 +247,10 @@ BOOL func_output( OUTPUT_INFO *oip )
     // エラーが発生しなかった場合は設定を保存
     if (ret == AUO_RESULT_SUCCESS) {
         memset(default_stg_file, 0, sizeof(default_stg_file));
-        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
+        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
         guiEx_config::save_guiEx_conf(&conf_out, default_stg_file);
+        g_sys_dat.exstg->set_last_out_stg(PathFindFileName(default_stg_file));
+        g_sys_dat.exstg->save_last_out_stg();
     }
     free_enc_prm(&pe);
 
@@ -276,6 +300,7 @@ void init_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
     get_aviutl_dir(sys_dat->aviutl_dir, _countof(sys_dat->aviutl_dir));
     sys_dat->exstg = new guiEx_settings();
     set_ex_stg_ptr(sys_dat->exstg);
+    load_lng(g_sys_dat.exstg->get_lang());
     sys_dat->init = TRUE;
 }
 void delete_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
@@ -321,12 +346,12 @@ void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
 //エンコード時間の表示
 void write_log_auo_enc_time(const char *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
-    write_log_auo_line_fmt(LOG_INFO, "%s : %d時間%2d分%2d.%1d秒",
+    write_log_auo_line_fmt(LOG_INFO, "%s : %d%s%2d%s%2d.%1d%s",
         mes,
-        time / (60*60*1000),
-        (time % (60*60*1000)) / (60*1000),
+        time / (60*60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_HOUR),
+        (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_MIN),
         (time % (60*1000)) / 1000,
-        ((time % 1000)) / 100);
+        ((time % 1000)) / 100, g_auo_mes.get(AUO_X264GUIEX_TIME_SEC));
 }
 
 void overwrite_aviutl_ini_file_filter(int idx) {
@@ -340,8 +365,39 @@ void overwrite_aviutl_ini_file_filter(int idx) {
     WritePrivateProfileString(AUO_NAME, "filefilter", filefilter_ini, ini_file);
 }
 
+void overwrite_aviutl_ini_auo_info() {
+    char ini_file[1024];
+    get_aviutl_dir(ini_file, _countof(ini_file));
+    PathAddBackSlashLong(ini_file);
+    strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
+
+    const char *auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
+    if (auo_full_name && strlen(auo_full_name) > 0 && strcmp(auo_full_name, output_plugin_table.name) != 0) {
+        strcpy_s(g_auo_fullname, auo_full_name);
+        output_plugin_table.name = g_auo_fullname;
+        if (strcmp(auo_full_name, AUO_NAME_WITHOUT_EXT) != 0) {
+            sprintf_s(g_auo_version_info, "%s (%s) %s by rigaya", auo_full_name, AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        } else {
+            sprintf_s(g_auo_version_info, "%s %s by rigaya", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        }
+        output_plugin_table.information = g_auo_version_info;
+        WritePrivateProfileString(AUO_NAME, "name", output_plugin_table.name, ini_file);
+        WritePrivateProfileString(AUO_NAME, "information", output_plugin_table.information, ini_file);
+    }
+}
+
+const char *get_last_out_stg_appendix() {
+    const char *appendix = g_auo_mes.get(AUO_CONF_LAST_OUT_STG);
+    return (appendix && strlen(appendix)) ? appendix : CONF_LAST_OUT;
+}
+
+const char *get_auo_version_info() {
+    return output_plugin_table.information;
+}
+
 void make_file_filter(char *filter, size_t nSize, int default_index) {
-    static const char *const TOP = "All Support Formats (*.*)";
+    char TOP[256];
+    sprintf_s(TOP, "%s (*.*)", g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS));
     const char separator = (filter) ? '\\' : '\0';
     if (filter == NULL) {
         filter = g_auo_filefilter;
@@ -382,4 +438,52 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
         if (idx != default_index)
             add_desc(idx);
     ptr[0] = '\0';
+}
+
+static int getEmbeddedResource(void **data, const TCHAR *name, const TCHAR *type, HMODULE hModule) {
+    *data = nullptr;
+    //埋め込みデータを使用する
+    if (hModule == NULL) {
+        hModule = GetModuleHandle(NULL);
+    }
+    if (hModule == NULL) {
+        return 0;
+    }
+    HRSRC hResource = FindResource(hModule, name, type);
+    if (hResource == NULL) {
+        return 0;
+    }
+    HGLOBAL hResourceData = LoadResource(hModule, hResource);
+    if (hResourceData == NULL) {
+        return 0;
+    }
+    *data = LockResource(hResourceData);
+    return (int)SizeofResource(hModule, hResource);
+}
+
+int load_lng(const char *lang) {
+    if (g_auo_mes.isLang(lang)) {
+        return 0;
+    }
+    const char *resource = "X264GUIEX_JA_LNG";
+    if (lang && str_has_char(lang)) {
+        if (PathFileExists(lang)) {
+            return g_auo_mes.read(lang);
+        }
+        for (const auto& auo_lang : list_auo_languages) {
+            if (stricmp(auo_lang.code, lang) == 0) {
+                resource = auo_lang.resouce;
+                break;
+            }
+        }
+    }
+    char *data = nullptr;
+    int size = getEmbeddedResource((void **)&data, resource, "EXE_DATA", g_dll_module);
+    if (size == 0) {
+        return 1;
+    }
+    if (g_auo_mes.read(lang, data, size)) {
+        return 1;
+    }
+    return 0;
 }

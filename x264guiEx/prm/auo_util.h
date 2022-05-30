@@ -83,6 +83,53 @@ enum {
 #define foreach(it,a) \
     for (auto (it)=(a).begin();(it)!=(a).end();(it)++)
 
+static unsigned int wstring_to_string(const wchar_t *wstr, std::string& str, uint32_t codepage) {
+    if (wstr == nullptr) {
+        str = "";
+        return 0;
+    }
+    uint32_t flags = (codepage == CP_UTF8) ? 0 : WC_NO_BEST_FIT_CHARS;
+    int multibyte_length = WideCharToMultiByte(codepage, flags, wstr, -1, nullptr, 0, nullptr, nullptr);
+    std::vector<char> tmp(multibyte_length, 0);
+    if (0 == WideCharToMultiByte(codepage, flags, wstr, -1, tmp.data(), (int)tmp.size(), nullptr, nullptr)) {
+        str.clear();
+        return 0;
+    }
+    str = tmp.data();
+    return multibyte_length;
+}
+static std::string wstring_to_string(const wchar_t *wstr, uint32_t codepage = CP_THREAD_ACP) {
+    if (wstr == nullptr) {
+        return "";
+    }
+    std::string str;
+    wstring_to_string(wstr, str, codepage);
+    return str;
+}
+
+static unsigned int char_to_wstring(std::wstring& wstr, const char *str, uint32_t codepage) {
+    if (str == nullptr) {
+        wstr = L"";
+        return 0;
+    }
+    int widechar_length = MultiByteToWideChar(codepage, 0, str, -1, nullptr, 0);
+    std::vector<wchar_t> tmp(widechar_length, 0);
+    if (0 == MultiByteToWideChar(codepage, 0, str, -1, tmp.data(), (int)tmp.size())) {
+        wstr.clear();
+        return 0;
+    }
+    wstr = tmp.data();
+    return widechar_length;
+}
+static std::wstring char_to_wstring(const char *str, uint32_t codepage = CP_THREAD_ACP) {
+    if (str == nullptr) {
+        return L"";
+    }
+    std::wstring wstr;
+    char_to_wstring(wstr, str, codepage);
+    return wstr;
+}
+
 static std::string strprintf(const char* format, ...) {
     std::va_list arg;
     va_start(arg, format);

@@ -35,6 +35,7 @@ using namespace System::Threading;
 using namespace System::Diagnostics;
 
 #include "auo_options.h"
+#include "auo_mes.h"
 
 namespace x264guiEx {
 
@@ -213,21 +214,10 @@ namespace x264guiEx {
     const int fcgCXAudioEncModeLargeWidth = 237;
 };
 
-static const WCHAR *use_default_exe_path = L"exe_files内の実行ファイルを自動選択";
-
 //コンボボックスの表示名
-const WCHAR * const x264_encodemode_desc[] = {
-    L"シングルパス - ビットレート指定",
-    L"シングルパス - 固定量子化量",
-    L"シングルパス - 品質基準VBR(可変レート)",
-    L"マルチパス - 1pass",
-    L"マルチパス - Npass",
-    L"自動マルチパス",
-    L"サイズ確認付 品質基準VBR(可変レート)",
-    NULL
-};
 
-#define STR_BITRATE_AUTO (L"-1: 自動 ")
+#define STR_BITRATE_START L"-1: "
+#define STR_BITRATE_AUTO (STR_BITRATE_START + LOAD_CLI_STRING(AUO_CONFIG_BITRATE_AUTO))
 
 const int x264_encmode_to_RCint[] = {
     X264_RC_BITRATE,
@@ -250,43 +240,54 @@ const int x264_encmode_to_passint[] = {
     NULL
 };
 
-const WCHAR * const aspect_desc[] = {
-    L"SAR比を指定 (デフォルト)",
-    L"画面比から自動計算",
-    NULL
+static const X264_OPTION_STR x264_encodemode_desc[] = {
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_CBR,     L"シングルパス - ビットレート指定"        },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_QP,      L"シングルパス - 固定量子化量"            },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_CRF,     L"シングルパス - 品質基準VBR(可変レート)" },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_MULTI_1PASS,    L"マルチパス - 1pass"                     },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_MULTI_NPASS,    L"マルチパス - Npass"                     },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_AMP,            L"自動マルチパス"                         },
+    { NULL, AUO_CONFIG_CX_X264_ENCMODE_CRF_WITH_CHECK, L"サイズ確認付 品質基準VBR(可変レート)"   },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-const WCHAR * const tempdir_desc[] = {
-    L"出力先と同じフォルダ (デフォルト)",
-    L"システムの一時フォルダ",
-    L"カスタム",
-    NULL
+static const X264_OPTION_STR aspect_desc[] = {
+    { NULL, AUO_CONFIG_CX_ASPECT_SAR, L"SAR比を指定 (デフォルト)" },
+    { NULL, AUO_CONFIG_CX_ASPECT_DAR, L"画面比から自動計算"       },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-const WCHAR * const audtempdir_desc[] = {
-    L"変更しない",
-    L"カスタム",
-    NULL
+static const X264_OPTION_STR tempdir_desc[] = {
+    { NULL, AUO_CONFIG_CX_TEMPDIR_OUTDIR, L"出力先と同じフォルダ (デフォルト)" },
+    { NULL, AUO_CONFIG_CX_TEMPDIR_SYSTEM, L"システムの一時フォルダ"            },
+    { NULL, AUO_CONFIG_CX_TEMPDIR_CUSTOM, L"カスタム"                          },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-const WCHAR * const mp4boxtempdir_desc[] = {
-    L"指定しない",
-    L"カスタム",
-    NULL
+static const X264_OPTION_STR audtempdir_desc[] = {
+    { NULL, AUO_CONFIG_CX_AUDTEMP_DEFAULT, L"変更しない" },
+    { NULL, AUO_CONFIG_CX_AUDTEMP_CUSTOM,  L"カスタム"   },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-const WCHAR * const interlaced_desc[] = {
-    L"プログレッシブ",
-    L"インタレ (tff)",
-    L"インタレ (bff)",
-    NULL
+static const X264_OPTION_STR mp4boxtempdir_desc[] = {
+    { NULL, AUO_CONFIG_CX_MP4BOXTEMP_DEFAULT, L"指定しない" },
+    { NULL, AUO_CONFIG_CX_MP4BOXTEMP_CUSTOM,  L"カスタム"   },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-const WCHAR * const audio_enc_timing_desc[] = {
-    L"後",
-    L"前",
-    L"同時",
-    NULL
+static const X264_OPTION_STR interlaced_desc[] = {
+    { NULL, AUO_CONFIG_CX_INTERLACE_PROGRESSIVE, L"プログレッシブ" },
+    { NULL, AUO_CONFIG_CX_INTERLACE_TFF,         L"インタレ (tff)" },
+    { NULL, AUO_CONFIG_CX_INTERLACE_BFF,         L"インタレ (bff)" },
+    { NULL, AUO_MES_UNKNOWN, NULL }
+};
+
+static const X264_OPTION_STR audio_enc_timing_desc[] = {
+    { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_AFTER,    L"後"   },
+    { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_BEFORE,   L"前"   },
+    { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_PARALLEL, L"同時" },
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
 
@@ -302,34 +303,36 @@ const WCHAR * const DefaultTcFilePath = L"%{savfile}_tc.txt";
 
 typedef struct {
     WCHAR *string;
+    AuoMes mes;
     WCHAR *desc;
 } REPLACE_STRINGS;
 
 const REPLACE_STRINGS REPLACE_STRINGS_LIST[] = {
-    { L"%{vidpath}",          L"一時動画ファイル名(フルパス)" },
-    { L"%{audpath}",          L"一時音声ファイル名(フルパス)" },
-    { L"%{tmpdir}",           L"一時フォルダ名(最後の\\無し)" },
-    { L"%{tmpfile}",          L"一時ファイル名(フルパス・拡張子除く)" },
-    { L"%{tmpname}",          L"一時ファイル名(ファイル名のみ・拡張子除く)" },
-    { L"%{savpath}",          L"出力ファイル名(フルパス)" },
-    { L"%{savfile}",          L"出力ファイル名(フルパス・拡張子除く)" },
-    { L"%{savname}",          L"出力ファイル名(ファイル名のみ・拡張子除く)" },
-    { L"%{savdir}",           L"出力フォルダ名(最後の\\無し)" },
-    { L"%{aviutldir}",        L"Aviutl.exeのフォルダ名(最後の\\無し)" },
-    { L"%{chpath}",           L"チャプターファイル名(フルパス)" },
-    { L"%{tcpath}",           L"タイムコードファイル名(フルパス)" },
-    { L"%{muxout}",           L"muxで作成する一時ファイル名(フルパス)" },
-    //{ L"%{x264path}",         L"指定された x264.exe のパス" },
-    //{ L"%{x264_10path}",      L"指定された x264.exe(10bit版) のパス" },
-    //{ L"%{audencpath}",       L"実行された音声エンコーダのパス" },
-    //{ L"%{mp4muxerpath}",     L"mp4 muxerのパス" },
-    //{ L"%{mkvmuxerpath}",     L"mkv muxerのパス" },
-    { L"%{fps_scale}",        L"フレームレート(分母)" },
-    { L"%{fps_rate}",         L"フレームレート(分子)" },
-    { L"%{fps_rate_times_4}", L"フレームレート(分子)×4" },
-    { L"%{sar_x}",            L"サンプルアスペクト比 (横)" },
-    { L"%{sar_y}",            L"サンプルアスペクト比 (縦)" },
-    { L"%{dar_x}",            L"画面アスペクト比 (横)" },
-    { L"%{dar_y}",            L"画面アスペクト比 (縦)" },
-    { NULL, NULL }
+    { L"%{vidpath}",           AUO_CONFIG_CX_REPLACE_VID_PATH,         L"一時動画ファイル名(フルパス)" },
+    { L"%{audpath}",           AUO_CONFIG_CX_REPLACE_AUD_PATH,         L"一時音声ファイル名(フルパス)" },
+    { L"%{tmpdir}",            AUO_CONFIG_CX_REPLACE_TMPDIR,           L"一時フォルダ名(最後の\\無し)" },
+    { L"%{tmpfile}",           AUO_CONFIG_CX_REPLACE_TMPFILE,          L"一時ファイル名(フルパス・拡張子除く)" },
+    { L"%{tmpname}",           AUO_CONFIG_CX_REPLACE_TMPNAME,          L"一時ファイル名(ファイル名のみ・拡張子除く)" },
+    { L"%{savpath}",           AUO_CONFIG_CX_REPLACE_SAVPATH,          L"出力ファイル名(フルパス)" },
+    { L"%{savfile}",           AUO_CONFIG_CX_REPLACE_SAVFILE,          L"出力ファイル名(フルパス・拡張子除く)" },
+    { L"%{savname}",           AUO_CONFIG_CX_REPLACE_SAVNAME,          L"出力ファイル名(ファイル名のみ・拡張子除く)" },
+    { L"%{savdir}",            AUO_CONFIG_CX_REPLACE_SAVDIR,           L"出力フォルダ名(最後の\\無し)" },
+    { L"%{aviutldir}",         AUO_CONFIG_CX_REPLACE_AVIUTLDIR,        L"Aviutl.exeのフォルダ名(最後の\\無し)" },
+    { L"%{chpath}",            AUO_CONFIG_CX_REPLACE_CHPATH,           L"チャプターファイル名(フルパス)" },
+    { L"%{tcpath}",            AUO_CONFIG_CX_REPLACE_TCPATH,           L"タイムコードファイル名(フルパス)" },
+    { L"%{muxout}",            AUO_CONFIG_CX_REPLACE_MUXOUT,           L"muxで作成する一時ファイル名(フルパス)" },
+    { L"%{x264path}",          AUO_CONFIG_CX_REPLACE_X264PATH,         L"指定された x264.exe のパス" },
+    { L"%{x264_10path}",       AUO_CONFIG_CX_REPLACE_X264_10PATH,      L"指定された x264.exe(10bit版) のパス" },
+    { L"%{audencpath}",        AUO_CONFIG_CX_REPLACE_AUDENCPATH,       L"実行された音声エンコーダのパス" },
+    { L"%{mp4muxerpath}",      AUO_CONFIG_CX_REPLACE_MP4MUXERPATH,     L"mp4 muxerのパス" },
+    { L"%{mkvmuxerpath}",      AUO_CONFIG_CX_REPLACE_MKVMUXERPATH,     L"mkv muxerのパス" },
+    { L"%{fps_scale}",         AUO_CONFIG_CX_REPLACE_FPS_SCALE,        L"フレームレート(分母)" },
+    { L"%{fps_rate}",          AUO_CONFIG_CX_REPLACE_FPS_RATE,         L"フレームレート(分子)" },
+    { L"%{fps_rate_times_4}",  AUO_CONFIG_CX_REPLACE_FPS_RATE_TIMES_4, L"フレームレート(分子)×4" },
+    { L"%{sar_x}",             AUO_CONFIG_CX_REPLACE_SAR_X,            L"サンプルアスペクト比 (横)" },
+    { L"%{sar_y}",             AUO_CONFIG_CX_REPLACE_SAR_Y,            L"サンプルアスペクト比 (縦)" },
+    { L"%{dar_x}",             AUO_CONFIG_CX_REPLACE_DAR_X,            L"画面アスペクト比 (横)" },
+    { L"%{dar_y}",             AUO_CONFIG_CX_REPLACE_DAR_Y,            L"画面アスペクト比 (縦)" },
+
+    { NULL, AUO_MES_UNKNOWN, NULL }
 };

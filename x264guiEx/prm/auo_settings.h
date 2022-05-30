@@ -31,6 +31,7 @@
 #include <Windows.h>
 #include <vector>
 #include "auo.h"
+#include "auo_mes.h"
 
 //----    デフォルト値    ---------------------------------------------------
 
@@ -89,6 +90,7 @@ static const char  *AUO_CHECK_FILEOPEN_NAME          = "auo_check_fileopen.exe";
 
 typedef struct {
     char *name; //x264でのオプション名
+    AuoMes mes;  //GUIでの表示用
     WCHAR *desc; //GUIでの表示用
 } X264_OPTION_STR;
 
@@ -336,6 +338,9 @@ private:
     static char  ini_fileName[MAX_PATH_LEN];  //iniファイル(読み込み用)の場所
     static char  conf_fileName[MAX_PATH_LEN]; //configファイル(読み書き用)の場所
     static DWORD ini_filesize;                //iniファイル(読み込み用)のサイズ
+    static char  default_lang[4];             //デフォルトの言語
+    char language[MAX_PATH_LEN];              //言語設定
+    char last_out_stg[MAX_PATH_LEN];          //前回出力のstgファイル(多言語対応のため、デフォルトのCONF_LAST_OUTに加え、これも探す)
 
     void load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み
     void clear_x264_cmd(X264_CMD *x264cmd, int count);                                             //x264コマンドライン設定の消去
@@ -370,6 +375,7 @@ public:
     guiEx_settings(BOOL disable_loading);
     guiEx_settings(BOOL disable_loading, const char *_auo_path, const char *main_section);
     ~guiEx_settings();
+    void clear_all();
 
     BOOL get_init_success();                 //iniファイルが存在し、正しいバージョンだったか
     BOOL get_init_success(BOOL no_message);  //iniファイルが存在し、正しいバージョンだったか
@@ -378,15 +384,23 @@ public:
     void load_log_win();                     //ログウィンドウ等の設定の読み込み・更新
     void load_append();                      //各種ファイルの設定の読み込み・更新
     void load_fbc();                         //簡易ビットレート計算機設定の読み込み・更新
+    void load_lang();                        //言語設定をロード
+    void load_last_out_stg(); //last_out_stgの保存
 
     void save_local();        //ファイルの場所等の設定の保存
     void save_log_win();      //ログウィンドウ等の設定の保存
     void save_fbc();          //簡易ビットレート計算機設定の保存
+    void save_lang();         //言語設定の保存
+    void save_last_out_stg(); //last_out_stgの保存
 
     void apply_fn_replace(char *target_filename, DWORD nSize);  //一時ファイル名置換の適用
 
     BOOL get_reset_s_x264_referesh(); //s_x264が更新されたか
-
+    const char *get_lang() const;
+    const char *get_last_out_stg() const;
+    void set_and_save_lang(const char *lang);
+    void get_default_lang();
+    void set_last_out_stg(const char *stg);
 private:
     void initialize(BOOL disable_loading);
     void initialize(BOOL disable_loading, const char *_auo_path, const char *main_section);

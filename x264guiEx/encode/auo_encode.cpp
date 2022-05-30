@@ -45,6 +45,7 @@
 #include "auo_settings.h"
 #include "auo_system.h"
 #include "auo_pipe.h"
+#include "auo_mes.h"
 
 #include "auo_frm.h"
 #include "auo_video.h"
@@ -228,13 +229,9 @@ static BOOL check_if_exe_is_lsmash(const char *exe_path, const char *version_arg
 static BOOL check_muxer_matched_with_ini(const MUXER_SETTINGS *mux_stg) {
     BOOL ret = TRUE;
     //不確定な場合は"0", mp4boxなら"-1", L-SMASHなら"1"
-    int ini_muxer_mode = (NULL != stristr(mux_stg[MUXER_MP4].filename, "remuxer"))
-                       - (NULL != stristr(mux_stg[MUXER_MP4].filename, "mp4box"));
-    int exe_muxer_mode = (FALSE != check_if_exe_is_lsmash(mux_stg[MUXER_MP4].fullpath, "--version"))
-                       - (FALSE != check_if_exe_is_mp4box(mux_stg[MUXER_MP4].fullpath, "-version"));
-    //互いに明確に相反する場合にエラーを出す
-    if (ini_muxer_mode * exe_muxer_mode < 0) {
-        error_mp4_muxer_unmatch_of_ini_and_exe(0 < exe_muxer_mode);
+    bool mp4box_ini = stristr(mux_stg[MUXER_MP4].filename, "mp4box") != nullptr;
+    if (mp4box_ini) {
+        error_mp4box_ini();
         ret = FALSE;
     }
     return ret;
@@ -431,7 +428,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     }
 
     if (conf->oth.out_audio_only)
-        write_log_auo_line(LOG_INFO, "音声のみ出力を行います。");
+        write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_ENCODE_AUDIO_ONLY));
 
     const auto exeFiles = find_exe_files(defaultExeDir);
 
@@ -528,7 +525,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                 }
             }
             if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index || !check_if_faw2aac_exists())) {
-                info_use_exe_found("音声エンコーダ", aud_stg->fullpath);
+                info_use_exe_found(g_auo_mes.get(AUO_ENCODE_AUDIO_ENCODER), aud_stg->fullpath);
             }
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
                 AUDIO_SETTINGS *aud_default = nullptr;
@@ -604,7 +601,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
         //システムの一時フォルダを取得
         if (GetTempPath(_countof(pe->temp_filename), pe->temp_filename) != NULL) {
             PathRemoveBackslash(pe->temp_filename);
-            write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
+            write_log_auo_line_fmt(LOG_INFO, "%s : %s", g_auo_mes.get(AUO_ENCODE_TMP_FOLDER), pe->temp_filename);
         } else {
             warning_failed_getting_temp_path();
             tmp_dir_index = TMP_DIR_OUTPUT;
@@ -621,7 +618,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
             PathCombineLong(defaultExeDir, _countof(defaultExeDir), sys_dat->aviutl_dir, DEFAULT_EXE_DIR);
 
             if (check_temp_file_open(pe->temp_filename, defaultExeDir, true, false)) {
-                write_log_auo_line_fmt(LOG_INFO, "一時フォルダ : %s", pe->temp_filename);
+                write_log_auo_line_fmt(LOG_INFO, "%s : %s", g_auo_mes.get(AUO_ENCODE_TMP_FOLDER), pe->temp_filename);
             } else {
                 warning_unable_to_open_tempfile(sys_dat->exstg->s_local.custom_tmp_dir);
                 tmp_dir_index = TMP_DIR_OUTPUT;
@@ -713,7 +710,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     if (conf->aud.aud_temp_dir) {
         if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_audio_tmp_dir)) {
             cus_aud_tdir = sys_dat->exstg->s_local.custom_audio_tmp_dir;
-            write_log_auo_line_fmt(LOG_INFO, "音声一時フォルダ : %s", GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
+            write_log_auo_line_fmt(LOG_INFO, "%s : %s", g_auo_mes.get(AUO_ENCODE_TMP_FOLDER_AUDIO), GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
         } else {
             warning_no_aud_temp_root(sys_dat->exstg->s_local.custom_audio_tmp_dir);
         }
@@ -750,7 +747,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
                 if (PathFileExists(move_to))
                     remove(move_to);
                 if (rename(move_from, move_to))
-                    write_log_auo_line_fmt(LOG_WARNING, "チャプターファイルの移動に失敗しました。");
+                    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_ERROR_MOVE_CHAPTER_FILE));
             }
         }
     }
@@ -983,7 +980,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 
     if (!PathFileExists(move_from)) {
         if (must_exist)
-            write_log_auo_line_fmt(LOG_WARNING, "%sファイルが見つかりませんでした。", name);
+            write_log_auo_line_fmt(LOG_WARNING, "%s%s", name, g_auo_mes.get(AUO_ENCODE_FILE_NOT_FOUND));
         return (must_exist) ? FALSE : TRUE;
     }
     if (ret == AUO_RESULT_SUCCESS && erase) {
@@ -998,7 +995,7 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
         if (PathFileExists(move_to))
             remove(move_to);
         if (rename(move_from, move_to))
-            write_log_auo_line_fmt(LOG_WARNING, "%sファイルの移動に失敗しました。", name);
+            write_log_auo_line_fmt(LOG_WARNING, "%s%s", name, g_auo_mes.get(AUO_ENCODE_FILE_MOVE_FAILED));
     }
     return TRUE;
 }
@@ -1015,13 +1012,13 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
     if (pe->muxer_to_be_used >= 0) {
         char muxout_appendix[MAX_APPENDIX_LEN];
         get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), sys_dat, pe);
-        move_temp_file(muxout_appendix, pe->temp_filename, oip->savefile, ret, FALSE, "mux後ファイル", FALSE);
+        move_temp_file(muxout_appendix, pe->temp_filename, oip->savefile, ret, FALSE, g_auo_mes.get(AUO_ENCODE_AFTER_MUX), FALSE);
     }
     //qpファイル
     move_temp_file(pe->append.qp,   pe->temp_filename, oip->savefile, ret, !sys_dat->exstg->s_local.keep_qp_file, "qp", FALSE);
     //tcファイル
     BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
-    move_temp_file(pe->append.tc,   pe->temp_filename, oip->savefile, ret, erase_tc, "タイムコード", FALSE);
+    move_temp_file(pe->append.tc,   pe->temp_filename, oip->savefile, ret, erase_tc, g_auo_mes.get(AUO_ENCODE_TC_FILE), FALSE);
     //チャプターファイル
     if (pe->muxer_to_be_used >= 0) {
         const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[get_mux_excmd_mode(conf, pe)];
@@ -1030,8 +1027,8 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
             char chap_file[MAX_PATH_LEN];
             char chap_apple[MAX_PATH_LEN];
             set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), muxer_mode->chap_file, pe, sys_dat, conf, oip);
-            move_temp_file(NULL, chap_file,  NULL, chapter_auf ? AUO_RESULT_SUCCESS : ret, TRUE, "チャプター",        FALSE);
-            move_temp_file(NULL, chap_apple, NULL, chapter_auf ? AUO_RESULT_SUCCESS : ret, TRUE, "チャプター(Apple)", FALSE);
+            move_temp_file(NULL, chap_file,  NULL, chapter_auf ? AUO_RESULT_SUCCESS : ret, TRUE, g_auo_mes.get(AUO_ENCODE_CHAPTER_FILE), FALSE);
+            move_temp_file(NULL, chap_apple, NULL, chapter_auf ? AUO_RESULT_SUCCESS : ret, TRUE, g_auo_mes.get(AUO_ENCODE_CHAPTER_APPLE_FILE), FALSE);
         }
     }
     //ステータスファイル
@@ -1039,9 +1036,11 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         char stats[MAX_PATH_LEN];
         strcpy_s(stats, sizeof(stats), conf->vid.stats);
         cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
-        move_temp_file(NULL, stats, NULL, ret, TRUE, "ステータス", FALSE);
+        move_temp_file(NULL, stats, NULL, ret, TRUE, g_auo_mes.get(AUO_ENCODE_STATUS_FILE), FALSE);
         strcat_s(stats, sizeof(stats), ".mbtree");
-        move_temp_file(NULL, stats, NULL, ret, TRUE, "mbtree ステータス", FALSE);
+        char mbtree_status[256];
+        sprintf_s(mbtree_status, "mbtree %s", g_auo_mes.get(AUO_ENCODE_STATUS_FILE));
+        move_temp_file(NULL, stats, NULL, ret, TRUE, mbtree_status, FALSE);
     }
     //音声ファイル(wav)
     if (strcmp(pe->append.aud[0], pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
@@ -1050,7 +1049,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
     char aud_tempfile[MAX_PATH_LEN];
     PathCombineLong(aud_tempfile, _countof(aud_tempfile), pe->aud_temp_dir, PathFindFileName(pe->temp_filename));
     for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
-        if (!move_temp_file(pe->append.aud[i_aud], aud_tempfile, oip->savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, "音声", conf->oth.out_audio_only))
+        if (!move_temp_file(pe->append.aud[i_aud], aud_tempfile, oip->savefile, ret, !conf->oth.out_audio_only && pe->muxer_to_be_used != MUXER_DISABLED, g_auo_mes.get(AUO_ENCODE_AUDIO_FILE), conf->oth.out_audio_only))
             ret |= AUO_RESULT_ERROR;
     return ret;
 }
@@ -1273,20 +1272,20 @@ static void amp_adjust_lower_bitrate(CONF_X264 *cnf_x264, int preset_idx, int pr
         amp_adjust_lower_bitrate_keyint(cnf_x264, keyint_div, min_keyint);
         if (old_keyint != cnf_x264->keyint_max) {
             cnf_x264->preset = preset_new;
-            write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s, キーフレーム間隔:%d を適用します。",
+            write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_AMP_ADJUST_LOW_BITRATE_PRESET_KEY),
                 sys_dat->exstg->s_x264.preset.name[preset_new].name, cnf_x264->keyint_max);
         } else {
             const int preset_adjust_new = (std::max)(preset_idx, 0);
             if (cnf_x264->preset > preset_adjust_new) {
                 cnf_x264->preset = preset_adjust_new;
-                write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、プリセット:%s を適用します。",
+                write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_AMP_ADJUST_LOW_BITRATE_PRESET),
                     sys_dat->exstg->s_x264.preset.name[cnf_x264->preset].name);
             }
         }
     } else {
         amp_adjust_lower_bitrate_keyint(cnf_x264, keyint_div, min_keyint);
         if (old_keyint != cnf_x264->keyint_max) {
-            write_log_auo_line_fmt(LOG_WARNING, "下限ビットレートに対し実ビットレートが低いため、keyint:%d を適用します。", cnf_x264->keyint_max);
+            write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_AMP_ADJUST_LOW_BITRATE_KEY), cnf_x264->keyint_max);
         }
     }
 }

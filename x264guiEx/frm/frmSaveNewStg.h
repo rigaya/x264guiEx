@@ -30,6 +30,7 @@
 #include "ComboBoxFolderBrowser.h"
 #include "frmNewFolderName.h"
 #include "auo_settings.h"
+#include "auo_mes.h"
 
 using namespace System;
 using namespace System::IO;
@@ -198,6 +199,13 @@ namespace x264guiEx {
 
         }
 #pragma endregion
+    private:
+        System::Void LoadLangText() {
+            LOAD_CLI_TEXT(fsnBTOK);
+            LOAD_CLI_TEXT(fsnBTCancel);
+            LOAD_CLI_TEXT(fsnBTNewFolder);
+            LOAD_CLI_MAIN_TEXT(fsnMain);
+        }
     public:
         System::Void setStgDir(String^ _stgDir);
         System::Void setFilename(String^ fileName) {
@@ -217,7 +225,8 @@ namespace x264guiEx {
     private: 
         System::Void frmSaveNewStg_Load(System::Object^  sender, System::EventArgs^  e) {
             StgFileName = L"";
-            
+
+            LoadLangText();
             //フォントの設定
             guiEx_settings exstg;
             exstg.load_encode_stg();

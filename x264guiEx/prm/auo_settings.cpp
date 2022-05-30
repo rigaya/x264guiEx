@@ -161,6 +161,7 @@ char  guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
 DWORD guiEx_settings::ini_filesize = 0;
+char  guiEx_settings::default_lang[4] = { 0 };
 
 char  guiEx_settings::blog_url[MAX_PATH_LEN] = { 0 };
 
@@ -189,15 +190,35 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
     ZeroMemory(&s_local, sizeof(s_local));
     ZeroMemory(&s_log, sizeof(s_log));
     ZeroMemory(&s_append, sizeof(s_append));
+    ZeroMemory(&language, sizeof(language));
     s_aud_faw_index = FAW_INDEX_ERROR;
+    if (strlen(default_lang) == 0) {
+        get_default_lang();
+    }
     if (!init) {
-        if (_auo_path == NULL)
+        if (_auo_path == NULL) {
             get_auo_path(auo_path, _countof(auo_path));
-        else
+        } else {
             strcpy_s(auo_path, _countof(auo_path), _auo_path);
-        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
-        apply_appendix(ini_fileName,  _countof(ini_fileName),  auo_path, INI_APPENDIX);
+        }
         apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
+        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
+        load_lang();
+        bool language_ini_selected = false;
+        for (const auto& auo_lang : list_auo_languages) {
+            if (   strcmp(language, auo_lang.code) == 0
+                && strcmp("ja", auo_lang.code) != 0) { // 日本語用x264guiEx.iniはx264guiEx.iniのまま
+                char ini_append[64];
+                sprintf_s(ini_append, ".%s%s", language, INI_APPENDIX);
+                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
+                if (PathFileExists(ini_fileName)) {
+                    language_ini_selected = true;
+                }
+            }
+        }
+        if (!language_ini_selected) {
+            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+        }
         init = check_inifile() && !disable_loading;
         GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(blog_url), ini_fileName);
         if (init) {
@@ -205,11 +226,16 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             load_fn_replace();
             load_log_win();
             load_append();
+            load_last_out_stg();
         }
     }
 }
 
 guiEx_settings::~guiEx_settings() {
+    clear_all();
+}
+
+void guiEx_settings::clear_all() {
     clear_aud();
     clear_mux();
     clear_x264();
@@ -253,11 +279,69 @@ int guiEx_settings::get_faw_index() {
     return FAW_INDEX_ERROR;
 }
 
+void guiEx_settings::get_default_lang() {
+    WCHAR userSysLangW[LOCALE_NAME_MAX_LENGTH] = { 0 };
+    GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, userSysLangW, _countof(userSysLangW));
+    const auto userSysLang = wstring_to_string(userSysLangW);
+    const char *defaultLanguage = AUO_LANGUAGE_DEFAULT;
+    for (const auto& auo_lang : list_auo_languages) {
+        if (stricmp(userSysLang.c_str(), auo_lang.code) == 0) {
+            defaultLanguage = auo_lang.code;
+            break;
+        }
+    }
+    //日本語のみ重ねてチェック
+    WCHAR userSysCountryW[LOCALE_NAME_MAX_LENGTH] = { 0 };
+    GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, userSysCountryW, _countof(userSysCountryW));
+    const auto userSysCountry = wstring_to_string(userSysCountryW);
+    if (stricmp(userSysCountry.c_str(), "JP") == 0) {
+        defaultLanguage = AUO_LANGUAGE_JA;
+    }
+    strcpy_s(default_lang, defaultLanguage);
+}
+
+const char *guiEx_settings::get_lang() const {
+    return language;
+}
+
+void guiEx_settings::set_and_save_lang(const char *lang) {
+    if (strcmp(language, lang) != 0) {
+        strcpy_s(language, lang);
+        save_lang();
+
+        //強制リロード
+        char tmp_auo_path[_countof(auo_path)];
+        char tmp_section_main[_countof(ini_section_main)];
+        strcpy_s(tmp_auo_path, auo_path);
+        strcpy_s(tmp_section_main, ini_section_main);
+        clear_all();
+
+        init = FALSE;
+        initialize(FALSE, tmp_auo_path, tmp_section_main);
+    }
+}
+
+const char *guiEx_settings::get_last_out_stg() const {
+    return last_out_stg;
+}
+
+void guiEx_settings::set_last_out_stg(const char *stg) {
+    strcpy_s(last_out_stg, stg);
+}
+
 void guiEx_settings::load_encode_stg() {
     load_aud();
     load_mux();
     load_x264();
     load_local(); //fullpathの情報がきちんと格納されるよう、最後に呼ぶ
+}
+
+void guiEx_settings::load_lang() {
+    GetPrivateProfileString(ini_section_main, "language", default_lang, language, _countof(language), conf_fileName);
+}
+
+void guiEx_settings::load_last_out_stg() {
+    GetPrivateProfileString(ini_section_main, "last_out_stg", "", last_out_stg, _countof(last_out_stg), conf_fileName);
 }
 
 void guiEx_settings::load_aud() {
@@ -562,7 +646,7 @@ void guiEx_settings::load_local() {
         strcpy_s(s_local.stg_dir, _countof(s_local.stg_dir), default_stg_dir);
 
     s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
-
+    
     GetPrivateProfileString(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,         _countof(s_x264.fullpath),         conf_fileName);
     for (int i = 0; i < s_aud_count; i++)
         GetPrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName);
@@ -707,6 +791,14 @@ void guiEx_settings::save_fbc() {
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_fps",             s_fbc.last_fps,             DEFAULT_FBC_LAST_FPS,             conf_fileName);
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "last_time_in_sec",     s_fbc.last_time_in_sec,     DEFAULT_FBC_LAST_TIME_IN_SEC,     conf_fileName);
     WritePrivateProfileDoubleWithDefault(INI_SECTION_FBC, "initial_size",         s_fbc.initial_size,         DEFAULT_FBC_INITIAL_SIZE,         conf_fileName);
+}
+
+void guiEx_settings::save_lang() {
+    WritePrivateProfileString(ini_section_main, "language", language, conf_fileName);
+}
+
+void guiEx_settings::save_last_out_stg() {
+    WritePrivateProfileString(ini_section_main, "last_out_stg", last_out_stg, conf_fileName);
 }
 
 BOOL guiEx_settings::get_reset_s_x264_referesh() {
