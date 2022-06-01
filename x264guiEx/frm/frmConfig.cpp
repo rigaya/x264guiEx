@@ -1075,7 +1075,7 @@ System::Void frmConfig::InitLangList() {
     if (list_lng != nullptr) {
         delete list_lng;
     }
-#define ENABLE_LNG_FILE_DETECT 0
+#define ENABLE_LNG_FILE_DETECT 1
 #if ENABLE_LNG_FILE_DETECT
     auto lnglist = find_lng_files();
     list_lng = new std::vector<std::string>();
@@ -1519,7 +1519,7 @@ System::Void frmConfig::LoadLangText() {
     LOAD_CLI_TEXT(fcgLBBatBeforeAudioPath);
     LOAD_CLI_TEXT(fcgCBRunBatBeforeAudio);
     LOAD_CLI_TEXT(fcgLBAudioPriority);
-    LOAD_CLI_MAIN_TEXT(fcgMain);
+    //LOAD_CLI_MAIN_TEXT(fcgMain);
 
     //ローカル設定のロード(ini変更を反映)
     LoadLocalStg();

@@ -947,6 +947,10 @@ int AuoMessages::read(const std::string& filename) {
 	AuoMesSections sectionId = AUO_SECTION_UNKNOWN;
 	char buffer[4096] = { 0 };
 	while (fgets(buffer, _countof(buffer) - 1, fp) != NULL) {
+		const auto len = strlen(buffer);
+		if (len > 0 && buffer[len-1] == '\n') {
+			buffer[len - 1] = '\0';
+		}
 		proc_line(sectionId, buffer);
 	}
 	fclose(fp); // ファイルを閉じる
@@ -969,6 +973,14 @@ int AuoMessages::read(const char *lang, const char *data, const size_t size) {
 	return 0;
 }
 
+std::string get_file_lang_code(const std::string& path) {
+	//言語コードの取得
+	AuoMessages lng;
+	lng.read(path);
+	const auto language_code = lng.get(AUO_X264GUIEX_LANG);
+	return wstring_to_string(language_code);
+}
+
 std::vector<std::string> find_lng_files() {
 	char target_dir[MAX_PATH_LEN];
 	get_auo_path(target_dir, _countof(target_dir));
@@ -977,9 +989,20 @@ std::vector<std::string> find_lng_files() {
 	std::vector<std::string> ret;
 	try {
 		for (const std::filesystem::directory_entry& x : std::filesystem::recursive_directory_iterator(target_dir)) {
-			if (strncmp(x.path().string().c_str(), AUO_NAME, strlen(AUO_NAME)) == 0
-				&& x.path().extension() == ".lng") {
-				ret.push_back(x.path().string());
+			if (strncmp(x.path().filename().string().c_str(), AUO_NAME_WITHOUT_EXT, strlen(AUO_NAME_WITHOUT_EXT)) == 0) {
+				if (x.path().extension() == ".lng") {
+					const auto language_code = get_file_lang_code(x.path().string());
+					if (language_code.length() > 0) {
+						//iniファイルもセットであるか確認する
+						char auo_path[MAX_PATH_LEN], ini_fileName[MAX_PATH_LEN], ini_append[64];
+						sprintf_s(ini_append, ".%s.ini", language_code.c_str());
+						get_auo_path(auo_path, _countof(auo_path));
+						apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
+						if (PathFileExists(ini_fileName)) {
+							ret.push_back(x.path().string());
+						}
+					}
+				}
 			}
 		}
 	} catch (...) {}

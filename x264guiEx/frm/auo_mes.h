@@ -41,13 +41,13 @@ static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_EN;
 
 struct AUO_LANGUAGE {
     const char *code;
-    const char *name;
+    const wchar_t *name;
     const char *resouce;
 };
 
 static const std::array<AUO_LANGUAGE, 2> list_auo_languages = {
-    AUO_LANGUAGE{ AUO_LANGUAGE_JA, "日本語",  "X264GUIEX_JA_LNG" }, // 日本語を第1項目とする
-    AUO_LANGUAGE{ AUO_LANGUAGE_EN, "English", "X264GUIEX_EN_LNG" }
+    AUO_LANGUAGE{ AUO_LANGUAGE_JA, L"日本語",  "X264GUIEX_JA_LNG" },
+    AUO_LANGUAGE{ AUO_LANGUAGE_EN, L"English", "X264GUIEX_EN_LNG" }
 };
 
 enum AuoMesSections {
@@ -1005,6 +1005,7 @@ protected:
     std::vector<std::wstring> messages;
 };
 
+std::string get_file_lang_code(const std::string& path);
 std::vector<std::string> find_lng_files();
 
 extern AuoMessages g_auo_mes;

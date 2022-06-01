@@ -221,6 +221,22 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             }
         }
         if (!language_ini_selected) {
+            char auo_dir[MAX_PATH_LEN];
+            strcpy_s(auo_dir, auo_path);
+            PathRemoveFileSpecFixed(auo_dir);
+            char lng_path[MAX_PATH_LEN];
+            PathCombineLong(lng_path, _countof(lng_path), auo_dir, language);
+            if (PathFileExists(lng_path)) {
+                const auto lang_code = get_file_lang_code(lng_path);
+                char ini_append[64];
+                sprintf_s(ini_append, ".%s%s", lang_code.c_str(), INI_APPENDIX);
+                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
+                if (PathFileExists(ini_fileName)) {
+                    language_ini_selected = true;
+                }
+            }
+        }
+        if (!language_ini_selected) {
             apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
         }
         init = check_inifile() && !disable_loading;

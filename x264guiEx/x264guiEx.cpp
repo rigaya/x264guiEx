@@ -467,8 +467,15 @@ int load_lng(const char *lang) {
     }
     const char *resource = "X264GUIEX_JA_LNG";
     if (lang && str_has_char(lang)) {
-        if (PathFileExists(lang)) {
-            return g_auo_mes.read(lang);
+        char auo_path[MAX_PATH_LEN];
+        get_auo_path(auo_path, _countof(auo_path));
+        char auo_dir[MAX_PATH_LEN];
+        strcpy_s(auo_dir, auo_path);
+        PathRemoveFileSpecFixed(auo_dir);
+        char lng_path[MAX_PATH_LEN];
+        PathCombineLong(lng_path, _countof(lng_path), auo_dir, lang);
+        if (PathFileExists(lng_path)) {
+            return g_auo_mes.read(lng_path);
         }
         for (const auto& auo_lang : list_auo_languages) {
             if (stricmp(auo_lang.code, lang) == 0) {
