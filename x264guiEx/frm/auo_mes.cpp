@@ -927,7 +927,7 @@ void AuoMessages::proc_line(AuoMesSections& sectionId, char *buffer) {
 			mes = str_replace(mes, "\\n", "\n");
 			mes = str_replace(mes, "\\r", "\r");
 			mes = str_replace(mes, "\\t", "\t");
-			messages[id] = mes;
+			messages[id] = char_to_wstring(mes.c_str(), CP_UTF8);
 		}
 	}
 	return;
@@ -965,7 +965,7 @@ int AuoMessages::read(const char *lang, const char *data, const size_t size) {
 	for (char *ptr = buffer.data(), *qtr = nullptr; (ptr = strtok_s(ptr, "\n", &qtr)) != nullptr; ptr = nullptr) {
 		proc_line(sectionId, ptr);
 	}
-	language = (lang) ? lang : get(AUO_X264GUIEX_LANG);
+	language = (lang) ? lang : wstring_to_string(get(AUO_X264GUIEX_LANG));
 	return 0;
 }
 

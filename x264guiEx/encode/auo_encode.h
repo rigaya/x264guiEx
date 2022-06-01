@@ -80,7 +80,7 @@ double get_amp_margin_bitrate(double base_bitrate, double margin_multi);
 
 int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, const OUTPUT_INFO *oip);
 
-int ReadLogExe(PIPE_SET *pipes, const char *exename, LOG_CACHE *log_line_cache);
-void write_cached_lines(int log_level, const char *exename, LOG_CACHE *log_line_cache);
+int ReadLogExe(PIPE_SET *pipes, const wchar_t *exename, LOG_CACHE *log_line_cache);
+void write_cached_lines(int log_level, const wchar_t *exename, LOG_CACHE *log_line_cache);
 
 #endif //_AUO_ENCODE_H_

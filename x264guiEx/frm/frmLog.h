@@ -569,12 +569,12 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             LoadLangText();
         }
     public:
-        System::Void SetWindowTitle(const char *chr) {
+        System::Void SetWindowTitle(const wchar_t *chr) {
             LogTitle = String(chr).ToString();
             this->Text = LogTitle;
         }
     public:
-        System::Void SetWindowTitle(const char *chr, int progress_mode) {
+        System::Void SetWindowTitle(const wchar_t *chr, int progress_mode) {
             LogTitle = String(chr).ToString();
             this->Text = LogTitle;
             bool show_progress = (progress_mode != PROGRESSBAR_DISABLED);
@@ -591,19 +591,19 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             taskbar_progress->set_mode(progress_mode);
         }
     public:
-        System::Void SetTaskName(const char *chr) {
+        System::Void SetTaskName(const wchar_t *chr) {
             toolStripStatusCurrentTask->Text = String(chr).ToString();
         }
     public:
         System::Void SetProgress(double progress) {
             toolStripCurrentProgress->Value = clamp((int)(progress * toolStripCurrentProgress->Maximum + 0.5), toolStripCurrentProgress->Minimum, toolStripCurrentProgress->Maximum);
-            toolStripStatusCurrentProgress->Text = (progress).ToString("P1");
+            toolStripStatusCurrentProgress->Text = (progress).ToString(L"P1");
             toolStripStatusElapsedTime->Text = L"";
             this->Text = L"[" + toolStripStatusCurrentProgress->Text + L"] " + LogTitle;
             taskbar_progress->set_progress(progress);
         }
     public:
-        System::Void SetWindowTitleX264Mes(const char *chr, int total_drop, int frame_n) {
+        System::Void SetWindowTitleX264Mes(const wchar_t *chr, int total_drop, int frame_n) {
             String^ title = String(chr).ToString();
             double progress = frame_n / (double)total_frame;
             String^ ProgressPercent = (progress).ToString("P1");
@@ -621,15 +621,15 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                     SB->Insert(0, L"[" + ProgressPercent + "] ");
 
                     t = (int)(time_remain / 3600);
-                    SB->Append(", eta ");
-                    SB->Append(t.ToString("D2"));
+                    SB->Append(L", eta ");
+                    SB->Append(t.ToString(L"D2"));
                     SB->Append(L":");
                     time_remain -= t * 3600;
                     t = (int)(time_remain / 60);
-                    SB->Append(t.ToString("D2"));
+                    SB->Append(t.ToString(L"D2"));
                     SB->Append(L":");
                     time_remain -= t * 60;
-                    SB->Append(time_remain.ToString("D2"));
+                    SB->Append(time_remain.ToString(L"D2"));
                 }
                 title = SB->ToString();
             }
@@ -641,14 +641,14 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             t = (int)(time_elapsed / 3600);
             StringBuilder^ SBE = gcnew StringBuilder();
             //SBE->Append(L"経過時間 ");
-            SBE->Append(t.ToString("D2"));
+            SBE->Append(t.ToString(L"D2"));
             SBE->Append(L":");
             time_elapsed -= t * 3600;
             t = (int)(time_elapsed / 60);
-            SBE->Append(t.ToString("D2"));
+            SBE->Append(t.ToString(L"D2"));
             SBE->Append(L":");
             time_elapsed -= t * 60;
-            SBE->Append(time_elapsed.ToString("D2"));
+            SBE->Append(time_elapsed.ToString(L"D2"));
 
             toolStripStatusElapsedTime->Text = SBE->ToString();
 

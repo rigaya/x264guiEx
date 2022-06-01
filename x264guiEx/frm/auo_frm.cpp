@@ -42,16 +42,16 @@ static inline int check_log_type(char *mes) {
 static inline void add_line_to_cache(LOG_CACHE *cache_line, const char *mes) {
     if (cache_line->idx >= cache_line->max_line) {
         //メモリ不足なら再確保
-        if (NULL != (cache_line->lines = (char **)realloc(cache_line->lines, sizeof(cache_line->lines[0]) * cache_line->max_line * 2))) {
+        if (NULL != (cache_line->lines = (wchar_t **)realloc(cache_line->lines, sizeof(cache_line->lines[0]) * cache_line->max_line * 2))) {
             memset(&cache_line->lines[cache_line->max_line], 0, sizeof(cache_line->lines[0]) * cache_line->max_line);
             cache_line->max_line *= 2;
         }
     }
     if (cache_line->lines) {
         //一行のデータを格納
-        const int line_len = strlen(mes) + 1;
-        char *line_ptr = (char *)malloc(line_len * sizeof(line_ptr[0]));
-        memcpy(line_ptr, mes, line_len);
+        const auto wmes = char_to_wstring(mes, CP_UTF8);
+        wchar_t *line_ptr = (wchar_t *)malloc((wmes.length() + 1) * sizeof(line_ptr[0]));
+        wcscpy_s(line_ptr, wmes.length() + 1, wmes.c_str());
         cache_line->lines[cache_line->idx] = line_ptr;
         cache_line->idx++;
     }
@@ -72,7 +72,7 @@ int init_log_cache(LOG_CACHE *log_cache) {
     release_log_cache(log_cache);
     log_cache->idx = 0;
     log_cache->max_line = 64;
-    return NULL == (log_cache->lines = (char **)calloc(log_cache->max_line, sizeof(log_cache->lines[0])));
+    return NULL == (log_cache->lines = (wchar_t **)calloc(log_cache->max_line, sizeof(log_cache->lines[0])));
 }
 
 //長すぎたら適当に折り返す
@@ -93,7 +93,7 @@ static int write_log_enc_mes_line(char *const mes, LOG_CACHE *cache_line) {
         if (p != mes)
             for (char *const prefix_adjust = p - prefix_len; p > prefix_adjust; p--)
                 *(p-1) = ' ';
-        (cache_line) ? add_line_to_cache(cache_line, p) : write_log_line(mes_type, p, true);
+        (cache_line) ? add_line_to_cache(cache_line, p) : write_log_line(mes_type, char_to_wstring(p, CP_UTF8).c_str());
         p=q+1;
     } while (flag_continue);
     return mes_len;
@@ -125,7 +125,7 @@ void set_reconstructed_title_mes(const char *mes, int total_drop, int current_fr
     } else {
         ptr = mes;
     }
-    set_window_title_enc_mes(ptr, total_drop, current_frames);
+    set_window_title_enc_mes(char_to_wstring(ptr).c_str(), total_drop, current_frames);
 }
 
 void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames) {
@@ -149,7 +149,7 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
         if (NULL == strstr(mes, "frames")) {
             set_reconstructed_title_mes(mes, total_drop, current_frames);
         } else {
-            set_window_title_enc_mes(mes, total_drop, current_frames);
+            set_window_title_enc_mes(char_to_wstring(mes).c_str(), total_drop, current_frames);
         }
         mes = a + 1;
     }
@@ -166,16 +166,16 @@ void write_args(const char *args) {
     char *p = c;
     for (char *q = NULL; p + NEW_LINE_THRESHOLD < fin && (q = strrchr(p, ' ', NEW_LINE_THRESHOLD)) != NULL; p = q+1) {
         *q = '\0';
-        write_log_line(LOG_INFO, p);
+        write_log_line(LOG_INFO, char_to_wstring(p).c_str());
     }
-    write_log_line(LOG_INFO, p);
+    write_log_line(LOG_INFO, char_to_wstring(p).c_str());
     free(c);
 }
 
-void write_log_exe_mes(char *const msg, DWORD *log_len, const char *exename, LOG_CACHE *cache_line) {
+void write_log_exe_mes(char *const msg, DWORD *log_len, const wchar_t *exename, LOG_CACHE *cache_line) {
     char *a, *b, *mes = msg;
     char * const fin = mes + *log_len; //null文字の位置
-    char * buffer = NULL;
+    wchar_t * buffer = NULL;
     DWORD buffer_len = 0;
     *fin = '\0';
     while ((a = strchr(mes, '\n')) != NULL) {
@@ -193,9 +193,9 @@ void write_log_exe_mes(char *const msg, DWORD *log_len, const char *exename, LOG
         if ((b = strrchr(mes, '\r', b - mes - 2)) != NULL)
             mes = b + 1;
         if (exename) {
-            if (buffer_len == 0) buffer_len = *log_len + strlen(exename) + 3;
-            if (buffer != NULL || NULL != (buffer = (char*)malloc(buffer_len * sizeof(buffer[0])))) {
-                sprintf_s(buffer, buffer_len, "%s: %s", exename, mes);
+            if (buffer_len == 0) buffer_len = (*log_len * 3) + wcslen(exename) + 3;
+            if (buffer != NULL || NULL != (buffer = (wchar_t*)malloc(buffer_len * sizeof(buffer[0])))) {
+                swprintf_s(buffer, buffer_len, L"%s: %s", exename, char_to_wstring(mes).c_str());
                 set_window_title(buffer);
             }
         }

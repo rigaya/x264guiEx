@@ -250,52 +250,52 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { 0, 0, 0, A, 0, 0, NULL }
 };
 
-static void build_simd_info(DWORD simd, char *buf, DWORD nSize) {
+static void build_simd_info(DWORD simd, wchar_t *buf, DWORD nSize) {
     ZeroMemory(buf, nSize);
     if (simd != NONE) {
-        strcpy_s(buf, nSize, ", using");
-        if (simd & SSE2)  strcat_s(buf, nSize, " SSE2");
-        if (simd & SSE3)  strcat_s(buf, nSize, " SSE3");
-        if (simd & SSSE3) strcat_s(buf, nSize, " SSSE3");
-        if (simd & SSE41) strcat_s(buf, nSize, " SSE4.1");
-        if (simd & SSE42) strcat_s(buf, nSize, " SSE4.2");
-        if (simd & AVX)   strcat_s(buf, nSize, " AVX");
-        if (simd & AVX2)  strcat_s(buf, nSize, " AVX2");
+        wcscpy_s(buf, nSize, L", using");
+        if (simd & SSE2)  wcscat_s(buf, nSize, L" SSE2");
+        if (simd & SSE3)  wcscat_s(buf, nSize, L" SSE3");
+        if (simd & SSSE3) wcscat_s(buf, nSize, L" SSSE3");
+        if (simd & SSE41) wcscat_s(buf, nSize, L" SSE4.1");
+        if (simd & SSE42) wcscat_s(buf, nSize, L" SSE4.2");
+        if (simd & AVX)   wcscat_s(buf, nSize, L" AVX");
+        if (simd & AVX2)  wcscat_s(buf, nSize, L" AVX2");
     }
 }
 
 static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
-    char simd_buf[128];
+    wchar_t simd_buf[128];
     build_simd_info(func_info->SIMD, simd_buf, _countof(simd_buf));
 
     if (func_info->output_csp == OUT_CSP_YUY2) {
-        write_log_auo_line_fmt(LOG_INFO, "Passing YUY2", simd_buf);
+        write_log_auo_line_fmt(LOG_INFO, L"Passing YUY2%s", simd_buf);
         return;
     }
 
     if (func_info->output_csp == OUT_CSP_RGB) {
-        write_log_auo_line_fmt(LOG_INFO, "Copying RGB%s", simd_buf);
+        write_log_auo_line_fmt(LOG_INFO, L"Copying RGB%s", simd_buf);
         return;
     }
 
-    const char *interlaced = NULL;
+    const wchar_t *interlaced = NULL;
     switch (func_info->for_interlaced) {
-        case P: interlaced = "p"; break;
-        case I: interlaced = "i"; break;
+        case P: interlaced = L"p"; break;
+        case I: interlaced = L"i"; break;
         case A:
-        default:interlaced = ""; break;
+        default:interlaced = L""; break;
     }
-    const char *bit_depth = "";
+    const wchar_t *bit_depth = L"";
     switch (func_info->bit_depth) {
-        case BIT10: bit_depth = "(10bit)"; break;
-        case BIT12: bit_depth = "(12bit)"; break;
-        case BIT16: bit_depth = "(16bit)"; break;
+        case BIT10: bit_depth = L"(10bit)"; break;
+        case BIT12: bit_depth = L"(12bit)"; break;
+        case BIT16: bit_depth = L"(16bit)"; break;
         default: break;
     }
 
-    write_log_auo_line_fmt(LOG_INFO, "converting %s -> %s%s%s%s",
-        CF_NAME[func_info->input_from_aviutl],
-        specify_csp[func_info->output_csp],
+    write_log_auo_line_fmt(LOG_INFO, L"converting %s -> %s%s%s%s",
+        char_to_wstring(CF_NAME[func_info->input_from_aviutl]).c_str(),
+        char_to_wstring(specify_csp[func_info->output_csp]).c_str(),
         interlaced,
         bit_depth,
         simd_buf);

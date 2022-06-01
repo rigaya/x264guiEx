@@ -75,7 +75,7 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
     if (!(oip->flag & OUTPUT_INFO_FLAG_AUDIO))
         return;
     if (ex_stg->s_aud_faw_index == FAW_INDEX_ERROR) {
-        write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_FAW_INDEX_ERR));
+        write_log_auo_line_fmt(LOG_WARNING, L"FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_FAW_INDEX_ERR));
         return;
     }
     int n = 0;
@@ -83,7 +83,7 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
     int ret = FAWCheck(dat, n, oip->audio_rate, oip->audio_size);
     switch (ret) {
         case NON_FAW:
-            write_log_auo_line(LOG_INFO, "FAWCheck : non-FAW");
+            write_log_auo_line(LOG_INFO, L"FAWCheck : non-FAW");
             break;
         case FAW_FULL:
         case FAW_HALF:
@@ -92,14 +92,14 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
             aud->enc_mode  = ret - FAW_FULL;
             aud->use_2pass = ex_stg->s_aud[ex_stg->s_aud_faw_index].mode[aud->enc_mode].enc_2pass;
             aud->use_wav   = !ex_stg->s_aud[ex_stg->s_aud_faw_index].pipe_input;
-            write_log_auo_line_fmt(LOG_INFO, "FAWCheck : FAW, %s", FAW_TYPE_NAME[ret]);
+            write_log_auo_line_fmt(LOG_INFO, L"FAWCheck : FAW, %s", FAW_TYPE_NAME[ret]);
             break;
         case FAWCHECK_ERROR_TOO_SHORT:
-            write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_TOO_SHORT));
+            write_log_auo_line_fmt(LOG_WARNING, L"FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_TOO_SHORT));
             break;
         case FAWCHECK_ERROR_OTHER:
         default:
-            write_log_auo_line_fmt(LOG_WARNING, "FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_OTHER));
+            write_log_auo_line_fmt(LOG_WARNING, L"FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_OTHER));
             break;
     }
 }
@@ -228,36 +228,36 @@ static void build_audcmd(aud_data_t *aud_dat, const CONF_GUIEX *conf, const AUDI
     cmd_replace(aud_dat->cmd, nSize, pe, sys_dat, conf, oip);
 }
 
-static void show_progressbar(BOOL use_pipe, const char *enc_name, int progress_mode) {
-    char mes[1024];
+static void show_progressbar(BOOL use_pipe, const wchar_t *enc_name, int progress_mode) {
+    wchar_t mes[1024];
     if (use_pipe)
-        sprintf_s(mes, _countof(mes), "%s %s", enc_name, g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_ENCODE));
+        swprintf_s(mes, _countof(mes), L"%s %s", enc_name, g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_ENCODE));
     else
-        strcpy_s(mes, _countof(mes), g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_WAV_OUT));
+        wcscpy_s(mes, _countof(mes), g_auo_mes.get(AUO_AUDIO_PROGRESS_BAR_WAV_OUT));
     set_window_title(mes, progress_mode);
 }
 
 static void show_audio_delay_cut_info(int delay_cut, const PRM_ENC *pe) {
     if (AUDIO_DELAY_CUT_EDTS == delay_cut) {
-        write_log_auo_line_fmt(LOG_INFO, "%s - %s", g_auo_mes.get(AUO_AUDIO_DELAY_CUT), AUDIO_DELAY_CUT_MODE[AUDIO_DELAY_CUT_EDTS]);
+        write_log_auo_line_fmt(LOG_INFO, L"%s - %s", g_auo_mes.get(AUO_AUDIO_DELAY_CUT), g_auo_mes.get(AUDIO_DELAY_CUT_MODE[AUDIO_DELAY_CUT_EDTS].mes));
     } else if (0 != pe->delay_cut_additional_aframe || 0 != pe->delay_cut_additional_vframe) {
-        char message[1024] = { 0 };
+        wchar_t message[1024] = { 0 };
         int mes_len = 0;
-        mes_len += sprintf_s(message, _countof(message), "%s - ", g_auo_mes.get(AUO_AUDIO_DELAY_CUT));
+        mes_len += swprintf_s(message, _countof(message), L"%s - ", g_auo_mes.get(AUO_AUDIO_DELAY_CUT));
         if (pe->delay_cut_additional_vframe) {
-            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "%s%dframe%s",
-                (0  < pe->delay_cut_additional_vframe) ? "+" : "",
+            mes_len += swprintf_s(message + mes_len, _countof(message) - mes_len, L"%s%dframe%s",
+                (0  < pe->delay_cut_additional_vframe) ? L"+" : L"",
                 pe->delay_cut_additional_vframe,
-                (1 < abs(pe->delay_cut_additional_vframe)) ? "s" : "");
+                (1 < abs(pe->delay_cut_additional_vframe)) ? L"s" : L"");
         }
         if (pe->delay_cut_additional_vframe && pe->delay_cut_additional_aframe) {
-            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, ", ");
+            mes_len += swprintf_s(message + mes_len, _countof(message) - mes_len, L", ");
         }
         if (pe->delay_cut_additional_aframe) {
-            mes_len += sprintf_s(message + mes_len, _countof(message) - mes_len, "%s%dsample%s",
-                (0  < pe->delay_cut_additional_aframe) ? "+" : "",
+            mes_len += swprintf_s(message + mes_len, _countof(message) - mes_len, L"%s%dsample%s",
+                (0  < pe->delay_cut_additional_aframe) ? L"+" : L"",
                 pe->delay_cut_additional_aframe,
-                (1 < abs(pe->delay_cut_additional_aframe)) ? "s" : "");
+                (1 < abs(pe->delay_cut_additional_aframe)) ? L"s" : L"");
         }
         write_log_auo_line(LOG_INFO, message);
     }
@@ -270,13 +270,15 @@ static void show_audio_enc_info(const AUDIO_SETTINGS *aud_stg, const CONF_AUDIO 
         ver_str = " (" + ver_string(version) + ")";
     }
 
-    char bitrate[128] = { 0 };
+    wchar_t bitrate[128] = { 0 };
     if (aud_stg->mode[cnf_aud->enc_mode].bitrate)
-        sprintf_s(bitrate, _countof(bitrate), ", %dkbps", cnf_aud->bitrate);
-    char *use2pass = (cnf_aud->use_2pass) ? ", 2pass" : "";
-    write_log_auo_line_fmt(LOG_INFO, "%s%s %s%s%s%s", aud_stg->dispname, ver_str.c_str(), g_auo_mes.get(AUO_AUDIO_START_ENCODE), aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
+        swprintf_s(bitrate, _countof(bitrate), L", %dkbps", cnf_aud->bitrate);
+    const wchar_t *use2pass = (cnf_aud->use_2pass) ? L", 2pass" : L"";
+    write_log_auo_line_fmt(LOG_INFO, L"%s%s %s%s%s%s",
+        aud_stg->dispname, char_to_wstring(ver_str).c_str(),
+        g_auo_mes.get(AUO_AUDIO_START_ENCODE), aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
     show_audio_delay_cut_info(cnf_aud->delay_cut, pe);
-    write_log_auo_line(LOG_MORE, aud_dat->args);
+    write_log_auo_line(LOG_MORE, char_to_wstring(aud_dat->args).c_str());
 }
 
 static void recalculate_audio_delay_cut_for_afs(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const AUDIO_SETTINGS *aud_stg) {
@@ -314,7 +316,7 @@ static AUO_RESULT silent_wav_output(FILE *fp, int samples, int wav_8bit, int aud
 }
 
 static AUO_RESULT wav_file_open(aud_data_t *aud_dat, const OUTPUT_INFO *oip, BOOL use_pipe, BOOL wav_8bit, int bufsize,
-                                const char *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log) {
+                                const wchar_t *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     if (use_pipe) {
         //パイプ準備
@@ -359,7 +361,7 @@ static AUO_RESULT wav_file_close(aud_data_t *aud_dat, const OUTPUT_INFO *oip, in
 }
 
 static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_ENC *pe, int wav_8bit, int bufsize,
-                        const char *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log)
+                        const wchar_t *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log)
 {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     BYTE *buf8bit = NULL;
@@ -493,7 +495,7 @@ static AUO_RESULT audio_finish_enc(AUO_RESULT ret, aud_data_t *aud_dat, const AU
             write_cached_lines(LOG_MORE, aud_stg->dispname, &aud_dat->log_line_cache);
         }
     }
-    write_log_auo_line_fmt(LOG_MORE, "%s %s: %.2f%%", aud_stg->dispname, g_auo_mes.get(AUO_AUDIO_CPU_USAGE), GetProcessAvgCPUUsage(aud_dat->pi_aud.hProcess));
+    write_log_auo_line_fmt(LOG_MORE, L"%s %s: %.2f%%", aud_stg->dispname, g_auo_mes.get(AUO_AUDIO_CPU_USAGE), GetProcessAvgCPUUsage(aud_dat->pi_aud.hProcess));
 
     CloseHandle(aud_dat->pi_aud.hProcess);
     CloseHandle(aud_dat->pi_aud.hThread);
@@ -559,7 +561,7 @@ AUO_RESULT audio_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, c
     for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
         ret |= audio_finish_enc(ret, &aud_dat[i_aud], aud_stg);
 
-    set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
     //音声エンコード後バッチ処理
     ret |= run_bat_file(conf, oip, pe, sys_dat, RUN_BAT_AFTER_AUDIO);

@@ -32,6 +32,7 @@
 #include <vector>
 #include "auo.h"
 #include "auo_mes.h"
+#include "auo_util.h"
 
 //----    デフォルト値    ---------------------------------------------------
 
@@ -89,7 +90,7 @@ static const char  *DEFAULT_EXE_DIR                  = "exe_files";
 static const char  *AUO_CHECK_FILEOPEN_NAME          = "auo_check_fileopen.exe";
 
 typedef struct {
-    char *name; //x264でのオプション名
+    char *name;  //x264でのオプション名
     AuoMes mes;  //GUIでの表示用
     WCHAR *desc; //GUIでの表示用
 } X264_OPTION_STR;
@@ -104,6 +105,31 @@ enum {
     DISABLE_LOG_NORMAL     = 0x02,
     DISABLE_LOG_ALL        = DISABLE_LOG_PIPE_INPUT | DISABLE_LOG_NORMAL,
 };
+
+static size_t GetPrivateProfileStringStg(const char *section, const char *keyname, const char *defaultString, char *buf, size_t bufSize, const char *ini_file, const DWORD codepage) {
+    if (bufSize == 0) {
+        return 0;
+    }
+    size_t len = GetPrivateProfileString(section, keyname, defaultString, buf, (DWORD)bufSize, ini_file);
+    if (codepage == CP_THREAD_ACP) {
+        return len;
+    }
+    const auto str_thread_acp = wstring_to_string(char_to_wstring(buf, codepage), CP_THREAD_ACP);
+    strcpy_s(buf, bufSize, str_thread_acp.c_str());
+    return str_thread_acp.length();
+}
+static size_t GetPrivateProfileWStringStg(const char *section, const char *keyname, const char *defaultString, char *buf, size_t bufSize, const char *ini_file, const DWORD codepage) {
+    if (bufSize == 0) {
+        return 0;
+    }
+    size_t len = GetPrivateProfileString(section, keyname, defaultString, buf, (DWORD)bufSize, ini_file);
+    if (codepage == CP_THREAD_ACP) {
+        return len;
+    }
+    const auto wstr = char_to_wstring(buf, codepage);
+    wcscpy_s((wchar_t *)buf, bufSize / sizeof(wchar_t), wstr.c_str());
+    return wstr.length();
+}
 
 //メモリーを切り刻みます。
 class mem_cutter {
@@ -142,13 +168,23 @@ public:
         mp_size -= size;
         return ptr;
     };
-    char *SetPrivateProfileString(const char *section, const char *keyname, const char *defaultString, const char *ini_file) {
+    char *SetPrivateProfileString(const char *section, const char *keyname, const char *defaultString, const char *ini_file, const DWORD codepage) {
         char *ptr = NULL;
         if (mp_size > 0) {
-            size_t len = GetPrivateProfileString(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file);
+            size_t len = GetPrivateProfileStringStg(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file, codepage);
             ptr = mp;
             mp += len + 1;
             mp_size -= len + 1;
+        }
+        return ptr;
+    };
+    wchar_t *SetPrivateProfileWString(const char *section, const char *keyname, const char *defaultString, const char *ini_file, const DWORD codepage) {
+        wchar_t *ptr = NULL;
+        if (mp_size > 0) {
+            size_t len = GetPrivateProfileWStringStg(section, keyname, defaultString, mp, (DWORD)mp_size, ini_file, codepage);
+            ptr = (wchar_t *)mp;
+            mp += (len + 1) * sizeof(wchar_t);
+            mp_size -= (len + 1) * sizeof(wchar_t);
         }
         return ptr;
     };
@@ -166,7 +202,7 @@ public:
 };
 
 typedef struct {
-    char *name;          //名前
+    wchar_t *name;       //名前
     char *cmd;           //コマンドライン
     BOOL bitrate;        //ビットレート指定モード
     int bitrate_min;     //ビットレートの最小値
@@ -177,13 +213,13 @@ typedef struct {
     int enc_2pass;       //2passエンコを行う
     int use_8bit;        //8bitwavを入力する
     int use_remuxer;     //remuxerが必要
-    char *disp_list;     //表示名のリスト
+    wchar_t *disp_list;  //表示名のリスト
     char *cmd_list;      //コマンドラインのリスト
 } AUDIO_ENC_MODE;
 
 typedef struct {
     char *keyName;               //iniファイルでのセクション名
-    char *dispname;              //名前
+    wchar_t *dispname;           //名前
     char *filename;              //拡張子付き名前
     char fullpath[MAX_PATH_LEN]; //エンコーダの場所(フルパス)
     char *aud_appendix;          //作成する音声ファイル名に追加する文字列
@@ -201,7 +237,7 @@ typedef struct {
 } AUDIO_SETTINGS;
 
 typedef struct {
-    char *name;      //拡張オプションの名前
+    wchar_t *name;   //拡張オプションの名前
     char *cmd;       //拡張オプションのコマンドライン
     char *cmd_apple; //Apple用モードの時のコマンドライン
     char *chap_file; //チャプターファイル
@@ -209,7 +245,7 @@ typedef struct {
 
 typedef struct {
     char *keyName;                //iniファイルでのセクション名
-    char *dispname;               //名前
+    wchar_t *dispname;            //名前
     char *filename;               //拡張子付き名前
     char fullpath[MAX_PATH_LEN];  //エンコーダの場所(フルパス)
     char *out_ext;                //mux後ファイルの拡張子
@@ -339,7 +375,10 @@ private:
     static char  conf_fileName[MAX_PATH_LEN]; //configファイル(読み書き用)の場所
     static DWORD ini_filesize;                //iniファイル(読み込み用)のサイズ
     static char  default_lang[4];             //デフォルトの言語
-    char language[MAX_PATH_LEN];              //言語設定
+    static int  ini_ver;                      //iniファイルのバージョン
+    static DWORD codepage_ini;                //iniファイルの文字コード
+    static DWORD codepage_cnf;                //confファイルの文字コード
+    static char language[MAX_PATH_LEN];       //言語設定
     char last_out_stg[MAX_PATH_LEN];          //前回出力のstgファイル(多言語対応のため、デフォルトのCONF_LAST_OUTに加え、これも探す)
 
     void load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み

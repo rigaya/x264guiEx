@@ -1,6 +1,6 @@
 ; This is comment
 ; This is English message of x264guiEx
-; charset = ANSI
+; charset: UTF-8
 ; \n will be replace to new line code
 
 [AUO_X264GUIEX]

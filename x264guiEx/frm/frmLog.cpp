@@ -28,6 +28,7 @@
 #include "frmLog.h"
 #include "string.h"
 
+#include "auo_mes.h"
 #include "auo_version.h"
 
 using namespace x264guiEx;
@@ -41,32 +42,32 @@ void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles) {
         System::Windows::Forms::Application::EnableVisualStyles();
     System::IO::Directory::SetCurrentDirectory(String(aviutl_dir).ToString());
     frmLog::Instance::get()->Show();
-    frmLog::Instance::get()->SetWindowTitle(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+    frmLog::Instance::get()->SetWindowTitle(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 }
 //ログウィンドウのタイトルを設定
 [STAThreadAttribute]
-void set_window_title(const char *chr) {
+void set_window_title(const wchar_t *chr) {
     if (!frmLog::Instance::get()->InvokeRequired)
         frmLog::Instance::get()->SetWindowTitle(chr);
 }
 [STAThreadAttribute]
-void set_window_title(const char *chr, int progress_mode) {
+void set_window_title(const wchar_t *chr, int progress_mode) {
     if (!frmLog::Instance::get()->InvokeRequired)
         frmLog::Instance::get()->SetWindowTitle(chr, progress_mode);
 }
 //メッセージをログウィンドウのタイトルに
 [STAThreadAttribute]
-void set_window_title_enc_mes(const char *chr, int total_drop, int frame_n) {
+void set_window_title_enc_mes(const wchar_t *chr, int total_drop, int frame_n) {
     frmLog::Instance::get()->SetWindowTitleX264Mes(chr, total_drop, frame_n);
 }
 //メッセージをログウィンドウに表示
 [STAThreadAttribute]
-void write_log_auo_line(int log_type_index, const char *chr, bool from_utf8) {
-    frmLog::Instance::get()->WriteLogAuoLine((from_utf8) ? Utf8toString(chr) : String(chr).ToString(), log_type_index);
+void write_log_auo_line(int log_type_index, const wchar_t *chr) {
+    frmLog::Instance::get()->WriteLogAuoLine(String(chr).ToString(), log_type_index);
 }
 //現在実行中の内容の設定
 [STAThreadAttribute]
-void set_task_name(const char *chr) {
+void set_task_name(const wchar_t *chr) {
     if (!frmLog::Instance::get()->InvokeRequired)
         frmLog::Instance::get()->SetTaskName(chr);
 }
@@ -78,8 +79,8 @@ void set_log_progress(double progress) {
 }
 //メッセージを直接ログウィンドウに表示
 [STAThreadAttribute]
-void write_log_line(int log_type_index, const char *chr, bool from_utf8) {
-    frmLog::Instance::get()->WriteLogLine((from_utf8) ? Utf8toString(chr) : String(chr).ToString(), log_type_index);
+void write_log_line(int log_type_index, const wchar_t *chr) {
+    frmLog::Instance::get()->WriteLogLine(String(chr).ToString(), log_type_index);
 }
 //音声を並列に処理する際に、蓄えた音声のログを表示
 //必ず音声処理が動いていないところで呼ぶこと!

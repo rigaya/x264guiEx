@@ -106,6 +106,14 @@ static std::string wstring_to_string(const wchar_t *wstr, uint32_t codepage = CP
     wstring_to_string(wstr, str, codepage);
     return str;
 }
+static std::string wstring_to_string(const std::wstring& wstr, uint32_t codepage = CP_THREAD_ACP) {
+    if (wstr.length() == 0) {
+        return "";
+    }
+    std::string str;
+    wstring_to_string(wstr.c_str(), str, codepage);
+    return str;
+}
 
 static unsigned int char_to_wstring(std::wstring& wstr, const char *str, uint32_t codepage) {
     if (str == nullptr) {
@@ -127,6 +135,14 @@ static std::wstring char_to_wstring(const char *str, uint32_t codepage = CP_THRE
     }
     std::wstring wstr;
     char_to_wstring(wstr, str, codepage);
+    return wstr;
+}
+static std::wstring char_to_wstring(const std::string& str, uint32_t codepage = CP_THREAD_ACP) {
+    if (str.length() == 0) {
+        return L"";
+    }
+    std::wstring wstr;
+    char_to_wstring(wstr, str.c_str(), codepage);
     return wstr;
 }
 

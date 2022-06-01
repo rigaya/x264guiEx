@@ -1535,9 +1535,9 @@ System::Void frmConfig::LoadLangText() {
     fcgCBAuoTcfileout->Text = LOAD_CLI_STRING(AUO_CONFIG_TC_FILE_OUT) + L" (" + String(sys_dat->exstg->s_append.tc).ToString() + L")";
     { //タイトル表示,バージョン情報,コンパイル日時
         auto auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
-        if (auo_full_name == nullptr || strlen(auo_full_name) == 0) auo_full_name = AUO_FULL_NAME;
+        if (auo_full_name == nullptr || wcslen(auo_full_name) == 0) auo_full_name = AUO_FULL_NAME_W;
         this->Text = String(auo_full_name).ToString();
-        fcgLBVersion->Text = String(auo_full_name).ToString() + L" " + String(AUO_VERSION_STR).ToString();
+        fcgLBVersion->Text = String(auo_full_name).ToString() + L" " + String(AUO_VERSION_STR_W).ToString();
         fcgLBVersionDate->Text = L"build " + String(__DATE__).ToString() + L" " + String(__TIME__).ToString();
     }
     //空白時にグレーで入れる文字列を言語に即して復活させる

@@ -29,6 +29,7 @@
 #define _AUO_H_
 
 #include <Windows.h>
+#include <string>
 
 const int   MAX_PATH_LEN          = 1024; //NTFSでは32768文字らしいが...いらんやろ
 const int   MAX_APPENDIX_LEN      = 63; //適当
@@ -39,6 +40,7 @@ const DWORD AUDIO_BUFFER_DEFAULT  = 48000;
 const DWORD AUDIO_BUFFER_MAX      = AUDIO_BUFFER_DEFAULT * 30;
 
 static const char *ENCODER_NAME   = "x264";
+static const wchar_t *ENCODER_NAME_W = L"x264";
 
 enum {
     VIDEO_OUTPUT_DISABLED = -2,
@@ -75,14 +77,14 @@ typedef struct {
     int    style;     //フォントスタイル
 } AUO_FONT_INFO;
 
-void write_log_line_fmt(int log_type_index, const char *format, ...);
-void write_log_auo_line_fmt(int log_type_index, const char *format, ... );
-void write_log_auo_enc_time(const char *mes, DWORD time);
+void write_log_line_fmt(int log_type_index, const wchar_t *format, ...);
+void write_log_auo_line_fmt(int log_type_index, const wchar_t *format, ...);
+void write_log_auo_enc_time(const wchar_t *mes, DWORD time);
 
 int create_auoSetup(const char *exePath);
 
 int load_lng(const char *lang);
 const char *get_auo_version_info();
-const char *get_last_out_stg_appendix();
+std::string get_last_out_stg_appendix();
 
 #endif //_AUO_H_

@@ -201,7 +201,7 @@ static AUO_RESULT audio_faw2aac_check(const char *audfile) {
     if (!PathFileExists(audfile) || 
         (GetFileSizeUInt64(audfile, &audfilesize) && audfilesize == 0)) {
             //エラーが発生した場合
-        ret |= AUO_RESULT_ERROR; error_audenc_failed("faw2aac.auo", NULL);
+        ret |= AUO_RESULT_ERROR; error_audenc_failed(L"faw2aac.auo", NULL);
     }
     return ret;
 }
@@ -258,7 +258,7 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
             if (opt->func_init && !opt->func_init()) {
                 ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_ERR_INIT));
             } else {
-                set_window_title("faw2aac", PROGRESSBAR_CONTINUOUS);
+                set_window_title(L"faw2aac", PROGRESSBAR_CONTINUOUS);
                 write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_FAW2AAC_RUN));
                 if (FALSE == opt->func_output(&oip_faw2aac)) {
                     ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_ERR_RUN));
@@ -277,7 +277,7 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
     if (hModule)
         FreeLibrary(hModule);
 
-    set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
     return ret;
 }

@@ -202,7 +202,7 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 static AUO_RESULT set_keyframe_from_aviutl(std::vector<int> *keyframe_list, const OUTPUT_INFO *oip) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     const int prev_chap_count = keyframe_list->size();
-    const char * const MES_SEARCH_KEYFRAME = g_auo_mes.get(AUO_VIDEO_KEY_FRAME_DETECTION_START);
+    const wchar_t * const MES_SEARCH_KEYFRAME = g_auo_mes.get(AUO_VIDEO_KEY_FRAME_DETECTION_START);
     DWORD tm = 0, tm_prev = 0;
     set_window_title(MES_SEARCH_KEYFRAME, PROGRESSBAR_CONTINUOUS);
 
@@ -297,7 +297,7 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> &keyframe_list, 
 #endif
     //24fps化を仮定して設定し直す
     keyframe_list.clear();
-    const char * const MES_CHAPTER_AFS_ADJUST = g_auo_mes.get(AUO_VIDEO_CHAPTER_AFS_ADJUST_START);
+    const wchar_t * const MES_CHAPTER_AFS_ADJUST = g_auo_mes.get(AUO_VIDEO_CHAPTER_AFS_ADJUST_START);
     set_window_title(MES_CHAPTER_AFS_ADJUST, PROGRESSBAR_CONTINUOUS);
 
     int last_chapter = 0;
@@ -424,7 +424,7 @@ static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
             ptr = NULL;
         }
         if (strlen(print_line) > strlen(LINE_HEADER)) {
-            write_log_auo_line(LOG_INFO, print_line);
+            write_log_auo_line(LOG_INFO, char_to_wstring(print_line).c_str());
         }
         if (a >= 0 && b >= 0 && c >= 0) {
             ret = (b >= REQUIRED_X264_CORE || c >= REQUIRED_X264_REV) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
@@ -634,7 +634,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
         }
         flush_audio_log();
         if (wait_for_audio_count > 10)
-            set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+            set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
         DWORD exit_code = 0;
         //GetExitCodeThreadの返り値がNULLならエラー
@@ -756,7 +756,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //プロセス用情報準備
     if (!PathFileExists(sys_dat->exstg->s_x264.fullpath)) {
-        ret |= AUO_RESULT_ERROR; error_no_exe_file("x264", sys_dat->exstg->s_x264.fullpath);
+        ret |= AUO_RESULT_ERROR; error_no_exe_file(ENCODER_NAME_W, sys_dat->exstg->s_x264.fullpath);
         return ret;
     }
     PathGetDirectory(x264dir, _countof(x264dir), sys_dat->exstg->s_x264.fullpath);
@@ -786,7 +786,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //コマンドライン生成
     build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
-    write_log_auo_line(LOG_INFO, "x264 options...");
+    write_log_auo_line(LOG_INFO, L"x264 options...");
     write_args(x264cmd);
     sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_x264.fullpath, x264cmd);
     remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
@@ -801,7 +801,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         ret |= AUO_RESULT_ERROR; //Aviutl(afs)からのフレーム読み込みに失敗
     //x264プロセス開始
     } else if ((rp_ret = RunProcess(x264args, x264dir, &pi_enc, &pipes, (set_priority == AVIUTLSYNC_PRIORITY_CLASS) ? GetPriorityClass(pe->h_p_aviutl) : set_priority, TRUE, FALSE)) != RP_SUCCESS) {
-        ret |= AUO_RESULT_ERROR; error_run_process("x264", rp_ret);
+        ret |= AUO_RESULT_ERROR; error_run_process(ENCODER_NAME_W, rp_ret);
     //書き込みスレッドを開始
     } else if (video_output_create_thread(&thread_data, &pixel_data, pipes.f_stdin)) {
         ret |= AUO_RESULT_ERROR; error_video_output_thread_start();
@@ -946,10 +946,10 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         while (ReadLogEnc(&pipes, pe->drop_count, i) > 0);
 
         if (!(ret & AUO_RESULT_ERROR) && afs)
-            write_log_auo_line_fmt(LOG_INFO, "drop %d / %d frames", pe->drop_count, i);
+            write_log_auo_line_fmt(LOG_INFO, L"drop %d / %d frames", pe->drop_count, i);
 
-        write_log_auo_line_fmt(LOG_INFO, "%s: Aviutl: %.2f%% / x264: %.2f%%", g_auo_mes.get(AUO_VIDEO_CPU_USAGE), GetProcessAvgCPUUsage(pe->h_p_aviutl, &time_aviutl), GetProcessAvgCPUUsage(pi_enc.hProcess));
-        write_log_auo_line_fmt(LOG_INFO, "Aviutl %s: %.3f ms", g_auo_mes.get(AUO_VIDEO_AVIUTL_PROC_AVG_TIME), time_get_frame * 1000.0 / i);
+        write_log_auo_line_fmt(LOG_INFO, L"%s: Aviutl: %.2f%% / x264: %.2f%%", g_auo_mes.get(AUO_VIDEO_CPU_USAGE), GetProcessAvgCPUUsage(pe->h_p_aviutl, &time_aviutl), GetProcessAvgCPUUsage(pi_enc.hProcess));
+        write_log_auo_line_fmt(LOG_INFO, L"Aviutl %s: %.3f ms", g_auo_mes.get(AUO_VIDEO_AVIUTL_PROC_AVG_TIME), time_get_frame * 1000.0 / i);
         write_log_auo_enc_time(g_auo_mes.get(AUO_VIDEO_ENCODE_TIME), tm_vid_enc_fin - tm_vid_enc_start);
     }
 
@@ -1047,13 +1047,13 @@ BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename) {
 }
 
 static void set_window_title_x264(const PRM_ENC *pe) {
-    char mes[256] = { 0 };
-    sprintf_s(mes, _countof(mes), "%s%s", ENCODER_NAME, g_auo_mes.get(AUO_VIDEO_ENCODE));
+    wchar_t mes[256] = { 0 };
+    swprintf_s(mes, _countof(mes), L"%s%s", ENCODER_NAME_W, g_auo_mes.get(AUO_VIDEO_ENCODE));
     if (pe->total_x264_pass > 1)
-        sprintf_s(mes + strlen(mes), _countof(mes) - strlen(mes), "   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
+        swprintf_s(mes + wcslen(mes), _countof(mes) - wcslen(mes), L"   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
     if (pe->aud_parallel.th_aud) {
-        strcat_s(mes, _countof(mes), " + ");
-        strcat_s(mes, _countof(mes), g_auo_mes.get(AUO_VIDEO_AUDIO_ENCODE));
+        swprintf_s(mes, _countof(mes), L" + ");
+        swprintf_s(mes, _countof(mes), g_auo_mes.get(AUO_VIDEO_AUDIO_ENCODE));
     }
     set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
@@ -1191,7 +1191,7 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
         ret |= x264_out(conf, oip, pe, sys_dat);
     }
 
-    set_window_title(AUO_FULL_NAME, PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
     return ret;
 }
 

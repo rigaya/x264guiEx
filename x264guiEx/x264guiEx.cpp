@@ -185,7 +185,7 @@ BOOL func_output( OUTPUT_INFO *oip )
     if (conf_not_initialized) {
         PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, g_sys_dat.exstg->get_last_out_stg());
         if (!PathFileExists(default_stg_file)) {
-            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
+            PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix().c_str());
         }
         if (!PathFileExists(default_stg_file)) {
             PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, CONF_LAST_OUT);
@@ -247,7 +247,7 @@ BOOL func_output( OUTPUT_INFO *oip )
     // エラーが発生しなかった場合は設定を保存
     if (ret == AUO_RESULT_SUCCESS) {
         memset(default_stg_file, 0, sizeof(default_stg_file));
-        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix());
+        PathCombine(default_stg_file, g_sys_dat.exstg->s_local.stg_dir, get_last_out_stg_appendix().c_str());
         guiEx_config::save_guiEx_conf(&conf_out, default_stg_file);
         g_sys_dat.exstg->set_last_out_stg(PathFindFileName(default_stg_file));
         g_sys_dat.exstg->save_last_out_stg();
@@ -320,33 +320,33 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     conf->aud.bitrate = aud_stg->mode[conf->aud.enc_mode].bitrate_default;
     conf->size_all = CONF_INITIALIZED;
 }
-void write_log_line_fmt(int log_type_index, const char *format, ...) {
+void write_log_line_fmt(int log_type_index, const wchar_t *format, ...) {
     va_list args;
     int len;
-    char *buffer;
+    wchar_t *buffer;
     va_start(args, format);
-    len = _vscprintf(format, args) + 1; // _vscprintf doesn't count terminating '\0'
-    buffer = (char *)malloc(len * sizeof(buffer[0]));
-    vsprintf_s(buffer, len, format, args);
+    len = _vscwprintf(format, args) + 1; // _vscprintf doesn't count terminating '\0'
+    buffer = (wchar_t *)malloc(len * sizeof(buffer[0]));
+    vswprintf_s(buffer, len, format, args);
     write_log_line(log_type_index, buffer);
     free(buffer);
 }
-void write_log_auo_line_fmt(int log_type_index, const char *format, ... ) {
+void write_log_auo_line_fmt(int log_type_index, const wchar_t *format, ... ) {
     va_list args;
     int len;
-    char *buffer;
+    wchar_t *buffer;
     va_start(args, format);
-    len = _vscprintf(format, args) // _vscprintf doesn't count
+    len = _vscwprintf(format, args) // _vscprintf doesn't count
                               + 1; // terminating '\0'
-    buffer = (char *)malloc(len * sizeof(buffer[0]));
-    vsprintf_s(buffer, len, format, args);
+    buffer = (wchar_t *)malloc(len * sizeof(buffer[0]));
+    vswprintf_s(buffer, len, format, args);
     write_log_auo_line(log_type_index, buffer);
     free(buffer);
 }
 //エンコード時間の表示
-void write_log_auo_enc_time(const char *mes, DWORD time) {
+void write_log_auo_enc_time(const wchar_t *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
-    write_log_auo_line_fmt(LOG_INFO, "%s : %d%s%2d%s%2d.%1d%s",
+    write_log_auo_line_fmt(LOG_INFO, L"%s : %d%s%2d%s%2d.%1d%s",
         mes,
         time / (60*60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_HOUR),
         (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_MIN),
@@ -371,12 +371,12 @@ void overwrite_aviutl_ini_auo_info() {
     PathAddBackSlashLong(ini_file);
     strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
 
-    const char *auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
-    if (auo_full_name && strlen(auo_full_name) > 0 && strcmp(auo_full_name, output_plugin_table.name) != 0) {
-        strcpy_s(g_auo_fullname, auo_full_name);
+    const auto auo_full_name = wstring_to_string(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME));
+    if (auo_full_name.length() > 0 && strcmp(auo_full_name.c_str(), output_plugin_table.name) != 0) {
+        strcpy_s(g_auo_fullname, auo_full_name.c_str());
         output_plugin_table.name = g_auo_fullname;
-        if (strcmp(auo_full_name, AUO_NAME_WITHOUT_EXT) != 0) {
-            sprintf_s(g_auo_version_info, "%s (%s) %s by rigaya", auo_full_name, AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        if (strcmp(auo_full_name.c_str(), AUO_NAME_WITHOUT_EXT) != 0) {
+            sprintf_s(g_auo_version_info, "%s (%s) %s by rigaya", auo_full_name.c_str(), AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
         } else {
             sprintf_s(g_auo_version_info, "%s %s by rigaya", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
         }
@@ -386,9 +386,9 @@ void overwrite_aviutl_ini_auo_info() {
     }
 }
 
-const char *get_last_out_stg_appendix() {
-    const char *appendix = g_auo_mes.get(AUO_CONF_LAST_OUT_STG);
-    return (appendix && strlen(appendix)) ? appendix : CONF_LAST_OUT;
+std::string get_last_out_stg_appendix() {
+    const auto appendix = wstring_to_string(g_auo_mes.get(AUO_CONF_LAST_OUT_STG));
+    return (appendix.length() > 0) ? appendix : CONF_LAST_OUT;
 }
 
 const char *get_auo_version_info() {
@@ -397,7 +397,7 @@ const char *get_auo_version_info() {
 
 void make_file_filter(char *filter, size_t nSize, int default_index) {
     char TOP[256];
-    sprintf_s(TOP, "%s (*.*)", g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS));
+    sprintf_s(TOP, "%s (*.*)", wstring_to_string(g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS)).c_str());
     const char separator = (filter) ? '\\' : '\0';
     if (filter == NULL) {
         filter = g_auo_filefilter;

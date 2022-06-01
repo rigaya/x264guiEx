@@ -996,13 +996,13 @@ public:
         if (lang == nullptr || strlen(lang) == 0 || language.length() == 0) return false;
         return stricmp(lang, language.c_str()) == 0;
     }
-    const char *get(const AuoMes mesID) const {
-        return (mesID < (int)messages.size()) ? messages[mesID].c_str() : "";
+    const wchar_t *get(const AuoMes mesID) const {
+        return (mesID < (int)messages.size()) ? messages[mesID].c_str() : L"";
     }
 protected:
     void proc_line(AuoMesSections& sectionId, char *buffer);
     std::string language;
-    std::vector<std::string> messages;
+    std::vector<std::wstring> messages;
 };
 
 std::vector<std::string> find_lng_files();
