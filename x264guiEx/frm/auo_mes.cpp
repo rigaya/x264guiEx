@@ -975,10 +975,9 @@ int AuoMessages::read(const char *lang, const char *data, const size_t size) {
 
 std::string get_file_lang_code(const std::string& path) {
 	//言語コードの取得
-	AuoMessages lng;
-	lng.read(path);
-	const auto language_code = lng.get(AUO_X264GUIEX_LANG);
-	return wstring_to_string(language_code);
+	char buffer[1024];
+	GetPrivateProfileString("AUO_X264GUIEX", "AUO_X264GUIEX_LANG", "", buffer, _countof(buffer) - 1, path.c_str());
+	return wstring_to_string(char_to_wstring(buffer, CP_UTF8));
 }
 
 std::vector<std::string> find_lng_files() {
