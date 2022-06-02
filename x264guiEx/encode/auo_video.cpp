@@ -1052,8 +1052,8 @@ static void set_window_title_x264(const PRM_ENC *pe) {
     if (pe->total_x264_pass > 1)
         swprintf_s(mes + wcslen(mes), _countof(mes) - wcslen(mes), L"   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
     if (pe->aud_parallel.th_aud) {
-        swprintf_s(mes, _countof(mes), L" + ");
-        swprintf_s(mes, _countof(mes), g_auo_mes.get(AUO_VIDEO_AUDIO_ENCODE));
+        wcscat_s(mes, _countof(mes), L" + ");
+        wcscat_s(mes, _countof(mes), g_auo_mes.get(AUO_VIDEO_AUDIO_ENCODE));
     }
     set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }

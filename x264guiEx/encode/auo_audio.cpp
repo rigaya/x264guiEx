@@ -92,7 +92,7 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
             aud->enc_mode  = ret - FAW_FULL;
             aud->use_2pass = ex_stg->s_aud[ex_stg->s_aud_faw_index].mode[aud->enc_mode].enc_2pass;
             aud->use_wav   = !ex_stg->s_aud[ex_stg->s_aud_faw_index].pipe_input;
-            write_log_auo_line_fmt(LOG_INFO, L"FAWCheck : FAW, %s", FAW_TYPE_NAME[ret]);
+            write_log_auo_line_fmt(LOG_INFO, L"FAWCheck : FAW, %s", char_to_wstring(FAW_TYPE_NAME[ret]).c_str());
             break;
         case FAWCHECK_ERROR_TOO_SHORT:
             write_log_auo_line_fmt(LOG_WARNING, L"FAWCheck : %s", g_auo_mes.get(AUO_AUDIO_ERR_TOO_SHORT));

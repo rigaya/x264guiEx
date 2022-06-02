@@ -580,9 +580,9 @@ void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int curre
     static const wchar_t *SEPARATOR = L"------------------------------------------------------------------------------------------------------------------------------";
     const std::wstring savefile_w = char_to_wstring(savefile);
     if (total_pass < 2 || current_pass > total_pass)
-        swprintf_s(mes, sizeof(mes), L"%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile_w.c_str(), SEPARATOR);
+        swprintf_s(mes, L"%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile_w.c_str(), SEPARATOR);
     else
-        swprintf_s(mes, sizeof(mes), L"%s%s\r\n[%s] (%d / %d pass)\r\n%s", newLine, SEPARATOR, savefile_w.c_str(), current_pass, total_pass, SEPARATOR);
+        swprintf_s(mes, L"%s%s\r\n[%s] (%d / %d pass)\r\n%s", newLine, SEPARATOR, savefile_w.c_str(), current_pass, total_pass, SEPARATOR);
 
     show_log_window(sys_dat->aviutl_dir, sys_dat->exstg->s_local.disable_visual_styles);
     write_log_line(LOG_INFO, mes);
