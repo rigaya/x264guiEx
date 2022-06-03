@@ -195,7 +195,12 @@ public:
         return mp_size;
     };
     void CutString(int sizeof_chr) {
-        size_t cut_size = (strlen(mp) + 1) * sizeof_chr;
+        size_t cut_size = 0;
+        if (sizeof_chr == sizeof(char)) {
+            cut_size = (strlen(mp) + 1) * sizeof_chr;
+        } else if (sizeof_chr == sizeof(wchar_t)) {
+            cut_size = (wcslen((wchar_t*)mp) + 1) * sizeof_chr;
+        }
         mp += cut_size;
         mp_size -= cut_size;
     };
