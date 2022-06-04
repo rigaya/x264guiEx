@@ -82,7 +82,8 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /y x264guiEx.ini "$(OutDir)"
-copy /y x264guiEx.en.ini "$(OutDir)"</Command>
+copy /y x264guiEx.en.ini "$(OutDir)"
+copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
     </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>
@@ -131,7 +132,8 @@ copy /y x264guiEx.en.ini "$(OutDir)"</Command>
     </Link>
     <PostBuildEvent>
       <Command>copy /y x264guiEx.ini "$(OutDir)"
-copy /y x264guiEx.en.ini "$(OutDir)"</Command>
+copy /y x264guiEx.en.ini "$(OutDir)"
+copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
     </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>

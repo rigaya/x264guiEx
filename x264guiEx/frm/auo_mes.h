@@ -35,6 +35,7 @@
 // 言語コードは2文字表記のiso639-1を用いる
 static const char *AUO_LANGUAGE_JA = "ja";
 static const char *AUO_LANGUAGE_EN = "en";
+static const char *AUO_LANGUAGE_ZH = "zh";
 // デフォルトは英語、ただしOSの言語設定および国コードで日本があらわれた場合、
 // 日本語をデフォルトとする (auo_settings.h/.cpp: guiEx_settings::get_default_lang())
 static const char *AUO_LANGUAGE_DEFAULT = AUO_LANGUAGE_EN;
@@ -45,9 +46,10 @@ struct AUO_LANGUAGE {
     const char *resouce;
 };
 
-static const std::array<AUO_LANGUAGE, 2> list_auo_languages = {
+static const std::array<AUO_LANGUAGE, 3> list_auo_languages = {
     AUO_LANGUAGE{ AUO_LANGUAGE_JA, L"日本語",  "X264GUIEX_JA_LNG" },
-    AUO_LANGUAGE{ AUO_LANGUAGE_EN, L"English", "X264GUIEX_EN_LNG" }
+    AUO_LANGUAGE{ AUO_LANGUAGE_EN, L"English", "X264GUIEX_EN_LNG" },
+    AUO_LANGUAGE{ AUO_LANGUAGE_ZH, L"中文",    "X264GUIEX_ZH_LNG" }
 };
 
 enum AuoMesSections {
