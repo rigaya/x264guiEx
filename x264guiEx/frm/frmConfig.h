@@ -1169,7 +1169,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabControlVideo->Controls->Add(this->fcgtabPageX264Frame);
             this->fcgtabControlVideo->Controls->Add(this->fcgtabPageExSettings);
             this->fcgtabControlVideo->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                          static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgtabControlVideo->Location = System::Drawing::Point(0, 25);
             this->fcgtabControlVideo->Name = L"fcgtabControlVideo";
             this->fcgtabControlVideo->SelectedIndex = 0;
@@ -2523,7 +2523,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgBTMatrix
             // 
             this->fcgBTMatrix->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 6, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                   static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgBTMatrix->Location = System::Drawing::Point(266, 57);
             this->fcgBTMatrix->Name = L"fcgBTMatrix";
             this->fcgBTMatrix->Size = System::Drawing::Size(18, 23);
@@ -3237,7 +3237,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgTXCmdEx->AllowDrop = true;
             this->fcgTXCmdEx->Font = (gcnew System::Drawing::Font(L"ＭＳ ゴシック", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                  static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgTXCmdEx->Location = System::Drawing::Point(6, 20);
             this->fcgTXCmdEx->Multiline = true;
             this->fcgTXCmdEx->Name = L"fcgTXCmdEx";
@@ -3385,7 +3385,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgtoolStripSettings
             // 
             this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                            static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgtoolStripSettings->ImageScalingSize = System::Drawing::Size(18, 18);
             this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(15) {
                 this->fcgTSBSave,
@@ -3511,7 +3511,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgTSLSettingsNotes->DoubleClickEnabled = true;
             this->fcgTSLSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                           static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgTSLSettingsNotes->Margin = System::Windows::Forms::Padding(3, 1, 0, 2);
             this->fcgTSLSettingsNotes->Name = L"fcgTSLSettingsNotes";
             this->fcgTSLSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
@@ -3523,9 +3523,10 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgTSTSettingsNotes->BackColor = System::Drawing::SystemColors::Window;
             this->fcgTSTSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                           static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgTSTSettingsNotes->Margin = System::Windows::Forms::Padding(3, 0, 1, 0);
             this->fcgTSTSettingsNotes->Name = L"fcgTSTSettingsNotes";
+            this->fcgTSTSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
             this->fcgTSTSettingsNotes->Size = System::Drawing::Size(200, 25);
             this->fcgTSTSettingsNotes->Text = L"メモ...";
             this->fcgTSTSettingsNotes->Visible = false;
@@ -3547,7 +3548,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabControlMux->Controls->Add(this->fcgtabPageMux);
             this->fcgtabControlMux->Controls->Add(this->fcgtabPageBat);
             this->fcgtabControlMux->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                        static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgtabControlMux->Location = System::Drawing::Point(622, 331);
             this->fcgtabControlMux->Name = L"fcgtabControlMux";
             this->fcgtabControlMux->SelectedIndex = 0;
@@ -3965,7 +3966,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgLBBatAfterString->AutoSize = true;
             this->fcgLBBatAfterString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)),
-                                                                           System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+                System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
             this->fcgLBBatAfterString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBBatAfterString->Location = System::Drawing::Point(304, 113);
             this->fcgLBBatAfterString->Name = L"fcgLBBatAfterString";
@@ -3978,7 +3979,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgLBBatBeforeString->AutoSize = true;
             this->fcgLBBatBeforeString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)),
-                                                                            System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+                System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
             this->fcgLBBatBeforeString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBBatBeforeString->Location = System::Drawing::Point(304, 20);
             this->fcgLBBatBeforeString->Name = L"fcgLBBatBeforeString";
@@ -4104,10 +4105,10 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgTXCmd
             // 
             this->fcgTXCmd->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-                                                                                         | System::Windows::Forms::AnchorStyles::Left)
-                                                                                        | System::Windows::Forms::AnchorStyles::Right));
+                | System::Windows::Forms::AnchorStyles::Left)
+                | System::Windows::Forms::AnchorStyles::Right));
             this->fcgTXCmd->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgTXCmd->Location = System::Drawing::Point(9, 547);
             this->fcgTXCmd->Name = L"fcgTXCmd";
             this->fcgTXCmd->ReadOnly = true;
@@ -4153,7 +4154,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgLBVersionDate->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
             this->fcgLBVersionDate->AutoSize = true;
             this->fcgLBVersionDate->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
-                                                                        static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgLBVersionDate->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBVersionDate->Location = System::Drawing::Point(416, 579);
             this->fcgLBVersionDate->Name = L"fcgLBVersionDate";
@@ -4166,7 +4167,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgLBVersion->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
             this->fcgLBVersion->AutoSize = true;
             this->fcgLBVersion->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
-                                                                    static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgLBVersion->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBVersion->Location = System::Drawing::Point(180, 579);
             this->fcgLBVersion->Name = L"fcgLBVersion";
@@ -4265,7 +4266,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgLBguiExBlog->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
             this->fcgLBguiExBlog->AutoSize = true;
             this->fcgLBguiExBlog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
-                                                                      static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fcgLBguiExBlog->LinkColor = System::Drawing::Color::Gray;
             this->fcgLBguiExBlog->Location = System::Drawing::Point(623, 579);
             this->fcgLBguiExBlog->Name = L"fcgLBguiExBlog";
@@ -4566,7 +4567,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgLBBatAfterAudioString->AutoSize = true;
             this->fcgLBBatAfterAudioString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)),
-                                                                                System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+                System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
             this->fcgLBBatAfterAudioString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBBatAfterAudioString->Location = System::Drawing::Point(304, 208);
             this->fcgLBBatAfterAudioString->Name = L"fcgLBBatAfterAudioString";
@@ -4579,7 +4580,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgLBBatBeforeAudioString->AutoSize = true;
             this->fcgLBBatBeforeAudioString->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Italic | System::Drawing::FontStyle::Underline)),
-                                                                                 System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
+                System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(128)));
             this->fcgLBBatBeforeAudioString->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
             this->fcgLBBatBeforeAudioString->Location = System::Drawing::Point(304, 139);
             this->fcgLBBatBeforeAudioString->Name = L"fcgLBBatBeforeAudioString";
@@ -4716,7 +4717,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->Controls->Add(this->fcgtoolStripSettings);
             this->Controls->Add(this->fcgtabControlVideo);
             this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                      static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
             this->MaximizeBox = false;
             this->Name = L"frmConfig";

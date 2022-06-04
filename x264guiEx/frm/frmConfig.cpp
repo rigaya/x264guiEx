@@ -678,7 +678,7 @@ System::Boolean frmConfig::EnableSettingsNoteChange(bool Enable) {
     if (Enable) {
         fcgTSTSettingsNotes->Text = fcgTSLSettingsNotes->Text;
         fcgTSTSettingsNotes->Focus();
-        bool isDefaultNote = String::Compare(fcgTSTSettingsNotes->Text, String(DefaultStgNotes).ToString()) == 0;
+        bool isDefaultNote = fcgTSLSettingsNotes->Overflow != ToolStripItemOverflow::Never;
         fcgTSTSettingsNotes->Select((isDefaultNote) ? 0 : fcgTSTSettingsNotes->Text->Length, fcgTSTSettingsNotes->Text->Length);
     } else {
         SetfcgTSLSettingsNotes(fcgTSTSettingsNotes->Text);
@@ -1906,7 +1906,7 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
 
 System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {
     ZeroMemory(notes, nSize);
-    if (fcgTSLSettingsNotes->ForeColor == Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]))
+    if (fcgTSLSettingsNotes->Overflow != ToolStripItemOverflow::Never)
         GetCHARfromString(notes, nSize, fcgTSLSettingsNotes->Text);
 }
 
@@ -1914,19 +1914,23 @@ System::Void frmConfig::SetfcgTSLSettingsNotes(const char *notes) {
     if (str_has_char(notes)) {
         fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
         fcgTSLSettingsNotes->Text = String(notes).ToString();
+        fcgTSLSettingsNotes->Overflow = ToolStripItemOverflow::AsNeeded;
     } else {
         fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[1][0], StgNotesColor[1][1], StgNotesColor[1][2]);
-        fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
+        fcgTSLSettingsNotes->Text = LOAD_CLI_STRING(AuofcgTSTSettingsNotes);
+        fcgTSLSettingsNotes->Overflow = ToolStripItemOverflow::Never;
     }
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(String^ notes) {
-    if (notes->Length && String::Compare(notes, String(DefaultStgNotes).ToString()) != 0) {
+    if (notes->Length && fcgTSLSettingsNotes->Overflow != ToolStripItemOverflow::Never) {
         fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
         fcgTSLSettingsNotes->Text = notes;
+        fcgTSLSettingsNotes->Overflow = ToolStripItemOverflow::AsNeeded;
     } else {
         fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[1][0], StgNotesColor[1][1], StgNotesColor[1][2]);
-        fcgTSLSettingsNotes->Text = String(DefaultStgNotes).ToString();
+        fcgTSLSettingsNotes->Text = LOAD_CLI_STRING(AuofcgTSTSettingsNotes);
+        fcgTSLSettingsNotes->Overflow = ToolStripItemOverflow::Never;
     }
 }
 
