@@ -79,14 +79,14 @@ typedef struct {
 const DWORD AVIUTLSYNC_PRIORITY_CLASS = 0;
 
 const PRIORITY_CLASS priority_table[] = {
-    {L"AviutlSync",       AUO_MES_UNKNOWN, AVIUTLSYNC_PRIORITY_CLASS   },
-    {L"higher",           AUO_MES_UNKNOWN, HIGH_PRIORITY_CLASS         },
-    {L"high",             AUO_MES_UNKNOWN, ABOVE_NORMAL_PRIORITY_CLASS },
-    {L"normal",           AUO_MES_UNKNOWN, NORMAL_PRIORITY_CLASS       },
-    {L"low",              AUO_MES_UNKNOWN, BELOW_NORMAL_PRIORITY_CLASS },
-    {L"lower",            AUO_MES_UNKNOWN, IDLE_PRIORITY_CLASS         },
-    {L"",                 AUO_MES_UNKNOWN, NORMAL_PRIORITY_CLASS       },
-    {L"realtime(非推奨)", AUO_CONF_PRIORITY_REALTIME, REALTIME_PRIORITY_CLASS },
+    {L"AviutlSync",       AUO_CONF_PRIORITY_AVIUTLSYNC, AVIUTLSYNC_PRIORITY_CLASS   },
+    {L"higher",           AUO_CONF_PRIORITY_HIGHER,     HIGH_PRIORITY_CLASS         },
+    {L"high",             AUO_CONF_PRIORITY_HIGH,       ABOVE_NORMAL_PRIORITY_CLASS },
+    {L"normal",           AUO_CONF_PRIORITY_NORMAL,     NORMAL_PRIORITY_CLASS       },
+    {L"low",              AUO_CONF_PRIORITY_LOW,        BELOW_NORMAL_PRIORITY_CLASS },
+    {L"lower",            AUO_CONF_PRIORITY_LOWER,      IDLE_PRIORITY_CLASS         },
+    {L"",                 AUO_MES_UNKNOWN,              NORMAL_PRIORITY_CLASS       },
+    {L"realtime(非推奨)", AUO_CONF_PRIORITY_REALTIME,   REALTIME_PRIORITY_CLASS     },
     {NULL,                AUO_MES_UNKNOWN, 0                           }
 };
 
