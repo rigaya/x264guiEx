@@ -1523,7 +1523,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgCBSSIM
             // 
             this->fcgCBSSIM->AutoSize = true;
-            this->fcgCBSSIM->Location = System::Drawing::Point(106, 41);
+            this->fcgCBSSIM->Location = System::Drawing::Point(90, 41);
             this->fcgCBSSIM->Name = L"fcgCBSSIM";
             this->fcgCBSSIM->Size = System::Drawing::Size(53, 18);
             this->fcgCBSSIM->TabIndex = 2;
@@ -1534,7 +1534,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgCBPSNR
             // 
             this->fcgCBPSNR->AutoSize = true;
-            this->fcgCBPSNR->Location = System::Drawing::Point(17, 41);
+            this->fcgCBPSNR->Location = System::Drawing::Point(5, 41);
             this->fcgCBPSNR->Name = L"fcgCBPSNR";
             this->fcgCBPSNR->Size = System::Drawing::Size(56, 18);
             this->fcgCBPSNR->TabIndex = 1;
@@ -3595,7 +3595,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             // fcgBTTC2MP4Path
             // 
-            this->fcgBTTC2MP4Path->Location = System::Drawing::Point(340, 87);
+            this->fcgBTTC2MP4Path->Location = System::Drawing::Point(342, 87);
             this->fcgBTTC2MP4Path->Name = L"fcgBTTC2MP4Path";
             this->fcgBTTC2MP4Path->Size = System::Drawing::Size(30, 23);
             this->fcgBTTC2MP4Path->TabIndex = 6;
@@ -3606,9 +3606,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgTXTC2MP4Path
             // 
             this->fcgTXTC2MP4Path->AllowDrop = true;
-            this->fcgTXTC2MP4Path->Location = System::Drawing::Point(136, 88);
+            this->fcgTXTC2MP4Path->Location = System::Drawing::Point(150, 88);
             this->fcgTXTC2MP4Path->Name = L"fcgTXTC2MP4Path";
-            this->fcgTXTC2MP4Path->Size = System::Drawing::Size(202, 21);
+            this->fcgTXTC2MP4Path->Size = System::Drawing::Size(190, 21);
             this->fcgTXTC2MP4Path->TabIndex = 5;
             this->fcgTXTC2MP4Path->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXTC2MP4Path_TextChanged);
             this->fcgTXTC2MP4Path->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
@@ -3618,7 +3618,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             // fcgBTMP4MuxerPath
             // 
-            this->fcgBTMP4MuxerPath->Location = System::Drawing::Point(340, 65);
+            this->fcgBTMP4MuxerPath->Location = System::Drawing::Point(342, 65);
             this->fcgBTMP4MuxerPath->Name = L"fcgBTMP4MuxerPath";
             this->fcgBTMP4MuxerPath->Size = System::Drawing::Size(30, 23);
             this->fcgBTMP4MuxerPath->TabIndex = 4;
@@ -3629,9 +3629,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgTXMP4MuxerPath
             // 
             this->fcgTXMP4MuxerPath->AllowDrop = true;
-            this->fcgTXMP4MuxerPath->Location = System::Drawing::Point(136, 66);
+            this->fcgTXMP4MuxerPath->Location = System::Drawing::Point(150, 66);
             this->fcgTXMP4MuxerPath->Name = L"fcgTXMP4MuxerPath";
-            this->fcgTXMP4MuxerPath->Size = System::Drawing::Size(202, 21);
+            this->fcgTXMP4MuxerPath->Size = System::Drawing::Size(190, 21);
             this->fcgTXMP4MuxerPath->TabIndex = 3;
             this->fcgTXMP4MuxerPath->Tag = L"";
             this->fcgTXMP4MuxerPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4MuxerPath_TextChanged);
@@ -3690,7 +3690,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             // fcgBTMP4RawPath
             // 
-            this->fcgBTMP4RawPath->Location = System::Drawing::Point(340, 109);
+            this->fcgBTMP4RawPath->Location = System::Drawing::Point(342, 109);
             this->fcgBTMP4RawPath->Name = L"fcgBTMP4RawPath";
             this->fcgBTMP4RawPath->Size = System::Drawing::Size(30, 23);
             this->fcgBTMP4RawPath->TabIndex = 8;
@@ -3701,9 +3701,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgTXMP4RawPath
             // 
             this->fcgTXMP4RawPath->AllowDrop = true;
-            this->fcgTXMP4RawPath->Location = System::Drawing::Point(136, 110);
+            this->fcgTXMP4RawPath->Location = System::Drawing::Point(150, 110);
             this->fcgTXMP4RawPath->Name = L"fcgTXMP4RawPath";
-            this->fcgTXMP4RawPath->Size = System::Drawing::Size(202, 21);
+            this->fcgTXMP4RawPath->Size = System::Drawing::Size(190, 21);
             this->fcgTXMP4RawPath->TabIndex = 7;
             this->fcgTXMP4RawPath->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTXMP4RawMuxerPath_TextChanged);
             this->fcgTXMP4RawPath->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &frmConfig::fcgSetDragDropFilename_DragDrop);
@@ -3742,9 +3742,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgCXMP4BoxTempDir->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXMP4BoxTempDir->FormattingEnabled = true;
-            this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(145, 132);
+            this->fcgCXMP4BoxTempDir->Location = System::Drawing::Point(156, 132);
             this->fcgCXMP4BoxTempDir->Name = L"fcgCXMP4BoxTempDir";
-            this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(206, 22);
+            this->fcgCXMP4BoxTempDir->Size = System::Drawing::Size(202, 22);
             this->fcgCXMP4BoxTempDir->TabIndex = 9;
             this->fcgCXMP4BoxTempDir->Tag = L"chValue";
             // 
@@ -4341,7 +4341,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // fcgCBAudioEncTiming
             // 
             this->fcgCBAudioEncTiming->AutoSize = true;
-            this->fcgCBAudioEncTiming->Location = System::Drawing::Point(242, 54);
+            this->fcgCBAudioEncTiming->Location = System::Drawing::Point(236, 54);
             this->fcgCBAudioEncTiming->Name = L"fcgCBAudioEncTiming";
             this->fcgCBAudioEncTiming->Size = System::Drawing::Size(40, 14);
             this->fcgCBAudioEncTiming->TabIndex = 53;
@@ -4351,7 +4351,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             // 
             this->fcgCXAudioEncTiming->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fcgCXAudioEncTiming->FormattingEnabled = true;
-            this->fcgCXAudioEncTiming->Location = System::Drawing::Point(286, 51);
+            this->fcgCXAudioEncTiming->Location = System::Drawing::Point(294, 51);
             this->fcgCXAudioEncTiming->Name = L"fcgCXAudioEncTiming";
             this->fcgCXAudioEncTiming->Size = System::Drawing::Size(68, 22);
             this->fcgCXAudioEncTiming->TabIndex = 52;
