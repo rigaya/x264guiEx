@@ -250,6 +250,9 @@ AUO_CONF_AUDIO_DELAY_CUT_AUDIO=音声カット
 AUO_CONF_AUDIO_DELAY_ADD_VIDEO=映像追加
 AUO_CONF_AUDIO_DELAY_EDTS=edts
 AUO_CONF_LAST_OUT_STG=前回出力.stg
+AUO_CONF_UI_THEME_LIGHT_DEFAULT=Light(標準)
+AUO_CONF_UI_THEME_LIGHT1=Light(黒窓)
+AUO_CONF_UI_THEME_DARK1=Dark(黒窓)
 
 [AUO_BAT]
 AUO_BAT_RUN=バッチファイル処理
@@ -467,6 +470,22 @@ AuofcgCBAFSBitrateCorrection=設定したビットレートになるよう補正
 AuofcgCBAFS=自動フィールドシフト(afs)を使用する
 AuofcgTSExeFileshelp=helpを表示
 AuofcgtoolStripSettings=toolStrip1
+<<<<<<< HEAD
+<<<<<<< HEAD
+AuofcgTSBSave=�㏑���ۑ�
+AuofcgTSBSaveNew=�V�K�ۑ�
+AuofcgTSBDelete=�폜
+AuofcgTSSettings=�v���Z�b�g
+AuofcgTSBCMDOnly=CLI���[�h
+AuofcgTSBBitrateCalc=�r�b�g���[�g�v�Z�@
+AuofcgTSBOtherSettings=���̑��̐ݒ�
+AuofcgTSLSettingsNotes=�����\��
+AuofcgTSTSettingsNotes=����...
+AuofcgTSLanguage=����
+AuofcgTSUITheme=�e�[�}
+=======
+=======
+>>>>>>> master
 AuofcgTSBSave=上書き保存
 AuofcgTSBSaveNew=新規保存
 AuofcgTSBDelete=削除
@@ -477,6 +496,10 @@ AuofcgTSBOtherSettings=その他の設定
 AuofcgTSLSettingsNotes=メモ表示
 AuofcgTSTSettingsNotes=メモ...
 AuofcgTSLanguage=言語
+<<<<<<< HEAD
+>>>>>>> wstring
+=======
+>>>>>>> master
 AuofcgtabPageMP4=mp4
 AuofcgCBMP4MuxApple=Apple形式に対応
 AuofcgBTTC2MP4Path=...

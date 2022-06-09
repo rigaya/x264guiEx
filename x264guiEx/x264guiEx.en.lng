@@ -251,6 +251,9 @@ AUO_CONF_AUDIO_DELAY_CUT_AUDIO=cut audio
 AUO_CONF_AUDIO_DELAY_ADD_VIDEO=add video
 AUO_CONF_AUDIO_DELAY_EDTS=edts
 AUO_CONF_LAST_OUT_STG=PreviousOutput.stg
+AUO_CONF_UI_THEME_LIGHT_DEFAULT=Light(Def)
+AUO_CONF_UI_THEME_LIGHT1=Light1
+AUO_CONF_UI_THEME_DARK1=Dark
 
 [AUO_BAT]
 AUO_BAT_RUN=bat file process
@@ -478,6 +481,7 @@ AuofcgTSBOtherSettings=Other settings
 AuofcgTSLSettingsNotes=Show notes
 AuofcgTSTSettingsNotes=Notes...
 AuofcgTSLanguage=Language
+AuofcgTSUITheme=Theme
 AuofcgtabPageMP4=mp4
 AuofcgCBMP4MuxApple=Use apple format
 AuofcgBTTC2MP4Path=...

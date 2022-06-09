@@ -59,6 +59,8 @@ namespace x264guiEx {
             //
             //TODO: ここにコンストラクタ コードを追加します
             //
+            themeMode = AuoTheme::DefaultLight;
+            dwStgReader = nullptr;
         }
 
     protected:
@@ -154,6 +156,7 @@ namespace x264guiEx {
     private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
 private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
 private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
+private: System::Windows::Forms::Panel^  fosPNHideTabPage;
 
 
 
@@ -244,6 +247,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosLBAMPLimitMarginMin = (gcnew System::Windows::Forms::Label());
             this->fosTBAMPLimitMarginMulti = (gcnew System::Windows::Forms::TrackBar());
             this->fosCBAmpKeepOldFile = (gcnew System::Windows::Forms::CheckBox());
+            this->fosPNHideTabPage = (gcnew System::Windows::Forms::Panel());
             this->fosTabControl->SuspendLayout();
             this->fostabPageGeneral->SuspendLayout();
             this->fostabPageGUI->SuspendLayout();
@@ -252,6 +256,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosGroupBoxAMPLimitMarginExample->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosNUAMPLimitMargin))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosTBAMPLimitMarginMulti))->BeginInit();
+            this->fosPNHideTabPage->SuspendLayout();
             this->SuspendLayout();
             // 
             // fosCBCancel
@@ -300,7 +305,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             // 
             this->fosfontDialog->AllowVerticalFonts = false;
             this->fosfontDialog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                     static_cast<System::Byte>(0)));
+                static_cast<System::Byte>(0)));
             this->fosfontDialog->FontMustExist = true;
             this->fosfontDialog->MaxSize = 9;
             this->fosfontDialog->MinSize = 9;
@@ -308,16 +313,13 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             // 
             // fosTabControl
             // 
-            this->fosTabControl->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
-                                                                                              | System::Windows::Forms::AnchorStyles::Left)
-                                                                                             | System::Windows::Forms::AnchorStyles::Right));
             this->fosTabControl->Controls->Add(this->fostabPageGeneral);
             this->fosTabControl->Controls->Add(this->fostabPageGUI);
             this->fosTabControl->Controls->Add(this->fostabPageAMP);
-            this->fosTabControl->Location = System::Drawing::Point(1, 1);
+            this->fosTabControl->Location = System::Drawing::Point(2, 2);
             this->fosTabControl->Name = L"fosTabControl";
             this->fosTabControl->SelectedIndex = 0;
-            this->fosTabControl->Size = System::Drawing::Size(392, 402);
+            this->fosTabControl->Size = System::Drawing::Size(388, 400);
             this->fosTabControl->TabIndex = 17;
             // 
             // fostabPageGeneral
@@ -336,7 +338,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fostabPageGeneral->Location = System::Drawing::Point(4, 24);
             this->fostabPageGeneral->Name = L"fostabPageGeneral";
             this->fostabPageGeneral->Padding = System::Windows::Forms::Padding(3);
-            this->fostabPageGeneral->Size = System::Drawing::Size(384, 374);
+            this->fostabPageGeneral->Size = System::Drawing::Size(380, 372);
             this->fostabPageGeneral->TabIndex = 0;
             this->fostabPageGeneral->Text = L"エンコード";
             this->fostabPageGeneral->UseVisualStyleBackColor = true;
@@ -403,7 +405,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             // 
             this->fosLBDefaultOutExt2->AutoSize = true;
             this->fosLBDefaultOutExt2->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                           static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fosLBDefaultOutExt2->ForeColor = System::Drawing::Color::OrangeRed;
             this->fosLBDefaultOutExt2->Location = System::Drawing::Point(206, 15);
             this->fosLBDefaultOutExt2->Name = L"fosLBDefaultOutExt2";
@@ -446,7 +448,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fostabPageGUI->Controls->Add(this->fosTXStgDir);
             this->fostabPageGUI->Location = System::Drawing::Point(4, 24);
             this->fostabPageGUI->Name = L"fostabPageGUI";
-            this->fostabPageGUI->Size = System::Drawing::Size(384, 374);
+            this->fostabPageGUI->Size = System::Drawing::Size(380, 369);
             this->fostabPageGUI->TabIndex = 2;
             this->fostabPageGUI->Text = L"ログ・設定画面";
             this->fostabPageGUI->UseVisualStyleBackColor = true;
@@ -535,7 +537,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             // 
             this->fosLBDisableVisualStyles->AutoSize = true;
             this->fosLBDisableVisualStyles->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                                static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fosLBDisableVisualStyles->ForeColor = System::Drawing::Color::OrangeRed;
             this->fosLBDisableVisualStyles->Location = System::Drawing::Point(41, 115);
             this->fosLBDisableVisualStyles->Name = L"fosLBDisableVisualStyles";
@@ -587,7 +589,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fostabPageAMP->Location = System::Drawing::Point(4, 24);
             this->fostabPageAMP->Name = L"fostabPageAMP";
             this->fostabPageAMP->Padding = System::Windows::Forms::Padding(3);
-            this->fostabPageAMP->Size = System::Drawing::Size(384, 374);
+            this->fostabPageAMP->Size = System::Drawing::Size(380, 369);
             this->fostabPageAMP->TabIndex = 1;
             this->fostabPageAMP->Text = L"自動マルチパス";
             this->fostabPageAMP->UseVisualStyleBackColor = true;
@@ -623,7 +625,7 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             // 
             this->fosLBAMPLimitMarginWarning->AutoSize = true;
             this->fosLBAMPLimitMarginWarning->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                                                  static_cast<System::Byte>(128)));
+                static_cast<System::Byte>(128)));
             this->fosLBAMPLimitMarginWarning->ForeColor = System::Drawing::Color::Red;
             this->fosLBAMPLimitMarginWarning->Location = System::Drawing::Point(150, 93);
             this->fosLBAMPLimitMarginWarning->Name = L"fosLBAMPLimitMarginWarning";
@@ -795,6 +797,14 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosCBAmpKeepOldFile->Text = L"自動マルチパスで、上限をオーバーしてしまい再エンコードする際に、上限オーバーの動画を削除しない";
             this->fosCBAmpKeepOldFile->UseVisualStyleBackColor = true;
             // 
+            // fosPNHideTabPage
+            // 
+            this->fosPNHideTabPage->Controls->Add(this->fosTabControl);
+            this->fosPNHideTabPage->Location = System::Drawing::Point(-1, -1);
+            this->fosPNHideTabPage->Name = L"fosPNHideTabPage";
+            this->fosPNHideTabPage->Size = System::Drawing::Size(392, 404);
+            this->fosPNHideTabPage->TabIndex = 18;
+            // 
             // frmOtherSettings
             // 
             this->AcceptButton = this->fosCBOK;
@@ -802,11 +812,11 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
             this->CancelButton = this->fosCBCancel;
             this->ClientSize = System::Drawing::Size(392, 448);
-            this->Controls->Add(this->fosTabControl);
+            this->Controls->Add(this->fosPNHideTabPage);
             this->Controls->Add(this->fosCBOK);
             this->Controls->Add(this->fosCBCancel);
             this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                                                      static_cast<System::Byte>(0)));
+                static_cast<System::Byte>(0)));
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
             this->KeyPreview = true;
             this->MaximizeBox = false;
@@ -828,10 +838,14 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
             this->fosGroupBoxAMPLimitMarginExample->PerformLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosNUAMPLimitMargin))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fosTBAMPLimitMarginMulti))->EndInit();
+            this->fosPNHideTabPage->ResumeLayout(false);
             this->ResumeLayout(false);
 
         }
 #pragma endregion
+    private:
+        AuoTheme themeMode;
+        const DarkenWindowStgReader *dwStgReader;
     private:
         System::Void LoadLangText() {
             LOAD_CLI_TEXT(fosCBCancel);
@@ -1033,6 +1047,47 @@ private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
     private:
         System::Void fosBTAMPMarginMulti_Click(System::Object^  sender, System::EventArgs^  e) {
             fosNUAMPLimitMargin->Value = (int)(DEFAULT_AMP_MARGIN * 100.0 + 0.5);
+        }
+    public:
+        System::Void frmOtherSettings::SetTheme(AuoTheme themeTo, const DarkenWindowStgReader *dwStg) {
+            dwStgReader = dwStg;
+            CheckTheme(themeTo);
+        }
+    private:
+        System::Void frmOtherSettings::CheckTheme(const AuoTheme themeTo) {
+            //変更の必要がなければ終了
+            if (themeTo == themeMode) return;
+
+            //一度ウィンドウの再描画を完全に抑止する
+            SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
+            //tabcontrolのborderを隠す
+            SwitchComboBoxBorder(fosTabControl, fosPNHideTabPage, themeMode, themeTo, dwStgReader);
+            SetAllColor(this, themeTo, this->GetType(), dwStgReader);
+            SetAllMouseMove(this, themeTo);
+            //一度ウィンドウの再描画を再開し、強制的に再描画させる
+            SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 1, 0);
+            this->Refresh();
+            themeMode = themeTo;
+        }
+    private:
+        System::Void frmOtherSettings::fosMouseEnter_SetColor(System::Object^  sender, System::EventArgs^  e) {
+            fcgMouseEnterLeave_SetColor(sender, themeMode, DarkenWindowState::Hot, dwStgReader);
+        }
+    private:
+        System::Void frmOtherSettings::fosMouseLeave_SetColor(System::Object^  sender, System::EventArgs^  e) {
+            fcgMouseEnterLeave_SetColor(sender, themeMode, DarkenWindowState::Normal, dwStgReader);
+        }
+    private:
+        System::Void frmOtherSettings::SetAllMouseMove(Control ^top, const AuoTheme themeTo) {
+            if (themeTo == themeMode) return;
+            System::Type^ type = top->GetType();
+            if (type == CheckBox::typeid) {
+                top->MouseEnter += gcnew System::EventHandler(this, &frmOtherSettings::fosMouseEnter_SetColor);
+                top->MouseLeave += gcnew System::EventHandler(this, &frmOtherSettings::fosMouseLeave_SetColor);
+            }
+            for (int i = 0; i < top->Controls->Count; i++) {
+                SetAllMouseMove(top->Controls[i], themeTo);
+            }
         }
 };
 }

@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib")
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -1805,6 +1807,34 @@ static std::vector<std::basic_string<TCHAR>> createProcessOpenedFileList(const s
     // 不要になった要素を削除
     list_file.erase(result, list_file.end());
     return list_file;
+}
+
+static std::vector<std::wstring> createProcessModuleList() {
+    std::vector<std::wstring> moduleList;
+    const auto currentPID = GetCurrentProcessId();
+    std::unique_ptr<std::remove_pointer<HANDLE>::type, decltype(&CloseHandle)> hProcess(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, currentPID), CloseHandle);
+    HMODULE hMods[1024];
+    DWORD cbNeeded = 0;
+    if (EnumProcessModules(hProcess.get(), hMods, sizeof(hMods), &cbNeeded)) {
+        for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
+            wchar_t moduleName[MAX_PATH_LEN] = { 0 };
+            if (GetModuleFileNameExW(hProcess.get(), hMods[i], moduleName, _countof(moduleName))) {
+                moduleList.push_back(moduleName);
+            }
+        }
+    }
+    return moduleList;
+}
+
+bool checkIfModuleLoaded(const wchar_t *moduleName) {
+    const auto moduleList = createProcessModuleList();
+    for (const auto& modulePath : moduleList) {
+        const auto moduleFilename = std::filesystem::path(modulePath).filename().wstring();
+        if (_wcsicmp(moduleName, moduleFilename.c_str()) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static bool rgy_path_is_same(const TCHAR *path1, const TCHAR *path2) {

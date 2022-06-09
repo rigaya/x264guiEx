@@ -70,6 +70,8 @@ namespace x264guiEx {
         {
             InitData(_conf, _sys_dat);
             list_lng = nullptr;
+            dwStgReader = nullptr;
+            themeMode = AuoTheme::DefaultLight;
             cnf_fcgTemp = (CONF_X264*)calloc(1, sizeof(CONF_X264));
             cnf_stgSelected = (CONF_GUIEX*)calloc(1, sizeof(CONF_GUIEX));
             InitializeComponent();
@@ -93,6 +95,8 @@ namespace x264guiEx {
             CloseBitrateCalc();
             if (cnf_fcgTemp) free(cnf_fcgTemp); cnf_fcgTemp = NULL;
             if (cnf_stgSelected) free(cnf_stgSelected); cnf_stgSelected = NULL;
+            if (dwStgReader != nullptr)
+                delete dwStgReader;
             if (qualityTimer != nullptr)
                 delete qualityTimer;
             if (list_lng != nullptr)
@@ -105,7 +109,7 @@ private: System::Windows::Forms::Label^  fcgLBAMPAutoBitrate;
     private: System::Windows::Forms::TabPage^  fcgtabPageX264Main;
     private: System::Windows::Forms::TabPage^  fcgtabPageX264RC;
 
-    private: System::Windows::Forms::ToolStrip^  fcgtoolStripSettings;
+
 
     private: System::Windows::Forms::TabControl^  fcgtabControlMux;
 
@@ -122,16 +126,16 @@ private: System::Windows::Forms::Label^  fcgLBAMPAutoBitrate;
 
 
     private: System::Windows::Forms::TabPage^  fcgtabPageExSettings;
-    private: System::Windows::Forms::ToolStripButton^  fcgTSBSave;
 
-    private: System::Windows::Forms::ToolStripButton^  fcgTSBSaveNew;
 
-    private: System::Windows::Forms::ToolStripButton^  fcgTSBDelete;
 
-    private: System::Windows::Forms::ToolStripSeparator^  fcgtoolStripSeparator1;
-    private: System::Windows::Forms::ToolStripDropDownButton^  fcgTSSettings;
 
-    private: System::Windows::Forms::ToolStripButton^  fcgTSBCMDOnly;
+
+
+
+
+
+
     private: System::Windows::Forms::TextBox^  fcgTXX264Path;
     private: System::Windows::Forms::Label^  fcgLBX264Path;
     private: System::Windows::Forms::GroupBox^  fcggroupBoxPreset;
@@ -449,8 +453,8 @@ private: System::Windows::Forms::ToolTip^  fcgTTEx;
 
 
 private: System::Windows::Forms::ToolTip^  fcgTTX264Version;
-private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator2;
-private: System::Windows::Forms::ToolStripButton^  fcgTSBOtherSettings;
+
+
 private: System::Windows::Forms::CheckBox^  fcgCBNulOutCLI;
 private: System::Windows::Forms::TabPage^  fcgtabPageX264Frame;
 
@@ -562,8 +566,8 @@ private: System::Windows::Forms::ComboBox^  fcgCXInterlaced;
 private: System::Windows::Forms::ComboBox^  fcgCXNalHrd;
 private: System::Windows::Forms::Label^  fcgLBNalHrd;
 private: System::Windows::Forms::CheckBox^  fcgCBPicStruct;
-private: System::Windows::Forms::ToolStripButton^  fcgTSBBitrateCalc;
-private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator3;
+
+
 private: System::Windows::Forms::Button^  fcgBTX264PathSub;
 
 private: System::Windows::Forms::TextBox^  fcgTXX264PathSub;
@@ -573,10 +577,10 @@ private: System::Windows::Forms::Label^  fcgLBX264PathSub;
 
 
 
-private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
 
-private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
-private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
+
+
+
 private: System::Windows::Forms::CheckBox^  fcgCBMP4MuxApple;
 
 
@@ -696,8 +700,53 @@ private: System::Windows::Forms::ComboBox^  fcgCXAudioPriority;
 private: System::Windows::Forms::Label^  fcgLBAudioPriority;
 private: System::Windows::Forms::NumericUpDown^  fcgNUAMPLimitBitrateLower;
 private: System::Windows::Forms::CheckBox^  fcgCBAMPLimitBitrateLower;
+
+
+private: System::Windows::Forms::Panel^  fcgPNHideTabControlVideo;
+private: System::Windows::Forms::Panel^  fcgPNHideTabControlAudio;
+private: System::Windows::Forms::Panel^  fcgPNHideTabControlMux;
+
+
+
+
+private: System::Windows::Forms::ToolStripButton^  fcgTSBSave;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBSaveNew;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBDelete;
+private: System::Windows::Forms::ToolStripSeparator^  fcgtoolStripSeparator1;
+private: System::Windows::Forms::ToolStripDropDownButton^  fcgTSSettings;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBCMDOnly;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator3;
 private: System::Windows::Forms::ToolStripDropDownButton^  fcgTSLanguage;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBBitrateCalc;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator2;
+private: System::Windows::Forms::ToolStripButton^  fcgTSBOtherSettings;
+private: System::Windows::Forms::ToolStripLabel^  fcgTSLSettingsNotes;
+private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
+private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
+private: System::Windows::Forms::ToolStrip^  fcgtoolStripSettings;
+private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -965,22 +1014,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgCBAFS = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCSExeFiles = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
             this->fcgTSExeFileshelp = (gcnew System::Windows::Forms::ToolStripMenuItem());
-            this->fcgtoolStripSettings = (gcnew System::Windows::Forms::ToolStrip());
-            this->fcgTSBSave = (gcnew System::Windows::Forms::ToolStripButton());
-            this->fcgTSBSaveNew = (gcnew System::Windows::Forms::ToolStripButton());
-            this->fcgTSBDelete = (gcnew System::Windows::Forms::ToolStripButton());
-            this->fcgtoolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
-            this->fcgTSSettings = (gcnew System::Windows::Forms::ToolStripDropDownButton());
-            this->fcgTSBCMDOnly = (gcnew System::Windows::Forms::ToolStripButton());
-            this->toolStripSeparator3 = (gcnew System::Windows::Forms::ToolStripSeparator());
-            this->fcgTSLanguage = (gcnew System::Windows::Forms::ToolStripDropDownButton());
-            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
-            this->fcgTSBBitrateCalc = (gcnew System::Windows::Forms::ToolStripButton());
-            this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
-            this->fcgTSBOtherSettings = (gcnew System::Windows::Forms::ToolStripButton());
-            this->fcgTSLSettingsNotes = (gcnew System::Windows::Forms::ToolStripLabel());
-            this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
-            this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
             this->fcgtabControlMux = (gcnew System::Windows::Forms::TabControl());
             this->fcgtabPageMP4 = (gcnew System::Windows::Forms::TabPage());
             this->fcgCBMP4MuxApple = (gcnew System::Windows::Forms::CheckBox());
@@ -1087,6 +1120,26 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgCBRunBatBeforeAudio = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCXAudioPriority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBAudioPriority = (gcnew System::Windows::Forms::Label());
+            this->fcgPNHideTabControlVideo = (gcnew System::Windows::Forms::Panel());
+            this->fcgPNHideTabControlAudio = (gcnew System::Windows::Forms::Panel());
+            this->fcgPNHideTabControlMux = (gcnew System::Windows::Forms::Panel());
+            this->fcgTSBSave = (gcnew System::Windows::Forms::ToolStripButton());
+            this->fcgTSBSaveNew = (gcnew System::Windows::Forms::ToolStripButton());
+            this->fcgTSBDelete = (gcnew System::Windows::Forms::ToolStripButton());
+            this->fcgtoolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSSettings = (gcnew System::Windows::Forms::ToolStripDropDownButton());
+            this->fcgTSBCMDOnly = (gcnew System::Windows::Forms::ToolStripButton());
+            this->toolStripSeparator3 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSLanguage = (gcnew System::Windows::Forms::ToolStripDropDownButton());
+            this->toolStripSeparator5 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSBBitrateCalc = (gcnew System::Windows::Forms::ToolStripButton());
+            this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgTSBOtherSettings = (gcnew System::Windows::Forms::ToolStripButton());
+            this->fcgTSLSettingsNotes = (gcnew System::Windows::Forms::ToolStripLabel());
+            this->fcgTSTSettingsNotes = (gcnew System::Windows::Forms::ToolStripTextBox());
+            this->toolStripSeparator4 = (gcnew System::Windows::Forms::ToolStripSeparator());
+            this->fcgtoolStripSettings = (gcnew System::Windows::Forms::ToolStrip());
+            this->fcgPNHideToolStripBorder = (gcnew System::Windows::Forms::Panel());
             this->fcgtabControlVideo->SuspendLayout();
             this->fcgtabPageX264Main->SuspendLayout();
             this->fcgPNStatusFile->SuspendLayout();
@@ -1148,7 +1201,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcggroupBoxCmdEx->SuspendLayout();
             this->fcggroupBoxExSettings->SuspendLayout();
             this->fcgCSExeFiles->SuspendLayout();
-            this->fcgtoolStripSettings->SuspendLayout();
             this->fcgtabControlMux->SuspendLayout();
             this->fcgtabPageMP4->SuspendLayout();
             this->fcgtabPageMKV->SuspendLayout();
@@ -1160,6 +1212,10 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabPageAudioMain->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->BeginInit();
             this->fcgtabPageAudioOther->SuspendLayout();
+            this->fcgPNHideTabControlVideo->SuspendLayout();
+            this->fcgPNHideTabControlAudio->SuspendLayout();
+            this->fcgPNHideTabControlMux->SuspendLayout();
+            this->fcgtoolStripSettings->SuspendLayout();
             this->SuspendLayout();
             // 
             // fcgtabControlVideo
@@ -1170,10 +1226,10 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabControlVideo->Controls->Add(this->fcgtabPageExSettings);
             this->fcgtabControlVideo->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
-            this->fcgtabControlVideo->Location = System::Drawing::Point(0, 25);
+            this->fcgtabControlVideo->Location = System::Drawing::Point(2, 2);
             this->fcgtabControlVideo->Name = L"fcgtabControlVideo";
             this->fcgtabControlVideo->SelectedIndex = 0;
-            this->fcgtabControlVideo->Size = System::Drawing::Size(616, 520);
+            this->fcgtabControlVideo->Size = System::Drawing::Size(616, 518);
             this->fcgtabControlVideo->TabIndex = 0;
             // 
             // fcgtabPageX264Main
@@ -1207,7 +1263,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabPageX264Main->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264Main->Name = L"fcgtabPageX264Main";
             this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3);
-            this->fcgtabPageX264Main->Size = System::Drawing::Size(608, 493);
+            this->fcgtabPageX264Main->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageX264Main->TabIndex = 0;
             this->fcgtabPageX264Main->Text = L" x264 ";
             this->fcgtabPageX264Main->UseVisualStyleBackColor = true;
@@ -2020,7 +2076,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabPageX264RC->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264RC->Name = L"fcgtabPageX264RC";
             this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(3);
-            this->fcgtabPageX264RC->Size = System::Drawing::Size(608, 493);
+            this->fcgtabPageX264RC->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageX264RC->TabIndex = 1;
             this->fcgtabPageX264RC->Text = L" レート・QP制御";
             this->fcgtabPageX264RC->UseVisualStyleBackColor = true;
@@ -2470,7 +2526,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabPageX264Frame->Controls->Add(this->fcggroupBoxDeblock);
             this->fcgtabPageX264Frame->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264Frame->Name = L"fcgtabPageX264Frame";
-            this->fcgtabPageX264Frame->Size = System::Drawing::Size(608, 493);
+            this->fcgtabPageX264Frame->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageX264Frame->TabIndex = 4;
             this->fcgtabPageX264Frame->Text = L"フレーム";
             this->fcgtabPageX264Frame->UseVisualStyleBackColor = true;
@@ -3134,7 +3190,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabPageExSettings->Controls->Add(this->fcggroupBoxExSettings);
             this->fcgtabPageExSettings->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageExSettings->Name = L"fcgtabPageExSettings";
-            this->fcgtabPageExSettings->Size = System::Drawing::Size(608, 493);
+            this->fcgtabPageExSettings->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageExSettings->TabIndex = 3;
             this->fcgtabPageExSettings->Text = L"拡張";
             this->fcgtabPageExSettings->UseVisualStyleBackColor = true;
@@ -3549,7 +3605,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabControlMux->Controls->Add(this->fcgtabPageBat);
             this->fcgtabControlMux->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
-            this->fcgtabControlMux->Location = System::Drawing::Point(622, 331);
+            this->fcgtabControlMux->Location = System::Drawing::Point(2, 5);
             this->fcgtabControlMux->Name = L"fcgtabControlMux";
             this->fcgtabControlMux->SelectedIndex = 0;
             this->fcgtabControlMux->Size = System::Drawing::Size(384, 214);
@@ -4282,7 +4338,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgtabControlAudio->Controls->Add(this->fcgtabPageAudioMain);
             this->fcgtabControlAudio->Controls->Add(this->fcgtabPageAudioOther);
             this->fcgtabControlAudio->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F));
-            this->fcgtabControlAudio->Location = System::Drawing::Point(622, 25);
+            this->fcgtabControlAudio->Location = System::Drawing::Point(2, 2);
             this->fcgtabControlAudio->Name = L"fcgtabControlAudio";
             this->fcgtabControlAudio->SelectedIndex = 0;
             this->fcgtabControlAudio->Size = System::Drawing::Size(384, 296);
@@ -4700,12 +4756,47 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcgLBAudioPriority->TabIndex = 46;
             this->fcgLBAudioPriority->Text = L"音声優先度";
             // 
+            // fcgPNHideTabControlVideo
+            // 
+            this->fcgPNHideTabControlVideo->Controls->Add(this->fcgtabControlVideo);
+            this->fcgPNHideTabControlVideo->Location = System::Drawing::Point(0, 26);
+            this->fcgPNHideTabControlVideo->Name = L"fcgPNHideTabControlVideo";
+            this->fcgPNHideTabControlVideo->Size = System::Drawing::Size(620, 522);
+            this->fcgPNHideTabControlVideo->TabIndex = 12;
+            // 
+            // fcgPNHideTabControlAudio
+            // 
+            this->fcgPNHideTabControlAudio->Controls->Add(this->fcgtabControlAudio);
+            this->fcgPNHideTabControlAudio->Location = System::Drawing::Point(620, 26);
+            this->fcgPNHideTabControlAudio->Name = L"fcgPNHideTabControlAudio";
+            this->fcgPNHideTabControlAudio->Size = System::Drawing::Size(388, 300);
+            this->fcgPNHideTabControlAudio->TabIndex = 13;
+            // 
+            // fcgPNHideTabControlMux
+            // 
+            this->fcgPNHideTabControlMux->Controls->Add(this->fcgtabControlMux);
+            this->fcgPNHideTabControlMux->Location = System::Drawing::Point(620, 327);
+            this->fcgPNHideTabControlMux->Name = L"fcgPNHideTabControlMux";
+            this->fcgPNHideTabControlMux->Size = System::Drawing::Size(388, 221);
+            this->fcgPNHideTabControlMux->TabIndex = 14;
+            // 
+            // fcgPNHideToolStripBorder
+            // 
+            this->fcgPNHideToolStripBorder->Location = System::Drawing::Point(0, 22);
+            this->fcgPNHideToolStripBorder->Name = L"fcgPNHideToolStripBorder";
+            this->fcgPNHideToolStripBorder->Size = System::Drawing::Size(1020, 4);
+            this->fcgPNHideToolStripBorder->TabIndex = 15;
+            this->fcgPNHideToolStripBorder->Visible = false;
+            // 
             // frmConfig
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
             this->ClientSize = System::Drawing::Size(1008, 601);
-            this->Controls->Add(this->fcgtabControlAudio);
+            this->Controls->Add(this->fcgPNHideToolStripBorder);
+            this->Controls->Add(this->fcgPNHideTabControlMux);
+            this->Controls->Add(this->fcgPNHideTabControlAudio);
+            this->Controls->Add(this->fcgPNHideTabControlVideo);
             this->Controls->Add(this->fcgLBguiExBlog);
             this->Controls->Add(this->fcgLBVersion);
             this->Controls->Add(this->fcgLBVersionDate);
@@ -4713,9 +4804,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->Controls->Add(this->fcgBTOK);
             this->Controls->Add(this->fcgBTCancel);
             this->Controls->Add(this->fcgTXCmd);
-            this->Controls->Add(this->fcgtabControlMux);
             this->Controls->Add(this->fcgtoolStripSettings);
-            this->Controls->Add(this->fcgtabControlVideo);
             this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(128)));
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
@@ -4809,8 +4898,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             this->fcggroupBoxExSettings->ResumeLayout(false);
             this->fcggroupBoxExSettings->PerformLayout();
             this->fcgCSExeFiles->ResumeLayout(false);
-            this->fcgtoolStripSettings->ResumeLayout(false);
-            this->fcgtoolStripSettings->PerformLayout();
             this->fcgtabControlMux->ResumeLayout(false);
             this->fcgtabPageMP4->ResumeLayout(false);
             this->fcgtabPageMP4->PerformLayout();
@@ -4829,6 +4916,11 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAudioBitrate))->EndInit();
             this->fcgtabPageAudioOther->ResumeLayout(false);
             this->fcgtabPageAudioOther->PerformLayout();
+            this->fcgPNHideTabControlVideo->ResumeLayout(false);
+            this->fcgPNHideTabControlAudio->ResumeLayout(false);
+            this->fcgPNHideTabControlMux->ResumeLayout(false);
+            this->fcgtoolStripSettings->ResumeLayout(false);
+            this->fcgtoolStripSettings->PerformLayout();
             this->ResumeLayout(false);
             this->PerformLayout();
 
@@ -4840,6 +4932,8 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         std::vector<std::string> *list_lng;
         CONF_GUIEX *conf;
         LocalSettings LocalStg;
+        DarkenWindowStgReader *dwStgReader;
+        AuoTheme themeMode;
         TBValueBitrateConvert TBBConvert;
         System::Threading::Timer^ qualityTimer;
         int timerChangeValue;
@@ -4850,6 +4944,12 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         CONF_GUIEX *cnf_stgSelected;
         String^ lastQualityStr;
     private:
+        System::Void CheckTheme();
+        System::Void SetAllMouseMove(Control ^top, const AuoTheme themeTo);
+        System::Void fcgMouseEnter_SetColor(System::Object^  sender, System::EventArgs^  e);
+        System::Void fcgMouseLeave_SetColor(System::Object^  sender, System::EventArgs^  e);
+        System::Void TabControl_DarkDrawItem(System::Object^ sender, DrawItemEventArgs^ e);
+
         System::Void LoadLangText();
         System::Int32 GetCurrentAudioDefaultBitrate();
         delegate System::Void qualityTimerChangeDelegate();
@@ -4884,7 +4984,6 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void GetfcgTSLSettingsNotes(char *notes, int nSize);
         System::Void SetfcgTSLSettingsNotes(const char *notes);
         System::Void SetfcgTSLSettingsNotes(String^ notes);
-        System::Void fcgTSLanguage_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e);
         System::Void fcgTSBSave_Click(System::Object^  sender, System::EventArgs^  e);
         System::Void fcgTSBSaveNew_Click(System::Object^  sender, System::EventArgs^  e);
         System::Void fcgTSBDelete_Click(System::Object^  sender, System::EventArgs^  e);
@@ -4899,6 +4998,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void SaveSelectedLanguage(const char *language_text);
         System::Void SetSelectedLanguage(const char *language_text);
         System::Void CheckTSLanguageDropDownItem(ToolStripMenuItem^ mItem);
+        System::Void fcgTSLanguage_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e);
 
         System::Void SetHelpToolTips();
         System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
@@ -5557,11 +5657,11 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             if (fcgTXX264Path->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 fcgTXX264PathSub->Text = LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH);
                 LocalStg.x264Path = L"";
-                fcgTXX264Path->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXX264Path->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
                 int c = fcgTXX264Path->SelectionStart;
                 LocalStg.x264Path = fcgTXX264Path->Text;
-                fcgTXX264Path->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXX264Path->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 fcgTXX264PathSub->Text = LocalStg.x264Path;
                 fcgTXX264PathSub->SelectionStart = fcgTXX264PathSub->Text->Length;
                 fcgTXX264Path->SelectionStart = c;
@@ -5576,7 +5676,7 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
                 fcgTXX264PathSub->ForeColor = System::Drawing::SystemColors::ControlDark;
             } else {
                 LocalStg.x264Path = fcgTXX264PathSub->Text;
-                fcgTXX264PathSub->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXX264PathSub->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 int c = fcgTXX264PathSub->SelectionStart;
                 fcgTXX264Path->Text = LocalStg.x264Path;
                 fcgTXX264Path->SelectionStart = fcgTXX264Path->Text->Length;
@@ -5589,9 +5689,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
             if (fcgCXAudioEncoder->SelectedIndex < 0) return;
             if (fcgTXAudioEncoderPath->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex] = L"";
-                fcgTXAudioEncoderPath->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXAudioEncoderPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXAudioEncoderPath->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXAudioEncoderPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex] = fcgTXAudioEncoderPath->Text;
                 fcgBTAudioEncoderPath->ContextMenuStrip = (File::Exists(fcgTXAudioEncoderPath->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5600,9 +5700,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void fcgTXMP4MuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
             if (fcgTXMP4MuxerPath->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.MP4MuxerPath = L"";
-                fcgTXMP4MuxerPath->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXMP4MuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXMP4MuxerPath->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXMP4MuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.MP4MuxerPath = fcgTXMP4MuxerPath->Text;
                 fcgBTMP4MuxerPath->ContextMenuStrip = (File::Exists(fcgTXMP4MuxerPath->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5611,9 +5711,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void fcgTXTC2MP4Path_TextChanged(System::Object^  sender, System::EventArgs^  e) {
             if (fcgTXTC2MP4Path->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.TC2MP4Path = L"";
-                fcgTXTC2MP4Path->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXTC2MP4Path->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXTC2MP4Path->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXTC2MP4Path->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.TC2MP4Path = fcgTXTC2MP4Path->Text;
                 fcgBTTC2MP4Path->ContextMenuStrip = (File::Exists(fcgTXTC2MP4Path->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5622,9 +5722,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void fcgTXMP4RawMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
             if (fcgTXMP4RawPath->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.MP4RawPath = L"";
-                fcgTXMP4RawPath->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXMP4RawPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXMP4RawPath->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXMP4RawPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.MP4RawPath = fcgTXMP4RawPath->Text;
                 fcgBTMP4RawPath->ContextMenuStrip = (File::Exists(fcgTXMP4RawPath->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5633,9 +5733,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void fcgTXMKVMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
             if (fcgTXMKVMuxerPath->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.MKVMuxerPath = L"";
-                fcgTXMKVMuxerPath->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXMKVMuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXMKVMuxerPath->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXMKVMuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.MKVMuxerPath = fcgTXMKVMuxerPath->Text;
                 fcgBTMKVMuxerPath->ContextMenuStrip = (File::Exists(fcgTXMKVMuxerPath->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5644,9 +5744,9 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
         System::Void fcgTXMPGMuxerPath_TextChanged(System::Object^  sender, System::EventArgs^  e) {
             if (fcgTXMPGMuxerPath->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 LocalStg.MPGMuxerPath = L"";
-                fcgTXMPGMuxerPath->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXMPGMuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
-                fcgTXMPGMuxerPath->ForeColor = System::Drawing::SystemColors::WindowText;
+                fcgTXMPGMuxerPath->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);
                 LocalStg.MPGMuxerPath = fcgTXMPGMuxerPath->Text;
                 fcgBTMPGMuxerPath->ContextMenuStrip = (File::Exists(fcgTXMPGMuxerPath->Text)) ? fcgCSExeFiles : nullptr;
             }
@@ -5762,5 +5862,5 @@ private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator5;
                 //まあ放置
             };
         }
-};
+    };
 }

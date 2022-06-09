@@ -58,6 +58,8 @@ namespace x264guiEx {
             //
             //TODO: ここにコンストラクタ コードを追加します
             //
+            themeMode = AuoTheme::DefaultLight;
+            dwStgReader = nullptr;
         }
 
     protected:
@@ -150,9 +152,11 @@ namespace x264guiEx {
 #pragma endregion
     public:
         String^ NewFolder;
+        AuoTheme themeMode;
+        const DarkenWindowStgReader *dwStgReader;
     private:
         System::Void LoadLangText() {
-            LOAD_CLI_MAIN_TEXT(fbcMain);
+            LOAD_CLI_MAIN_TEXT(fnfMain);
             LOAD_CLI_TEXT(fnfBTOK);
             LOAD_CLI_TEXT(fnfBTCancel);
         }
@@ -185,6 +189,24 @@ namespace x264guiEx {
         System::Void frmNewFolderName_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
             if (e->KeyCode == Keys::Escape)
                 this->Close();
+        }
+    public:
+        System::Void SetTheme(AuoTheme themeTo, const DarkenWindowStgReader *dwStg) {
+            dwStgReader = dwStg;
+            CheckTheme(themeTo);
+        }
+    private:
+        System::Void CheckTheme(const AuoTheme themeTo) {
+            //変更の必要がなければ終了
+            if (themeTo == themeMode) return;
+
+            //一度ウィンドウの再描画を完全に抑止する
+            SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
+            SetAllColor(this, themeTo, this->GetType(), dwStgReader);
+            //一度ウィンドウの再描画を再開し、強制的に再描画させる
+            SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 1, 0);
+            this->Refresh();
+            themeMode = themeTo;
         }
 };
 }

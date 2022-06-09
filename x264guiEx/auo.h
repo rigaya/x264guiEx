@@ -87,4 +87,6 @@ int load_lng(const char *lang);
 const char *get_auo_version_info();
 std::string get_last_out_stg_appendix();
 
+bool checkIfModuleLoaded(const wchar_t *moduleName);
+
 #endif //_AUO_H_
