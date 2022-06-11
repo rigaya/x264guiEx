@@ -72,6 +72,8 @@ namespace x264guiEx {
             {
                 delete components;
             }
+            if (dwStgReader != nullptr)
+                delete dwStgReader;
         }
     //Instanceを介し、ひとつだけ生成
     private:
