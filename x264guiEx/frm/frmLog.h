@@ -949,6 +949,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
     private: 
         System::Void toolStripMenuItemAutoSaveSettings_Click(System::Object^  sender, System::EventArgs^  e) {
             frmAutoSaveLogSettings::Instance::get()->Owner = this;
+            frmAutoSaveLogSettings::Instance::get()->InitTheme();
             frmAutoSaveLogSettings::Instance::get()->Show();
         }
     private:
