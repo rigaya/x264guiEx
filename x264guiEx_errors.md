@@ -3,6 +3,8 @@ x264guiEx 2.xx/3.xxのよくあるエラーメッセージと対処方法をま�
 
 エラー発生時には(多くの場合)ログウィンドウにエラーメッセージが表示されます。赤、あるいは黄の字で表示されるエラーメッセージを確認いただき、下記から該当するものを探してみてください。
 
+該当するものがない場合やよくわからない場合は、[twitter](https://twitter.com/rigaya34589)か[ブログのコメント](https://rigaya34589.blog.fc2.com/blog-category-5.html)等で具体的なエラーの状況をお聞かせください。
+
 - [x264guiEx エラーと対処方法](#x264guiex-エラーと対処方法)
   - [「ファイルの出力に失敗しました。」といきなり出る](#ファイルの出力に失敗しましたといきなり出る)
   - [出力フレーム数が 0 フレームのため、エンコードできません。](#出力フレーム数が-0-フレームのためエンコードできません)
@@ -271,4 +273,4 @@ L-SMASH muxer [error]: iTunes MP4 muxing mode
 L-SMASH muxer [error]: Track 1: H.264 Advanced Video Coding
 L-SMASH muxer [error]: Error: failed to get the last sample delta.
 ```
-すみません、原因不明で、かつ手元で再現できていません。発生状況など、情報提供お持ちしています。
+すみません、原因不明で、かつ手元で再現できていません。発生状況など、[twitter](https://twitter.com/rigaya34589)か[ブログのコメント](https://rigaya34589.blog.fc2.com/blog-category-5.html)等に情報提供お持ちしています。
