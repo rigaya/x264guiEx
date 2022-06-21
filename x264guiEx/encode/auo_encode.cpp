@@ -102,6 +102,13 @@ static std::vector<std::filesystem::path> find_exe_files(const char *target_dir)
     return ret;
 }
 
+static std::vector<std::filesystem::path> find_exe_files(const char *target_dir, const char *target_dir2) {
+    auto list1 = find_exe_files(target_dir);
+    auto list2 = find_exe_files(target_dir2);
+    list1.insert(list1.end(), list2.begin(), list2.end());
+    return list1;
+}
+
 static std::vector<std::filesystem::path> find_target_exe_files(const char *target_name, const std::vector<std::filesystem::path>& exe_files) {
     std::vector<std::filesystem::path> ret;
     const auto targetNameLower = tolowercase(std::filesystem::path(target_name).stem().string());
@@ -377,6 +384,11 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     char defaultExeDir[MAX_PATH_LEN] = { 0 };
     PathCombineLong(defaultExeDir, _countof(defaultExeDir), aviutl_dir, DEFAULT_EXE_DIR);
 
+    char pluginsDir[MAX_PATH_LEN] = { 0 };
+    char defaultExeDir2[MAX_PATH_LEN] = { 0 };
+    PathCombineLong(pluginsDir, _countof(pluginsDir), aviutl_dir, "plugins");
+    PathCombineLong(defaultExeDir2, _countof(defaultExeDir2), pluginsDir, DEFAULT_EXE_DIR);
+
     //ダメ文字・環境依存文字チェック
     char savedir[MAX_PATH_LEN] = { 0 };
     strcpy_s(savedir, oip->savefile);
@@ -432,7 +444,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     if (conf->oth.out_audio_only)
         write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_ENCODE_AUDIO_ONLY));
 
-    const auto exeFiles = find_exe_files(defaultExeDir);
+    const auto exeFiles = find_exe_files(defaultExeDir, defaultExeDir2);
 
     //必要な実行ファイル
     //x264
