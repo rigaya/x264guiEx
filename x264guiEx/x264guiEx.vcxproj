@@ -296,6 +296,7 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
     <None Include="x264guiEx.en.ini" />
     <None Include="x264guiEx.en.lng" />
     <None Include="x264guiEx.ini" />
+    <None Include="x264guiEx.zh.ini" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="auo.h" />
