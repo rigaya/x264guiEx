@@ -13,8 +13,6 @@ seraphy氏 拡張 x264 出力(GUI) を改造し、x264を分離し、別プロ�
 Windows 8.1/10/11 (x86/x64)  
 Aviutl 1.00 以降
 
-WindowsXPでは動作しません。
-
 ## x264guiEx 使用にあたっての注意事項
 無保証です。自己責任で使用してください。  
 拡張 x264 出力(GUI) Exを使用したことによる、いかなる損害・トラブルについても責任を負いません。  
@@ -30,6 +28,11 @@ WindowsXPでは動作しません。
 - [x264guiExの上限設定＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-329.html)
 - [x264guiExでBluray用出力＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-333.html)
 - [x264guiExのその他の設定＞＞](http://rigaya34589.blog135.fc2.com/blog-entry-343.html)
+
+## エラーが起こったら
+x264guiExでよく発生するエラーと対処方法を[こちら](./x264guiEx_errors.md)にまとめましたので、エラーメッセージを参考に対処方法をご確認ください。
+
+また、よくわからない場合は、[twitter](https://twitter.com/rigaya34589)か[ブログのコメント](https://rigaya34589.blog.fc2.com/blog-category-5.html)等で具体的なエラーの状況をお聞かせください。可能な範囲で回答したいと思います。
 
 ## x264guiEx の Aviutl への導入・更新
 
@@ -60,7 +63,9 @@ WindowsXPでは動作しません。
   
 このあとAviutlをダブルクリックして起動してください。
 
-初回起動時に必要に応じて下の図のようにx264guiExの使用準備をするというメッセージが出ます。環境によっては準備が不要な場合があり、その場合は表示されません。
+初回起動時に必要に応じて下の図のようにx264guiExの使用準備をするというメッセージが出ます。
+
+_環境によっては準備が不要な場合があり、その場合は表示されません。その場合は、[確認](#確認)に進んでください。_
 
 OKをクリックすると使用準備が開始されます。
 
@@ -107,10 +112,30 @@ x264guiEx 3.xxが表示されていれば成功です。
 
 エンコードが完了するまで待ちます。お疲れ様でした。
 
-## エラーが起こったら
-x264guiExでよく発生するエラーと対処方法を[こちら](./x264guiEx_errors.md)にまとめましたので、エラーメッセージを参考に対処方法をご確認ください。
+## 手順通り導入してもAviutlの出力プラグイン情報に表示されない場合
 
-また、よくわからない場合は、[twitter](https://twitter.com/rigaya34589)か[ブログのコメント](https://rigaya34589.blog.fc2.com/blog-category-5.html)等で具体的なエラーの状況をお聞かせください。可能な範囲で回答したいと思います。
+- 下記ファイルがコピー先のAviutlフォルダ内に存在するか確認してみてください。
+  最低限下記ファイルが導入には必須です。まれにウイルス対策ソフト等により、削除されている場合があります。
+
+  - Aviutlフォルダ
+    - exe_files [フォルダ]
+      - auo_setup(.exe)
+      - auo_setup(.ini)
+      - check_dotnet(.dll)
+      - check_vc(.dll)
+      - VC_redist.x86(.exe)
+
+    - plugins [フォルダ]
+      - auo_setup.auf
+      - x264guiEx.auo
+      - x264guiEx(.ini)
+  
+  - 上記ファイルが存在しない場合
+    再度exe_filesフォルダとpluginsフォルダのコピーを行ってみてください。
+    それでもファイルが消えてしまう場合は、ウイルス対策ソフトによってファイル削除がされていないかご確認ください。
+    
+  - 上記ファイルが存在するのにx264guiExが認識されない場合
+    まずAviutlを終了したうえで、exe_filesフォルダ内のVC_redist.x86(.exe)をダブルクリックで実行してください。その後、再度Aviutlを起動し、再度確認してみてください。
 
 ## 多言語対応
 
@@ -185,6 +210,8 @@ x264guiEx の Aviutl から削除するには、"plugins" フォルダ内の下�
 - [ファイル] x264guiEx.auo
 - [ファイル] x264guiEx.conf (存在する場合のみ)
 - [ファイル] x264guiEx(.ini)
+- [ファイル] x264guiEx.en(.ini)
+- [ファイル] x264guiEx.zh(.ini)
 - [ファイル] auo_setup.auf
 
 ![削除](./data/x264guiEx_3_00_uninstall_01.png)
