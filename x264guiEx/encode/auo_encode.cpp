@@ -427,8 +427,10 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
         check = FALSE;
     }
     if (oip->h % h_mul) {
-        error_invalid_resolution(FALSE, h_mul, oip->w, oip->h);
-        check = FALSE;
+        //error_invalid_resolution(FALSE, h_mul, oip->w, oip->h);
+        //check = FALSE;
+        //切り捨て
+        oip->h = (int)(oip->h / h_mul) * h_mul;
     }
 
     //出力するもの
@@ -1828,7 +1830,7 @@ static std::vector<std::wstring> createProcessModuleList() {
     HMODULE hMods[1024];
     DWORD cbNeeded = 0;
     if (EnumProcessModules(hProcess.get(), hMods, sizeof(hMods), &cbNeeded)) {
-        for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
+        for (size_t i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
             wchar_t moduleName[MAX_PATH_LEN] = { 0 };
             if (GetModuleFileNameExW(hProcess.get(), hMods[i], moduleName, _countof(moduleName))) {
                 moduleList.push_back(moduleName);
