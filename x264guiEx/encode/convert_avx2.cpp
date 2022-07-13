@@ -336,8 +336,11 @@ void convert_yuy2_to_yv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
                 _mm256_storeu_si256((__m256i *)(Y + (width<<1) + x + 32), y0);
                 //-----------3+i行目終了---------------
 
-                y0 = y3;
                 y1 = yuv422_to_420_i_interpolate(y6, y1, i);
+
+                y0 = _mm256_permute2x128_si256(y3, y1, (2<<4)|0);
+                y1 = _mm256_permute2x128_si256(y3, y1, (3<<4)|1);
+                separate_low_up(y0, y1);
 
                 _mm256_storeu_si256((__m256i *)(U + (x>>1)), y0);
                 _mm256_storeu_si256((__m256i *)(V + (x>>1)), y1);
