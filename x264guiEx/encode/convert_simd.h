@@ -296,9 +296,9 @@ static __forceinline void convert_yuy2_to_yv12_i_simd(void *frame, CONVERT_CF_DA
                 
                 x3 = yuv422_to_420_i_interpolate(x3, x1, i);
 
-                x0 = _mm_loadu_si128((const __m128i *)(pw+ 0));
-                x1 = _mm_loadu_si128((const __m128i *)(pw+16));
-            
+                x0 = _mm_loadu_si128((const __m128i *)(pw+32));
+                x1 = _mm_loadu_si128((const __m128i *)(pw+48));
+
                 separate_low_up(x0, x1);
 
                 _mm_store_switch_si128((__m128i *)(Y + (width<<1) + x + 16), x0);
