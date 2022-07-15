@@ -393,6 +393,14 @@ static inline BOOL str_has_char(const WCHAR *str) {
     return ret;
 }
 
+static void *find_data(const void *data_to_search, size_t data_to_search_len, const void *data_to_find, size_t data_to_find_len) {
+    const BYTE *search_fin = (const BYTE *)data_to_search + (data_to_search_len - data_to_find_len);
+    for (const BYTE *ptr = (const BYTE *)data_to_search; ptr < search_fin; ptr++)
+        if (0 == memcmp(ptr, data_to_find, data_to_find_len))
+            return (void *)ptr;
+    return NULL;
+}
+
 static DWORD cpu_core_count() {
     SYSTEM_INFO si;
     GetSystemInfo(&si);
