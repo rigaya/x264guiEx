@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <chrono>
 #include "auo_frm.h"
 #include "auo_util.h"
 
@@ -99,7 +100,36 @@ static int write_log_enc_mes_line(char *const mes, LOG_CACHE *cache_line) {
     return mes_len;
 }
 
-void set_reconstructed_title_mes(const char *mes, int total_drop, int current_frames) {
+#if ENCODER_SVTAV1
+void set_reconstructed_title_mes(const char *mes, int total_drop, int current_frames, int total_frames) {
+    static std::chrono::system_clock::time_point last_update = std::chrono::system_clock::now();
+    auto current = std::chrono::system_clock::now();
+    if ((current - last_update) < std::chrono::milliseconds(300)) {
+        return;
+    }
+    double fps = 0.0, bitrate = 0.0;
+    int i_frame = 0;
+    char buffer[1024] = { 0 };
+    const char *ptr = buffer;
+    last_update = current;
+    if (sscanf_s(mes, "Encoding frame %d %lf kbps %lf fps", &i_frame, &bitrate, &fps) == 3
+        || sscanf_s(mes, "Encoding frame %d %lf kbps %lf fpm", &i_frame, &bitrate, &fps) == 3) {
+        const bool isfpm = strstr(mes, " fpm");
+        sprintf_s(buffer, _countof(buffer),
+            (isfpm) ? "[%3.1lf%%] %d/%d frames, %.3lf fps, %.2lf kb/s"
+                    : "[%3.1lf%%] %d/%d frames, %.2lf fps, %.2lf kb/s",
+            current_frames * 100.0 / (double)total_frames,
+            current_frames,
+            total_frames,
+            isfpm ? fps * (1.0 / 60.0) : fps,
+            bitrate);
+    } else {
+        ptr = mes;
+    }
+    set_window_title_enc_mes(char_to_wstring(ptr).c_str(), total_drop, current_frames);
+}
+#else
+void set_reconstructed_title_mes(const char *mes, int total_drop, int current_frames, int total_frames) {
     double progress = 0, fps = 0, bitrate = 0;
     int i_frame = 0, total_frame = 0;
     int remain_time[3] = { 0 }, elapsed_time[3] = { 0 };
@@ -127,10 +157,11 @@ void set_reconstructed_title_mes(const char *mes, int total_drop, int current_fr
     }
     set_window_title_enc_mes(char_to_wstring(ptr).c_str(), total_drop, current_frames);
 }
+#endif
 
-void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames) {
+void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames, int total_frames) {
     char *a, *b, *mes = msg;
-    char * const fin = mes + *log_len; //null文字の位置
+    char *const fin = mes + *log_len; //null文字の位置
     *fin = '\0';
     while ((a = strchr(mes, '\n')) != NULL) {
         if ((b = strrchr(mes, '\r', a - mes - 2)) != NULL)
@@ -146,15 +177,21 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
         *(b+1) = '\0';
         if ((b = strrchr(mes, '\r', b - mes - 2)) != NULL)
             mes = b + 1;
+#if ENCODER_SVTAV1
+        if (strstr(mes, "Encoding frame")) {
+#else
         if (NULL == strstr(mes, "frames")) {
-            set_reconstructed_title_mes(mes, total_drop, current_frames);
+#endif
+            set_reconstructed_title_mes(mes, total_drop, current_frames, total_frames);
         } else {
             set_window_title_enc_mes(char_to_wstring(mes).c_str(), total_drop, current_frames);
         }
         mes = a + 1;
     }
-    if (mes == msg && *log_len)
-        mes += write_log_enc_mes_line(mes, NULL);
+    if (!ENCODER_SVTAV1) {
+        if (mes == msg && *log_len)
+            mes += write_log_enc_mes_line(mes, NULL);
+    }
     memmove(msg, mes, ((*log_len = fin - mes) + 1) * sizeof(msg[0]));
 }
 
