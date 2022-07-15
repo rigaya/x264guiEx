@@ -282,9 +282,12 @@ BOOL del_arg(char *cmd, char *target_arg, int del_arg_delta) {
 
     //次の値を検索
     if (del_arg_delta) {
-        do {
+        while (cmd <= ptr + del_arg_delta && ptr + del_arg_delta < cmd_fin) {
             ptr += del_arg_delta;
-        } while (is_space_or_crlf(*ptr));
+            if (!is_space_or_crlf(*ptr)) {
+                break;
+            }
+        }
 
         BOOL dQB = FALSE;
         while (cmd < ptr && ptr < cmd_fin) {
