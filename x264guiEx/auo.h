@@ -81,8 +81,6 @@ void write_log_line_fmt(int log_type_index, const wchar_t *format, ...);
 void write_log_auo_line_fmt(int log_type_index, const wchar_t *format, ...);
 void write_log_auo_enc_time(const wchar_t *mes, DWORD time);
 
-int create_auoSetup(const char *exePath);
-
 int load_lng(const char *lang);
 const char *get_auo_version_info();
 std::string get_last_out_stg_appendix();
