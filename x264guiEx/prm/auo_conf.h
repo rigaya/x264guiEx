@@ -29,11 +29,9 @@
 #define _AUO_CONF_H_
 
 #include <Windows.h>
-// Needed for MSVC 2017
 #if (_MSC_VER >= 1910)
-    #include <intrin.h>
+#include <intrin.h>
 #endif
-
 #include "auo.h"
 #include "auo_mes.h"
 #include "auo_options.h"
@@ -162,7 +160,7 @@ typedef struct {
 } CONF_VIDEO; //動画用設定(x264以外)
 #pragma pack(pop)
 
-typedef struct {
+typedef struct CONF_AUDIO {
     int   encoder;             //使用する音声エンコーダ
     int   enc_mode;            //使用する音声エンコーダの設定
     int   bitrate;             //ビットレート指定モード
@@ -176,7 +174,7 @@ typedef struct {
     int   delay_cut;           //エンコード遅延の削除
 } CONF_AUDIO; //音声用設定
 
-typedef struct {
+typedef struct CONF_MUX {
     BOOL disable_mp4ext;  //mp4出力時、外部muxerを使用する
     BOOL disable_mkvext;  //mkv出力時、外部muxerを使用する
     int  mp4_mode;        //mp4 外部muxer用追加コマンドの設定
@@ -189,7 +187,7 @@ typedef struct {
     int  mpg_mode;        //mpg 外部muxer用追加コマンドの設定
 } CONF_MUX; //muxer用設定
 
-typedef struct {
+typedef struct CONF_OTHER {
     BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
     int   temp_dir;               //一時ディレクトリ
     BOOL  out_audio_only;         //音声のみ出力
@@ -207,7 +205,7 @@ typedef struct {
     };
 } CONF_OTHER;
 
-typedef struct {
+typedef struct CONF_GUIEX {
     char        conf_name[CONF_NAME_BLOCK_LEN];  //保存時に使用
     int         size_all;                        //保存時: CONF_GUIEXの全サイズ / 設定中、エンコ中: CONF_INITIALIZED
     int         head_size;                       //ヘッダ部分の全サイズ
@@ -235,7 +233,6 @@ public:
     static int  save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file); //設定をstgファイルとして保存
 };
 
-//定義はx264guiEx.cpp
 void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit); //初期化し、x264設定のデフォルトを設定
 
 //出力ファイルの拡張子フィルタを作成

@@ -218,7 +218,7 @@ public:
     };
 };
 
-typedef struct {
+typedef struct AUDIO_ENC_MODE {
     wchar_t *name;       //名前
     char *cmd;           //コマンドライン
     BOOL bitrate;        //ビットレート指定モード
@@ -234,7 +234,7 @@ typedef struct {
     char *cmd_list;      //コマンドラインのリスト
 } AUDIO_ENC_MODE;
 
-typedef struct {
+typedef struct AUDIO_SETTINGS {
     char *keyName;               //iniファイルでのセクション名
     wchar_t *dispname;           //名前
     char *filename;              //拡張子付き名前
@@ -253,14 +253,14 @@ typedef struct {
     AUDIO_ENC_MODE *mode;        //エンコードモードの設定
 } AUDIO_SETTINGS;
 
-typedef struct {
+typedef struct MUXER_CMD_EX {
     wchar_t *name;   //拡張オプションの名前
     char *cmd;       //拡張オプションのコマンドライン
     char *cmd_apple; //Apple用モードの時のコマンドライン
     char *chap_file; //チャプターファイル
 } MUXER_CMD_EX;
 
-typedef struct {
+typedef struct MUXER_SETTINGS {
     char *keyName;                //iniファイルでのセクション名
     wchar_t *dispname;            //名前
     char *filename;               //拡張子付き名前
@@ -279,12 +279,12 @@ typedef struct {
     int post_mux;                 //muxerを実行したあとに別のmuxerを実行する
 } MUXER_SETTINGS;
 
-typedef struct {
+typedef struct ENC_CMD {
     X264_OPTION_STR *name;  //各種設定用x264コマンドの名前(配列、最後はnull)
     char **cmd;   //各種設定用x264コマンド(配列、最後はnull)
 } X264_CMD;
 
-typedef struct {
+typedef struct ENC_SETTINGS {
     char *filename;                      //x264のファイル名
     char fullpath[MAX_PATH_LEN];         //x264の場所(フルパス)
     char *default_cmd;                   //デフォルト設定用コマンドライン
@@ -302,12 +302,12 @@ typedef struct {
     float *profile_vbv_multi;            //profileによるvbv倍率
 } X264_SETTINGS;
 
-typedef struct {
+typedef struct FILENAME_REPLACE {
     char *from; //置換元文字列
     char *to;   //置換先文字列
 } FILENAME_REPLACE;
 
-typedef struct {
+typedef struct LOG_WINDOW_SETTINGS {
     BOOL minimized;                        //最小化で起動
     BOOL wine_compat;                      //wine互換モード
     int  log_level;                        //ログ出力のレベル
@@ -327,7 +327,7 @@ typedef struct {
     AUO_FONT_INFO log_font;                //ログフォント
 } LOG_WINDOW_SETTINGS;
 
-typedef struct {
+typedef struct BITRATE_CALC_SETTINGS {
     BOOL   calc_bitrate;          //ビットレート計算モード
     BOOL   calc_time_from_frame;  //フレーム数とフレームレートから動画時間を計算
     int    last_frame_num;        //最後に指定したフレーム数
@@ -336,7 +336,7 @@ typedef struct {
     double initial_size;          //初期サイズ
 } BITRATE_CALC_SETTINGS;
 
-typedef struct {
+typedef struct LOCAL_SETTINGS {
     BOOL   large_cmdbox;                        //拡大サイズでコマンドラインプレビューを行う
     DWORD  audio_buffer_size;                   //音声用バッファサイズ
     BOOL   auto_afs_disable;                    //自動的にafsを無効化
@@ -369,7 +369,7 @@ typedef struct {
     char   bat_dir[MAX_PATH_LEN];               //バッチファイルのフォルダ
 } LOCAL_SETTINGS;
 
-typedef struct {
+typedef struct FILE_APPENDIX {
     char aud[2][MAX_APPENDIX_LEN];     //音声ファイル名に追加する文字列...音声エンコード段階で設定する
     char tc[MAX_APPENDIX_LEN];         //タイムコードファイル名に追加する文字列
     char qp[MAX_APPENDIX_LEN];         //qpファイル名に追加する文字列
