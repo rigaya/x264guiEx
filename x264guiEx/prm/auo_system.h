@@ -77,7 +77,7 @@ typedef struct {
 
 typedef struct {
     BOOL init;
-    char auo_path[MAX_PATH_LEN];    //x264guiEx.auoのフルパス
+    char auo_path[MAX_PATH_LEN];    //auoのフルパス
     char aviutl_dir[MAX_PATH_LEN];  //Aviutlのディレクトリ(\無し)
     guiEx_settings *exstg;          //ini設定
 } SYSTEM_DATA;

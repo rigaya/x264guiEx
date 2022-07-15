@@ -196,7 +196,7 @@ int guiEx_config::save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file) 
     if (fopen_s(&fp, stg_file, "wb") != NULL)
         return CONF_ERROR_FILE_OPEN;
     fwrite(&save_conf, sizeof(CONF_GUIEX), 1, fp);
-    fwrite(cmd_all,    cmd_all_len,            1, fp);
+    fwrite(cmd_all, 1, cmd_all_len, fp);
     fclose(fp);
     return 0;
 }

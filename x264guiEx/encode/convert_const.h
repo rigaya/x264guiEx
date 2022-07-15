@@ -98,8 +98,8 @@ static const int UV_L_YCC_16      = UV_L_YCC_8<<8;
 
 ALIGN32_CONST_ARRAY short Array_Y_L_MA_8[16]        = { Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL,   Y_L_ADD_8,        Y_L_MUL,  Y_L_ADD_8,        Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL,  Y_L_ADD_8,       Y_L_MUL,   Y_L_ADD_8,        Y_L_MUL,  Y_L_ADD_8,        Y_L_MUL,  Y_L_ADD_8       };
 ALIGN32_CONST_ARRAY short Array_UV_L_MA_8_420P[16]  = {UV_L_MUL, UV_L_ADD_8_420P, UV_L_MUL,  UV_L_ADD_8_420P,  UV_L_MUL, UV_L_ADD_8_420P,  UV_L_MUL, UV_L_ADD_8_420P, UV_L_MUL, UV_L_ADD_8_420P, UV_L_MUL,  UV_L_ADD_8_420P,  UV_L_MUL, UV_L_ADD_8_420P,  UV_L_MUL, UV_L_ADD_8_420P  };
-ALIGN32_CONST_ARRAY short Array_UV_L_MA_8_420I[2][16]  = { 
-    {UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3,  UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3,  UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3  }, 
+ALIGN32_CONST_ARRAY short Array_UV_L_MA_8_420I[2][16]  = {
+    {UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3,  UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3, UV_L_ADD_8_444 * 3, UV_L_MUL * 3,  UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3,  UV_L_MUL * 3, UV_L_ADD_8_444 * 3  },
     {UV_L_MUL,     UV_L_ADD_8_444,     UV_L_MUL,      UV_L_ADD_8_444,      UV_L_MUL,     UV_L_ADD_8_444,      UV_L_MUL,     UV_L_ADD_8_444,     UV_L_MUL,     UV_L_ADD_8_444,     UV_L_MUL,      UV_L_ADD_8_444,      UV_L_MUL,     UV_L_ADD_8_444,      UV_L_MUL,     UV_L_ADD_8_444      } };
 ALIGN32_CONST_ARRAY short Array_UV_L_MA_8_444[16]   = {UV_L_MUL, UV_L_ADD_8_444,  UV_L_MUL,  UV_L_ADD_8_444,   UV_L_MUL, UV_L_ADD_8_444,   UV_L_MUL, UV_L_ADD_8_444,   UV_L_MUL, UV_L_ADD_8_444,  UV_L_MUL,  UV_L_ADD_8_444,   UV_L_MUL, UV_L_ADD_8_444,   UV_L_MUL, UV_L_ADD_8_444};
 ALIGN32_CONST_ARRAY short Array_Y_L_MA_16[16]       = { Y_L_MUL,  Y_L_ADD_16,      Y_L_MUL,   Y_L_ADD_16,       Y_L_MUL,  Y_L_ADD_16,       Y_L_MUL,  Y_L_ADD_16,       Y_L_MUL,  Y_L_ADD_16,      Y_L_MUL,   Y_L_ADD_16,       Y_L_MUL,  Y_L_ADD_16,       Y_L_MUL,  Y_L_ADD_16 };
@@ -122,14 +122,14 @@ ALIGN32_CONST_ARRAY short Array_MASK_YCP2UV[2][16] = {
      0, 0, 0, -1, -1,  0,  0, 0,
 };
 ALIGN32_CONST_ARRAY BYTE  Array_SUFFLE_YCP_Y[32] = {
-    0, 1, 6, 7, 12, 13, 2, 3, 8, 9, 14, 15, 4, 5, 10, 11, 
+    0, 1, 6, 7, 12, 13, 2, 3, 8, 9, 14, 15, 4, 5, 10, 11,
     0, 1, 6, 7, 12, 13, 2, 3, 8, 9, 14, 15, 4, 5, 10, 11
 };
 ALIGN32_CONST_ARRAY BYTE  Array_SUFFLE_YCP_C[16] = {
     2, 3, 4, 5, 14, 15, 1, 2, 10, 11, 12, 13, 6, 7, 8, 9
 };
 
-ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = { 
+ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = {
     {1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3},
     {3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1}
 };

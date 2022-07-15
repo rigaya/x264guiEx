@@ -152,7 +152,7 @@ void convert_yuy2_to_nv12_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const i
             //-----------2行目---------------
             y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+32)), _mm_loadu_si128((__m128i*)(pw+ 0)));
             y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+48)), _mm_loadu_si128((__m128i*)(pw+16)));
-            
+
             separate_low_up(y0, y1);
 
             _mm256_storeu_si256((__m256i *)(Y + width + x), y0);
@@ -201,7 +201,7 @@ void convert_yuy2_to_yv12_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const i
             //-----------2行目---------------
             y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+32)), _mm_loadu_si128((__m128i*)(pw+ 0)));
             y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+48)), _mm_loadu_si128((__m128i*)(pw+16)));
-            
+
             separate_low_up(y0, y1);
 
             _mm256_storeu_si256((__m256i *)(Y + width + x), y0);
@@ -210,7 +210,7 @@ void convert_yuy2_to_yv12_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const i
 
             y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+ 96)), _mm_loadu_si128((__m128i*)(pw+64)));
             y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+112)), _mm_loadu_si128((__m128i*)(pw+80)));
-            
+
             separate_low_up(y0, y1);
 
             _mm256_storeu_si256((__m256i *)(Y + width + x + 32), y0);
@@ -259,7 +259,7 @@ void convert_yuy2_to_nv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
                 //-----------    1+i行目   ---------------
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+32)), _mm_loadu_si128((__m128i*)(p+ 0)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+48)), _mm_loadu_si128((__m128i*)(p+16)));
-                
+
                 separate_low_up(y0, y1);
                 y3 = y1;
 
@@ -269,7 +269,7 @@ void convert_yuy2_to_nv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
                 //-----------3+i行目---------------
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+32)), _mm_loadu_si128((__m128i*)(pw+ 0)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+48)), _mm_loadu_si128((__m128i*)(pw+16)));
-                
+
                 separate_low_up(y0, y1);
 
                 _mm256_storeu_si256((__m256i *)(Y + (width<<1) + x), y0);
@@ -303,7 +303,7 @@ void convert_yuy2_to_yv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
                 //-----------    1+i行目   ---------------
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+32)), _mm_loadu_si128((__m128i*)(p+ 0)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+48)), _mm_loadu_si128((__m128i*)(p+16)));
-                
+
                 separate_low_up(y0, y1);
                 y3 = y1;
 
@@ -311,7 +311,7 @@ void convert_yuy2_to_yv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
 
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+ 96)), _mm_loadu_si128((__m128i*)(p+64)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+112)), _mm_loadu_si128((__m128i*)(p+80)));
-                
+
                 separate_low_up(y0, y1);
                 y6 = y1;
 
@@ -321,16 +321,16 @@ void convert_yuy2_to_yv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
                 //-----------3+i行目---------------
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+32)), _mm_loadu_si128((__m128i*)(pw+ 0)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+48)), _mm_loadu_si128((__m128i*)(pw+16)));
-                
+
                 separate_low_up(y0, y1);
 
                 _mm256_storeu_si256((__m256i *)(Y + (width<<1) + x), y0);
-                
+
                 y3 = yuv422_to_420_i_interpolate(y3, y1, i);
 
                 y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+ 96)), _mm_loadu_si128((__m128i*)(pw+64)));
                 y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(pw+112)), _mm_loadu_si128((__m128i*)(pw+80)));
-                
+
                 separate_low_up(y0, y1);
 
                 _mm256_storeu_si256((__m256i *)(Y + (width<<1) + x + 32), y0);
@@ -356,7 +356,7 @@ static __forceinline void gather_y_uv_from_yc48(__m256i& y0, __m256i& y1, __m256
     __m256i y3 = y0;
     __m256i y4 = y1;
     __m256i y5 = y2;
-            
+
     y0 = _mm256_blend_epi32(y3, y4, 0xf0);                    // 384, 0
     y1 = _mm256_permute2x128_si256(y3, y5, (0x02<<4) + 0x01); // 512, 128
     y2 = _mm256_blend_epi32(y4, y5, 0xf0);                    // 640, 256
@@ -752,7 +752,7 @@ void convert_yuy2_to_nv16_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const i
     for (; p < p_fin; p += 64, dst_Y += 32, dst_C += 32) {
         y0 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+32)), _mm_loadu_si128((__m128i*)(p+ 0)));
         y1 = _mm256_set_m128i(_mm_loadu_si128((__m128i*)(p+48)), _mm_loadu_si128((__m128i*)(p+16)));
-        
+
         separate_low_up(y0, y1);
 
         _mm256_storeu_si256((__m256i *)dst_Y, y0);
@@ -899,7 +899,7 @@ void convert_lw48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const
         yY = _mm256_srli_epi16(y1, 8);
         yU = _mm256_srli_epi16(y2, 8);
         yV = _mm256_srli_epi16(y3, 8);
-        
+
         y1 = _mm256_loadu_si256((__m256i *)(ycp + 48));
         y2 = _mm256_loadu_si256((__m256i *)(ycp + 64));
         y3 = _mm256_loadu_si256((__m256i *)(ycp + 80));
