@@ -38,7 +38,7 @@ using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
 
-namespace x264guiEx {
+namespace AUO_NAME_R {
 
     /// <summary>
     /// frmOtherSettings の概要
@@ -959,7 +959,6 @@ private: System::Windows::Forms::Panel^  fosPNHideTabPage;
             fosCBDisableVisualStyles->Checked       = fos_ex_stg->s_local.disable_visual_styles != 0;
             fosCBStgEscKey->Checked                 = fos_ex_stg->s_local.enable_stg_esc_key != 0;
             fosCBChapConvertToUTF8->Checked         = fos_ex_stg->s_local.chap_nero_convert_to_utf8 != 0;
-            fosCBAutoRefLimitByLevel->Checked       = fos_ex_stg->s_local.auto_ref_limit_by_level != 0;
             fosCBAutoRefLimitByLevel->Checked       = fos_ex_stg->s_local.auto_ref_limit_by_level != 0;
             fosCBLogStartMinimized->Checked         = fos_ex_stg->s_log.minimized != 0;
             fosCBLogDisableTransparency->Checked    = fos_ex_stg->s_log.transparent == 0;

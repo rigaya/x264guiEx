@@ -40,7 +40,7 @@ using namespace System::IO;
 //   http://youryella.wankuma.com/Library/Extensions/Control/Transparent.aspx
 // 上記を参考にC++/Cli用に改変したもの + アルファ(マウスメッセージの透過機能の追加)
 
-namespace x264guiEx {
+namespace AUO_NAME_R {
 
 	/// <summary>
 	/// frmConfig の概要

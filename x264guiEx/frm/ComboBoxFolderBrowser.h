@@ -36,7 +36,7 @@ using namespace System::Drawing;
 using namespace System::Collections::Generic;
 using namespace System::Windows::Forms;
 
-namespace x264guiEx 
+namespace AUO_NAME_R 
 {
     //ComboBoxにRootDirからのサブフォルダ一覧を表示する
     //リンクオプションの「埋め込みマネージリソースファイル」に"folder_open.ico"を追加する

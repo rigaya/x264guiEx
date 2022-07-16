@@ -31,7 +31,7 @@
 #include "auo_mes.h"
 #include "auo_version.h"
 
-using namespace x264guiEx;
+using namespace AUO_NAME_R;
 
 //すべてfrmLog::Instanceを通じてアクセス
 

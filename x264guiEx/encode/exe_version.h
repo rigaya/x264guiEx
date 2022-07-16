@@ -14,7 +14,6 @@ int get_x264_rev(const char *x264fullpath);
 int get_x265_rev(const char *x265fullpath, int version[4]);
 int get_svtav1_rev(const char *svtav1fullpath, int version[4]);
 
-
 int get_x265ver_from_txt(const char *txt, int v[4]);
 
 enum QTDLL {

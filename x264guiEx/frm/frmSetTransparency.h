@@ -38,7 +38,7 @@ using namespace System::Drawing;
 #include "auo_mes.h"
 
 
-namespace x264guiEx {
+namespace AUO_NAME_R {
 
     /// <summary>
     /// frmSetTransparency の概要

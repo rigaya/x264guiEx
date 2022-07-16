@@ -52,7 +52,7 @@ using namespace System::Drawing;
 using namespace System::IO;
 
 
-namespace x264guiEx {
+namespace AUO_NAME_R {
 
     /// <summary>
     /// frmConfig の概要

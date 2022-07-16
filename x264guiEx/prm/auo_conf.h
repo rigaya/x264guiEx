@@ -60,9 +60,23 @@ static inline int get_run_bat_idx(DWORD flag) {
     return (int)ret;
 }
 
+#if ENCODER_X264
 static const char *const CONF_NAME_OLD_1 = "x264guiEx ConfigFile";
 static const char *const CONF_NAME_OLD_2 = "x264guiEx ConfigFile v2";
 static const char *const CONF_NAME       = CONF_NAME_OLD_2;
+#elif ENCODER_X265
+static const char *const CONF_NAME_OLD1  = "x265guiEx ConfigFile";
+static const char *const CONF_NAME_OLD2  = "x264/x265guiEx ConfigFile";
+static const char *const CONF_NAME_OLD3  = "x265guiEx ConfigFile v2";
+static const char *const CONF_NAME_OLD4  = "x265guiEx ConfigFile v3";
+static const char *const CONF_NAME_OLD5  = "x265guiEx ConfigFile v4";
+static const char *const CONF_NAME       = CONF_NAME_OLD5;
+#elif ENCODER_SVTAV1
+static const char *const CONF_NAME_OLD_1 = "svtAV1guiEx ConfigFile v1";
+static const char *const CONF_NAME       = CONF_NAME_OLD_1;
+#else
+static_assert(false);
+#endif
 const int CONF_NAME_BLOCK_LEN            = 32;
 const int CONF_BLOCK_MAX                 = 32;
 const int CONF_BLOCK_COUNT               = 5; //最大 CONF_BLOCK_MAXまで
