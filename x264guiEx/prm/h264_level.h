@@ -33,6 +33,8 @@
 #include "auo_options.h"
 #include "auo_mes.h"
 
+#if ENCODER_X264
+
 static const X264_OPTION_STR list_x264guiEx_level[] = {
     { "auto", AUO_OPTION_LEVEL_AUTO, L"自動" },
     { "1",    AUO_MES_UNKNOWN, L"1"    },
@@ -58,9 +60,10 @@ static const X264_OPTION_STR list_x264guiEx_level[] = {
     { NULL,   AUO_MES_UNKNOWN, NULL }
 };
 
-
 int calc_auto_level(int width, int height, int ref, BOOL interlaced, int fps_num, int fps_den, int vbv_max, int vbv_buf);
 void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int use_highbit, guiEx_settings *ex_stg);
 int get_ref_limit(int level, int width, int height, BOOL interlaced);
+
+#endif
 
 #endif //_H264_LEVEL_H_

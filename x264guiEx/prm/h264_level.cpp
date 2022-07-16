@@ -29,6 +29,8 @@
 #include "auo_util.h"
 #include "h264_level.h"
 
+#if ENCODER_X264
+
 const int MAX_REF_FRAMES = 16;
 const int PROGRESSIVE    = 1;
 const int INTERLACED     = 2;
@@ -119,3 +121,5 @@ int get_ref_limit(int level, int width, int height, BOOL interlaced) {
 
     return min(H264_LEVEL_LIMITS[level][3] / MB_frame, MAX_REF_FRAMES);
 }
+
+#endif
