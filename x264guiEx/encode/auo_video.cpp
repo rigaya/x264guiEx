@@ -80,7 +80,7 @@ static const char * specify_input_csp(int output_csp) {
     return specify_csp[output_csp];
 }
 
-int get_aviutl_color_format(int use_highbit, int output_csp, int input_as_lw48) {
+int get_aviutl_color_format(int bit_depth, int output_csp, int input_as_lw48) {
     //Aviutlからの入力に使用するフォーマット
 
     const int cf_aviutl_pixel48 = (input_as_lw48) ? CF_LW48 : CF_YC48;
@@ -92,8 +92,11 @@ int get_aviutl_color_format(int use_highbit, int output_csp, int input_as_lw48) 
         case OUT_CSP_NV12:
         case OUT_CSP_NV16:
         case OUT_CSP_YUY2:
+        case OUT_CSP_YV12:
+        case OUT_CSP_YUV422:
+        case OUT_CSP_YUV400:
         default:
-            return (use_highbit) ? cf_aviutl_pixel48 : CF_YUY2;
+            return (bit_depth > 8) ? cf_aviutl_pixel48 : CF_YUY2;
     }
 }
 
@@ -114,7 +117,7 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUI
     if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED || !conf->vid.afs)
         return TRUE;
 
-    const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
+    const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth ? 16 : 8, conf->x264.output_csp, conf->vid.input_as_lw48);
     int buf_size;
     const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format, buf_size);
     //Aviutl(自動フィールドシフト)からの映像入力
@@ -767,7 +770,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
     const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
     if (convert_frame == NULL) {
-        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, conf->x264.use_highbit_depth, conf->x264.interlaced, conf->x264.output_csp);
+        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
         return ret;
     }
     //映像バッファ用メモリ確保

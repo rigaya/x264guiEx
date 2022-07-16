@@ -26,6 +26,30 @@ void convert_yuy2_to_yv12_i_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, cons
     return convert_yuy2_to_yv12_i_simd<FALSE>(frame, pixel_data, width, height);
 }
 
+void convert_yc48_to_nv12_10bit_ssse3_mod8(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_nv12_10bit_simd<TRUE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_nv12_10bit_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_nv12_10bit_simd<FALSE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_nv12_i_10bit_ssse3_mod8(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_nv12_i_10bit_simd<TRUE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_nv12_i_10bit_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_nv12_i_10bit_simd<FALSE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_yv12_10bit_ssse3_mod8(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_yv12_10bit_simd<TRUE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_yv12_10bit_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_yv12_10bit_simd<FALSE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_yv12_i_10bit_ssse3_mod8(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_yv12_i_10bit_simd<TRUE>(frame, pixel_data, width, height);
+}
+void convert_yc48_to_yv12_i_10bit_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    return convert_yc48_to_yv12_i_10bit_simd<FALSE>(frame, pixel_data, width, height);
+}
 void convert_yc48_to_nv12_16bit_ssse3_mod8(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
     return convert_yc48_to_nv12_16bit_simd<TRUE>(frame, pixel_data, width, height);
 }

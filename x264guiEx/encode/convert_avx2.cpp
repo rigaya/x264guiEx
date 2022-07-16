@@ -372,7 +372,7 @@ static __forceinline void gather_y_uv_from_yc48(__m256i& y0, __m256i& y1, __m256
     y0 = _mm256_shuffle_epi8(y3, yC_SUFFLE_YCP_Y);
 }
 
-static __forceinline __m256i convert_y_range_from_yc48(__m256i y0, __m256i yC_Y_MA_16, int Y_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one) {
+static __forceinline __m256i convert_y_range_from_yc48(__m256i y0, __m256i yC_Y_MA_16, int Y_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one, const __m256i& yC_max) {
     __m256i y7;
 
     y7 = _mm256_unpackhi_epi16(y0, yC_pw_one);
@@ -387,9 +387,11 @@ static __forceinline __m256i convert_y_range_from_yc48(__m256i y0, __m256i yC_Y_
 
     y0 = _mm256_packus_epi32(y0, y7);
 
+    y0 = _mm256_min_epu16(y0, yC_max);
+
     return y0;
 }
-static __forceinline __m256i convert_uv_range_after_adding_offset(__m256i y0, const __m256i& yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one) {
+static __forceinline __m256i convert_uv_range_after_adding_offset(__m256i y0, const __m256i& yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one, const __m256i& yC_max) {
     __m256i y7;
     y7 = _mm256_unpackhi_epi16(y0, yC_pw_one);
     y0 = _mm256_unpacklo_epi16(y0, yC_pw_one);
@@ -403,20 +405,22 @@ static __forceinline __m256i convert_uv_range_after_adding_offset(__m256i y0, co
 
     y0 = _mm256_packus_epi32(y0, y7);
 
+    y0 = _mm256_min_epu16(y0, yC_max);
+
     return y0;
 }
-static __forceinline __m256i convert_uv_range_from_yc48(__m256i y0, const __m256i& yC_UV_OFFSET_x1, const __m256i& yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one) {
+static __forceinline __m256i convert_uv_range_from_yc48(__m256i y0, const __m256i& yC_UV_OFFSET_x1, const __m256i& yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one, const __m256i& yC_max) {
     y0 = _mm256_add_epi16(y0, yC_UV_OFFSET_x1);
 
-    return convert_uv_range_after_adding_offset(y0, yC_UV_MA_16, UV_RSH_16, yC_YCC, yC_pw_one);
+    return convert_uv_range_after_adding_offset(y0, yC_UV_MA_16, UV_RSH_16, yC_YCC, yC_pw_one, yC_max);
 }
-static __forceinline __m256i convert_uv_range_from_yc48_yuv420p(__m256i y0, __m256i y1, const __m256i& yC_UV_OFFSET_x2, __m256i yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one) {
+static __forceinline __m256i convert_uv_range_from_yc48_yuv420p(__m256i y0, __m256i y1, const __m256i& yC_UV_OFFSET_x2, __m256i yC_UV_MA_16, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one, const __m256i& yC_max) {
     y0 = _mm256_add_epi16(y0, y1);
     y0 = _mm256_add_epi16(y0, yC_UV_OFFSET_x2);
 
-    return convert_uv_range_after_adding_offset(y0, yC_UV_MA_16, UV_RSH_16, yC_YCC, yC_pw_one);
+    return convert_uv_range_after_adding_offset(y0, yC_UV_MA_16, UV_RSH_16, yC_YCC, yC_pw_one, yC_max);
 }
-static __forceinline __m256i convert_uv_range_from_yc48_420i(__m256i y0, __m256i y1, const __m256i& yC_UV_OFFSET_x1, const __m256i& yC_UV_MA_16_0, const __m256i& yC_UV_MA_16_1, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one) {
+static __forceinline __m256i convert_uv_range_from_yc48_420i(__m256i y0, __m256i y1, const __m256i& yC_UV_OFFSET_x1, const __m256i& yC_UV_MA_16_0, const __m256i& yC_UV_MA_16_1, int UV_RSH_16, const __m256i& yC_YCC, const __m256i& yC_pw_one, const __m256i& yC_max) {
     __m256i y2, y3, y6, y7;
 
     y0 = _mm256_add_epi16(y0, yC_UV_OFFSET_x1);
@@ -440,17 +444,20 @@ static __forceinline __m256i convert_uv_range_from_yc48_420i(__m256i y0, __m256i
 
     y0 = _mm256_packus_epi32(y0, y7);
 
+    y0 = _mm256_min_epu16(y0, yC_max);
+
     return y0;
 }
 
-void convert_yc48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void convert_yc48_to_nv12_highbit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height, const int LSFT_YCC, const __m256i& yC_Y_L_MA, const int Y_L_RSH, const __m256i&yC_UV_L_MA_420P, int UV_L_RSH_420P, int bitdepthMax) {
     int x, y;
     short *dst_Y = (short *)pixel_data->data[0];
     short *dst_C = (short *)pixel_data->data[1];
     short *ycp, *ycpw;
     short *Y = NULL, *C = NULL;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
-    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
+    const __m256i yC_max = _mm256_set1_epi16((short)bitdepthMax);
+    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC);
     __m256i y0, y1, y2, y3;
     for (y = 0; y < height; y += 2) {
         ycp = (short*)pixel + width * y * 3;
@@ -465,7 +472,7 @@ void convert_yc48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
             gather_y_uv_from_yc48(y1, y2, y3);
             y0 = y2;
 
-            _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
             y1 = _mm256_loadu_si256((__m256i *)(ycpw +  0));
             y2 = _mm256_loadu_si256((__m256i *)(ycpw + 16));
@@ -473,22 +480,31 @@ void convert_yc48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 
             gather_y_uv_from_yc48(y1, y2, y3);
 
-            _mm256_storeu_si256((__m256i *)(Y + x + width), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x + width), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-            _mm256_storeu_si256((__m256i *)(C + x), convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_16_420P, UV_L_RSH_16_420P, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(C + x), convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_420P, UV_L_RSH_420P, yC_YCC, yC_pw_one, yC_max));
         }
     }
     _mm256_zeroupper();
 }
 
-void convert_yc48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void convert_yc48_to_nv12_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_nv12_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_10, yC_Y_L_MA_10, Y_L_RSH_10, yC_UV_L_MA_10_420P, UV_L_RSH_10_420P, LIMIT_10);
+}
+
+void convert_yc48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_nv12_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_16, yC_Y_L_MA_16, Y_L_RSH_16, yC_UV_L_MA_16_420P, UV_L_RSH_16_420P, LIMIT_16);
+}
+
+void convert_yc48_to_nv12_i_highbit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height, const int LSFT_YCC, const __m256i &yC_Y_L_MA, const int Y_L_RSH, const __m256i yC_UV_L_MA_420I0[2], int UV_L_RSH_420I, int bitdepthMax) {
     int x, y, i;
     short *dst_Y = (short *)pixel_data->data[0];
     short *dst_C = (short *)pixel_data->data[1];
     short *ycp, *ycpw;
     short *Y = NULL, *C = NULL;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
-    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
+    const __m256i yC_max = _mm256_set1_epi16((short)bitdepthMax);
+    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC);
     __m256i y0, y1, y2, y3;
     for (y = 0; y < height; y += 4) {
         for (i = 0; i < 2; i++) {
@@ -504,7 +520,7 @@ void convert_yc48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
                 gather_y_uv_from_yc48(y1, y2, y3);
                 y0 = y2;
 
-                _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
                 y1 = _mm256_loadu_si256((__m256i *)(ycpw +  0));
                 y2 = _mm256_loadu_si256((__m256i *)(ycpw + 16));
@@ -512,16 +528,24 @@ void convert_yc48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
 
                 gather_y_uv_from_yc48(y1, y2, y3);
 
-                _mm256_storeu_si256((__m256i *)(Y + x + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-                _mm256_storeu_si256((__m256i *)(C + x), convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_420I(i), yC_UV_L_MA_16_420I((i+1)&0x01), UV_L_RSH_16_420I, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(C + x), convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_420I0[i], yC_UV_L_MA_420I0[(i+1)&0x01], UV_L_RSH_420I, yC_YCC, yC_pw_one, yC_max));
             }
         }
     }
     _mm256_zeroupper();
 }
 
-void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void convert_yc48_to_nv12_i_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_nv12_i_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_10, yC_Y_L_MA_10, Y_L_RSH_10, (const __m256i *)Array_UV_L_MA_10_420I, UV_L_RSH_10_420I, LIMIT_10);
+}
+
+void convert_yc48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_nv12_i_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_16, yC_Y_L_MA_16, Y_L_RSH_16, (__m256i *)Array_UV_L_MA_16_420I, UV_L_RSH_16_420I, LIMIT_16);
+}
+
+void convert_yc48_to_yv12_highbit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height, const int LSFT_YCC, const __m256i &yC_Y_L_MA, const int Y_L_RSH, const __m256i &yC_UV_L_MA_420P, int UV_L_RSH_420P, int bitdepthMax) {
     int x, y;
     short *dst_Y = (short *)pixel_data->data[0];
     short *dst_U = (short *)pixel_data->data[1];
@@ -529,7 +553,8 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
     short *ycp, *ycpw;
     short *Y = NULL, *U = NULL, *V = NULL;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
-    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
+    const __m256i yC_max = _mm256_set1_epi16((short)bitdepthMax);
+    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC);
     __m256i y0, y1, y2, y3, y4;
     for (y = 0; y < height; y += 2) {
         ycp = (short*)pixel + width * y * 3;
@@ -545,7 +570,7 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
             gather_y_uv_from_yc48(y1, y2, y3);
             y0 = y2;
 
-            _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
             y1 = _mm256_loadu_si256((__m256i *)(ycpw +  0));
             y2 = _mm256_loadu_si256((__m256i *)(ycpw + 16));
@@ -553,10 +578,10 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 
             gather_y_uv_from_yc48(y1, y2, y3);
 
-            _mm256_storeu_si256((__m256i *)(Y + x + width), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x + width), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-            y4 = convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_16_420P, UV_L_RSH_16_420P, yC_YCC, yC_pw_one);
-            
+            y4 = convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_420P, UV_L_RSH_420P, yC_YCC, yC_pw_one, yC_max);
+
             y1 = _mm256_loadu_si256((__m256i *)(ycp + 48)); // 128, 0
             y2 = _mm256_loadu_si256((__m256i *)(ycp + 64)); // 384, 256
             y3 = _mm256_loadu_si256((__m256i *)(ycp + 80)); // 640, 512
@@ -564,7 +589,7 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
             gather_y_uv_from_yc48(y1, y2, y3);
             y0 = y2;
 
-            _mm256_storeu_si256((__m256i *)(Y + x + 16), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x + 16), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
             y1 = _mm256_loadu_si256((__m256i *)(ycpw + 48));
             y2 = _mm256_loadu_si256((__m256i *)(ycpw + 64));
@@ -572,9 +597,9 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 
             gather_y_uv_from_yc48(y1, y2, y3);
 
-            _mm256_storeu_si256((__m256i *)(Y + x + 16 + width), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+            _mm256_storeu_si256((__m256i *)(Y + x + 16 + width), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-            y0 = convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_16_420P, UV_L_RSH_16_420P, yC_YCC, yC_pw_one);
+            y0 = convert_uv_range_from_yc48_yuv420p(y0, y2,  _mm256_set1_epi16(UV_OFFSET_x2), yC_UV_L_MA_420P, UV_L_RSH_420P, yC_YCC, yC_pw_one, yC_max);
 
             separate_low_up_16bit(y4, y0);
 
@@ -585,7 +610,15 @@ void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
     _mm256_zeroupper();
 }
 
-void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void convert_yc48_to_yv12_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_yv12_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_10, yC_Y_L_MA_10, Y_L_RSH_10, yC_UV_L_MA_10_420P, UV_L_RSH_10_420P, LIMIT_10);
+}
+
+void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_yv12_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_16, yC_Y_L_MA_16, Y_L_RSH_16, yC_UV_L_MA_16_420P, UV_L_RSH_16_420P, LIMIT_16);
+}
+
+void convert_yc48_to_yv12_i_highbit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height, const int LSFT_YCC, const __m256i &yC_Y_L_MA, const int Y_L_RSH, const __m256i yC_UV_L_MA_420I0[2], int UV_L_RSH_420I, int bitdepthMax) {
     int x, y, i;
     short *dst_Y = (short *)pixel_data->data[0];
     short *dst_U = (short *)pixel_data->data[1];
@@ -593,7 +626,8 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
     short *ycp, *ycpw;
     short *Y = NULL, *U = NULL, *V = NULL;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
-    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
+    const __m256i yC_max = _mm256_set1_epi16((short)bitdepthMax);
+    const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC);
     __m256i y0, y1, y2, y3, y4;
     for (y = 0; y < height; y += 4) {
         for (i = 0; i < 2; i++) {
@@ -610,7 +644,7 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
                 gather_y_uv_from_yc48(y1, y2, y3);
                 y0 = y2;
 
-                _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
                 y1 = _mm256_loadu_si256((__m256i *)(ycpw +  0));
                 y2 = _mm256_loadu_si256((__m256i *)(ycpw + 16));
@@ -618,10 +652,10 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
 
                 gather_y_uv_from_yc48(y1, y2, y3);
 
-                _mm256_storeu_si256((__m256i *)(Y + x + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-                y4 = convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_420I(i), yC_UV_L_MA_16_420I((i+1)&0x01), UV_L_RSH_16_420I, yC_YCC, yC_pw_one);
-                
+                y4 = convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_420I0[i], yC_UV_L_MA_420I0[(i+1)&0x01], UV_L_RSH_420I, yC_YCC, yC_pw_one, yC_max);
+
                 y1 = _mm256_loadu_si256((__m256i *)(ycp + 48)); // 128, 0
                 y2 = _mm256_loadu_si256((__m256i *)(ycp + 64)); // 384, 256
                 y3 = _mm256_loadu_si256((__m256i *)(ycp + 80)); // 640, 512
@@ -629,7 +663,7 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
                 gather_y_uv_from_yc48(y1, y2, y3);
                 y0 = y2;
 
-                _mm256_storeu_si256((__m256i *)(Y + x + 16), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x + 16), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
                 y1 = _mm256_loadu_si256((__m256i *)(ycpw + 48));
                 y2 = _mm256_loadu_si256((__m256i *)(ycpw + 64));
@@ -637,9 +671,9 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
 
                 gather_y_uv_from_yc48(y1, y2, y3);
 
-                _mm256_storeu_si256((__m256i *)(Y + x + 16 + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
+                _mm256_storeu_si256((__m256i *)(Y + x + 16 + width*2), convert_y_range_from_yc48(y1, yC_Y_L_MA, Y_L_RSH, yC_YCC, yC_pw_one, yC_max));
 
-                y0 = convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_420I(i), yC_UV_L_MA_16_420I((i+1)&0x01), UV_L_RSH_16_420I, yC_YCC, yC_pw_one);
+                y0 = convert_uv_range_from_yc48_420i(y0, y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_420I0[i], yC_UV_L_MA_420I0[(i+1)&0x01], UV_L_RSH_16_420I, yC_YCC, yC_pw_one, yC_max);
 
                 separate_low_up_16bit(y4, y0);
 
@@ -649,6 +683,14 @@ void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
         }
     }
     _mm256_zeroupper();
+}
+
+void convert_yc48_to_yv12_i_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_yv12_i_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_10, yC_Y_L_MA_10, Y_L_RSH_10, (const __m256i *)Array_UV_L_MA_10_420I, UV_L_RSH_10_420I, LIMIT_10);
+}
+
+void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_yc48_to_yv12_i_highbit_avx2(pixel, pixel_data, width, height, LSFT_YCC_16, yC_Y_L_MA_16, Y_L_RSH_16, (const __m256i *)Array_UV_L_MA_16_420I, UV_L_RSH_16_420I, LIMIT_16);
 }
 
 static __forceinline void gather_y_u_v_from_yc48(__m256i& y0, __m256i& y1, __m256i& y2) {
@@ -677,6 +719,7 @@ void convert_yc48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const
     short *ycp;
     short *const ycp_fin = (short *)pixel + width * height * 3;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
+    const __m256i yC_max = _mm256_set1_epi16((short)LIMIT_16);
     const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
     __m256i y1, y2, y3, yY, yU, yV;
     for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 96, Y += 32, U += 32, V += 32) {
@@ -686,22 +729,22 @@ void convert_yc48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const
 
         gather_y_u_v_from_yc48(y1, y2, y3);
 
-        y1 = convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one);
-        y2 = convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one);
-        y3 = convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one);
+        y1 = convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one, yC_max);
+        y2 = convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max);
+        y3 = convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max);
         yY = _mm256_srli_epi16(y1, 8);
         yU = _mm256_srli_epi16(y2, 8);
         yV = _mm256_srli_epi16(y3, 8);
-        
+
         y1 = _mm256_loadu_si256((__m256i *)(ycp + 48));
         y2 = _mm256_loadu_si256((__m256i *)(ycp + 64));
         y3 = _mm256_loadu_si256((__m256i *)(ycp + 80));
 
         gather_y_u_v_from_yc48(y1, y2, y3);
 
-        y1 = convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one);
-        y2 = convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one);
-        y3 = convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one);
+        y1 = convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one, yC_max);
+        y2 = convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max);
+        y3 = convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max);
         y1 = _mm256_srli_epi16(y1, 8);
         y2 = _mm256_srli_epi16(y2, 8);
         y3 = _mm256_srli_epi16(y3, 8);
@@ -727,6 +770,7 @@ void convert_yc48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
     short *ycp;
     short *const ycp_fin = (short *)pixel + width * height * 3;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
+    const __m256i yC_max = _mm256_set1_epi16((short)LIMIT_16);
     const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
     __m256i y1, y2, y3;
     for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 48, Y += 16, U += 16, V += 16) {
@@ -736,9 +780,9 @@ void convert_yc48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
 
         gather_y_u_v_from_yc48(y1, y2, y3);
 
-        _mm256_storeu_si256((__m256i *)Y, convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
-        _mm256_storeu_si256((__m256i *)U, convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one));
-        _mm256_storeu_si256((__m256i *)V, convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one));
+        _mm256_storeu_si256((__m256i *)Y, convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one, yC_max));
+        _mm256_storeu_si256((__m256i *)U, convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max));
+        _mm256_storeu_si256((__m256i *)V, convert_uv_range_from_yc48(y3, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max));
     }
     _mm256_zeroupper();
 }
@@ -767,6 +811,7 @@ void convert_yc48_to_nv16_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
     short *ycp = (short *)pixel;
     short * const ycp_fin = ycp + width * height * 3;
     const __m256i yC_pw_one = _mm256_set1_epi16(1);
+    const __m256i yC_max = _mm256_set1_epi16((short)LIMIT_16);
     const __m256i yC_YCC = _mm256_set1_epi32(1<<LSFT_YCC_16);
     __m256i y1, y2, y3;
     for (; ycp < ycp_fin; ycp += 48, dst_Y += 16, dst_C += 16) {
@@ -776,8 +821,8 @@ void convert_yc48_to_nv16_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, c
 
         gather_y_uv_from_yc48(y1, y2, y3);
 
-        _mm256_storeu_si256((__m256i *)dst_Y, convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one));
-        _mm256_storeu_si256((__m256i *)dst_C, convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one));
+        _mm256_storeu_si256((__m256i *)dst_Y, convert_y_range_from_yc48(y1, yC_Y_L_MA_16, Y_L_RSH_16, yC_YCC, yC_pw_one, yC_max));
+        _mm256_storeu_si256((__m256i *)dst_C, convert_uv_range_from_yc48(y2, _mm256_set1_epi16(UV_OFFSET_x1), yC_UV_L_MA_16_444, UV_L_RSH_16_444, yC_YCC, yC_pw_one, yC_max));
     }
     _mm256_zeroupper();
 }

@@ -469,6 +469,20 @@ void convert_yuy2_to_yuv422(void *pixel, CONVERT_CF_DATA *pixel_data, const int 
     }
 }
 
+void convert_yc48_to_yuv422_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    short *dst_Y = (short *)pixel_data->data[0];
+    short *dst_U = (short *)pixel_data->data[1];
+    short *dst_V = (short *)pixel_data->data[2];
+    PIXEL_YC *ycp = (PIXEL_YC *)pixel;
+    const int n = width * height;
+    for (int i = 0; i < n; i += 2) {
+        dst_Y[i + 0] = (short)pixel_YC48_to_YUV(ycp[i + 0].y, Y_L_MUL, Y_L_ADD_16, Y_L_RSH_16, Y_L_YCC_16, 0, LIMIT_16);
+        dst_U[i >> 1] = (short)pixel_YC48_to_YUV(ycp[i + 0].cb + UV_OFFSET_x1, UV_L_MUL, UV_L_ADD_16_444, UV_L_RSH_16_444, UV_L_YCC_16, 0, LIMIT_16);
+        dst_V[i >> 1] = (short)pixel_YC48_to_YUV(ycp[i + 0].cr + UV_OFFSET_x1, UV_L_MUL, UV_L_ADD_16_444, UV_L_RSH_16_444, UV_L_YCC_16, 0, LIMIT_16);
+        dst_Y[i + 1] = (short)pixel_YC48_to_YUV(ycp[i + 1].y, Y_L_MUL, Y_L_ADD_16, Y_L_RSH_16, Y_L_YCC_16, 0, LIMIT_16);
+    }
+}
+
 void convert_yc48_to_nv16_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
     short *dst_Y = (short *)pixel_data->data[0];
     short *dst_C = (short *)pixel_data->data[1];

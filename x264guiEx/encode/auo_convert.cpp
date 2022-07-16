@@ -62,7 +62,8 @@ static const int BIT10 = 10;
 static const int BIT12 = 12;
 static const int BIT16 = 16;
 
-#define ENABLE_NV12 1
+#define ENABLE_NV12 (ENCODER_X264 != 0)
+#define ENABLE_16BIT (ENCODER_SVTAV1 == 0)
 
 //変換関数のテーブル
 //上からチェックするので、より厳しい条件で速い関数を上に書くこと
@@ -99,6 +100,7 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YUY2, OUT_CSP_YV12,   BIT_8, I,  1,  SSE2,                 convert_yuy2_to_yv12_i_sse2 },
     { CF_YUY2, OUT_CSP_YV12,   BIT_8, I,  1,  NONE,                 convert_yuy2_to_yv12_i },
 #endif
+#if ENABLE_16BIT
 #if ENABLE_NV12
     //YC48 -> nv12 (16bit)
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX2|AVX,             convert_yc48_to_nv12_16bit_avx2 },
@@ -141,10 +143,47 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  8,  SSE2,                 convert_yc48_to_yv12_i_16bit_sse2_mod8 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  SSE2,                 convert_yc48_to_yv12_i_16bit_sse2 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  NONE,                 convert_yc48_to_yv12_i_16bit },
+#endif
+#else
+#if ENABLE_NV12
+    //YC48 -> nv12 (10bit)
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX2|AVX,             convert_yc48_to_nv12_10bit_avx2 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_avx },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse41_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse41 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  8,  SSE2,                 convert_yc48_to_nv12_10bit_sse2_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  SSE2,                 convert_yc48_to_nv12_10bit_sse2 },
 
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX2|AVX,             convert_yc48_to_nv12_i_10bit_avx2 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_avx },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse41_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse41 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  8,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_ssse3_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_i_10bit_ssse3 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  8,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2_mod8 },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2 },
+#else
     //YC48 -> yv12 (10bit)
-    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  NONE,                 convert_yc48_to_yv12_10bit },
-    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  NONE,                 convert_yc48_to_yv12_i_10bit },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX2|AVX,             convert_yc48_to_yv12_10bit_avx2 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_10bit_avx },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_10bit_sse41_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_10bit_sse41 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  8,  SSSE3|SSE2,           convert_yc48_to_yv12_10bit_ssse3_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  SSSE3|SSE2,           convert_yc48_to_yv12_10bit_ssse3 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  8,  SSE2,                 convert_yc48_to_yv12_10bit_sse2_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  SSE2,                 convert_yc48_to_yv12_10bit_sse2 },
+
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX2|AVX,             convert_yc48_to_yv12_i_10bit_avx2 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_i_10bit_avx },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_i_10bit_sse41_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_i_10bit_sse41 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  8,  SSSE3|SSE2,           convert_yc48_to_yv12_i_10bit_ssse3_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  SSSE3|SSE2,           convert_yc48_to_yv12_i_10bit_ssse3 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  8,  SSE2,                 convert_yc48_to_yv12_i_10bit_sse2_mod8 },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  SSE2,                 convert_yc48_to_yv12_i_10bit_sse2 },
+#endif
 #endif
 #if ENABLE_NV12
     //YUY2 -> nv16(8bit)
@@ -166,6 +205,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 #else
     //YUY2 -> yuv422(8bit)
     { CF_YUY2, OUT_CSP_YUV422, BIT_8, A,  1,  NONE,                 convert_yuy2_to_yuv422 },
+
+    //YC48 -> yuv422(16bit)
+    { CF_YC48, OUT_CSP_YUV422, BIT16, A,  1,  NONE,                 convert_yc48_to_yuv422_16bit },
 #endif
     //YC48 -> yuv444(8bit)
     { CF_YC48, OUT_CSP_YUV444, BIT_8, A,  1,  AVX2|AVX,             convert_yc48_to_yuv444_avx2 },
@@ -338,7 +380,11 @@ func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOO
 
 BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, int bit_depth) {
     BOOL ret = TRUE;
-    const int to_yv12 = FALSE; // (output_csp == OUT_CSP_YV12);
+#if ENABLE_NV12
+    const int to_yv12 = FALSE;
+#else
+    const int to_yv12 = (output_csp == OUT_CSP_YV12);
+#endif
     const DWORD pixel_size = (bit_depth > 8) ? sizeof(short) : sizeof(BYTE);
     const DWORD simd_check = get_availableSIMD();
     const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? (32<<to_yv12) : (16<<to_yv12)) : 1;
@@ -352,11 +398,32 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
             if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
                 ret = FALSE;
             break;
+#if ENABLE_NV12
         case OUT_CSP_NV16:
             if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             break;
+        case OUT_CSP_NV12:
+        default:
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
+                ret = FALSE;
+            pixel_data->data[1] = pixel_data->data[0] + frame_size;
+            break;
+#else
+        case OUT_CSP_YUV422:
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
+                ret = FALSE;
+            pixel_data->data[1] = pixel_data->data[0] + frame_size;
+            pixel_data->data[2] = pixel_data->data[1] + frame_size / 2;
+            break;
+        case OUT_CSP_YV12:
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
+                ret = FALSE;
+            pixel_data->data[1] = pixel_data->data[0] + frame_size;
+            pixel_data->data[2] = pixel_data->data[1] + frame_size / 4;
+            break;
+#endif
         case OUT_CSP_YUV444:
             if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
                 ret = FALSE;
@@ -366,24 +433,6 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
         case OUT_CSP_RGB:
             if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
                 ret = FALSE;
-            break;
-        //case OUT_CSP_YV12:
-        //    if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
-        //        ret = FALSE;
-        //    pixel_data->data[1] = pixel_data->data[0] + frame_size;
-        //    pixel_data->data[2] = pixel_data->data[1] + frame_size / 4;
-        //    break;
-        //case OUT_CSP_YUV422:
-        //    if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
-        //        ret = FALSE;
-        //    pixel_data->data[1] = pixel_data->data[0] + frame_size;
-        //    pixel_data->data[2] = pixel_data->data[1] + frame_size / 2;
-        //    break;
-        case OUT_CSP_NV12:
-        default:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
-                ret = FALSE;
-            pixel_data->data[1] = pixel_data->data[0] + frame_size;
             break;
     }
     return ret;
