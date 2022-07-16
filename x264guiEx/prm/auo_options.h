@@ -366,7 +366,7 @@ enum {
     ARG_TYPE_SHORT   = 2,
 };
 
-typedef struct {
+typedef struct CMD_ARG {
     int arg_type;       //LONGかSHORTか
     char *option_name;  //オプション名(最初の"--"なし)
     char *value;        //オプションの値

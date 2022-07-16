@@ -278,7 +278,7 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
     //とりあえず必要なくてもチャプターファイル名を作る
     char chap_file[MAX_PATH_LEN];
     char chap_apple[MAX_PATH_LEN];
-    set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple), 
+    set_chap_filename(chap_file, _countof(chap_file), chap_apple, _countof(chap_apple),
         muxer_mode->chap_file, pe, sys_dat, conf, oip);
     replace(cmd, nSize, "%{ex_cmd}", exstr);
     if (!enable_chap_mux) {
@@ -307,8 +307,8 @@ static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf,
                 chapter.overwrite_file(CHAP_TYPE_UNKNOWN, (sys_dat->exstg->s_local.chap_nero_convert_to_utf8 && CHAP_TYPE_NERO == chapter.file_chapter_type()));
 
                 //mp4系ならapple形式チャプター追加も考慮する
-                if (pe->muxer_to_be_used == MUXER_MP4 || 
-                    pe->muxer_to_be_used == MUXER_TC2MP4 || 
+                if (pe->muxer_to_be_used == MUXER_MP4 ||
+                    pe->muxer_to_be_used == MUXER_TC2MP4 ||
                     pe->muxer_to_be_used == MUXER_MP4_RAW) {
                     //apple形式チャプターファイルへの置換が行われたら、apple形式チャプターファイルを作成する
                     if (strstr(cmd, "%{chap_apple}")) {

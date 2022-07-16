@@ -118,8 +118,8 @@ enum {
 };
 
 enum {
-    CHECK_KEYFRAME_NONE = 0x00,
-    CHECK_KEYFRAME_AVIUTL = 0x01, //Aviutlのキーフレームフラグをチェックする
+    CHECK_KEYFRAME_NONE    = 0x00,
+    CHECK_KEYFRAME_AVIUTL  = 0x01, //Aviutlのキーフレームフラグをチェックする
     CHECK_KEYFRAME_CHAPTER = 0x02, //チャプターの位置にキーフレームを設定する
 };
 
