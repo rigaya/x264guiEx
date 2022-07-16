@@ -68,8 +68,10 @@ AUO_RESULT run_bat_file(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PR
         warning_no_batfile(batfile); return AUO_RESULT_ERROR;
     }
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
+    char bat_append[128];
+    sprintf_s(bat_append, "_tmp%d.bat", GetCurrentProcessId());
     char bat_tmp[MAX_PATH_LEN];
-    apply_appendix(bat_tmp, _countof(bat_tmp), batfile, "_tmp.bat");
+    apply_appendix(bat_tmp, _countof(bat_tmp), batfile, bat_append);
 
     const int BAT_REPLACE_MARGIN = 4096;
     int buf_len = BAT_REPLACE_MARGIN * 2;
@@ -127,6 +129,9 @@ AUO_RESULT run_bat_file(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PR
     if (!ret && !(conf->oth.dont_wait_bat_fin & run_bat_mode))
         while (WaitForSingleObject(pi_bat.hProcess, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT)
             log_process_events();
+
+    if (PathFileExists(bat_tmp))
+        remove(bat_tmp);
 
     set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
