@@ -209,6 +209,12 @@ void error_log_line_cache() {
     write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_LOG_LINE_CACHE));
 }
 
+void error_tc2mp4_afs_not_supported() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED1));
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED2));
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED3));
+}
+
 void error_no_exe_file(const wchar_t *name, const char *path) {
     if (strlen(path))
         write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_NO_EXE_FILE1), name, char_to_wstring(path).c_str());

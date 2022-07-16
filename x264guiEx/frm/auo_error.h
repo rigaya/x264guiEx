@@ -53,6 +53,7 @@ void error_amp_target_bitrate_too_small(DWORD target_limit);
 void warning_amp_change_bitrate(int bitrate_old, int bitrate_new, DWORD target_limit);
 void error_invalid_resolution(BOOL width, int mul, int w, int h);
 void error_log_line_cache();
+void error_tc2mp4_afs_not_supported();
 void error_no_exe_file(const wchar_t *name, const char *path);
 void warning_use_default_audio_encoder(const wchar_t *name);
 void error_invalid_ini_file();
