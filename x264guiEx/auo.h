@@ -51,18 +51,21 @@ enum {
 #if ENCODER_X264
 static const char *ENCODER_NAME   = "x264";
 static const wchar_t *ENCODER_NAME_W = L"x264";
+static const char *ENOCDER_RAW_EXT = ".264";
 static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264"    };
 static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
 static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
 #elif ENCODER_X265
 static const char *ENCODER_NAME   = "x265";
 static const char *ENCODER_NAME_W   = L"x265";
+static const char *ENOCDER_RAW_EXT = ".265";
 static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".265"    };
 static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.265"    };
 static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
 #elif ENCODER_SVTAV1
 static const char *ENCODER_NAME   = "svt-av1";
 static const char *ENCODER_NAME_W   = L"svt-av1";
+static const char *ENOCDER_RAW_EXT = ".av1";
 static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".av1"    };
 static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.av1"    };
 static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
