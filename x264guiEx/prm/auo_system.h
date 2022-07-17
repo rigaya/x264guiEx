@@ -32,6 +32,7 @@
 #include "auo.h"
 #include "auo_settings.h"
 #include "auo_conf.h"
+#include "auo_version.h"
 
 #if _M_IX86
 #define ALIGN_PTR __declspec(align(4))
@@ -55,9 +56,9 @@ typedef struct {
     AUD_PARALLEL_ENC aud_parallel;         //音声並列処理の管理
     int video_out_type;                    //出力する動画のフォーマット(拡張子により判断)
     int muxer_to_be_used;                  //使用するmuxerのインデックス
-    int current_x264_pass;                 //現在のx264パス数
-    int total_x264_pass;                   //最大x264パス数
-    int amp_x264_pass_limit;               //自動マルチパス時に再エンコードをトライするときのパス数上限
+    int current_pass;                      //現在の動画エンコーダのパス数
+    int total_pass;                        //最大動画エンコーダパス数
+    int amp_pass_limit;                    //自動マルチパス時に再エンコードをトライするときのパス数上限
     int amp_reset_pass_count;              //下限ビットレート指定で再設定をやり直した回数
     int amp_reset_pass_limit;              //下限ビットレート指定で再設定をやり直す上限
     int drop_count;                        //ドロップ数

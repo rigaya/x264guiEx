@@ -513,7 +513,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
     if (prm.vid.check_keyframe && !disable_keyframe_afs && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
     //1pass目でafsでない、--framesがなければ--framesを指定
-    if ((!prm.vid.afs || pe->current_x264_pass > 1) && strstr(cmd, "--frames") == NULL)
+    if ((!prm.vid.afs || pe->current_pass > 1) && strstr(cmd, "--frames") == NULL)
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --frames %d", oip->n - pe->drop_count + pe->delay_cut_additional_vframe);
     //解像度情報追加(--input-res)
     if (strcmp(input, PIPE_FN) == NULL)
@@ -833,7 +833,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
         //ログウィンドウ側から制御を可能に
         DWORD tm_vid_enc_start = timeGetTime();
-        enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_x264_pass == 1, tm_vid_enc_start, oip->n);
+        enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_pass == 1, tm_vid_enc_start, oip->n);
 
         //------------メインループ------------
         for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
@@ -849,7 +849,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
             if (!(i & 7)) {
                 //Aviutlの進捗表示を更新
-                oip->func_rest_time_disp(i + oip->n * (pe->current_x264_pass - 1), oip->n * pe->total_x264_pass);
+                oip->func_rest_time_disp(i + oip->n * (pe->current_pass - 1), oip->n * pe->total_pass);
 
                 //x264優先度
                 check_enc_priority(pe->h_p_aviutl, pi_enc.hProcess, set_priority);
@@ -860,7 +860,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
                 //上限をオーバーしていないかチェック
                 if (!(i & 63)
                     && amp_filesize_limit //上限設定が存在する
-                    && !(1 == pe->current_x264_pass && 1 < pe->total_x264_pass)) { //multi passエンコードの1pass目でない
+                    && !(1 == pe->current_pass && 1 < pe->total_pass)) { //multi passエンコードの1pass目でない
                     UINT64 current_filesize = 0;
                     if (GetFileSizeUInt64(pe->temp_filename, &current_filesize) && current_filesize > amp_filesize_limit) {
                         warning_amp_filesize_over_limit();
@@ -930,7 +930,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         //パイプを閉じる
         CloseStdIn(&pipes);
 
-        if (!ret) oip->func_rest_time_disp(oip->n * pe->current_x264_pass, oip->n * pe->total_x264_pass);
+        if (!ret) oip->func_rest_time_disp(oip->n * pe->current_pass, oip->n * pe->total_pass);
 
         //音声の同時処理を終了させる
         ret |= finish_aud_parallel_task(oip, pe, ret);
@@ -1054,8 +1054,8 @@ BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename) {
 static void set_window_title_x264(const PRM_ENC *pe) {
     wchar_t mes[256] = { 0 };
     swprintf_s(mes, _countof(mes), L"%s%s", ENCODER_NAME_W, g_auo_mes.get(AUO_VIDEO_ENCODE));
-    if (pe->total_x264_pass > 1)
-        swprintf_s(mes + wcslen(mes), _countof(mes) - wcslen(mes), L"   %d / %d pass", pe->current_x264_pass, pe->total_x264_pass);
+    if (pe->total_pass > 1)
+        swprintf_s(mes + wcslen(mes), _countof(mes) - wcslen(mes), L"   %d / %d pass", pe->current_pass, pe->total_pass);
     if (pe->aud_parallel.th_aud) {
         wcscat_s(mes, _countof(mes), L" + ");
         wcscat_s(mes, _countof(mes), g_auo_mes.get(AUO_VIDEO_AUDIO_ENCODE));
@@ -1120,7 +1120,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
     if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && required_file_bitrate < conf->vid.amp_limit_bitrate_lower) {
         warning_amp_bitrate_confliction((int)conf->vid.amp_limit_bitrate_lower, (int)required_file_bitrate);
         conf->vid.amp_check &= ~AMPLIMIT_BITRATE_LOWER;
-        pe->amp_x264_pass_limit = pe->current_x264_pass + 1;
+        pe->amp_pass_limit = pe->current_pass + 1;
     }
     const double required_vid_bitrate_upper = get_amp_margin_bitrate(required_file_bitrate - aud_bitrate, sys_dat->exstg->s_local.amp_bitrate_margin_multi);
     //あまりにも計算したビットレートが小さすぎたらエラーを出す
@@ -1160,7 +1160,7 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
         return ret;
 
     //最初のみ実行する部分
-    if (pe->current_x264_pass <= 1) {
+    if (pe->current_pass <= 1) {
         //自動マルチパス用チェック
         if ((ret |= check_amp(conf, oip, pe, sys_dat)) != AUO_RESULT_SUCCESS) {
             return (ret & ~AUO_RESULT_ABORT); //AUO_RESULT_ABORTなら、音声を先にエンコードするため、動画エンコードを一時的にスキップ
@@ -1173,10 +1173,10 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
             set_keyframe(conf, oip, pe, sys_dat);
     }
 
-    for (; !ret && pe->current_x264_pass <= pe->total_x264_pass; pe->current_x264_pass++) {
+    for (; !ret && pe->current_pass <= pe->total_pass; pe->current_pass++) {
         if (conf->x264.use_auto_npass) {
             //自動npass出力
-            switch (pe->current_x264_pass) {
+            switch (pe->current_pass) {
                 case 1:
                     conf->x264.pass = 1;
                     break;
@@ -1185,8 +1185,8 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
                         conf->x264.bitrate = (conf->x264.bitrate * oip->n) / (oip->n - pe->drop_count);
                     //下へフォールスルー
                 default:
-                    open_log_window(oip->savefile, sys_dat, pe->current_x264_pass, pe->total_x264_pass);
-                    if (pe->current_x264_pass == pe->total_x264_pass)
+                    open_log_window(oip->savefile, sys_dat, pe->current_pass, pe->total_pass);
+                    if (pe->current_pass == pe->total_pass)
                         conf->x264.nul_out = FALSE;
                     conf->x264.pass = 3;
                     break;
