@@ -689,7 +689,7 @@ void guiEx_settings::load_local() {
 
     s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
     
-    GetPrivateProfileStringStg(INI_SECTION_ENC,    "X264",           "", s_enc.fullpath,         _countof(s_enc.fullpath),         conf_fileName, codepage_cnf);
+    GetPrivateProfileStringStg(INI_SECTION_ENC,     INI_SECTION_ENC,  "", s_enc.fullpath,         _countof(s_enc.fullpath),         conf_fileName, codepage_cnf);
     for (int i = 0; i < s_aud_count; i++)
         GetPrivateProfileStringStg(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName, codepage_cnf);
     for (int i = 0; i < s_mux_count; i++)
@@ -788,7 +788,7 @@ void guiEx_settings::save_local() {
     WritePrivateProfileString(ini_section_main, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
 
     PathRemoveBlanks(s_enc.fullpath);
-    WritePrivateProfileString(INI_SECTION_ENC,    "X264",           s_enc.fullpath,         conf_fileName);
+    WritePrivateProfileString(INI_SECTION_ENC,   INI_SECTION_ENC,        s_enc.fullpath,                conf_fileName);
     for (int i = 0; i < s_aud_count; i++) {
         PathRemoveBlanks(s_aud[i].fullpath);
         WritePrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, s_aud[i].fullpath, conf_fileName);
