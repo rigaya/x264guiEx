@@ -46,8 +46,6 @@ static const BOOL   DEFAULT_AUD_DELAY_CUT_MODE    = 0;
 static const BOOL   DEFAULT_DISABLE_TOOLTIP_HELP  = 0;
 static const BOOL   DEFAULT_DISABLE_VISUAL_STYLES = 0;
 static const BOOL   DEFAULT_ENABLE_STG_ESC_KEY    = 0;
-static const BOOL   DEFAULT_UPDATE_OVERWRITE      = 0;
-static const BOOL   DEFAULT_UPDATE_CHECK_AUTO     = 0;
 static const BOOL   DEFAULT_SAVE_RELATIVE_PATH    = 1;
 static const BOOL   DEFAULT_CHAP_NERO_TO_UTF8     = 0;
 static const int    DEFAULT_AUDIO_ENCODER         = 15;
@@ -348,8 +346,6 @@ typedef struct LOCAL_SETTINGS {
     BOOL   disable_visual_styles;               //視覚効果をオフにする
     BOOL   enable_stg_esc_key;                  //設定画面でEscキーを有効化する
     AUO_FONT_INFO conf_font;                    //設定画面のフォント
-    BOOL   update_overwrite;                    //更新時、実行ファイルを上書きする
-    int    update_check_auto;                   //自動的に更新を確認する
     int    default_audio_encoder;               //デフォルトの音声エンコーダ
     int    amp_retry_limit;                     //自動マルチパス試行回数制限
     double amp_bitrate_margin_multi;            //自動マルチパスで、上限ファイルサイズからビットレートを再計算するときの倍率
@@ -360,7 +356,6 @@ typedef struct LOCAL_SETTINGS {
     BOOL   run_bat_minimized;                   //エンコ前後バッチ処理を最小化で実行
     BOOL   set_keyframe_as_afs_24fps;           //自動フィールドシフト使用時にも24fps化としてキーフレーム設定を強制的に行う
     BOOL   auto_ref_limit_by_level;             //参照フレーム数をLevelにより自動的に制限する
-    char   last_update_check[64];               //更新をチェックした最後の時間
     char   custom_tmp_dir[MAX_PATH_LEN];        //一時フォルダ
     char   custom_audio_tmp_dir[MAX_PATH_LEN];  //音声用一時フォルダ
     char   custom_mp4box_tmp_dir[MAX_PATH_LEN]; //mp4box用一時フォルダ
