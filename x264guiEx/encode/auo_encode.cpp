@@ -720,6 +720,7 @@ static void set_aud_delay_cut(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *
                 pe->delay_cut_additional_aframe = additional_silence_for_aud_delay_cut(fps, audio_rate, audio_delay);
                 break;
             case AUDIO_DELAY_CUT_NONE:
+            case AUDIO_DELAY_CUT_EDTS:
             default:
                 break;
             }
