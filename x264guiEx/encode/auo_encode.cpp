@@ -685,7 +685,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
         if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_tmp_dir)) {
             strcpy_s(pe->temp_filename, GetFullPathFrom(sys_dat->exstg->s_local.custom_tmp_dir, sys_dat->aviutl_dir).c_str());
             PathRemoveBackslash(pe->temp_filename);
-            
+
             //指定された一時フォルダにファイルを作成できるか確認する
             char defaultExeDir[MAX_PATH_LEN] = { 0 };
             PathCombineLong(defaultExeDir, _countof(defaultExeDir), sys_dat->aviutl_dir, DEFAULT_EXE_DIR);
@@ -916,6 +916,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
     const int w = oip->w;
     const int h = oip->h;
 
+#if ENCODER_X264 || ENCODER_X265
     int sar_x = conf->enc.sar.x;
     int sar_y = conf->enc.sar.y;
     int dar_x = 0;
@@ -953,6 +954,57 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
     //%{dar_y}
     sprintf_s(buf, _countof(buf), "%d", dar_y);
     replace(cmd, nSize, "%{dar_y}", buf);
+#elif ENCODER_SVTAV1
+    int sar_x = conf->vid.sar_x;
+    int sar_y = conf->vid.sar_y;
+    int dar_x = 0;
+    int dar_y = 0;
+    if (sar_x * sar_y > 0) {
+        if (sar_x < 0) {
+            dar_x = -1 * sar_x;
+            dar_y = -1 * sar_y;
+            set_guiEx_auto_sar(&sar_x, &sar_y, w, h);
+        } else {
+            dar_x = sar_x * w;
+            dar_y = sar_y * h;
+            const int gcd = get_gcd(dar_x, dar_y);
+            dar_x /= gcd;
+            dar_y /= gcd;
+        }
+        if (sar_x * sar_y <= 0)
+            sar_x = sar_y = 1;
+
+        char buf[32];
+        //%{sar_x} / %{par_x}
+        sprintf_s(buf, _countof(buf), "%d", sar_x);
+        replace(cmd, nSize, "%{sar_x}", buf);
+        replace(cmd, nSize, "%{par_x}", buf);
+        //%{sar_x} / %{sar_y}
+        sprintf_s(buf, _countof(buf), "%d", sar_y);
+        replace(cmd, nSize, "%{sar_y}", buf);
+        replace(cmd, nSize, "%{par_y}", buf);
+        if ((sar_x == 1 && sar_y == 1) || (dar_x * dar_y <= 0)) {
+            del_arg(cmd, "%{dar_x}", -1);
+            del_arg(cmd, "%{dar_y}", -1);
+        } else {
+            //%{dar_x}
+            sprintf_s(buf, _countof(buf), "%d", dar_x);
+            replace(cmd, nSize, "%{dar_x}", buf);
+            //%{dar_y}
+            sprintf_s(buf, _countof(buf), "%d", dar_y);
+            replace(cmd, nSize, "%{dar_y}", buf);
+        }
+    } else {
+        del_arg(cmd, "%{sar_x}", -1);
+        del_arg(cmd, "%{sar_y}", -1);
+        del_arg(cmd, "%{par_x}", -1);
+        del_arg(cmd, "%{par_y}", -1);
+        del_arg(cmd, "%{dar_x}", -1);
+        del_arg(cmd, "%{dar_y}", -1);
+    }
+#else
+    static_assert(false);
+#endif
 }
 
 void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -1014,6 +1066,12 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     //%{fps_rate}
     int fps_rate = oip->rate;
     int fps_scale = oip->scale;
+#if ENCODER_SVTAV1
+    if (conf->vid.afs && conf->vid.afs_24fps) {
+        fps_rate *= 4;
+        fps_scale *= 5;
+    }
+#endif
 #ifdef MSDK_SAMPLE_VERSION
     if (conf->qsv.vpp.nDeinterlace == MFX_DEINTERLACE_IT)
         fps_rate = (fps_rate * 4) / 5;
@@ -1036,10 +1094,10 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     sprintf_s(tmp, sizeof(tmp), "%d", GetCurrentProcessId());
     replace(cmd, nSize, "%{pid}", tmp);
 
-    replace(cmd, nSize, "%{x264path}",     GetFullPathFrom(sys_dat->exstg->s_enc.fullpath,                   sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{audencpath}",   GetFullPathFrom(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{mp4muxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, ENCODER_REPLACE_MACRO, GetFullPathFrom(sys_dat->exstg->s_enc.fullpath,                    sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, "%{audencpath}",       GetFullPathFrom(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, "%{mp4muxerpath}",     GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, "%{mkvmuxerpath}",     GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         sys_dat->aviutl_dir).c_str());
 }
 
 //一時ファイルの移動・削除を行う
