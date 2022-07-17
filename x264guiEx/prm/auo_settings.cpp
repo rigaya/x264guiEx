@@ -558,7 +558,7 @@ void guiEx_settings::load_fn_replace() {
     }
 }
 
-void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section) {
+void guiEx_settings::load_x264_cmd(ENC_CMD *x264cmd, int *count, int *default_index, const char *section) {
     char key[INI_KEY_MAX_LEN];
     wchar_t *desc = s_x264_mc.SetPrivateProfileWString(section, "name", "", ini_fileName, codepage_ini);
     s_x264_mc.CutMem(sizeof(desc[0]));

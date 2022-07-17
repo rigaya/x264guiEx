@@ -278,13 +278,13 @@ typedef struct MUXER_SETTINGS {
 } MUXER_SETTINGS;
 
 typedef struct ENC_CMD {
-    ENC_OPTION_STR *name;  //各種設定用x264コマンドの名前(配列、最後はnull)
-    char **cmd;   //各種設定用x264コマンド(配列、最後はnull)
-} X264_CMD;
+    ENC_OPTION_STR *name;  //各種設定用動画エンコーダのコマンドの名前(配列、最後はnull)
+    char **cmd;   //各種設定用動画エンコーダのコマンド(配列、最後はnull)
+} ENC_CMD;
 
 typedef struct ENC_SETTINGS {
-    char *filename;                      //x264のファイル名
-    char fullpath[MAX_PATH_LEN];         //x264の場所(フルパス)
+    char *filename;                      //動画エンコーダのファイル名
+    char fullpath[MAX_PATH_LEN];         //動画エンコーダの場所(フルパス)
     char *default_cmd;                   //デフォルト設定用コマンドライン
     char *default_cmd_highbit;           //highbit depthデフォルト設定用追加コマンドライン
     char *help_cmd;                      //ヘルプ表示用cmd
@@ -294,11 +294,11 @@ typedef struct ENC_SETTINGS {
     int default_preset;                  //デフォルトpresetのインデックス
     int default_tune;                    //デフォルトtuneのインデックス
     int default_profile;                 //デフォルトprofileのインデックス
-    X264_CMD preset;                     //presetコマンドライン集
-    X264_CMD tune;                       //tuneコマンドライン集
-    X264_CMD profile;                    //profileコマンドライン集
+    ENC_CMD preset;                     //presetコマンドライン集
+    ENC_CMD tune;                       //tuneコマンドライン集
+    ENC_CMD profile;                    //profileコマンドライン集
     float *profile_vbv_multi;            //profileによるvbv倍率
-} X264_SETTINGS;
+} ENC_SETTINGS;
 
 typedef struct FILENAME_REPLACE {
     char *from; //置換元文字列
@@ -393,8 +393,8 @@ private:
     static char language[MAX_PATH_LEN];       //言語設定
     char last_out_stg[MAX_PATH_LEN];          //前回出力のstgファイル(多言語対応のため、デフォルトのCONF_LAST_OUTに加え、これも探す)
 
-    void load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み
-    void clear_x264_cmd(X264_CMD *x264cmd, int count);                                             //x264コマンドライン設定の消去
+    void load_x264_cmd(ENC_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み
+    void clear_x264_cmd(ENC_CMD *x264cmd, int count);                                             //x264コマンドライン設定の消去
 
     void load_aud();          //音声エンコーダ関連の設定の読み込み・更新
     void load_mux();          //muxerの設定の読み込み・更新
@@ -413,7 +413,7 @@ public:
     int s_mux_count;                 //muxerの数 (基本3固定)
     AUDIO_SETTINGS *s_aud;           //音声エンコーダの設定
     MUXER_SETTINGS *s_mux;           //muxerの設定
-    X264_SETTINGS  s_x264;           //x264関連の設定
+    ENC_SETTINGS  s_x264;           //x264関連の設定
     LOCAL_SETTINGS s_local;          //ファイルの場所等
     std::vector<FILENAME_REPLACE> fn_rep;  //一時ファイル名置換
     LOG_WINDOW_SETTINGS s_log;       //ログウィンドウ関連の設定
