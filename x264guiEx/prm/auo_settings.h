@@ -394,7 +394,6 @@ private:
     char last_out_stg[MAX_PATH_LEN];          //前回出力のstgファイル(多言語対応のため、デフォルトのCONF_LAST_OUTに加え、これも探す)
 
     void load_enc_cmd(ENC_CMD *vidcmd, int *count, int *default_index, const char *section);  //動画エンコーダコマンドライン設定の読み込み
-    void clear_enc_cmd(ENC_CMD *vidcmd, int count);                                           //動画エンコーダコマンドライン設定の消去
 
     void load_aud();          //音声エンコーダ関連の設定の読み込み・更新
     void load_mux();          //muxerの設定の読み込み・更新
