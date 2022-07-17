@@ -453,18 +453,24 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     }
 
     //解像度
+#if ENCODER_X264 || ENCODER_X265
     int w_mul = 1, h_mul = 1;
     switch (conf->enc.output_csp) {
         case OUT_CSP_YUV444:
         case OUT_CSP_RGB:
             w_mul = 1, h_mul = 1; break;
         case OUT_CSP_NV16:
+        case OUT_CSP_YUV422:
             w_mul = 2, h_mul = 1; break;
         case OUT_CSP_NV12:
+        case OUT_CSP_YV12:
         default:
             w_mul = 2; h_mul = 2; break;
     }
     if (conf->enc.interlaced) h_mul *= 2;
+#else
+    const int w_mul = 2, h_mul = 2;
+#endif
     if (oip->w % w_mul) {
         error_invalid_resolution(TRUE,  w_mul, oip->w, oip->h);
         check = FALSE;
