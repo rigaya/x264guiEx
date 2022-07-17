@@ -275,6 +275,7 @@ bool is_afsvfr(const CONF_GUIEX *conf) {
 
 static BOOL check_amp(CONF_GUIEX *conf) {
     BOOL check = TRUE;
+#if ENABLE_AMP
     if (!conf->enc.use_auto_npass)
         return check;
     if (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) {
@@ -292,6 +293,7 @@ static BOOL check_amp(CONF_GUIEX *conf) {
     if (conf->vid.amp_check && conf->vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == conf->aud.delay_cut) {
         check = FALSE; error_amp_afs_audio_delay_confliction();
     }
+#endif
     return check;
 }
 
@@ -1140,9 +1142,11 @@ static BOOL move_temp_file(const char *appendix, const char *temp_filename, cons
 
 AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const OUTPUT_INFO *oip, DWORD ret) {
     //動画ファイル
-    if (!conf->oth.out_audio_only)
-        if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? oip->savefile : pe->temp_filename), pe->temp_filename, oip->savefile, ret, FALSE, L"出力", !ret))
+    if (!conf->oth.out_audio_only) {
+        if (!move_temp_file(PathFindExtension((pe->muxer_to_be_used >= 0) ? oip->savefile : pe->temp_filename), pe->temp_filename, oip->savefile, ret, FALSE, L"出力", !ret)) {
             ret |= AUO_RESULT_ERROR;
+        }
+    }
     //動画のみファイル
     if (str_has_char(pe->muxed_vid_filename) && PathFileExists(pe->muxed_vid_filename))
         remove(pe->muxed_vid_filename);
@@ -1324,6 +1328,7 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
     char buffer[MAX_PATH_LEN];
     //Aviutlから再生時間情報を取得
     double duration = (((double)(oip->n + pe->delay_cut_additional_vframe) * (double)oip->scale) / (double)oip->rate);
+#if ENABLE_TCFILE_IN
     //tcfile-inなら、動画の長さはタイムコードから取得する
     if (conf->enc.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, "--tcfile-in", buffer, sizeof(buffer))) {
         double duration_tmp = 0.0;
@@ -1335,8 +1340,11 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
         else
             warning_failed_to_get_duration_from_timecode();
     }
+#endif
     return duration;
 }
+
+#if ENABLE_AMP
 
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
     double clamp_offset = (margin_multi < 0.0) ? 0.2 : 0.0;
@@ -1673,6 +1681,8 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
 
     return amp_result;
 }
+
+#endif
 
 int ReadLogExe(PIPE_SET *pipes, const wchar_t *exename, LOG_CACHE *log_line_cache) {
     DWORD pipe_read = 0;
