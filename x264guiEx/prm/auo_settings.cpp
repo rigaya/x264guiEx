@@ -53,14 +53,33 @@ static const char * const STG_DEFAULT_DIRECTORY_APPENDIX = "_stg";
 
 //----    セクション名    ---------------------------------------------------
 
+#if ENCODER_X264
 static const char * const INI_SECTION_MAIN         = "X264GUIEX";
+static const char * const INI_SECTION_ENC          = "X264";
+static const char * const INI_SECTION_ENC_DEFAULT  = "X264_DEFAULT";
+static const char * const INI_SECTION_ENC_PRESET   = "X264_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "X264_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "X264_PROFILE";
+#elif ENCODER_X265
+static const char * const INI_SECTION_MAIN         = "X265GUIEX"; //CONF_VER
+static const char * const INI_SECTION_MAIN_OLD     = "X26XGUIEX"; //CONF_VER_OLD
+static const char * const INI_SECTION_ENC          = "X265";
+static const char * const INI_SECTION_ENC_DEFAULT  = "X265_DEFAULT";
+static const char * const INI_SECTION_ENC_PRESET   = "X265_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "X265_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "X265_PROFILE";
+#elif ENCODER_SVTAV1
+static const char * const INI_SECTION_MAIN         = "SVTAV1GUIEX";
+static const char * const INI_SECTION_ENC          = "ENC";
+static const char * const INI_SECTION_ENC_DEFAULT  = "ENC_DEFAULT";
+static const char * const INI_SECTION_ENC_PRESET   = "ENC_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "ENC_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "ENC_PROFILE";
+#else
+static_assert(false);
+#endif
 static const char * const INI_SECTION_APPENDIX     = "APPENDIX";
 static const char * const INI_SECTION_AUD          = "AUDIO";
-static const char * const INI_SECTION_X264         = "X264";
-static const char * const INI_SECTION_X264_DEFAULT = "X264_DEFAULT";
-static const char * const INI_SECTION_X264_PRESET  = "X264_PRESET";
-static const char * const INI_SECTION_X264_TUNE    = "X264_TUNE";
-static const char * const INI_SECTION_X264_PROFILE = "X264_PROFILE";
 static const char * const INI_SECTION_MUX          = "MUXER";
 static const char * const INI_SECTION_FN           = "FILENAME_REPLACE";
 static const char * const INI_SECTION_PREFIX       = "SETTING_";
@@ -599,19 +618,19 @@ void guiEx_settings::load_enc() {
 
     s_enc_mc.init(ini_filesize);
       
-    s_enc.filename            = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName, codepage_ini);
-    s_enc.default_cmd         = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName, codepage_ini);
-    s_enc.default_cmd_highbit = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName, codepage_ini);
-    s_enc.help_cmd            = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_help",          "", ini_fileName, codepage_ini);
+    s_enc.filename            = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "filename",      "x264", ini_fileName, codepage_ini);
+    s_enc.default_cmd         = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "cmd_default",       "", ini_fileName, codepage_ini);
+    s_enc.default_cmd_highbit = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "cmd_default_10bit", "", ini_fileName, codepage_ini);
+    s_enc.help_cmd            = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "cmd_help",          "", ini_fileName, codepage_ini);
 
-    load_enc_cmd(&s_enc.preset,  &s_enc.preset_count,  &s_enc.default_preset,  INI_SECTION_X264_PRESET);
-    load_enc_cmd(&s_enc.tune,    &s_enc.tune_count,    &s_enc.default_tune,    INI_SECTION_X264_TUNE);
-    load_enc_cmd(&s_enc.profile, &s_enc.profile_count, &s_enc.default_profile, INI_SECTION_X264_PROFILE);
+    load_enc_cmd(&s_enc.preset,  &s_enc.preset_count,  &s_enc.default_preset,  INI_SECTION_ENC_PRESET);
+    load_enc_cmd(&s_enc.tune,    &s_enc.tune_count,    &s_enc.default_tune,    INI_SECTION_ENC_TUNE);
+    load_enc_cmd(&s_enc.profile, &s_enc.profile_count, &s_enc.default_profile, INI_SECTION_ENC_PROFILE);
 
     s_enc.profile_vbv_multi = (float *)s_enc_mc.CutMem(sizeof(float) * s_enc.profile_count);
     for (int i = 0; i < s_enc.profile_count; i++) {
         sprintf_s(key, _countof(key), "vbv_multi_%s", s_enc.profile.name[i].name);
-        s_enc.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, 1.0, ini_fileName);
+        s_enc.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_ENC_PROFILE, key, 1.0, ini_fileName);
     }
 
     s_enc_refresh = TRUE;
@@ -670,7 +689,7 @@ void guiEx_settings::load_local() {
 
     s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
     
-    GetPrivateProfileStringStg(INI_SECTION_X264,    "X264",           "", s_enc.fullpath,         _countof(s_enc.fullpath),         conf_fileName, codepage_cnf);
+    GetPrivateProfileStringStg(INI_SECTION_ENC,    "X264",           "", s_enc.fullpath,         _countof(s_enc.fullpath),         conf_fileName, codepage_cnf);
     for (int i = 0; i < s_aud_count; i++)
         GetPrivateProfileStringStg(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName, codepage_cnf);
     for (int i = 0; i < s_mux_count; i++)
@@ -769,7 +788,7 @@ void guiEx_settings::save_local() {
     WritePrivateProfileString(ini_section_main, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
 
     PathRemoveBlanks(s_enc.fullpath);
-    WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_enc.fullpath,         conf_fileName);
+    WritePrivateProfileString(INI_SECTION_ENC,    "X264",           s_enc.fullpath,         conf_fileName);
     for (int i = 0; i < s_aud_count; i++) {
         PathRemoveBlanks(s_aud[i].fullpath);
         WritePrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, s_aud[i].fullpath, conf_fileName);
