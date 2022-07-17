@@ -486,22 +486,22 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     //必要な実行ファイル
     //x264
     if (!conf->oth.disable_guicmd && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
-        if (!PathFileExists(exstg->s_x264.fullpath)) {
+        if (!PathFileExists(exstg->s_enc.fullpath)) {
             const auto targetExes = find_target_exe_files(ENCODER_NAME, exeFiles);
             if (targetExes.size() > 0) {
                 const auto latestX264 = find_latest_videnc(targetExes);
                 if (exstg->s_local.get_relative_path) {
-                    GetRelativePathTo(exstg->s_x264.fullpath, _countof(exstg->s_x264.fullpath), latestX264.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                    GetRelativePathTo(exstg->s_enc.fullpath, _countof(exstg->s_enc.fullpath), latestX264.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
                 } else {
-                    strcpy_s(exstg->s_x264.fullpath, latestX264.string().c_str());
+                    strcpy_s(exstg->s_enc.fullpath, latestX264.string().c_str());
                 }
             }
-            if (!PathFileExists(exstg->s_x264.fullpath)) {
-                error_no_exe_file(ENCODER_NAME_W, exstg->s_x264.fullpath);
+            if (!PathFileExists(exstg->s_enc.fullpath)) {
+                error_no_exe_file(ENCODER_NAME_W, exstg->s_enc.fullpath);
                 check = FALSE;
             }
         }
-        info_use_exe_found(ENCODER_NAME_W, exstg->s_x264.fullpath);
+        info_use_exe_found(ENCODER_NAME_W, exstg->s_enc.fullpath);
     }
 
     //音声エンコーダ
@@ -782,7 +782,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
     if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
-        if (!check_x264_mp4_output(sys_dat->exstg->s_x264.fullpath, pe->temp_filename)) {
+        if (!check_x264_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
             change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
             warning_x264_mp4_output_not_supported();
@@ -1015,7 +1015,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     sprintf_s(tmp, sizeof(tmp), "%d", GetCurrentProcessId());
     replace(cmd, nSize, "%{pid}", tmp);
 
-    replace(cmd, nSize, "%{x264path}",     GetFullPathFrom(sys_dat->exstg->s_x264.fullpath,                   sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, "%{x264path}",     GetFullPathFrom(sys_dat->exstg->s_enc.fullpath,                   sys_dat->aviutl_dir).c_str());
     replace(cmd, nSize, "%{audencpath}",   GetFullPathFrom(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, sys_dat->aviutl_dir).c_str());
     replace(cmd, nSize, "%{mp4muxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         sys_dat->aviutl_dir).c_str());
     replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         sys_dat->aviutl_dir).c_str());
@@ -1332,13 +1332,13 @@ static void amp_adjust_lower_bitrate(CONF_X264 *cnf_x264, int preset_idx, int pr
         if (old_keyint != cnf_x264->keyint_max) {
             cnf_x264->preset = preset_new;
             write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_AMP_ADJUST_LOW_BITRATE_PRESET_KEY),
-                sys_dat->exstg->s_x264.preset.name[preset_new].name, cnf_x264->keyint_max);
+                sys_dat->exstg->s_enc.preset.name[preset_new].name, cnf_x264->keyint_max);
         } else {
             const int preset_adjust_new = (std::max)(preset_idx, 0);
             if (cnf_x264->preset > preset_adjust_new) {
                 cnf_x264->preset = preset_adjust_new;
                 write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ENCODE_AMP_ADJUST_LOW_BITRATE_PRESET),
-                    sys_dat->exstg->s_x264.preset.name[cnf_x264->preset].name);
+                    sys_dat->exstg->s_enc.preset.name[cnf_x264->preset].name);
             }
         }
     } else {

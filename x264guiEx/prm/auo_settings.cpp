@@ -192,7 +192,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
     s_mux_count = 0;
     s_aud = NULL;
     s_mux = NULL;
-    ZeroMemory(&s_x264, sizeof(s_x264));
+    ZeroMemory(&s_enc, sizeof(s_enc));
     ZeroMemory(&s_local, sizeof(s_local));
     ZeroMemory(&s_log, sizeof(s_log));
     ZeroMemory(&s_append, sizeof(s_append));
@@ -260,7 +260,7 @@ guiEx_settings::~guiEx_settings() {
 void guiEx_settings::clear_all() {
     clear_aud();
     clear_mux();
-    clear_x264();
+    clear_enc();
     clear_local();
     clear_fn_replace();
     clear_log_win();
@@ -357,7 +357,7 @@ void guiEx_settings::set_last_out_stg(const char *stg) {
 void guiEx_settings::load_encode_stg() {
     load_aud();
     load_mux();
-    load_x264();
+    load_enc();
     load_local(); //fullpathの情報がきちんと格納されるよう、最後に呼ぶ
 }
 
@@ -558,14 +558,14 @@ void guiEx_settings::load_fn_replace() {
     }
 }
 
-void guiEx_settings::load_x264_cmd(ENC_CMD *x264cmd, int *count, int *default_index, const char *section) {
+void guiEx_settings::load_enc_cmd(ENC_CMD *x264cmd, int *count, int *default_index, const char *section) {
     char key[INI_KEY_MAX_LEN];
-    wchar_t *desc = s_x264_mc.SetPrivateProfileWString(section, "name", "", ini_fileName, codepage_ini);
-    s_x264_mc.CutMem(sizeof(desc[0]));
+    wchar_t *desc = s_enc_mc.SetPrivateProfileWString(section, "name", "", ini_fileName, codepage_ini);
+    s_enc_mc.CutMem(sizeof(desc[0]));
     *count = countchr(desc, ',') + 1;
-    x264cmd->name = (ENC_OPTION_STR *)s_x264_mc.CutMem(sizeof(ENC_OPTION_STR) * (*count + 1));
+    x264cmd->name = (ENC_OPTION_STR *)s_enc_mc.CutMem(sizeof(ENC_OPTION_STR) * (*count + 1));
     ZeroMemory(x264cmd->name, sizeof(ENC_OPTION_STR) * (*count + 1));
-    x264cmd->cmd = (char **)s_x264_mc.CutMem(sizeof(char *) * (*count + 1));
+    x264cmd->cmd = (char **)s_enc_mc.CutMem(sizeof(char *) * (*count + 1));
 
     x264cmd->name[0].desc = desc;
     wchar_t *p = x264cmd->name[0].desc, *q;
@@ -573,48 +573,48 @@ void guiEx_settings::load_x264_cmd(ENC_CMD *x264cmd, int *count, int *default_in
         p = NULL;
 
     for (int i = 0; x264cmd->name[i].desc; i++) {
-        x264cmd->name[i].name = (char *)s_x264_mc.GetPtr();
+        x264cmd->name[i].name = (char *)s_enc_mc.GetPtr();
         const auto str = wstring_to_string(x264cmd->name[i].desc);
-        strcpy_s(x264cmd->name[i].name, s_x264_mc.GetRemain() / sizeof(x264cmd->name[i].name[0]), str.c_str());
-        s_x264_mc.CutMem((str.length() + 1) * sizeof(x264cmd->name[i].name[0]));
+        strcpy_s(x264cmd->name[i].name, s_enc_mc.GetRemain() / sizeof(x264cmd->name[i].name[0]), str.c_str());
+        s_enc_mc.CutMem((str.length() + 1) * sizeof(x264cmd->name[i].name[0]));
     }
 
     *default_index = 0;
-    wchar_t *def = s_x264_mc.SetPrivateProfileWString(section, "disp", "", ini_fileName, codepage_ini);
+    wchar_t *def = s_enc_mc.SetPrivateProfileWString(section, "disp", "", ini_fileName, codepage_ini);
     sprintf_s(key,  sizeof(key), "cmd_");
     size_t keybase_len = strlen(key);
     for (int i = 0; x264cmd->name[i].desc; i++) {
         auto str_utf8 = wstring_to_string(x264cmd->name[i].desc, CP_UTF8);
         strcpy_s(key + keybase_len, sizeof(key) - keybase_len, str_utf8.c_str());
-        x264cmd->cmd[i] = s_x264_mc.SetPrivateProfileString(section, key, "", ini_fileName, codepage_ini);
+        x264cmd->cmd[i] = s_enc_mc.SetPrivateProfileString(section, key, "", ini_fileName, codepage_ini);
         if (_wcsicmp(x264cmd->name[i].desc, def) == NULL)
             *default_index = i;
     }
 }
 
-void guiEx_settings::load_x264() {
+void guiEx_settings::load_enc() {
     char key[INI_KEY_MAX_LEN];
 
-    clear_x264();
+    clear_enc();
 
-    s_x264_mc.init(ini_filesize);
+    s_enc_mc.init(ini_filesize);
       
-    s_x264.filename            = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName, codepage_ini);
-    s_x264.default_cmd         = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName, codepage_ini);
-    s_x264.default_cmd_highbit = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName, codepage_ini);
-    s_x264.help_cmd            = s_x264_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_help",          "", ini_fileName, codepage_ini);
+    s_enc.filename            = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "filename",      "x264", ini_fileName, codepage_ini);
+    s_enc.default_cmd         = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default",       "", ini_fileName, codepage_ini);
+    s_enc.default_cmd_highbit = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_default_10bit", "", ini_fileName, codepage_ini);
+    s_enc.help_cmd            = s_enc_mc.SetPrivateProfileString(INI_SECTION_X264_DEFAULT, "cmd_help",          "", ini_fileName, codepage_ini);
 
-    load_x264_cmd(&s_x264.preset,  &s_x264.preset_count,  &s_x264.default_preset,  INI_SECTION_X264_PRESET);
-    load_x264_cmd(&s_x264.tune,    &s_x264.tune_count,    &s_x264.default_tune,    INI_SECTION_X264_TUNE);
-    load_x264_cmd(&s_x264.profile, &s_x264.profile_count, &s_x264.default_profile, INI_SECTION_X264_PROFILE);
+    load_enc_cmd(&s_enc.preset,  &s_enc.preset_count,  &s_enc.default_preset,  INI_SECTION_X264_PRESET);
+    load_enc_cmd(&s_enc.tune,    &s_enc.tune_count,    &s_enc.default_tune,    INI_SECTION_X264_TUNE);
+    load_enc_cmd(&s_enc.profile, &s_enc.profile_count, &s_enc.default_profile, INI_SECTION_X264_PROFILE);
 
-    s_x264.profile_vbv_multi = (float *)s_x264_mc.CutMem(sizeof(float) * s_x264.profile_count);
-    for (int i = 0; i < s_x264.profile_count; i++) {
-        sprintf_s(key, _countof(key), "vbv_multi_%s", s_x264.profile.name[i].name);
-        s_x264.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, 1.0, ini_fileName);
+    s_enc.profile_vbv_multi = (float *)s_enc_mc.CutMem(sizeof(float) * s_enc.profile_count);
+    for (int i = 0; i < s_enc.profile_count; i++) {
+        sprintf_s(key, _countof(key), "vbv_multi_%s", s_enc.profile.name[i].name);
+        s_enc.profile_vbv_multi[i] = (float)GetPrivateProfileDouble(INI_SECTION_X264_PROFILE, key, 1.0, ini_fileName);
     }
 
-    s_x264_refresh = TRUE;
+    s_enc_refresh = TRUE;
 }
 
 void guiEx_settings::make_default_stg_dir(char *default_stg_dir, DWORD nSize) {
@@ -670,7 +670,7 @@ void guiEx_settings::load_local() {
 
     s_local.audio_buffer_size   = min(GetPrivateProfileInt(ini_section_main, "audio_buffer",        AUDIO_BUFFER_DEFAULT, conf_fileName), AUDIO_BUFFER_MAX);
     
-    GetPrivateProfileStringStg(INI_SECTION_X264,    "X264",           "", s_x264.fullpath,         _countof(s_x264.fullpath),         conf_fileName, codepage_cnf);
+    GetPrivateProfileStringStg(INI_SECTION_X264,    "X264",           "", s_enc.fullpath,         _countof(s_enc.fullpath),         conf_fileName, codepage_cnf);
     for (int i = 0; i < s_aud_count; i++)
         GetPrivateProfileStringStg(INI_SECTION_AUD, s_aud[i].keyName, "", s_aud[i].fullpath,       _countof(s_aud[i].fullpath),       conf_fileName, codepage_cnf);
     for (int i = 0; i < s_mux_count; i++)
@@ -768,8 +768,8 @@ void guiEx_settings::save_local() {
     PathRemoveBackslash(s_local.bat_dir);
     WritePrivateProfileString(ini_section_main, "last_bat_dir",          s_local.bat_dir,               conf_fileName);
 
-    PathRemoveBlanks(s_x264.fullpath);
-    WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_x264.fullpath,         conf_fileName);
+    PathRemoveBlanks(s_enc.fullpath);
+    WritePrivateProfileString(INI_SECTION_X264,    "X264",           s_enc.fullpath,         conf_fileName);
     for (int i = 0; i < s_aud_count; i++) {
         PathRemoveBlanks(s_aud[i].fullpath);
         WritePrivateProfileString(INI_SECTION_AUD, s_aud[i].keyName, s_aud[i].fullpath, conf_fileName);
@@ -820,9 +820,9 @@ void guiEx_settings::save_last_out_stg() {
     WritePrivateProfileString(ini_section_main, "last_out_stg", last_out_stg, conf_fileName);
 }
 
-BOOL guiEx_settings::get_reset_s_x264_referesh() {
-    BOOL refresh = s_x264_refresh;
-    s_x264_refresh = FALSE;
+BOOL guiEx_settings::get_reset_s_enc_referesh() {
+    BOOL refresh = s_enc_refresh;
+    s_enc_refresh = FALSE;
     return refresh;
 }
 
@@ -837,9 +837,9 @@ void guiEx_settings::clear_mux() {
     s_mux_count = 0;
 }
 
-void guiEx_settings::clear_x264() {
-    s_x264_mc.clear();
-    s_x264_refresh = TRUE;
+void guiEx_settings::clear_enc() {
+    s_enc_mc.clear();
+    s_enc_refresh = TRUE;
 }
 
 void guiEx_settings::clear_local() {

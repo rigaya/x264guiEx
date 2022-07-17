@@ -222,8 +222,8 @@ System::Void frmConfig::InformfbcClosed() {
 System::Void frmConfig::LoadLocalStg() {
     guiEx_settings *_ex_stg = sys_dat->exstg;
     _ex_stg->load_encode_stg();
-    LocalStg.x264ExeName     = String(_ex_stg->s_x264.filename).ToString();
-    LocalStg.x264Path        = String(_ex_stg->s_x264.fullpath).ToString();
+    LocalStg.x264ExeName     = String(_ex_stg->s_enc.filename).ToString();
+    LocalStg.x264Path        = String(_ex_stg->s_enc.fullpath).ToString();
     LocalStg.CustomTmpDir    = String(_ex_stg->s_local.custom_tmp_dir).ToString();
     LocalStg.CustomAudTmpDir = String(_ex_stg->s_local.custom_audio_tmp_dir).ToString();
     LocalStg.CustomMP4TmpDir = String(_ex_stg->s_local.custom_mp4box_tmp_dir).ToString();
@@ -310,7 +310,7 @@ System::Void frmConfig::SaveLocalStg() {
     guiEx_settings *_ex_stg = sys_dat->exstg;
     _ex_stg->load_encode_stg();
     _ex_stg->s_local.large_cmdbox = fcgTXCmd->Multiline;
-    GetCHARfromString(_ex_stg->s_x264.fullpath,               sizeof(_ex_stg->s_x264.fullpath),               LocalStg.x264Path);
+    GetCHARfromString(_ex_stg->s_enc.fullpath,               sizeof(_ex_stg->s_enc.fullpath),               LocalStg.x264Path);
     GetCHARfromString(_ex_stg->s_local.custom_tmp_dir,        sizeof(_ex_stg->s_local.custom_tmp_dir),        LocalStg.CustomTmpDir);
     GetCHARfromString(_ex_stg->s_local.custom_mp4box_tmp_dir, sizeof(_ex_stg->s_local.custom_mp4box_tmp_dir), LocalStg.CustomMP4TmpDir);
     GetCHARfromString(_ex_stg->s_local.custom_audio_tmp_dir,  sizeof(_ex_stg->s_local.custom_audio_tmp_dir),  LocalStg.CustomAudTmpDir);
@@ -1167,9 +1167,9 @@ System::Void frmConfig::InitComboBox() {
     setComboBox(fcgCXMP4BoxTempDir,  mp4boxtempdir_desc);
     setComboBox(fcgCXNalHrd,         list_nal_hrd);
     setComboBox(fcgCXOutputCsp,      list_output_csp);
-    setComboBox(fcgCXPreset,         sys_dat->exstg->s_x264.preset.name);
-    setComboBox(fcgCXProfile,        sys_dat->exstg->s_x264.profile.name);
-    setComboBox(fcgCXTune,           sys_dat->exstg->s_x264.tune.name);
+    setComboBox(fcgCXPreset,         sys_dat->exstg->s_enc.preset.name);
+    setComboBox(fcgCXProfile,        sys_dat->exstg->s_enc.profile.name);
+    setComboBox(fcgCXTune,           sys_dat->exstg->s_enc.tune.name);
     setComboBox(fcgCXSubME,          list_subme);
     setComboBox(fcgCXTempDir,        tempdir_desc);
     setComboBox(fcgCXTransfer,       list_transfer);
@@ -1203,8 +1203,8 @@ System::Void frmConfig::SetTXMaxLen(TextBox^ TX, int max_len) {
 System::Void frmConfig::SetTXMaxLenAll() {
     //MaxLengthに最大文字数をセットし、それをもとにバイト数計算を行うイベントをセットする。
     SetTXMaxLen(fcgTXCmdEx,                sizeof(conf->vid.cmdex) - 1);
-    SetTXMaxLen(fcgTXX264Path,             sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
-    SetTXMaxLen(fcgTXX264PathSub,          sizeof(sys_dat->exstg->s_x264.fullpath) - 1);
+    SetTXMaxLen(fcgTXX264Path,             sizeof(sys_dat->exstg->s_enc.fullpath) - 1);
+    SetTXMaxLen(fcgTXX264PathSub,          sizeof(sys_dat->exstg->s_enc.fullpath) - 1);
     SetTXMaxLen(fcgTXAudioEncoderPath,     sizeof(sys_dat->exstg->s_aud[0].fullpath) - 1);
     SetTXMaxLen(fcgTXMP4MuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
     SetTXMaxLen(fcgTXMKVMuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);

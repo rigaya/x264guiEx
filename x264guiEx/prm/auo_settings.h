@@ -375,7 +375,7 @@ typedef struct FILE_APPENDIX {
 
 class guiEx_settings {
 private:
-    mem_cutter s_x264_mc;
+    mem_cutter s_enc_mc;
     mem_cutter fn_rep_mc;
     mem_cutter s_aud_mc;
     mem_cutter s_mux_mc;
@@ -393,16 +393,16 @@ private:
     static char language[MAX_PATH_LEN];       //言語設定
     char last_out_stg[MAX_PATH_LEN];          //前回出力のstgファイル(多言語対応のため、デフォルトのCONF_LAST_OUTに加え、これも探す)
 
-    void load_x264_cmd(ENC_CMD *x264cmd, int *count, int *default_index, const char *section);  //x264コマンドライン設定の読み込み
-    void clear_x264_cmd(ENC_CMD *x264cmd, int count);                                             //x264コマンドライン設定の消去
+    void load_enc_cmd(ENC_CMD *vidcmd, int *count, int *default_index, const char *section);  //動画エンコーダコマンドライン設定の読み込み
+    void clear_enc_cmd(ENC_CMD *vidcmd, int count);                                           //動画エンコーダコマンドライン設定の消去
 
     void load_aud();          //音声エンコーダ関連の設定の読み込み・更新
     void load_mux();          //muxerの設定の読み込み・更新
-    void load_x264();         //x264関連の設定の読み込み・更新
+    void load_enc();          //動画エンコーダ関連の設定の読み込み・更新
     void load_local();        //ファイルの場所等の設定の読み込み・更新
 
     int get_faw_index();             //FAWのインデックスを取得する
-    BOOL s_x264_refresh;             //x264設定の再ロード
+    BOOL s_enc_refresh;             //動画エンコーダ関連設定の再ロード
 
     void make_default_stg_dir(char *default_stg_dir, DWORD nSize); //プロファイル設定ファイルの保存場所の作成
     BOOL check_inifile();            //iniファイルが読めるかテスト
@@ -413,7 +413,7 @@ public:
     int s_mux_count;                 //muxerの数 (基本3固定)
     AUDIO_SETTINGS *s_aud;           //音声エンコーダの設定
     MUXER_SETTINGS *s_mux;           //muxerの設定
-    ENC_SETTINGS  s_x264;           //x264関連の設定
+    ENC_SETTINGS  s_enc;             //動画エンコーダ関連の設定
     LOCAL_SETTINGS s_local;          //ファイルの場所等
     std::vector<FILENAME_REPLACE> fn_rep;  //一時ファイル名置換
     LOG_WINDOW_SETTINGS s_log;       //ログウィンドウ関連の設定
@@ -446,7 +446,7 @@ public:
 
     void apply_fn_replace(char *target_filename, DWORD nSize);  //一時ファイル名置換の適用
 
-    BOOL get_reset_s_x264_referesh(); //s_x264が更新されたか
+    BOOL get_reset_s_enc_referesh(); //s_encが更新されたか
     const char *get_lang() const;
     const char *get_last_out_stg() const;
     void set_and_save_lang(const char *lang);
@@ -458,7 +458,7 @@ private:
 
     void clear_aud();         //音声エンコーダ関連の設定の消去
     void clear_mux();         //muxerの設定の消去
-    void clear_x264();        //x264関連の設定の消去
+    void clear_enc();         //動画エンコーダ関連の設定の消去
     void clear_local();       //ファイルの場所等の設定の消去
     void clear_fn_replace();  //一時ファイル名置換等の消去
     void clear_log_win();     //ログウィンドウ等の設定の消去
