@@ -610,7 +610,14 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     //muxer
     switch (pe->muxer_to_be_used) {
         case MUXER_TC2MP4:
-            check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+            if (ENCODER_SVTAV1) {
+                if (!str_has_char(exstg->s_mux[pe->muxer_to_be_used].base_cmd)) {
+                    error_tc2mp4_afs_not_supported();
+                    check = FALSE;
+                }
+            } else {
+                check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+            }
             //下へフォールスルー
         case MUXER_MP4:
             check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
