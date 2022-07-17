@@ -760,8 +760,6 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     ZeroMemory(&pe->append.aud, sizeof(pe->append.aud));
     create_aviutl_opened_file_list(pe);
 
-    char filename_replace[MAX_PATH_LEN];
-
     //一時フォルダの決定
     set_tmpdir(pe, conf->oth.temp_dir, oip->savefile, sys_dat);
 
@@ -778,6 +776,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     strcpy_s(pe->aud_temp_dir, GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
 
     //ファイル名置換を行い、一時ファイル名を作成
+    char filename_replace[MAX_PATH_LEN];
     strcpy_s(filename_replace, _countof(filename_replace), PathFindFileName(oip->savefile));
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
