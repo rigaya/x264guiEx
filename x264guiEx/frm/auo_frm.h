@@ -83,6 +83,4 @@ void write_log_enc_mes(char * const mes, DWORD *log_len, int total_drop, int cur
 void write_log_exe_mes(char *const msg, DWORD *log_len, const wchar_t *exename, LOG_CACHE *cache_line);
 void write_args(const char *args);
 
-int64_t getProcessWorkingSet(const int pid);
-
 #endif //_AUO_FRM_H_
