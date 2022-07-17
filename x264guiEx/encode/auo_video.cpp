@@ -815,7 +815,9 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         int i = 0;
         void *frame = NULL;
         int *next_jitter = NULL;
+#if ENABLE_AMP
         UINT64 amp_filesize_limit = (UINT64)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
+#endif
         BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
         const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->enc.use_highbit_depth, conf->enc.output_csp, conf->vid.input_as_lw48)].FOURCC;
         double time_get_frame = 0.0;
@@ -857,6 +859,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
                 //音声同時処理
                 ret |= aud_parallel_task(oip, pe);
 
+#if ENABLE_AMP
                 //上限をオーバーしていないかチェック
                 if (!(i & 63)
                     && amp_filesize_limit //上限設定が存在する
@@ -868,6 +871,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
                         break;
                     }
                 }
+#endif
             }
 
             //一時停止
@@ -1063,6 +1067,7 @@ static void set_window_title_x264(const PRM_ENC *pe) {
     set_window_title(mes, PROGRESSBAR_CONTINUOUS);
 }
 
+#if ENABLE_AMP
 static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     if (!(conf->enc.use_auto_npass && conf->enc.rc_mode == X264_RC_BITRATE) || !conf->vid.amp_check)
         return AUO_RESULT_SUCCESS; //上限確認付きcrfはここで抜ける
@@ -1152,6 +1157,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
     }
     return AUO_RESULT_SUCCESS;
 }
+#endif
 
 static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
@@ -1161,10 +1167,13 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
 
     //最初のみ実行する部分
     if (pe->current_pass <= 1) {
+
+#if ENABLE_AMP
         //自動マルチパス用チェック
         if ((ret |= check_amp(conf, oip, pe, sys_dat)) != AUO_RESULT_SUCCESS) {
             return (ret & ~AUO_RESULT_ABORT); //AUO_RESULT_ABORTなら、音声を先にエンコードするため、動画エンコードを一時的にスキップ
         }
+#endif
         //追加コマンドをパラメータに適用する
         ret |= check_cmdex(conf, oip, pe, sys_dat);
 
