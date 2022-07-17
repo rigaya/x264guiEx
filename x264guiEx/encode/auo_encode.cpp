@@ -1153,7 +1153,11 @@ BOOL check_output_has_chapter(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat
 }
 
 BOOL check_tcfilein_is_used(const CONF_GUIEX *conf) {
+#if ENABLE_TCFILE_IN
     return conf->enc.use_tcfilein || strstr(conf->vid.cmdex, "--tcfile-in") != nullptr;
+#else
+    return FALSE;
+#endif
 }
 
 int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
