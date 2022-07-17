@@ -5554,10 +5554,10 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         System::Void fcgBTApplyPreset_Click(System::Object^  sender, System::EventArgs^  e) {
             CONF_GUIEX cnf;
             init_CONF_GUIEX(&cnf, fcgCBUsehighbit->Checked);
-            cnf.x264.preset = fcgCXPreset->SelectedIndex;
-            cnf.x264.tune = fcgCXTune->SelectedIndex;
-            cnf.x264.profile = fcgCXProfile->SelectedIndex;
-            apply_presets(&cnf.x264);
+            cnf.enc.preset = fcgCXPreset->SelectedIndex;
+            cnf.enc.tune = fcgCXTune->SelectedIndex;
+            cnf.enc.profile = fcgCXProfile->SelectedIndex;
+            apply_presets(&cnf.enc);
             ConfToFrm(&cnf, false);
         }
     private:
@@ -5567,7 +5567,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             FrmToConf(&cnf);
             char cmdex[2048] = { 0 };
             GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
-            set_cmd_to_conf(cmdex, &cnf.x264);
+            set_cmd_to_conf(cmdex, &cnf.enc);
             ConfToFrm(&cnf, false);
         }
     private:
@@ -5608,7 +5608,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             init_CONF_GUIEX(&rebuild, fcgCBUsehighbit->Checked);
             FrmToConf(&rebuild);
             if (!rebuild.oth.disable_guicmd)
-                build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.x264, &rebuild.vid, FALSE);
+                build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.enc, &rebuild.vid, FALSE);
             fcgTXCmd->Text = String(re_cmd).ToString();
             if (CheckedStgMenuItem != nullptr)
                 ChangePresetNameDisplay(memcmp(&rebuild, cnf_stgSelected, sizeof(CONF_GUIEX)) != 0);

@@ -314,7 +314,7 @@ void delete_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
 void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     ZeroMemory(conf, sizeof(CONF_GUIEX));
     guiEx_config::write_conf_header(conf);
-    get_default_conf_x264(&conf->x264, use_highbit);
+    get_default_conf_x264(&conf->enc, use_highbit);
     conf->aud.encoder = g_sys_dat.exstg->s_local.default_audio_encoder;
     const AUDIO_SETTINGS *aud_stg = &g_sys_dat.exstg->s_aud[conf->aud.encoder];
     conf->aud.bitrate = aud_stg->mode[conf->aud.enc_mode].bitrate_default;

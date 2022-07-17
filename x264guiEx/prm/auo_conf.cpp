@@ -44,7 +44,7 @@ const int guiEx_config::conf_block_data[CONF_BLOCK_COUNT] = {
 };
 
 const size_t guiEx_config::conf_block_pointer[CONF_BLOCK_COUNT] = {
-    offsetof(CONF_GUIEX, x264),
+    offsetof(CONF_GUIEX, enc),
     offsetof(CONF_GUIEX, vid),
     offsetof(CONF_GUIEX, aud),
     offsetof(CONF_GUIEX, mux),
@@ -175,7 +175,7 @@ int guiEx_config::save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file) 
 
     //展開したコマンドライン
     char cmd_all[MAX_CMD_LEN] = { 0 };
-    build_cmd_from_conf(cmd_all, sizeof(cmd_all), &conf->x264, &conf->vid, TRUE);
+    build_cmd_from_conf(cmd_all, sizeof(cmd_all), &conf->enc, &conf->vid, TRUE);
     DWORD cmd_all_len = strlen(cmd_all) + 1;
 
     //設定ファイルのブロックごとの大きさを書き込み

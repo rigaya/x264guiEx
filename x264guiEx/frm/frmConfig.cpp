@@ -1587,7 +1587,7 @@ System::Void frmConfig::LoadLangText() {
 /////////////         データ <-> GUI     /////////////
 System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
     //ひたすら書くだけ。めんどい
-    CONF_X264 *cx264 = &cnf->x264;
+    CONF_X264 *cx264 = &cnf->enc;
     memcpy(cnf_fcgTemp, cx264, sizeof(CONF_X264)); //一時保存用
     this->SuspendLayout();
     fcgCBUsehighbit->Checked = cx264->use_highbit_depth != 0;
@@ -1728,7 +1728,7 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
 
         fcgTXCmdEx->Text            = String(cnf->vid.cmdex).ToString();
         if (cnf->oth.disable_guicmd)
-            fcgCBNulOutCLI->Checked        = cnf->x264.nul_out != 0;
+            fcgCBNulOutCLI->Checked        = cnf->enc.nul_out != 0;
 
         //音声
         fcgCBAudioOnly->Checked            = cnf->oth.out_audio_only != 0;
@@ -1778,16 +1778,16 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
 System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     //これもひたすら書くだけ。めんどい
     //x264部
-    cnf->x264.use_highbit_depth    = fcgCBUsehighbit->Checked;
-    cnf->x264.rc_mode              = cnf_fcgTemp->rc_mode;
-    cnf->x264.bitrate              = cnf_fcgTemp->bitrate;
-    cnf->x264.qp                   = cnf_fcgTemp->qp;
-    cnf->x264.crf                  = cnf_fcgTemp->crf;
-    cnf->x264.nul_out              = fcgCBNulOut->Checked;
-    cnf->x264.pass                 = cnf_fcgTemp->pass;
-    cnf->x264.slow_first_pass      = cnf_fcgTemp->slow_first_pass;
-    cnf->x264.use_auto_npass       = cnf_fcgTemp->use_auto_npass;
-    cnf->x264.auto_npass           = (int)fcgNUAutoNPass->Value;
+    cnf->enc.use_highbit_depth    = fcgCBUsehighbit->Checked;
+    cnf->enc.rc_mode              = cnf_fcgTemp->rc_mode;
+    cnf->enc.bitrate              = cnf_fcgTemp->bitrate;
+    cnf->enc.qp                   = cnf_fcgTemp->qp;
+    cnf->enc.crf                  = cnf_fcgTemp->crf;
+    cnf->enc.nul_out              = fcgCBNulOut->Checked;
+    cnf->enc.pass                 = cnf_fcgTemp->pass;
+    cnf->enc.slow_first_pass      = cnf_fcgTemp->slow_first_pass;
+    cnf->enc.use_auto_npass       = cnf_fcgTemp->use_auto_npass;
+    cnf->enc.auto_npass           = (int)fcgNUAutoNPass->Value;
     cnf->vid.amp_check             = 0x00;
     cnf->vid.amp_check            |= fcgCBAMPLimitBitrateLower->Checked ? AMPLIMIT_BITRATE_LOWER : 0x00;
     cnf->vid.amp_check            |= fcgCBAMPLimitBitrateUpper->Checked ? AMPLIMIT_BITRATE_UPPER : 0x00;
@@ -1795,88 +1795,88 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->vid.amp_limit_bitrate_upper = (double)fcgNUAMPLimitBitrateUpper->Value;
     cnf->vid.amp_limit_bitrate_lower = (double)fcgNUAMPLimitBitrateLower->Value;
     cnf->vid.amp_limit_file_size     = (double)fcgNUAMPLimitFileSize->Value;
-    cnf->x264.preset               = fcgCXPreset->SelectedIndex;
-    cnf->x264.tune                 = fcgCXTune->SelectedIndex;
-    cnf->x264.profile              = fcgCXProfile->SelectedIndex;
-    cnf->x264.h264_level           = fcgCXLevel->SelectedIndex;
-    cnf->x264.videoformat          = fcgCXVideoFormat->SelectedIndex;
-    cnf->x264.aud                  = fcgCBAud->Checked;
-    cnf->x264.pic_struct           = fcgCBPicStruct->Checked;
-    cnf->x264.nal_hrd              = fcgCXNalHrd->SelectedIndex;
-    cnf->x264.output_csp           = fcgCXOutputCsp->SelectedIndex;
-    cnf->x264.bluray_compat        = fcgCBBlurayCompat->Checked;
-    cnf->x264.colormatrix          = fcgCXColorMatrix->SelectedIndex;
-    cnf->x264.colorprim            = fcgCXColorPrim->SelectedIndex;
-    cnf->x264.transfer             = fcgCXTransfer->SelectedIndex;
-    cnf->x264.input_range          = fcgCXInputRange->SelectedIndex;
-    cnf->x264.sar.x                = (int)fcgNUAspectRatioX->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
-    cnf->x264.sar.y                = (int)fcgNUAspectRatioY->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
-    cnf->x264.threads              = (int)fcgNUThreads->Value;
-    cnf->x264.lookahead_threads    = (int)fcgNULookaheadThreads->Value;
-    cnf->x264.sliced_threading     = fcgCBSlicedThreads->Checked;
-    cnf->x264.log_mode             = fcgCXLogLevel->SelectedIndex;
-    cnf->x264.psnr                 = fcgCBPSNR->Checked;
-    cnf->x264.ssim                 = fcgCBSSIM->Checked;
+    cnf->enc.preset               = fcgCXPreset->SelectedIndex;
+    cnf->enc.tune                 = fcgCXTune->SelectedIndex;
+    cnf->enc.profile              = fcgCXProfile->SelectedIndex;
+    cnf->enc.h264_level           = fcgCXLevel->SelectedIndex;
+    cnf->enc.videoformat          = fcgCXVideoFormat->SelectedIndex;
+    cnf->enc.aud                  = fcgCBAud->Checked;
+    cnf->enc.pic_struct           = fcgCBPicStruct->Checked;
+    cnf->enc.nal_hrd              = fcgCXNalHrd->SelectedIndex;
+    cnf->enc.output_csp           = fcgCXOutputCsp->SelectedIndex;
+    cnf->enc.bluray_compat        = fcgCBBlurayCompat->Checked;
+    cnf->enc.colormatrix          = fcgCXColorMatrix->SelectedIndex;
+    cnf->enc.colorprim            = fcgCXColorPrim->SelectedIndex;
+    cnf->enc.transfer             = fcgCXTransfer->SelectedIndex;
+    cnf->enc.input_range          = fcgCXInputRange->SelectedIndex;
+    cnf->enc.sar.x                = (int)fcgNUAspectRatioX->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
+    cnf->enc.sar.y                = (int)fcgNUAspectRatioY->Value * ((fcgCXAspectRatio->SelectedIndex != 1) ? 1 : -1);
+    cnf->enc.threads              = (int)fcgNUThreads->Value;
+    cnf->enc.lookahead_threads    = (int)fcgNULookaheadThreads->Value;
+    cnf->enc.sliced_threading     = fcgCBSlicedThreads->Checked;
+    cnf->enc.log_mode             = fcgCXLogLevel->SelectedIndex;
+    cnf->enc.psnr                 = fcgCBPSNR->Checked;
+    cnf->enc.ssim                 = fcgCBSSIM->Checked;
 
-    cnf->x264.ip_ratio             = (float)((int)fcgNUIPRatio->Value + 100) / 100.0f;
-    cnf->x264.pb_ratio             = (float)((int)fcgNUPBRatio->Value + 100) / 100.0f;
-    cnf->x264.qp_compress          = (float)((int)fcgNUQcomp->Value / 100.0f);
-    cnf->x264.qp_min               = (int)fcgNUQpmin->Value;
-    cnf->x264.qp_max               = (int)fcgNUQpmax->Value;
-    cnf->x264.qp_step              = (int)fcgNUQpstep->Value;
-    cnf->x264.chroma_qp_offset     = (int)fcgNUChromaQp->Value;
-    cnf->x264.aq_mode              = fcgCXAQMode->SelectedIndex;
-    cnf->x264.aq_strength          = (float)fcgNUAQStrength->Value;
-    cnf->x264.psy_rd.x             = (float)fcgNUPsyRDO->Value;
-    cnf->x264.psy_rd.y             = (float)fcgNUPsyTrellis->Value;
-    cnf->x264.vbv_maxrate          = (int)fcgNUVBVmax->Value;
-    cnf->x264.vbv_bufsize          = (int)fcgNUVBVbuf->Value;
-    cnf->x264.mbtree               = fcgCBMBTree->Checked;
-    cnf->x264.rc_lookahead         = (int)fcgNURCLookahead->Value;
+    cnf->enc.ip_ratio             = (float)((int)fcgNUIPRatio->Value + 100) / 100.0f;
+    cnf->enc.pb_ratio             = (float)((int)fcgNUPBRatio->Value + 100) / 100.0f;
+    cnf->enc.qp_compress          = (float)((int)fcgNUQcomp->Value / 100.0f);
+    cnf->enc.qp_min               = (int)fcgNUQpmin->Value;
+    cnf->enc.qp_max               = (int)fcgNUQpmax->Value;
+    cnf->enc.qp_step              = (int)fcgNUQpstep->Value;
+    cnf->enc.chroma_qp_offset     = (int)fcgNUChromaQp->Value;
+    cnf->enc.aq_mode              = fcgCXAQMode->SelectedIndex;
+    cnf->enc.aq_strength          = (float)fcgNUAQStrength->Value;
+    cnf->enc.psy_rd.x             = (float)fcgNUPsyRDO->Value;
+    cnf->enc.psy_rd.y             = (float)fcgNUPsyTrellis->Value;
+    cnf->enc.vbv_maxrate          = (int)fcgNUVBVmax->Value;
+    cnf->enc.vbv_bufsize          = (int)fcgNUVBVbuf->Value;
+    cnf->enc.mbtree               = fcgCBMBTree->Checked;
+    cnf->enc.rc_lookahead         = (int)fcgNURCLookahead->Value;
 
-    cnf->x264.scenecut             = (int)fcgNUScenecut->Value;
-    cnf->x264.keyint_min           = (int)fcgNUMinKeyint->Value;
-    cnf->x264.keyint_max           = (int)fcgNUKeyint->Value;
-    cnf->x264.open_gop             = fcgCBOpenGOP->Checked;
-    cnf->x264.use_deblock          = fcgCBDeblock->Checked;
-    cnf->x264.deblock.x            = (int)fcgNUDeblockStrength->Value;
-    cnf->x264.deblock.y            = (int)fcgNUDeblockThreshold->Value;
-    cnf->x264.cabac                = fcgCBCABAC->Checked;
-    cnf->x264.slice_n              = (int)fcgNUSlices->Value;
-    cnf->x264.weight_p             = fcgCXWeightP->SelectedIndex;
-    cnf->x264.interlaced           = fcgCXInterlaced->SelectedIndex != 0;
-    cnf->x264.tff                  = fcgCXInterlaced->SelectedIndex != 2;
-    cnf->x264.bframes              = (int)fcgNUBframes->Value;
-    cnf->x264.b_adapt              = fcgCXBAdpapt->SelectedIndex;
-    cnf->x264.b_bias               = (int)fcgNUBBias->Value;
-    cnf->x264.b_pyramid            = fcgCXBpyramid->SelectedIndex;
-    cnf->x264.weight_b             = fcgCBWeightB->Checked;
+    cnf->enc.scenecut             = (int)fcgNUScenecut->Value;
+    cnf->enc.keyint_min           = (int)fcgNUMinKeyint->Value;
+    cnf->enc.keyint_max           = (int)fcgNUKeyint->Value;
+    cnf->enc.open_gop             = fcgCBOpenGOP->Checked;
+    cnf->enc.use_deblock          = fcgCBDeblock->Checked;
+    cnf->enc.deblock.x            = (int)fcgNUDeblockStrength->Value;
+    cnf->enc.deblock.y            = (int)fcgNUDeblockThreshold->Value;
+    cnf->enc.cabac                = fcgCBCABAC->Checked;
+    cnf->enc.slice_n              = (int)fcgNUSlices->Value;
+    cnf->enc.weight_p             = fcgCXWeightP->SelectedIndex;
+    cnf->enc.interlaced           = fcgCXInterlaced->SelectedIndex != 0;
+    cnf->enc.tff                  = fcgCXInterlaced->SelectedIndex != 2;
+    cnf->enc.bframes              = (int)fcgNUBframes->Value;
+    cnf->enc.b_adapt              = fcgCXBAdpapt->SelectedIndex;
+    cnf->enc.b_bias               = (int)fcgNUBBias->Value;
+    cnf->enc.b_pyramid            = fcgCXBpyramid->SelectedIndex;
+    cnf->enc.weight_b             = fcgCBWeightB->Checked;
 
-    cnf->x264.dct8x8               = fcgCB8x8dct->Checked;
-    cnf->x264.mb_partition         = MB_PARTITION_NONE;
-    cnf->x264.mb_partition        |= (fcgCBb8x8->Checked) ? MB_PARTITION_B8x8 : MB_PARTITION_NONE;
-    cnf->x264.mb_partition        |= (fcgCBp8x8->Checked) ? MB_PARTITION_P8x8 : MB_PARTITION_NONE;
-    cnf->x264.mb_partition        |= (fcgCBp4x4->Checked) ? MB_PARTITION_P4x4 : MB_PARTITION_NONE;
-    cnf->x264.mb_partition        |= (fcgCBi8x8->Checked) ? MB_PARTITION_I8x8 : MB_PARTITION_NONE;
-    cnf->x264.mb_partition        |= (fcgCBi4x4->Checked) ? MB_PARTITION_I4x4 : MB_PARTITION_NONE;
+    cnf->enc.dct8x8               = fcgCB8x8dct->Checked;
+    cnf->enc.mb_partition         = MB_PARTITION_NONE;
+    cnf->enc.mb_partition        |= (fcgCBb8x8->Checked) ? MB_PARTITION_B8x8 : MB_PARTITION_NONE;
+    cnf->enc.mb_partition        |= (fcgCBp8x8->Checked) ? MB_PARTITION_P8x8 : MB_PARTITION_NONE;
+    cnf->enc.mb_partition        |= (fcgCBp4x4->Checked) ? MB_PARTITION_P4x4 : MB_PARTITION_NONE;
+    cnf->enc.mb_partition        |= (fcgCBi8x8->Checked) ? MB_PARTITION_I8x8 : MB_PARTITION_NONE;
+    cnf->enc.mb_partition        |= (fcgCBi4x4->Checked) ? MB_PARTITION_I4x4 : MB_PARTITION_NONE;
 
-    cnf->x264.no_fast_pskip        = !fcgCBfastpskip->Checked;
-    cnf->x264.no_dct_decimate      = !fcgCBDctDecimate->Checked;
-    cnf->x264.trellis              = fcgCXTrellis->SelectedIndex;
-    cnf->x264.cqm                  = GetCQMIndex(cnf->vid.cqmfile, sizeof(cnf->vid.cqmfile));
+    cnf->enc.no_fast_pskip        = !fcgCBfastpskip->Checked;
+    cnf->enc.no_dct_decimate      = !fcgCBDctDecimate->Checked;
+    cnf->enc.trellis              = fcgCXTrellis->SelectedIndex;
+    cnf->enc.cqm                  = GetCQMIndex(cnf->vid.cqmfile, sizeof(cnf->vid.cqmfile));
 
-    cnf->x264.me                   = fcgCXME->SelectedIndex;
-    cnf->x264.subme                = fcgCXSubME->SelectedIndex;
-    cnf->x264.me_range             = (int)fcgNUMERange->Value;
-    cnf->x264.chroma_me            = fcgCBChromaME->Checked;
-    cnf->x264.direct_mv            = fcgCXDirectME->SelectedIndex;
-    cnf->x264.ref_frames           = (int)fcgNURef->Value;
-    cnf->x264.mixed_ref            = fcgCBMixedRef->Checked;
+    cnf->enc.me                   = fcgCXME->SelectedIndex;
+    cnf->enc.subme                = fcgCXSubME->SelectedIndex;
+    cnf->enc.me_range             = (int)fcgNUMERange->Value;
+    cnf->enc.chroma_me            = fcgCBChromaME->Checked;
+    cnf->enc.direct_mv            = fcgCXDirectME->SelectedIndex;
+    cnf->enc.ref_frames           = (int)fcgNURef->Value;
+    cnf->enc.mixed_ref            = fcgCBMixedRef->Checked;
 
-    cnf->x264.use_tcfilein         = fcgCBTCIN->Checked;
-    cnf->x264.use_timebase         = fcgCBTimeBase->Checked;
-    cnf->x264.timebase.x           = (int)fcgNUTimebaseNum->Value;
-    cnf->x264.timebase.y           = (int)fcgNUTimebaseDen->Value;
+    cnf->enc.use_tcfilein         = fcgCBTCIN->Checked;
+    cnf->enc.use_timebase         = fcgCBTimeBase->Checked;
+    cnf->enc.timebase.x           = (int)fcgNUTimebaseNum->Value;
+    cnf->enc.timebase.y           = (int)fcgNUTimebaseDen->Value;
 
     GetCHARfromString(cnf->vid.stats,     fcgTXStatusFile->Text);
     GetCHARfromString(cnf->vid.tcfile_in, fcgTXTCIN->Text);
@@ -1935,10 +1935,10 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     //cli mode
     cnf->oth.disable_guicmd         = fcgTSBCMDOnly->Checked;
     if (cnf->oth.disable_guicmd)
-        cnf->x264.nul_out           = fcgCBNulOutCLI->Checked;
+        cnf->enc.nul_out           = fcgCBNulOutCLI->Checked;
 
     //制約条件として適用
-    set_profile_to_conf(&cnf->x264, cnf->x264.profile);
+    set_profile_to_conf(&cnf->enc, cnf->enc.profile);
 }
 
 System::Void frmConfig::GetfcgTSLSettingsNotes(char *notes, int nSize) {

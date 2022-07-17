@@ -212,7 +212,7 @@ typedef struct CONF_GUIEX {
     int         block_count;                     //ヘッダ部を除いた設定のブロック数
     int         block_size[CONF_BLOCK_MAX];      //各ブロックのサイズ
     size_t      block_head_p[CONF_BLOCK_MAX];    //各ブロックのポインタ位置
-    CONF_X264   x264;                            //x264についての設定
+    CONF_X264   enc;                            //x264についての設定
     CONF_VIDEO  vid;                             //その他動画についての設定
     CONF_AUDIO  aud;                             //音声についての設定
     CONF_MUX    mux;                             //muxについての設定

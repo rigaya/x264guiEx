@@ -117,7 +117,7 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUI
     if (pe->afs_init || pe->video_out_type == VIDEO_OUTPUT_DISABLED || !conf->vid.afs)
         return TRUE;
 
-    const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth ? 16 : 8, conf->x264.output_csp, conf->vid.input_as_lw48);
+    const int color_format = get_aviutl_color_format(conf->enc.use_highbit_depth ? 16 : 8, conf->enc.output_csp, conf->vid.input_as_lw48);
     int buf_size;
     const int frame_size = calc_input_frame_size(oip->w, oip->h, color_format, buf_size);
     //Aviutl(自動フィールドシフト)からの映像入力
@@ -148,13 +148,13 @@ void close_afsvideo(PRM_ENC *pe) {
 
 static AUO_RESULT check_cmdex(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     DWORD ret = AUO_RESULT_SUCCESS;
-    const int color_format = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48); //現在の色形式を保存
+    const int color_format = get_aviutl_color_format(conf->enc.use_highbit_depth, conf->enc.output_csp, conf->vid.input_as_lw48); //現在の色形式を保存
     if (conf->oth.disable_guicmd)
-        get_default_conf_x264(&conf->x264, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
+        get_default_conf_x264(&conf->enc, FALSE); //CLIモード時はとりあえず、デフォルトを呼んでおく
     //cmdexを適用
-    set_cmd_to_conf(conf->vid.cmdex, &conf->x264);
+    set_cmd_to_conf(conf->vid.cmdex, &conf->enc);
 
-    if (color_format != get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)) {
+    if (color_format != get_aviutl_color_format(conf->enc.use_highbit_depth, conf->enc.output_csp, conf->vid.input_as_lw48)) {
         //cmdexで入力色形式が変更になる場合、再初期化
         close_afsvideo(pe);
         if (!setup_afsvideo(oip, sys_dat, conf, pe)) {
@@ -480,7 +480,7 @@ static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble
     } else {
         CONF_GUIEX cnf = *conf;
         //confに読み込ませ、読み取られなかった部分のみを得る
-        set_cmd_to_conf(cmd + cmd_len + 1, &cnf.x264, cmdex_len, TRUE);
+        set_cmd_to_conf(cmd + cmd_len + 1, &cnf.enc, cmdex_len, TRUE);
     }
 }
 
@@ -496,15 +496,15 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
     if (!prm.oth.disable_guicmd) {
         //cliモードでない
         //自動設定の適用
-        apply_guiEx_auto_settings(&prm.x264, oip->w, oip->h, oip->rate, oip->scale, sys_dat->exstg->s_local.auto_ref_limit_by_level);
+        apply_guiEx_auto_settings(&prm.enc, oip->w, oip->h, oip->rate, oip->scale, sys_dat->exstg->s_local.auto_ref_limit_by_level);
         //GUI部のコマンドライン生成
-        build_cmd_from_conf(cmd, nSize, &prm.x264, &prm.vid, FALSE);
+        build_cmd_from_conf(cmd, nSize, &prm.enc, &prm.vid, FALSE);
     }
     //cmdexのうち、読み取られなかったコマンドを追加する
     if (str_has_char(prm.vid.cmdex))
         append_cmdex(cmd, nSize, prm.vid.cmdex, prm.oth.disable_guicmd, conf);
     //メッセージの発行
-    if ((conf->x264.vbv_bufsize != 0 || conf->x264.vbv_maxrate != 0) && prm.vid.afs)
+    if ((conf->enc.vbv_bufsize != 0 || conf->enc.vbv_maxrate != 0) && prm.vid.afs)
         write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_VIDEO_AFS_VBV_WARN));
     //キーフレーム検出を行い、そのQPファイルが存在し、かつ--qpfileの指定がなければ、それをqpfileで読み込む
     char auoqpfile[MAX_PATH_LEN];
@@ -519,23 +519,23 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
     if (strcmp(input, PIPE_FN) == NULL)
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-res %dx%d", oip->w, oip->h);
     //rawの形式情報追加
-    sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_input_csp(prm.x264.output_csp));
+    sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_input_csp(prm.enc.output_csp));
     //fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
-    if (!prm.x264.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
+    if (!prm.enc.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
         int gcd = get_gcd(oip->rate, oip->scale);
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
     }
     //出力ファイル
-    const char * const outfile = (prm.x264.nul_out) ? "nul" : pe->temp_filename;
+    const char * const outfile = (prm.enc.nul_out) ? "nul" : pe->temp_filename;
     sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -o \"%s\"", outfile);
     //入力
     sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " \"%s\"", input);
 }
 
 static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_GUIEX *conf, int w, int h) {
-    const int byte_per_pixel = (conf->x264.use_highbit_depth) ? sizeof(short) : sizeof(BYTE);
+    const int byte_per_pixel = (conf->enc.use_highbit_depth) ? sizeof(short) : sizeof(BYTE);
     ZeroMemory(pixel_data, sizeof(CONVERT_CF_DATA));
-    switch (conf->x264.output_csp) {
+    switch (conf->enc.output_csp) {
         case OUT_CSP_NV16: //nv16 (YUV422)
             pixel_data->count = 2;
             pixel_data->size[0] = w * h * byte_per_pixel;
@@ -653,7 +653,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 
 static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     UINT64 filesize_limit = MAXUINT64;
-    if (conf->x264.use_auto_npass) {
+    if (conf->enc.use_auto_npass) {
         //上限ファイルサイズのチェック
         if (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) {
             filesize_limit = min(filesize_limit, (UINT64)(conf->vid.amp_limit_file_size*1024*1024));
@@ -767,14 +767,14 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     PathGetDirectory(x264dir, _countof(x264dir), sys_dat->exstg->s_enc.fullpath);
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
-    const int input_csp_idx = get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48);
-    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
+    const int input_csp_idx = get_aviutl_color_format(conf->enc.use_highbit_depth, conf->enc.output_csp, conf->vid.input_as_lw48);
+    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->enc.use_highbit_depth) ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
     if (convert_frame == NULL) {
-        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, (conf->x264.use_highbit_depth) ? 16 : 8, conf->x264.interlaced, conf->x264.output_csp);
+        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, (conf->enc.use_highbit_depth) ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
         return ret;
     }
     //映像バッファ用メモリ確保
-    if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->x264.output_csp, (conf->x264.use_highbit_depth) ? 16 : 8)) {
+    if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->enc.output_csp, (conf->enc.use_highbit_depth) ? 16 : 8)) {
         ret |= AUO_RESULT_ERROR; error_malloc_pixel_data();
         return ret;
     }
@@ -796,7 +796,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_enc.fullpath, x264cmd);
     remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
 
-    if (conf->vid.afs && conf->x264.interlaced) {
+    if (conf->vid.afs && conf->enc.interlaced) {
         ret |= AUO_RESULT_ERROR; error_afs_interlace_stg();
     //jitter用領域確保
     } else if ((jitter = (int *)calloc(oip->n + 1, sizeof(int))) == NULL) {
@@ -817,7 +817,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         int *next_jitter = NULL;
         UINT64 amp_filesize_limit = (UINT64)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
         BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
-        const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->x264.use_highbit_depth, conf->x264.output_csp, conf->vid.input_as_lw48)].FOURCC;
+        const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->enc.use_highbit_depth, conf->enc.output_csp, conf->vid.input_as_lw48)].FOURCC;
         double time_get_frame = 0.0;
         int64_t qp_freq, qp_start, qp_end;
         QueryPerformanceFrequency((LARGE_INTEGER *)&qp_freq);
@@ -1064,7 +1064,7 @@ static void set_window_title_x264(const PRM_ENC *pe) {
 }
 
 static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-    if (!(conf->x264.use_auto_npass && conf->x264.rc_mode == X264_RC_BITRATE) || !conf->vid.amp_check)
+    if (!(conf->enc.use_auto_npass && conf->enc.rc_mode == X264_RC_BITRATE) || !conf->vid.amp_check)
         return AUO_RESULT_SUCCESS; //上限確認付きcrfはここで抜ける
     //音声ファイルサイズ取得
     double aud_bitrate = 0.0;
@@ -1128,27 +1128,27 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
         error_amp_target_bitrate_too_small(target_limit);
         return AUO_RESULT_ERROR;
     }
-    const int bitrate_vid_old = conf->x264.bitrate;
+    const int bitrate_vid_old = conf->enc.bitrate;
     //まず上限のほうをチェック、下限設定よりも優先させる
     //計算されたビットレートが目標ビットレートを上回っていたら、目標ビットレートを変更する
     //conf->x264.bitrate = -1は自動であるが、
     //これをDWORDとして扱うことでUINT_MAX扱いとし、自動的に反映する
-    if (required_vid_bitrate_upper < (double)((DWORD)conf->x264.bitrate)) {
+    if (required_vid_bitrate_upper < (double)((DWORD)conf->enc.bitrate)) {
         //下限のほうもぎりぎり超えないよう確認
         const double limit_bitrate_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->vid.amp_limit_bitrate_lower - aud_bitrate : 0.0;
-        conf->x264.bitrate = (int)((std::max)(required_vid_bitrate_upper, limit_bitrate_lower) + 0.5);
+        conf->enc.bitrate = (int)((std::max)(required_vid_bitrate_upper, limit_bitrate_lower) + 0.5);
     } else {
         //あとから下限のほうもチェック
         const double required_vid_bitrate_lower = get_amp_margin_bitrate(conf->vid.amp_limit_bitrate_lower - aud_bitrate, (std::max)(-0.2, -4.0 * sys_dat->exstg->s_local.amp_bitrate_margin_multi));
-        if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && conf->x264.bitrate < required_vid_bitrate_lower) {
+        if ((conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) && conf->enc.bitrate < required_vid_bitrate_lower) {
             //上限のほうもぎりぎり超えないよう確認
             const double limit_bitrate_upper = (target_limit) ? required_file_bitrate - aud_bitrate : DBL_MAX;
-            conf->x264.bitrate = (int)((std::min)(required_vid_bitrate_lower, limit_bitrate_upper) + 0.5);
+            conf->enc.bitrate = (int)((std::min)(required_vid_bitrate_lower, limit_bitrate_upper) + 0.5);
         }
     }
     //ビットレートを変更したらメッセージ
-    if (bitrate_vid_old != conf->x264.bitrate) {
-        warning_amp_change_bitrate(bitrate_vid_old, conf->x264.bitrate, target_limit);
+    if (bitrate_vid_old != conf->enc.bitrate) {
+        warning_amp_change_bitrate(bitrate_vid_old, conf->enc.bitrate, target_limit);
     }
     return AUO_RESULT_SUCCESS;
 }
@@ -1174,21 +1174,21 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
     }
 
     for (; !ret && pe->current_pass <= pe->total_pass; pe->current_pass++) {
-        if (conf->x264.use_auto_npass) {
+        if (conf->enc.use_auto_npass) {
             //自動npass出力
             switch (pe->current_pass) {
                 case 1:
-                    conf->x264.pass = 1;
+                    conf->enc.pass = 1;
                     break;
                 case 2:
                     if (conf->vid.afs && conf->vid.afs_bitrate_correction)
-                        conf->x264.bitrate = (conf->x264.bitrate * oip->n) / (oip->n - pe->drop_count);
+                        conf->enc.bitrate = (conf->enc.bitrate * oip->n) / (oip->n - pe->drop_count);
                     //下へフォールスルー
                 default:
                     open_log_window(oip->savefile, sys_dat, pe->current_pass, pe->total_pass);
                     if (pe->current_pass == pe->total_pass)
-                        conf->x264.nul_out = FALSE;
-                    conf->x264.pass = 3;
+                        conf->enc.nul_out = FALSE;
+                    conf->enc.pass = 3;
                     break;
             }
         }
