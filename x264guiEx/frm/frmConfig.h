@@ -5070,7 +5070,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
              NU->Select(0, NU->Text->Length);
          }
     private:
-        System::Void setComboBox(ComboBox^ CX, const X264_OPTION_STR * list) {
+        System::Void setComboBox(ComboBox^ CX, const ENC_OPTION_STR * list) {
             CX->BeginUpdate();
             const int prevIdx = CX->SelectedIndex;
             CX->Items->Clear();

@@ -240,7 +240,7 @@ const int x264_encmode_to_passint[] = {
     NULL
 };
 
-static const X264_OPTION_STR x264_encodemode_desc[] = {
+static const ENC_OPTION_STR x264_encodemode_desc[] = {
     { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_CBR,     L"シングルパス - ビットレート指定"        },
     { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_QP,      L"シングルパス - 固定量子化量"            },
     { NULL, AUO_CONFIG_CX_X264_ENCMODE_SINGLE_CRF,     L"シングルパス - 品質基準VBR(可変レート)" },
@@ -251,39 +251,39 @@ static const X264_OPTION_STR x264_encodemode_desc[] = {
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR aspect_desc[] = {
+static const ENC_OPTION_STR aspect_desc[] = {
     { NULL, AUO_CONFIG_CX_ASPECT_SAR, L"SAR比を指定 (デフォルト)" },
     { NULL, AUO_CONFIG_CX_ASPECT_DAR, L"画面比から自動計算"       },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR tempdir_desc[] = {
+static const ENC_OPTION_STR tempdir_desc[] = {
     { NULL, AUO_CONFIG_CX_TEMPDIR_OUTDIR, L"出力先と同じフォルダ (デフォルト)" },
     { NULL, AUO_CONFIG_CX_TEMPDIR_SYSTEM, L"システムの一時フォルダ"            },
     { NULL, AUO_CONFIG_CX_TEMPDIR_CUSTOM, L"カスタム"                          },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR audtempdir_desc[] = {
+static const ENC_OPTION_STR audtempdir_desc[] = {
     { NULL, AUO_CONFIG_CX_AUDTEMP_DEFAULT, L"変更しない" },
     { NULL, AUO_CONFIG_CX_AUDTEMP_CUSTOM,  L"カスタム"   },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR mp4boxtempdir_desc[] = {
+static const ENC_OPTION_STR mp4boxtempdir_desc[] = {
     { NULL, AUO_CONFIG_CX_MP4BOXTEMP_DEFAULT, L"指定しない" },
     { NULL, AUO_CONFIG_CX_MP4BOXTEMP_CUSTOM,  L"カスタム"   },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR interlaced_desc[] = {
+static const ENC_OPTION_STR interlaced_desc[] = {
     { NULL, AUO_CONFIG_CX_INTERLACE_PROGRESSIVE, L"プログレッシブ" },
     { NULL, AUO_CONFIG_CX_INTERLACE_TFF,         L"インタレ (tff)" },
     { NULL, AUO_CONFIG_CX_INTERLACE_BFF,         L"インタレ (bff)" },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
 
-static const X264_OPTION_STR audio_enc_timing_desc[] = {
+static const ENC_OPTION_STR audio_enc_timing_desc[] = {
     { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_AFTER,    L"後"   },
     { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_BEFORE,   L"前"   },
     { NULL, AUO_CONFIG_CX_AUD_ENC_ORDER_PARALLEL, L"同時" },

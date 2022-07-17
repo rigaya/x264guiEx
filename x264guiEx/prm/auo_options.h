@@ -92,39 +92,39 @@ static const char * const specify_csp[] = {
 };
 //文字列を引数にとるオプションの引数リスト
 //OUT_CSP_NV12, OUT_CSP_YUV444, OUT_CSP_RGB に合わせる
-const X264_OPTION_STR list_output_csp[] = {
+const ENC_OPTION_STR list_output_csp[] = {
     { "i420", AUO_MES_UNKNOWN, L"i420" },
     { "i422", AUO_MES_UNKNOWN, L"i422" },
     { "i444", AUO_MES_UNKNOWN, L"i444" },
     { "rgb",  AUO_MES_UNKNOWN, L"rgb"  },
     { NULL,   AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_aq[] = { 
+const ENC_OPTION_STR list_aq[] = { 
     { NULL, AUO_MES_UNKNOWN, L"none"    },
     { NULL, AUO_MES_UNKNOWN, L"VAQ"     },
     { NULL, AUO_MES_UNKNOWN, L"AutoVAQ" },
     { NULL, AUO_MES_UNKNOWN, L"MixAQ"   },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_weightp[] = { 
+const ENC_OPTION_STR list_weightp[] = { 
     { NULL, AUO_MES_UNKNOWN, L"Disabled" }, 
     { NULL, AUO_MES_UNKNOWN, L"Simple"   }, 
     { NULL, AUO_MES_UNKNOWN, L"Smart"    }, 
     { NULL, AUO_MES_UNKNOWN, NULL } 
 };
-const X264_OPTION_STR list_b_adpat[] = {
+const ENC_OPTION_STR list_b_adpat[] = {
     { NULL, AUO_OPTION_BADAPT_DISABLED, L"無効" },
     { NULL, AUO_OPTION_BADAPT_SIMPLE,   L"簡易" },
     { NULL, AUO_OPTION_BADAPT_FULL,     L"完全" },
     { NULL, AUO_MES_UNKNOWN,            NULL }
 };
-const X264_OPTION_STR list_trellis[] = {
+const ENC_OPTION_STR list_trellis[] = {
     { NULL, AUO_MES_UNKNOWN, L"Disabled"        },
     { NULL, AUO_MES_UNKNOWN, L"Final MB encode" },
     { NULL, AUO_MES_UNKNOWN, L"All"             },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_me[] = {
+const ENC_OPTION_STR list_me[] = {
     { "dia",  AUO_OPTION_ME_DIA,  L"Diamond Search (高速)" },
     { "hex",  AUO_OPTION_ME_HEX,  L"Hexagonal Search"      },
     { "umh",  AUO_OPTION_ME_UMH,  L"Uneven Multi-Hexagon"  },
@@ -132,7 +132,7 @@ const X264_OPTION_STR list_me[] = {
     { "tesa", AUO_OPTION_ME_TESA, L"Hadamard ESA (低速)"   },
     { NULL,   AUO_MES_UNKNOWN,    NULL }
 };
-const X264_OPTION_STR list_subme[] = {
+const ENC_OPTION_STR list_subme[] = {
     { NULL, AUO_OPTION_SUBME_00, L" 0 (fullpell only)"                },
     { NULL, AUO_OPTION_SUBME_01, L" 1 (高速)"                         },
     { NULL, AUO_OPTION_SUBME_02, L" 2"                                },
@@ -147,24 +147,24 @@ const X264_OPTION_STR list_subme[] = {
     { NULL, AUO_OPTION_SUBME_11, L"11 (Full RD)"                      },
     { NULL, AUO_MES_UNKNOWN,     NULL }
 };
-const X264_OPTION_STR list_direct[] = {
+const ENC_OPTION_STR list_direct[] = {
     { "none",     AUO_MES_UNKNOWN, L"none"     },
     { "spatial",  AUO_MES_UNKNOWN, L"spatial"  },
     { "temporal", AUO_MES_UNKNOWN, L"temporal" },
     { "auto",     AUO_MES_UNKNOWN, L"auto"     },
     { NULL,       AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_cqm[] = {
+const ENC_OPTION_STR list_cqm[] = {
     { "flat", AUO_MES_UNKNOWN, NULL },
     { "jvt",  AUO_MES_UNKNOWN, NULL },
     { NULL,   AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_input_range[] = {
+const ENC_OPTION_STR list_input_range[] = {
     { "auto", AUO_MES_UNKNOWN, L"auto" },
     { "pc",   AUO_MES_UNKNOWN, L"pc" },
     { NULL,   AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_colorprim[] = {
+const ENC_OPTION_STR list_colorprim[] = {
     { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
     { "auto",      AUO_OPTION_VUI_AUTO, L"自動"      },
     { "bt709",     AUO_MES_UNKNOWN, L"bt709"     },
@@ -179,7 +179,7 @@ const X264_OPTION_STR list_colorprim[] = {
     { "smpte432",  AUO_MES_UNKNOWN, L"smpte432"  },
     { NULL,        AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_transfer[] = {
+const ENC_OPTION_STR list_transfer[] = {
     { "undef",        AUO_OPTION_VUI_UNDEF, L"指定なし" },
     { "auto",         AUO_OPTION_VUI_AUTO, L"自動"      },
     { "bt709",        AUO_MES_UNKNOWN, L"bt709"        },
@@ -200,7 +200,7 @@ const X264_OPTION_STR list_transfer[] = {
     { "arib-std-b67", AUO_MES_UNKNOWN, L"arib-std-b67" },
     { NULL, AUO_MES_UNKNOWN,NULL }
 };
-const X264_OPTION_STR list_colormatrix[] = {
+const ENC_OPTION_STR list_colormatrix[] = {
     { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
     { "auto",      AUO_OPTION_VUI_AUTO, L"自動"      },
     { "bt709",     AUO_MES_UNKNOWN, L"bt709"     },
@@ -218,7 +218,7 @@ const X264_OPTION_STR list_colormatrix[] = {
     { "ICtCp",     AUO_MES_UNKNOWN, L"ICtCp" },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_videoformat[] = {
+const ENC_OPTION_STR list_videoformat[] = {
     { "undef",     AUO_OPTION_VUI_UNDEF, L"指定なし"  },
     { "ntsc",      AUO_MES_UNKNOWN, L"ntsc"      },
     { "component", AUO_MES_UNKNOWN, L"component" },
@@ -227,7 +227,7 @@ const X264_OPTION_STR list_videoformat[] = {
     { "mac",       AUO_MES_UNKNOWN, L"mac"       },
     { NULL, AUO_MES_UNKNOWN, NULL } 
 };
-const X264_OPTION_STR list_log_type[] = {
+const ENC_OPTION_STR list_log_type[] = {
     { "none",    AUO_MES_UNKNOWN, L"none"    },
     { "error",   AUO_MES_UNKNOWN, L"error"   },
     { "warning", AUO_MES_UNKNOWN, L"warning" },
@@ -235,13 +235,13 @@ const X264_OPTION_STR list_log_type[] = {
     { "debug",   AUO_MES_UNKNOWN, L"debug"   },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_b_pyramid[] = {
+const ENC_OPTION_STR list_b_pyramid[] = {
     { "none",   AUO_MES_UNKNOWN, L"none"   },
     { "strict", AUO_MES_UNKNOWN, L"strict" },
     { "normal", AUO_MES_UNKNOWN, L"normal" },
     { NULL, AUO_MES_UNKNOWN, NULL }
 };
-const X264_OPTION_STR list_nal_hrd[] = {
+const ENC_OPTION_STR list_nal_hrd[] = {
     { "none",   AUO_MES_UNKNOWN, L"none" },
     { "vbr",    AUO_MES_UNKNOWN, L"vbr"  },
     { "cbr",    AUO_MES_UNKNOWN, L"cbr"  },
@@ -359,7 +359,7 @@ typedef struct {
     char *long_name;
     char *short_name;
     DWORD type;
-    const X264_OPTION_STR *list;
+    const ENC_OPTION_STR *list;
     size_t p_offset;
 } X264_OPTIONS;
 
@@ -391,9 +391,9 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const v
 void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height);
 void set_guiEx_auto_keyint(CONF_X264 *cx, int fps_num, int fps_den);
 void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level);
-const X264_OPTION_STR * get_option_list(const char *option_name);
+const ENC_OPTION_STR * get_option_list(const char *option_name);
 void set_ex_stg_ptr(guiEx_settings *_ex_stg);
 int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize);
-int get_list_index(const X264_OPTION_STR *list, const char *name);
+int get_list_index(const ENC_OPTION_STR *list, const char *name);
 
 #endif //_AUO_OPTIONS_H_

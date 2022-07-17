@@ -130,7 +130,7 @@ enum {
     AUDIO_DELAY_CUT_EDTS         = 3, //音声エンコード遅延の削除をedtsを用いて行う
 };
 
-static const X264_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
+static const ENC_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
     { NULL, AUO_CONF_AUDIO_DELAY_NONE,      L"補正なし"   },
     { NULL, AUO_CONF_AUDIO_DELAY_CUT_AUDIO, L"音声カット" },
     { NULL, AUO_CONF_AUDIO_DELAY_ADD_VIDEO, L"映像追加"   },

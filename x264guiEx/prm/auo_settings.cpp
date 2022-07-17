@@ -563,8 +563,8 @@ void guiEx_settings::load_x264_cmd(X264_CMD *x264cmd, int *count, int *default_i
     wchar_t *desc = s_x264_mc.SetPrivateProfileWString(section, "name", "", ini_fileName, codepage_ini);
     s_x264_mc.CutMem(sizeof(desc[0]));
     *count = countchr(desc, ',') + 1;
-    x264cmd->name = (X264_OPTION_STR *)s_x264_mc.CutMem(sizeof(X264_OPTION_STR) * (*count + 1));
-    ZeroMemory(x264cmd->name, sizeof(X264_OPTION_STR) * (*count + 1));
+    x264cmd->name = (ENC_OPTION_STR *)s_x264_mc.CutMem(sizeof(ENC_OPTION_STR) * (*count + 1));
+    ZeroMemory(x264cmd->name, sizeof(ENC_OPTION_STR) * (*count + 1));
     x264cmd->cmd = (char **)s_x264_mc.CutMem(sizeof(char *) * (*count + 1));
 
     x264cmd->name[0].desc = desc;

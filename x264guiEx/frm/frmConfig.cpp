@@ -2101,7 +2101,7 @@ System::Void frmConfig::SetAllCheckChangedEvents(Control ^top) {
 }
 
 System::Void frmConfig::SetHelpToolTipsColorMatrix(Control^ control, const char *type) {
-    const X264_OPTION_STR *list = get_option_list(type);
+    const ENC_OPTION_STR *list = get_option_list(type);
     fcgTTX264->SetToolTip(control,      L"--" + String(type).ToString() + L"\n"
         + LOAD_CLI_STRING(AuofrmTTColorMatrix1) + L"\n"
         + LOAD_CLI_STRING(AuofrmTTColorMatrix2) + L"\n"

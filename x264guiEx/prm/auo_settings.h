@@ -101,11 +101,11 @@ static const double DEFAULT_FBC_INITIAL_SIZE         = 39.8;
 static const char  *DEFAULT_EXE_DIR                  = "exe_files";
 static const char  *AUO_CHECK_FILEOPEN_NAME          = "auo_check_fileopen.exe";
 
-typedef struct {
-    char *name;  //x264でのオプション名
+typedef struct ENC_OPTION_STR {
+    char *name; //エンコーダでのオプション名
     AuoMes mes;  //GUIでの表示用
     WCHAR *desc; //GUIでの表示用
-} X264_OPTION_STR;
+} ENC_OPTION_STR;
 
 const int FAW_INDEX_ERROR = -1;
 
@@ -280,7 +280,7 @@ typedef struct MUXER_SETTINGS {
 } MUXER_SETTINGS;
 
 typedef struct ENC_CMD {
-    X264_OPTION_STR *name;  //各種設定用x264コマンドの名前(配列、最後はnull)
+    ENC_OPTION_STR *name;  //各種設定用x264コマンドの名前(配列、最後はnull)
     char **cmd;   //各種設定用x264コマンド(配列、最後はnull)
 } X264_CMD;
 

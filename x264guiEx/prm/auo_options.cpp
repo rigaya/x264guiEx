@@ -291,7 +291,7 @@ static BOOL x264guiEx_parse_float(float *f, const char *value, DWORD len) {
 #pragma warning( push )
 #pragma warning( disable: 4100 )
 
-static BOOL set_bool(void *b, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool(void *b, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (value) {
         int i = -1;
@@ -304,7 +304,7 @@ static BOOL set_bool(void *b, const char *value, const X264_OPTION_STR *list) {
     return ret;
 }
 
-static BOOL set_bool_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool_reverse(void *b, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (value) {
         int i = -1;
@@ -316,15 +316,15 @@ static BOOL set_bool_reverse(void *b, const char *value, const X264_OPTION_STR *
     }
     return ret;
 }
-static BOOL set_int(void *i, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_int(void *i, const char *value, const ENC_OPTION_STR *list) {
     return x264guiEx_parse_int((int *)i, value, NULL);
 }
 
-static BOOL set_float(void *f, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_float(void *f, const char *value, const ENC_OPTION_STR *list) {
     return x264guiEx_parse_float((float *)f, value, NULL);
 }
 
-static BOOL set_int2(void *i, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_int2(void *i, const char *value, const ENC_OPTION_STR *list) {
     const size_t len = strlen(value);
     //一度値をコピーして分析
     BOOL ret = FALSE;
@@ -341,7 +341,7 @@ static BOOL set_int2(void *i, const char *value, const X264_OPTION_STR *list) {
     return ret;
 }
 
-static BOOL set_bool2_reverse(void *b, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_bool2_reverse(void *b, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (value) {
         INT2 i_value = { 0, 0 };
@@ -356,7 +356,7 @@ static BOOL set_bool2_reverse(void *b, const char *value, const X264_OPTION_STR 
     return TRUE;
 }
 
-static BOOL set_float2(void *f, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_float2(void *f, const char *value, const ENC_OPTION_STR *list) {
     const size_t len = strlen(value);
     BOOL ret = FALSE;
     for (size_t j = 0; j < len; j++) {
@@ -372,7 +372,7 @@ static BOOL set_float2(void *f, const char *value, const X264_OPTION_STR *list) 
     return ret;
 }
 
-static BOOL set_list(void *i, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_list(void *i, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = FALSE;
     for (int j = 0; list[j].name; j++) {
         if (_stricmp(value, list[j].name) == NULL) {
@@ -398,27 +398,27 @@ static BOOL set_list(void *i, const char *value, const X264_OPTION_STR *list) {
     }
     return ret; 
 }
-static BOOL set_crf(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_crf(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
     float f = 23.0f;
     x264guiEx_strtof(&f, value, NULL);
     ((CONF_X264 *)cx)->crf = (int)(f * 100 + 0.5);
     return TRUE;
 }
-static BOOL set_bitrate(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_bitrate(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
     return x264guiEx_strtol(&((CONF_X264 *)cx)->bitrate, value, NULL);
 }
-static BOOL set_qp(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_qp(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->rc_mode = X264_RC_QP;
     return x264guiEx_strtol(&((CONF_X264 *)cx)->qp, value, NULL);
 }
-static BOOL set_keyint(void *i, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_keyint(void *i, const char *value, const ENC_OPTION_STR *list) {
     if ((*(int*)i = _stricmp(value, "infinite")) != NULL)
         return x264guiEx_parse_int((int *)i, value, NULL);
     return TRUE;
 }
-static BOOL set_deblock(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_deblock(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = FALSE;
     int a, b, c;
     if (3 == sscanf_s(value, "%d:%d:%d", &a, &b, &c)) {
@@ -433,15 +433,15 @@ static BOOL set_deblock(void *cx, const char *value, const X264_OPTION_STR *list
             ((CONF_X264 *)cx)->use_deblock = TRUE;
     return ret;
 }
-static BOOL set_input_depth(void *b, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_input_depth(void *b, const char *value, const ENC_OPTION_STR *list) {
     *(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
     return TRUE;
 }
-static BOOL set_output_depth(void *b, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_output_depth(void *b, const char *value, const ENC_OPTION_STR *list) {
     *(BOOL*)b = (atoi(value) > 8) ? TRUE : FALSE;
     return TRUE;
 }
-static BOOL set_mb_partitions(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_mb_partitions(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     *(DWORD*)cx = MB_PARTITION_NONE;
     if (stristr(value, "all")) {
@@ -472,21 +472,21 @@ static BOOL set_mb_partitions(void *cx, const char *value, const X264_OPTION_STR
     }
     return ret;
 }
-static BOOL set_tff(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_tff(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->interlaced = TRUE;
     ((CONF_X264 *)cx)->tff = TRUE;
     return TRUE;
 }
-static BOOL set_bff(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_bff(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->interlaced = TRUE;
     ((CONF_X264 *)cx)->tff = FALSE;
     return TRUE;
 }
-static BOOL set_timebase(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_timebase(void *cx, const char *value, const ENC_OPTION_STR *list) {
     ((CONF_X264 *)cx)->use_timebase = TRUE;
     return set_int2(&((CONF_X264 *)cx)->timebase, value, list);
 }
-static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_level(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = FALSE;
     size_t len = strlen(value);
     const char *tmp = value + len - 1;
@@ -524,7 +524,7 @@ static BOOL set_level(void *cx, const char *value, const X264_OPTION_STR *list) 
     }
     return ret;
 }
-static BOOL set_analyse(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_analyse(void *cx, const char *value, const ENC_OPTION_STR *list) {
     INT2 i_val = { 0, 0 };
     BOOL ret = set_int2(&i_val, value, list);
     if (ret) {
@@ -537,7 +537,7 @@ static BOOL set_analyse(void *cx, const char *value, const X264_OPTION_STR *list
     }
     return ret; 
 }
-static BOOL set_rc(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_rc(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (NULL == strncmp(value, "2pass", strlen("2pass"))) {
         ((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
@@ -556,7 +556,7 @@ static BOOL set_rc(void *cx, const char *value, const X264_OPTION_STR *list) {
     }
     return ret; 
 }
-static BOOL set_aq(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_aq(void *cx, const char *value, const ENC_OPTION_STR *list) {
     FLOAT2 f_val = { 0, 0 };
     BOOL ret = set_float2(&f_val, value, list);
     if (ret) {
@@ -565,7 +565,7 @@ static BOOL set_aq(void *cx, const char *value, const X264_OPTION_STR *list) {
     }
     return ret; 
 }
-static BOOL set_interlaced(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_interlaced(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (!value) {
         ((CONF_X264 *)cx)->interlaced = TRUE;
@@ -584,7 +584,7 @@ static BOOL set_interlaced(void *cx, const char *value, const X264_OPTION_STR *l
     }
     return ret; 
 }
-static BOOL set_psy(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_psy(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (value) {
         if (NULL == strcmp(value, "0")) {
@@ -598,7 +598,7 @@ static BOOL set_psy(void *cx, const char *value, const X264_OPTION_STR *list) {
     }
     return ret;
 }
-static BOOL set_do_nothing(void *cx, const char *value, const X264_OPTION_STR *list) {
+static BOOL set_do_nothing(void *cx, const char *value, const ENC_OPTION_STR *list) {
     return FALSE;
 }
 
@@ -790,7 +790,7 @@ static int write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *options
 #pragma warning( pop ) //( disable: 4100 ) 終了
 
 //この配列に従って各関数に飛ばされる
-typedef BOOL (*SET_VALUE) (void *cx, const char *value, const X264_OPTION_STR *list);
+typedef BOOL (*SET_VALUE) (void *cx, const char *value, const ENC_OPTION_STR *list);
 const SET_VALUE set_value[] = {
     NULL,
     set_bool,
@@ -1186,7 +1186,7 @@ void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num
     set_guiEx_auto_ref_limit_by_level(cx, width, height, fps_num, fps_den, ref_limit_by_level);
 }
 
-const X264_OPTION_STR * get_option_list(const char *option_name) {
+const ENC_OPTION_STR * get_option_list(const char *option_name) {
     for (int i = 0; x264_options_table[i].long_name; i++)
         if (x264_options_table[i].type == OPTION_TYPE_LIST || x264_options_table[i].type == OPTION_TYPE_INT)
             if (strcmp(x264_options_table[i].long_name, option_name) == NULL)
@@ -1232,7 +1232,7 @@ int get_option_value(const char *cmd_src, const char *target_option_name, char *
     return ret;
 }
 
-int get_list_index(const X264_OPTION_STR *list, const char *name) {
+int get_list_index(const ENC_OPTION_STR *list, const char *name) {
     for (int i = 0; list[i].name; i++) {
         if (stristr(list[i].name, name)) {
             return i;

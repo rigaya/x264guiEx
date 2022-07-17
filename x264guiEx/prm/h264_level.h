@@ -35,7 +35,7 @@
 
 #if ENCODER_X264
 
-static const X264_OPTION_STR list_x264guiEx_level[] = {
+static const ENC_OPTION_STR list_x264guiEx_level[] = {
     { "auto", AUO_OPTION_LEVEL_AUTO, L"自動" },
     { "1",    AUO_MES_UNKNOWN, L"1"    },
     { "1b",   AUO_MES_UNKNOWN, L"1b"   },
