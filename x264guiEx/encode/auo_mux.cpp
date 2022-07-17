@@ -236,19 +236,11 @@ static void build_aud_mux_cmd(char *audstr, size_t nSize, const char *aud_cmd, D
     }
 }
 
-static bool check_enable_tc_mux(const CONF_GUIEX *conf, const MUXER_SETTINGS *mux_stg) {
-#if ENCODER_SVTAV1
-    return ((conf->vid.afs && !conf->vid.afs_24fps) != 0) && str_has_char(mux_stg->tc_cmd);
-#else
-    return ((conf->vid.afs) != 0) && str_has_char(mux_stg->tc_cmd);
-#endif
-}
-
 static AUO_RESULT build_mux_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe,
                           const SYSTEM_DATA *sys_dat, const MUXER_SETTINGS *mux_stg, UINT64 expected_filesize,
                           BOOL enable_vid_mux, DWORD enable_aud_mux, BOOL enable_chap_mux) {
     strcpy_s(cmd, nSize, mux_stg->base_cmd);
-    const bool enable_tc_mux = check_enable_tc_mux(conf, mux_stg);
+    const BOOL enable_tc_mux = is_afsvfr(conf) && str_has_char(mux_stg->tc_cmd);
     const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_mux_excmd_mode(conf, pe)];
     const char *vidstr = (enable_vid_mux) ? mux_stg->vid_cmd : "";
     const char *tcstr  = (enable_tc_mux) ? mux_stg->tc_cmd : "";
@@ -441,9 +433,6 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
         //これを回避するため、多重音声では各音声をmuxer.exeでmp4に格納してから、remuxer.exeで多重化する
         || pe->aud_count > 1;
     BOOL  enable_chap_mux = TRUE;
-
-    const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
-
     //事前muxが必要なら実行 (L-SMASH remuxerの前のmuxer)
     if (pe->muxer_to_be_used == MUXER_TC2MP4 && video_to_mux_is_raw(pe, sys_dat)) {
         //mp4に格納された動画が必要
@@ -462,7 +451,7 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
             for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
                 if (0 != (enable_aud_mux = audio_to_mux_is_raw(pe, sys_dat, MODE_ONE | (0x01 << i_aud)) << i_aud))
                     break;
-    } else if ((check_enable_tc_mux(conf, mux_stg) //自動フィールドシフト(timelineeditor)使用時のみ、個別のmuxが必要となる (timelienedtior実行後、post_muxでここを通る)
+    } else if ((is_afsvfr(conf) //自動フィールドシフト(timelineeditor)使用時のみ、個別のmuxが必要となる (timelienedtior実行後、post_muxでここを通る)
                 || aud_use_remuxer)
         && muxer_is_remux_only(pe, sys_dat)) {
         //mp4用muxer(初期状態)で、動画・音声ともrawなら、raw用muxerに完全に切り替える
@@ -482,7 +471,7 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
                     if (AUO_RESULT_SUCCESS != (ret |= run_mux_as(conf, oip, pe, sys_dat, MUXER_MP4_RAW)))
                         return ret;
         }
-    } else if (pe->muxer_to_be_used == MUXER_MP4 && !(check_enable_tc_mux(conf, mux_stg) || aud_use_remuxer) && str_has_char(sys_dat->exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
+    } else if (pe->muxer_to_be_used == MUXER_MP4 && !(is_afsvfr(conf) || aud_use_remuxer) && str_has_char(sys_dat->exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
         //自動フィールドシフト(timelineeditor)使用時以外は、remuxerを使用しなくても良くなった
         //なので、単純に使用するmuxerをmuxer.exeに切り替え
         pe->muxer_to_be_used = MUXER_MP4_RAW;
@@ -492,6 +481,8 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
     }
 
     //mux処理の開始
+    const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[pe->muxer_to_be_used];
+
     if (!PathFileExists(mux_stg->fullpath)) {
         ret |= AUO_RESULT_ERROR; error_no_exe_file(mux_stg->dispname, mux_stg->fullpath);
         return ret;

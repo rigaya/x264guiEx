@@ -54,6 +54,8 @@ int get_total_path(const CONF_GUIEX *conf);
 void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat);
 void free_enc_prm(PRM_ENC *pe);
 
+bool is_afsvfr(const CONF_GUIEX *conf);
+
 int additional_vframe_for_aud_delay_cut(double fps, int audio_rate, int audio_delay);
 int additional_silence_for_aud_delay_cut(double fps, int audio_rate, int audio_delay, int vframe_added = -1);
 BOOL fps_after_afs_is_24fps(const int frame_n, const PRM_ENC *pe);

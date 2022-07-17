@@ -265,6 +265,14 @@ static BOOL check_muxer_matched_with_ini(const MUXER_SETTINGS *mux_stg) {
     return ret;
 }
 
+bool is_afsvfr(const CONF_GUIEX *conf) {
+#if ENCODER_SVTAV1
+    return (conf->vid.afs != 0 && !conf->vid.afs_24fps);
+#else
+    return conf->vid.afs != 0;
+#endif
+}
+
 static BOOL check_amp(CONF_GUIEX *conf) {
     BOOL check = TRUE;
     if (!conf->enc.use_auto_npass)
@@ -1076,7 +1084,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
     //qpファイル
     move_temp_file(pe->append.qp,   pe->temp_filename, oip->savefile, ret, !sys_dat->exstg->s_local.keep_qp_file, L"qp", FALSE);
     //tcファイル
-    BOOL erase_tc = conf->vid.afs && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
+    BOOL erase_tc = is_afsvfr(conf) && !conf->vid.auo_tcfile_out && pe->muxer_to_be_used != MUXER_DISABLED;
     move_temp_file(pe->append.tc,   pe->temp_filename, oip->savefile, ret, erase_tc, g_auo_mes.get(AUO_ENCODE_TC_FILE), FALSE);
     //チャプターファイル
     if (pe->muxer_to_be_used >= 0) {
@@ -1154,7 +1162,7 @@ int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, c
 
     int muxer_to_be_used = MUXER_DISABLED;
     if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
-        muxer_to_be_used = (conf->vid.afs) ? MUXER_TC2MP4 : MUXER_MP4;
+        muxer_to_be_used = is_afsvfr(conf) ? MUXER_TC2MP4 : MUXER_MP4;
     else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
         muxer_to_be_used = MUXER_MKV;
     else if (video_output_type == VIDEO_OUTPUT_MPEG2 && !conf->mux.disable_mpgext)
