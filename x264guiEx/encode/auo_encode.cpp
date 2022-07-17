@@ -492,20 +492,19 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     const auto exeFiles = find_exe_files(defaultExeDir, defaultExeDir2);
 
     //必要な実行ファイル
-    //x264
     if (!conf->oth.disable_guicmd && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!PathFileExists(exstg->s_enc.fullpath)) {
-            const auto targetExes = find_target_exe_files(ENCODER_NAME, exeFiles);
+            const auto targetExes = find_target_exe_files(ENCODER_APP_NAME, exeFiles);
             if (targetExes.size() > 0) {
-                const auto latestX264 = find_latest_videnc(targetExes);
+                const auto latestVidEnc = find_latest_videnc(targetExes);
                 if (exstg->s_local.get_relative_path) {
-                    GetRelativePathTo(exstg->s_enc.fullpath, _countof(exstg->s_enc.fullpath), latestX264.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                    GetRelativePathTo(exstg->s_enc.fullpath, _countof(exstg->s_enc.fullpath), latestVidEnc.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
                 } else {
-                    strcpy_s(exstg->s_enc.fullpath, latestX264.string().c_str());
+                    strcpy_s(exstg->s_enc.fullpath, latestVidEnc.string().c_str());
                 }
             }
             if (!PathFileExists(exstg->s_enc.fullpath)) {
-                error_no_exe_file(ENCODER_NAME_W, exstg->s_enc.fullpath);
+                error_no_exe_file(ENCODER_APP_NAME_W, exstg->s_enc.fullpath);
                 check = FALSE;
             }
         }
