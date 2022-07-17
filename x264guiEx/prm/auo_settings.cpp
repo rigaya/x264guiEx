@@ -320,7 +320,7 @@ BOOL guiEx_settings::get_init_success(BOOL no_message) {
         char mes[1024];
         char title[256];
         strcpy_s(mes, _countof(mes), AUO_NAME);
-        sprintf_s(PathFindExtension(mes), _countof(mes) - strlen(mes), 
+        sprintf_s(PathFindExtension(mes), _countof(mes) - strlen(mes),
             ".iniが存在しないか、iniファイルが古いです。\n%s を開始できません。\n"
             "iniファイルを更新してみてください。",
             AUO_FULL_NAME);
@@ -527,7 +527,7 @@ void guiEx_settings::load_mux() {
 
     static const int MUX_COUNT = 5;
     static const char * MUXER_TYPE[MUX_COUNT]    = { "MUXER_MP4", "MUXER_MKV", "MUXER_TC2MP4", "MUXER_MPG", "MUXER_MP4_RAW" };
-    static const char * MUXER_OUT_EXT[MUX_COUNT] = {      ".mp4",      ".mkv",         ".mp4",      ".mpg",          ".mp4" }; 
+    static const char * MUXER_OUT_EXT[MUX_COUNT] = {      ".mp4",      ".mkv",         ".mp4",      ".mpg",          ".mp4" };
 
     clear_mux();
 
@@ -686,8 +686,8 @@ void guiEx_settings::load_local() {
     s_local.amp_bitrate_margin_multi  = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  DEFAULT_AMP_MARGIN,            conf_fileName);
     s_local.amp_reenc_audio_multi     = GetPrivateProfileDouble(INI_SECTION_AMP,  "amp_reenc_audio_multi",     DEFAULT_AMP_REENC_AUDIO_MULTI, conf_fileName);
     s_local.amp_keep_old_file         = GetPrivateProfileInt(   INI_SECTION_AMP,  "amp_keep_old_file",         DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
-    s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);   
-    
+    s_local.amp_bitrate_margin_multi  = clamp(s_local.amp_bitrate_margin_multi, 0.0, 1.0);
+
     GetFontInfo(ini_section_main, "conf_font", &s_local.conf_font, conf_fileName);
 
     GetPrivateProfileStringStg(ini_section_main, "custom_tmp_dir",        "", s_local.custom_tmp_dir,        _countof(s_local.custom_tmp_dir),        conf_fileName, codepage_cnf);
