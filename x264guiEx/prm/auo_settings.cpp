@@ -206,6 +206,19 @@ void guiEx_settings::initialize(BOOL disable_loading) {
     initialize(disable_loading, NULL, NULL);
 }
 
+void guiEx_settings::convert_conf_if_necessary() {
+#if ENCODER_X265
+    if (0 == strcmp(ini_section_main, INI_SECTION_MAIN)) {
+        char buffer[32 * 1024] = { 0 };
+        if (   0 == GetPrivateProfileSection(INI_SECTION_MAIN,     buffer, sizeof(buffer), conf_fileName)
+            && 0 != GetPrivateProfileSection(INI_SECTION_MAIN_OLD, buffer, sizeof(buffer), conf_fileName)) {
+            WritePrivateProfileSection(INI_SECTION_MAIN,   buffer, conf_fileName);
+            WritePrivateProfileSection(INI_SECTION_MAIN_OLD, NULL, conf_fileName);
+        }
+    }
+#endif //#if ENCODER_X265
+}
+
 void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, const char *main_section) {
     s_aud_count = 0;
     s_mux_count = 0;
@@ -262,6 +275,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
         }
         init = check_inifile() && !disable_loading;
         GetPrivateProfileString(ini_section_main, "blog_url", "", blog_url, _countof(blog_url), ini_fileName);
+        convert_conf_if_necessary();
         if (init) {
             load_encode_stg();
             load_fn_replace();

@@ -404,7 +404,8 @@ private:
     BOOL s_enc_refresh;             //動画エンコーダ関連設定の再ロード
 
     void make_default_stg_dir(char *default_stg_dir, DWORD nSize); //プロファイル設定ファイルの保存場所の作成
-    BOOL check_inifile();            //iniファイルが読めるかテスト
+    BOOL check_inifile();             //iniファイルが読めるかテスト
+    void convert_conf_if_necessary(); //x265guiExβのconfファイルからx265guiExのconfファイルに変換
 
 public:
     static char blog_url[MAX_PATH_LEN];      //ブログページのurl
