@@ -1628,7 +1628,6 @@ void write_cached_lines(int log_level, const wchar_t *exename, LOG_CACHE *log_li
     if (buffer) free(buffer);
 }
 
-
 #include <tlhelp32.h>
 
 static bool check_parent(size_t check_pid, const size_t target_pid, const std::unordered_map<size_t, size_t>& map_pid) {
