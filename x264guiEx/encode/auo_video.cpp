@@ -972,7 +972,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     return ret;
 }
 
-BOOL check_x264_mp4_output(const char *exe_path, const char *temp_filename) {
+BOOL check_videnc_mp4_output(const char *exe_path, const char *temp_filename) {
     BOOL ret = FALSE;
     std::string exe_message;
     PROCESS_INFORMATION pi = { 0 };

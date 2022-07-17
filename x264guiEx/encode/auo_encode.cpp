@@ -55,8 +55,8 @@
 #include "auo_error.h"
 #include "auo_audio.h"
 #include "auo_faw2aac.h"
-#include "exe_version.h"
 #include "cpu_info.h"
+#include "exe_version.h"
 
 using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
 
@@ -784,16 +784,16 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     strcpy_s(pe->aud_temp_dir, GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
 
     //ファイル名置換を行い、一時ファイル名を作成
-    char filename_replace[MAX_PATH_LEN];
+    char filename_replace[MAX_PATH_LEN] = { 0 };
     strcpy_s(filename_replace, _countof(filename_replace), PathFindFileName(oip->savefile));
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
     if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
-        if (!check_x264_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
+        if (!check_videnc_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
-            change_ext(pe->temp_filename, _countof(pe->temp_filename), ".264");
-            warning_x264_mp4_output_not_supported();
+            change_ext(pe->temp_filename, _countof(pe->temp_filename), ENOCDER_RAW_EXT);
+            if (ENCODER_X264) warning_x264_mp4_output_not_supported();
         }
     }
     //ファイルの上書きを避ける
