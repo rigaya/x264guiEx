@@ -651,6 +651,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
     return vid_ret;
 }
 
+#if ENABLE_AMP
 static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     UINT64 filesize_limit = MAXUINT64;
     if (conf->enc.use_auto_npass) {
@@ -669,6 +670,7 @@ static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *
     //(muxをしないファイルを評価してしまい、上限をクリアしていると判定されてしまう)
     return (MAXUINT64 == filesize_limit) ? 0 : filesize_limit;
 }
+#endif
 
 static unsigned __stdcall video_output_thread_func(void *prm) {
     video_output_thread_t *thread_data = reinterpret_cast<video_output_thread_t *>(prm);
