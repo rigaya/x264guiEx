@@ -61,7 +61,7 @@ System::Boolean frmSaveNewStg::checkStgFileName(String^ stgName) {
         return false;
 
     if (!ValidiateFileName(stgName)) {
-        MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_INVALID_CHAR), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+        MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_INVALID_CHAR), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
         return false;
     }
     if (String::Compare(Path::GetExtension(stgName), L".stg", true))
@@ -302,7 +302,7 @@ System::Boolean frmConfig::CheckLocalStg() {
             +  LOAD_CLI_STRING(AUO_CONFIG_AMP_STG_INVALID4);
     }
     if (error)
-        MessageBox::Show(this, err, LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+        MessageBox::Show(this, err, LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
     return error;
 }
 
@@ -702,7 +702,7 @@ System::Boolean frmConfig::EnableSettingsNoteChange(bool Enable) {
         fcgTSLSettingsNotes->Visible == !Enable)
         return true;
     if (CountStringBytes(fcgTSTSettingsNotes->Text) > fcgTSTSettingsNotes->MaxLength - 1) {
-        MessageBox::Show(this, LOAD_CLI_STRING(AUO_CONFIG_TEXT_LIMIT_LENGTH), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+        MessageBox::Show(this, LOAD_CLI_STRING(AUO_CONFIG_TEXT_LIMIT_LENGTH), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
         fcgTSTSettingsNotes->Focus();
         fcgTSTSettingsNotes->SelectionStart = fcgTSTSettingsNotes->Text->Length;
         return false;
@@ -975,10 +975,10 @@ System::Void frmConfig::SaveToStgFile(String^ stgName) {
     free(stg_name);
     switch (result) {
         case CONF_ERROR_FILE_OPEN:
-            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_OPEN_STG_FILE), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_OPEN_STG_FILE), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
             return;
         case CONF_ERROR_INVALID_FILENAME:
-            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_INVALID_CHAR), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_INVALID_CHAR), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
             return;
         default:
             break;
@@ -1009,7 +1009,7 @@ System::Void frmConfig::fcgTSBSaveNew_Click(System::Object^  sender, System::Eve
 System::Void frmConfig::DeleteStgFile(ToolStripMenuItem^ mItem) {
     if (System::Windows::Forms::DialogResult::OK ==
         MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ASK_STG_FILE_DELETE) + L"[" + mItem->Text + L"]",
-        LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation))
+        LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation))
     {
         File::Delete(mItem->Tag->ToString());
         RebuildStgFileDropDown(nullptr);
@@ -1034,7 +1034,7 @@ System::Void frmConfig::fcgTSSettings_DropDownItemClicked(System::Object^  sende
     if (guiEx_config::load_guiEx_conf(&load_stg, stg_path) == CONF_ERROR_FILE_OPEN) {
         if (MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_OPEN_STG_FILE) + L"\n"
                            + LOAD_CLI_STRING(AUO_CONFIG_ASK_STG_FILE_DELETE),
-                           LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::YesNo, MessageBoxIcon::Error)
+                           LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::YesNo, MessageBoxIcon::Error)
                            == System::Windows::Forms::DialogResult::Yes)
             DeleteStgFile(ClickedMenuItem);
         return;
@@ -1576,7 +1576,7 @@ System::Void frmConfig::LoadLangText() {
     //タイムコードのappendix(後付修飾子)を反映
     fcgCBAuoTcfileout->Text = LOAD_CLI_STRING(AUO_CONFIG_TC_FILE_OUT) + L" (" + String(sys_dat->exstg->s_append.tc).ToString() + L")";
     { //タイトル表示,バージョン情報,コンパイル日時
-        auto auo_full_name = g_auo_mes.get(AUO_X264GUIEX_FULL_NAME);
+        auto auo_full_name = g_auo_mes.get(AUO_GUIEX_FULL_NAME);
         if (auo_full_name == nullptr || wcslen(auo_full_name) == 0) auo_full_name = AUO_FULL_NAME_W;
         this->Text = String(auo_full_name).ToString();
         fcgLBVersion->Text = String(auo_full_name).ToString() + L" " + String(AUO_VERSION_STR_W).ToString();
@@ -2185,7 +2185,7 @@ System::Void frmConfig::SetHelpToolTips() {
     SetHelpToolTipsColorMatrix(fcgCXTransfer,    "transfer");
     fcgTTX264->SetToolTip(fcgCXInputRange,      L"--input-range\n"
         + L"\n"
-        + L"\"" + String(list_input_range[0].desc).ToString() + L"\"  [" + LOAD_CLI_STRING(AUO_X264GUIEX_DEFAULT) + L"]\n"
+        + L"\"" + String(list_input_range[0].desc).ToString() + L"\"  [" + LOAD_CLI_STRING(AUO_GUIEX_DEFAULT) + L"]\n"
         + L"  output-csp i4xx … " + LOAD_CLI_STRING(AuofrmTTfcgCXInputRangeYUVLimited) + L"\n"
         + L"  output-csp rgb  … " + LOAD_CLI_STRING(AuofrmTTfcgCXInputRangeRGB) + L"\n"
         + L"\n"
@@ -2395,7 +2395,7 @@ System::Void frmConfig::SetX264VersionToolTip(String^ x264Path) {
 }
 System::Void frmConfig::ShowExehelp(String^ ExePath, String^ args) {
     if (!File::Exists(ExePath)) {
-        MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_EXE_NOT_FOUND), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+        MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_EXE_NOT_FOUND), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
     } else {
         char exe_path[MAX_PATH_LEN];
         char file_path[MAX_PATH_LEN];
@@ -2420,14 +2420,14 @@ System::Void frmConfig::ShowExehelp(String^ ExePath, String^ args) {
             GetCHARfromString(cmd, sizeof(cmd), arg_list[i]);
             if (get_exe_message_to_file(exe_path, cmd, file_path, AUO_PIPE_MUXED, 5) != RP_SUCCESS) {
                 File::Delete(String(file_path).ToString());
-                MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_GET_HELP), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+                MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_GET_HELP), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
                 return;
             }
         }
         try {
             System::Diagnostics::Process::Start(String(file_path).ToString());
         } catch (...) {
-            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_OPEN_HELP), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_ERR_OPEN_HELP), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
         }
     }
 }

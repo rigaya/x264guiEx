@@ -175,7 +175,7 @@ namespace AUO_NAME_R {
     private:
         System::Void fnfBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
             if (!ValidiateFileName(fnfTXNewFolderName->Text)) {
-                MessageBox::Show(LOAD_CLI_STRING(AUO_NEW_FOLDER_NAME_ERR_FOLDER_PATH), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+                MessageBox::Show(LOAD_CLI_STRING(AUO_NEW_FOLDER_NAME_ERR_FOLDER_PATH), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
                 return;
             }
             NewFolder = fnfTXNewFolderName->Text;

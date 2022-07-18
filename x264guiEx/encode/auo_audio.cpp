@@ -561,7 +561,7 @@ AUO_RESULT audio_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, c
     for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
         ret |= audio_finish_enc(ret, &aud_dat[i_aud], aud_stg);
 
-    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
     //音声エンコード後バッチ処理
     if (!ret) ret |= run_bat_file(conf, oip, pe, sys_dat, RUN_BAT_AFTER_AUDIO);

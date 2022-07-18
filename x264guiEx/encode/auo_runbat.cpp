@@ -133,7 +133,7 @@ AUO_RESULT run_bat_file(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PR
     if (PathFileExists(bat_tmp))
         remove(bat_tmp);
 
-    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
     return ret;
 }

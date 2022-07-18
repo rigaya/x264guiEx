@@ -5157,7 +5157,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             maxLength = TX->MaxLength;
             if (stringBytes > maxLength - 1) {
                 e->Cancel = true;
-                MessageBox::Show(this, LOAD_CLI_STRING(AUO_CONFIG_TEXT_LIMIT_LENGTH), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+                MessageBox::Show(this, LOAD_CLI_STRING(AUO_CONFIG_TEXT_LIMIT_LENGTH), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
             }
         }
     private:
@@ -5851,7 +5851,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
                     return;
                 }
             }
-            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_HELP_CMD_UNSET), LOAD_CLI_STRING(AUO_X264GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
+            MessageBox::Show(LOAD_CLI_STRING(AUO_CONFIG_HELP_CMD_UNSET), LOAD_CLI_STRING(AUO_GUIEX_ERROR), MessageBoxButtons::OK, MessageBoxIcon::Error);
         }
     private:
         System::Void fcgLBguiExBlog_LinkClicked(System::Object^  sender, System::Windows::Forms::LinkLabelLinkClickedEventArgs^  e) {

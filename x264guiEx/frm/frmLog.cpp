@@ -42,7 +42,7 @@ void show_log_window(const char *aviutl_dir, BOOL disable_visual_styles) {
         System::Windows::Forms::Application::EnableVisualStyles();
     System::IO::Directory::SetCurrentDirectory(String(aviutl_dir).ToString());
     frmLog::Instance::get()->Show();
-    frmLog::Instance::get()->SetWindowTitle(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
+    frmLog::Instance::get()->SetWindowTitle(g_auo_mes.get(AUO_GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 }
 //ログウィンドウのタイトルを設定
 [STAThreadAttribute]

@@ -639,7 +639,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
         }
         flush_audio_log();
         if (wait_for_audio_count > 10)
-            set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
+            set_window_title(g_auo_mes.get(AUO_GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
 
         DWORD exit_code = 0;
         //GetExitCodeThreadの返り値がNULLならエラー
@@ -1207,7 +1207,7 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
         ret |= x264_out(conf, oip, pe, sys_dat);
     }
 
-    set_window_title(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
+    set_window_title(g_auo_mes.get(AUO_GUIEX_FULL_NAME), PROGRESSBAR_DISABLED);
     return ret;
 }
 

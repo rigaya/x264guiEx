@@ -226,7 +226,7 @@ BOOL func_output( OUTPUT_INFO *oip )
 
         ret |= move_temporary_files(&conf_out, &pe, &g_sys_dat, oip, ret);
 
-        write_log_auo_enc_time(g_auo_mes.get(AUO_X264GUIEX_TOTAL_TIME), timeGetTime() - tm_start_enc);
+        write_log_auo_enc_time(g_auo_mes.get(AUO_GUIEX_TOTAL_TIME), timeGetTime() - tm_start_enc);
 
         close_afsvideo(&pe); //※3 end
 
@@ -348,10 +348,10 @@ void write_log_auo_enc_time(const wchar_t *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
     write_log_auo_line_fmt(LOG_INFO, L"%s : %d%s%2d%s%2d.%1d%s",
         mes,
-        time / (60*60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_HOUR),
-        (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_X264GUIEX_TIME_MIN),
+        time / (60*60*1000), g_auo_mes.get(AUO_GUIEX_TIME_HOUR),
+        (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_GUIEX_TIME_MIN),
         (time % (60*1000)) / 1000,
-        ((time % 1000)) / 100, g_auo_mes.get(AUO_X264GUIEX_TIME_SEC));
+        ((time % 1000)) / 100, g_auo_mes.get(AUO_GUIEX_TIME_SEC));
 }
 
 void overwrite_aviutl_ini_file_filter(int idx) {
@@ -371,7 +371,7 @@ void overwrite_aviutl_ini_auo_info() {
     PathAddBackSlashLong(ini_file);
     strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
 
-    const auto auo_full_name = wstring_to_string(g_auo_mes.get(AUO_X264GUIEX_FULL_NAME));
+    const auto auo_full_name = wstring_to_string(g_auo_mes.get(AUO_GUIEX_FULL_NAME));
     if (auo_full_name.length() > 0 && strcmp(auo_full_name.c_str(), output_plugin_table.name) != 0) {
         strcpy_s(g_auo_fullname, auo_full_name.c_str());
         output_plugin_table.name = g_auo_fullname;
@@ -397,7 +397,7 @@ const char *get_auo_version_info() {
 
 void make_file_filter(char *filter, size_t nSize, int default_index) {
     char TOP[256];
-    sprintf_s(TOP, "%s (*.*)", wstring_to_string(g_auo_mes.get(AUO_X264GUIEX_ALL_SUPPORT_FORMATS)).c_str());
+    sprintf_s(TOP, "%s (*.*)", wstring_to_string(g_auo_mes.get(AUO_GUIEX_ALL_SUPPORT_FORMATS)).c_str());
     const char separator = (filter) ? '\\' : '\0';
     if (filter == NULL) {
         filter = g_auo_filefilter;

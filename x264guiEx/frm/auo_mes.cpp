@@ -37,7 +37,7 @@
 
 static const std::array<std::pair<const char *, AuoMes>, AUO_SECTION_FIN> AUO_MES_SECTIONS_STR = {
 #define AUO_SECTION(x) std::make_pair( #x, x ## _SECTION_START )
-	AUO_SECTION(AUO_X264GUIEX),
+	AUO_SECTION(AUO_GUIEX),
 	AUO_SECTION(AUO_ERR),
 	AUO_SECTION(AUO_AUDIO),
 	AUO_SECTION(AUO_ENCODE),
@@ -65,16 +65,16 @@ static const std::array<std::pair<const char *, AuoMes>, AUO_SECTION_FIN> AUO_ME
 // sed -n '57,856p' auo_mes.h | tr -d \\r | awk '{print $1}' | grep -v ^$ | grep -v ^// | grep -v _SECTION_FIN,$ | sed 's/,$//g' | sed 's/[^ ]\+/"&"/g' | sed 's/$/,/g'
 static const char * AUO_MES_ID_NAME_STR[] = {
 "AUO_MES_UNKNOWN",
-"AUO_X264GUIEX_SECTION_START",
-"AUO_X264GUIEX_LANG",
-"AUO_X264GUIEX_FULL_NAME",
-"AUO_X264GUIEX_TOTAL_TIME",
-"AUO_X264GUIEX_TIME_HOUR",
-"AUO_X264GUIEX_TIME_MIN",
-"AUO_X264GUIEX_TIME_SEC",
-"AUO_X264GUIEX_ALL_SUPPORT_FORMATS",
-"AUO_X264GUIEX_ERROR",
-"AUO_X264GUIEX_DEFAULT",
+"AUO_GUIEX_SECTION_START",
+"AUO_GUIEX_LANG",
+"AUO_GUIEX_FULL_NAME",
+"AUO_GUIEX_TOTAL_TIME",
+"AUO_GUIEX_TIME_HOUR",
+"AUO_GUIEX_TIME_MIN",
+"AUO_GUIEX_TIME_SEC",
+"AUO_GUIEX_ALL_SUPPORT_FORMATS",
+"AUO_GUIEX_ERROR",
+"AUO_GUIEX_DEFAULT",
 "AUO_ERR_SECTION_START",
 "AUO_ERR_CONF_NOT_INIT0",
 "AUO_ERR_CONF_NOT_INIT1",
@@ -978,14 +978,14 @@ int AuoMessages::read(const char *lang, const char *data, const size_t size) {
 	for (char *ptr = buffer.data(), *qtr = nullptr; (ptr = strtok_s(ptr, "\n", &qtr)) != nullptr; ptr = nullptr) {
 		proc_line(sectionId, ptr);
 	}
-	language = (lang) ? lang : wstring_to_string(get(AUO_X264GUIEX_LANG));
+	language = (lang) ? lang : wstring_to_string(get(AUO_GUIEX_LANG));
 	return 0;
 }
 
 std::string get_file_lang_code(const std::string& path) {
 	//言語コードの取得
 	char buffer[1024];
-	GetPrivateProfileString("AUO_X264GUIEX", "AUO_X264GUIEX_LANG", "", buffer, _countof(buffer) - 1, path.c_str());
+	GetPrivateProfileString("AUO_GUIEX", "AUO_GUIEX_LANG", "", buffer, _countof(buffer) - 1, path.c_str());
 	return wstring_to_string(char_to_wstring(buffer, CP_UTF8));
 }
 
