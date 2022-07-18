@@ -631,7 +631,7 @@ void guiEx_settings::load_enc() {
     clear_enc();
 
     s_enc_mc.init(ini_filesize);
-      
+
     s_enc.filename            = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "filename",      "x264", ini_fileName, codepage_ini);
     s_enc.default_cmd         = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "cmd_default",       "", ini_fileName, codepage_ini);
     s_enc.default_cmd_highbit = s_enc_mc.SetPrivateProfileString(INI_SECTION_ENC_DEFAULT, "cmd_default_10bit", "", ini_fileName, codepage_ini);
@@ -770,10 +770,10 @@ void guiEx_settings::save_local() {
     WritePrivateProfileIntWithDefault(   ini_section_main, "auto_ref_limit_by_level",   s_local.auto_ref_limit_by_level,   DEFAULT_AUTO_REFLIMIT_BYLEVEL, conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "default_audio_encoder",     s_local.default_audio_encoder,     DEFAULT_AUDIO_ENCODER,         conf_fileName);
 
-    WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,          DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
-    WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi, DEFAULT_AMP_MARGIN,            conf_fileName);
-    WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_reenc_audio_multi",     s_local.amp_reenc_audio_multi,    DEFAULT_AMP_REENC_AUDIO_MULTI, conf_fileName);
-    WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_keep_old_file",         s_local.amp_keep_old_file,        DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
+    WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_retry_limit",           s_local.amp_retry_limit,           DEFAULT_AMP_RETRY_LIMIT,       conf_fileName);
+    WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_bitrate_margin_multi",  s_local.amp_bitrate_margin_multi,  DEFAULT_AMP_MARGIN,            conf_fileName);
+    WritePrivateProfileDoubleWithDefault(INI_SECTION_AMP,  "amp_reenc_audio_multi",     s_local.amp_reenc_audio_multi,     DEFAULT_AMP_REENC_AUDIO_MULTI, conf_fileName);
+    WritePrivateProfileIntWithDefault(   INI_SECTION_AMP,  "amp_keep_old_file",         s_local.amp_keep_old_file,         DEFAULT_AMP_KEEP_OLD_FILE,     conf_fileName);
 
     WriteFontInfo(ini_section_main, "conf_font", &s_local.conf_font, conf_fileName);
 
@@ -821,7 +821,7 @@ void guiEx_settings::save_log_win() {
     WritePrivateProfileIntWithDefault(   ini_section_main, "log_transparency",      s_log.transparency,       DEFAULT_LOG_TRANSPARENCY,     conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "log_auto_save",         s_log.auto_save_log,      DEFAULT_LOG_AUTO_SAVE,        conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "log_auto_save_mode",    s_log.auto_save_log_mode, DEFAULT_LOG_AUTO_SAVE_MODE,   conf_fileName);
-    WritePrivateProfileString(ini_section_main, "log_auto_save_path",    s_log.auto_save_log_path, conf_fileName);
+    WritePrivateProfileString(           ini_section_main, "log_auto_save_path",    s_log.auto_save_log_path,                               conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "log_show_status_bar",   s_log.show_status_bar,    DEFAULT_LOG_SHOW_STATUS_BAR,  conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "log_taskbar_progress",  s_log.taskbar_progress,   DEFAULT_LOG_TASKBAR_PROGRESS, conf_fileName);
     WritePrivateProfileIntWithDefault(   ini_section_main, "save_log_size",         s_log.save_log_size,      DEFAULT_LOG_SAVE_SIZE,        conf_fileName);
