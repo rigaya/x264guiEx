@@ -5066,9 +5066,9 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         }
     private:
         System::Void NUSelectAll(System::Object^  sender, System::EventArgs^  e) {
-             NumericUpDown^ NU = dynamic_cast<NumericUpDown^>(sender);
-             NU->Select(0, NU->Text->Length);
-         }
+            NumericUpDown^ NU = dynamic_cast<NumericUpDown^>(sender);
+            NU->Select(0, NU->Text->Length);
+        }
     private:
         System::Void setComboBox(ComboBox^ CX, const ENC_OPTION_STR * list) {
             CX->BeginUpdate();
