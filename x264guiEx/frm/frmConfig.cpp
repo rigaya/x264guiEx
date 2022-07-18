@@ -720,6 +720,9 @@ System::Boolean frmConfig::EnableSettingsNoteChange(bool Enable) {
     }
     return true;
 }
+
+
+///////////////////  メモ関連  ///////////////////////////////////////////////
 System::Void frmConfig::fcgTSLSettingsNotes_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
     EnableSettingsNoteChange(true);
 }
@@ -734,6 +737,8 @@ System::Void frmConfig::fcgTSTSettingsNotes_TextChanged(System::Object^  sender,
     SetfcgTSLSettingsNotes(fcgTSTSettingsNotes->Text);
     CheckOtherChanges(nullptr, nullptr);
 }
+
+//////////////////// 追加コマンド関連 /////////////////////////////////////////
 System::Void frmConfig::fcgCXCmdExInsert_FontChanged(System::Object^  sender, System::EventArgs^  e) {
     InitCXCmdExInsert();
 }
