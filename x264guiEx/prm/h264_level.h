@@ -31,7 +31,6 @@
 #include "auo.h"
 #include "auo_settings.h"
 #include "auo_options.h"
-#include "auo_mes.h"
 
 #if ENCODER_X264
 
