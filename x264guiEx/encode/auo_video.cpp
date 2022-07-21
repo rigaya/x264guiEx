@@ -793,7 +793,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //コマンドライン生成
     build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
-    write_log_auo_line(LOG_INFO, L"x264 options...");
+    write_log_auo_line_fmt(LOG_INFO, L"%s options...", ENCODER_NAME_W);
     write_args(x264cmd);
     sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_enc.fullpath, x264cmd);
     remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避

@@ -1,9 +1,9 @@
 ﻿// -----------------------------------------------------------------------------------------
-// x264guiEx by rigaya
+// x264guiEx/x265guiEx/svtAV1guiEx by rigaya
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
-// Copyright (c) 2010-2017 rigaya
+// Copyright (c) 2010-2022 rigaya
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -76,7 +76,6 @@ OUTPUT_PLUGIN_TABLE output_plugin_table = {
     func_config_get,              // 出力設定データを取得する時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
     func_config_set,              // 出力設定データを設定する時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 };
-
 
 //---------------------------------------------------------------------
 //        出力プラグイン構造体のポインタを渡す関数
@@ -211,18 +210,21 @@ BOOL func_output( OUTPUT_INFO *oip )
     pe.h_p_aviutl = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId()); //※2 start
 
     //チェックを行い、エンコード可能ならエンコードを開始する
-    if (check_output(&conf_out, oip, &pe, g_sys_dat.exstg) && setup_afsvideo(oip, &g_sys_dat, &conf_out, &pe)) { //※3 start
+    if (!ret && check_output(&conf_out, oip, &pe, g_sys_dat.exstg) && setup_afsvideo(oip, &g_sys_dat, &conf_out, &pe)) { //※3 start
 
         ret |= run_bat_file(&conf_out, oip, &pe, &g_sys_dat, RUN_BAT_BEFORE_PROCESS);
 
         for (int i = 0; !ret && i < 2; i++)
             ret |= task[conf_out.aud.audio_encode_timing][i](&conf_out, oip, &pe, &g_sys_dat);
-
+#if ENABLE_AMP
         int amp_result = 1;
         do {
             if (!ret) ret |= task[0][amp_result-1](&conf_out, oip, &pe, &g_sys_dat); //再エンコ、ただしもう終了している場合、再エンコされない
             if (!ret) ret |= mux(&conf_out, oip, &pe, &g_sys_dat);
         } while (!ret && 0 < (amp_result = amp_check_file(&conf_out, &g_sys_dat, &pe, oip))); //再エンコードの必要があるかをチェック
+#else
+        if (!ret) ret |= mux(&conf_out, oip, &pe, &g_sys_dat);
+#endif
 
         ret |= move_temporary_files(&conf_out, &pe, &g_sys_dat, oip, ret);
 
@@ -273,14 +275,14 @@ BOOL func_config(HWND hwnd, HINSTANCE dll_hinst)
 }
 #pragma warning( pop )
 
-int func_config_get( void *data, int size )
+int func_config_get(void *data, int size)
 {
     if (data && size == sizeof(CONF_GUIEX))
         memcpy(data, &g_conf, sizeof(g_conf));
     return sizeof(g_conf);
 }
 
-int func_config_set( void *data,int size )
+int func_config_set(void *data, int size)
 {
     init_SYSTEM_DATA(&g_sys_dat);
     if (!g_sys_dat.exstg->get_init_success(TRUE))
@@ -465,7 +467,7 @@ int load_lng(const char *lang) {
     if (g_auo_mes.isLang(lang)) {
         return 0;
     }
-    const char *resource = "X264GUIEX_JA_LNG";
+    const char *resource = list_auo_languages[0].resouce;
     if (lang && str_has_char(lang)) {
         char auo_path[MAX_PATH_LEN];
         get_auo_path(auo_path, _countof(auo_path));

@@ -1,9 +1,9 @@
 ﻿// -----------------------------------------------------------------------------------------
-// x264guiEx by rigaya
+// x264guiEx/x265guiEx/svtAV1guiEx by rigaya
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
-// Copyright (c) 2010-2017 rigaya
+// Copyright (c) 2010-2022 rigaya
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@
 #define ENCODER_X265 0
 #define ENCODER_SVTAV1 0
 #define ENABLE_AMP (ENCODER_X264 != 0)
-#define ENABLE_TCFILE_IN (ENCODER_X265 != 0)
+#define ENABLE_TCFILE_IN (ENCODER_X264 == 0)
 
 #ifdef DEBUG
 #define VER_DEBUG   VS_FF_DEBUG

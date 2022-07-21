@@ -3438,164 +3438,6 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgTSExeFileshelp->Text = L"helpを表示";
             this->fcgTSExeFileshelp->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSExeFileshelp_Click);
             // 
-            // fcgtoolStripSettings
-            // 
-            this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(128)));
-            this->fcgtoolStripSettings->ImageScalingSize = System::Drawing::Size(18, 18);
-            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(15) {
-                this->fcgTSBSave,
-                    this->fcgTSBSaveNew, this->fcgTSBDelete, this->fcgtoolStripSeparator1, this->fcgTSSettings, this->fcgTSBCMDOnly, this->toolStripSeparator3,
-                    this->fcgTSLanguage, this->toolStripSeparator5, this->fcgTSBBitrateCalc, this->toolStripSeparator2, this->fcgTSBOtherSettings,
-                    this->fcgTSLSettingsNotes, this->fcgTSTSettingsNotes, this->toolStripSeparator4
-            });
-            this->fcgtoolStripSettings->Location = System::Drawing::Point(0, 0);
-            this->fcgtoolStripSettings->Name = L"fcgtoolStripSettings";
-            this->fcgtoolStripSettings->Padding = System::Windows::Forms::Padding(0);
-            this->fcgtoolStripSettings->Size = System::Drawing::Size(1008, 25);
-            this->fcgtoolStripSettings->TabIndex = 1;
-            this->fcgtoolStripSettings->Text = L"toolStrip1";
-            // 
-            // fcgTSBSave
-            // 
-            this->fcgTSBSave->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSave.Image")));
-            this->fcgTSBSave->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBSave->Name = L"fcgTSBSave";
-            this->fcgTSBSave->Size = System::Drawing::Size(86, 22);
-            this->fcgTSBSave->Text = L"上書き保存";
-            this->fcgTSBSave->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSave_Click);
-            // 
-            // fcgTSBSaveNew
-            // 
-            this->fcgTSBSaveNew->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSaveNew.Image")));
-            this->fcgTSBSaveNew->ImageTransparentColor = System::Drawing::Color::Black;
-            this->fcgTSBSaveNew->Name = L"fcgTSBSaveNew";
-            this->fcgTSBSaveNew->Size = System::Drawing::Size(77, 22);
-            this->fcgTSBSaveNew->Text = L"新規保存";
-            this->fcgTSBSaveNew->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSaveNew_Click);
-            // 
-            // fcgTSBDelete
-            // 
-            this->fcgTSBDelete->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBDelete.Image")));
-            this->fcgTSBDelete->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBDelete->Name = L"fcgTSBDelete";
-            this->fcgTSBDelete->Size = System::Drawing::Size(53, 22);
-            this->fcgTSBDelete->Text = L"削除";
-            this->fcgTSBDelete->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBDelete_Click);
-            // 
-            // fcgtoolStripSeparator1
-            // 
-            this->fcgtoolStripSeparator1->Name = L"fcgtoolStripSeparator1";
-            this->fcgtoolStripSeparator1->Size = System::Drawing::Size(6, 25);
-            // 
-            // fcgTSSettings
-            // 
-            this->fcgTSSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSSettings.Image")));
-            this->fcgTSSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSSettings->Name = L"fcgTSSettings";
-            this->fcgTSSettings->Size = System::Drawing::Size(79, 22);
-            this->fcgTSSettings->Text = L"プリセット";
-            this->fcgTSSettings->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSSettings_DropDownItemClicked);
-            this->fcgTSSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSSettings_Click);
-            // 
-            // fcgTSBCMDOnly
-            // 
-            this->fcgTSBCMDOnly->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSBCMDOnly->CheckOnClick = true;
-            this->fcgTSBCMDOnly->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBCMDOnly.Image")));
-            this->fcgTSBCMDOnly->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBCMDOnly->Name = L"fcgTSBCMDOnly";
-            this->fcgTSBCMDOnly->Size = System::Drawing::Size(76, 22);
-            this->fcgTSBCMDOnly->Tag = L"chValue";
-            this->fcgTSBCMDOnly->Text = L"CLIモード";
-            this->fcgTSBCMDOnly->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBCMDOnly_CheckedChanged);
-            // 
-            // toolStripSeparator3
-            // 
-            this->toolStripSeparator3->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator3->Name = L"toolStripSeparator3";
-            this->toolStripSeparator3->Size = System::Drawing::Size(6, 25);
-            // 
-            // fcgTSLanguage
-            // 
-            this->fcgTSLanguage->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSLanguage->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSLanguage->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSLanguage.Image")));
-            this->fcgTSLanguage->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSLanguage->Name = L"fcgTSLanguage";
-            this->fcgTSLanguage->Size = System::Drawing::Size(44, 22);
-            this->fcgTSLanguage->Text = L"言語";
-            this->fcgTSLanguage->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSLanguage_DropDownItemClicked);
-            // 
-            // toolStripSeparator5
-            // 
-            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator5->Name = L"toolStripSeparator5";
-            this->toolStripSeparator5->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
-            // 
-            // fcgTSBBitrateCalc
-            // 
-            this->fcgTSBBitrateCalc->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSBBitrateCalc->CheckOnClick = true;
-            this->fcgTSBBitrateCalc->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBBitrateCalc->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBBitrateCalc.Image")));
-            this->fcgTSBBitrateCalc->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBBitrateCalc->Name = L"fcgTSBBitrateCalc";
-            this->fcgTSBBitrateCalc->Size = System::Drawing::Size(97, 22);
-            this->fcgTSBBitrateCalc->Text = L"ビットレート計算機";
-            this->fcgTSBBitrateCalc->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBBitrateCalc_CheckedChanged);
-            // 
-            // toolStripSeparator2
-            // 
-            this->toolStripSeparator2->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator2->Name = L"toolStripSeparator2";
-            this->toolStripSeparator2->Size = System::Drawing::Size(6, 25);
-            // 
-            // fcgTSBOtherSettings
-            // 
-            this->fcgTSBOtherSettings->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->fcgTSBOtherSettings->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-            this->fcgTSBOtherSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBOtherSettings.Image")));
-            this->fcgTSBOtherSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
-            this->fcgTSBOtherSettings->Name = L"fcgTSBOtherSettings";
-            this->fcgTSBOtherSettings->Size = System::Drawing::Size(76, 22);
-            this->fcgTSBOtherSettings->Text = L"その他の設定";
-            this->fcgTSBOtherSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBOtherSettings_Click);
-            // 
-            // fcgTSLSettingsNotes
-            // 
-            this->fcgTSLSettingsNotes->DoubleClickEnabled = true;
-            this->fcgTSLSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(128)));
-            this->fcgTSLSettingsNotes->Margin = System::Windows::Forms::Padding(3, 1, 0, 2);
-            this->fcgTSLSettingsNotes->Name = L"fcgTSLSettingsNotes";
-            this->fcgTSLSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
-            this->fcgTSLSettingsNotes->Size = System::Drawing::Size(45, 22);
-            this->fcgTSLSettingsNotes->Text = L"メモ表示";
-            this->fcgTSLSettingsNotes->DoubleClick += gcnew System::EventHandler(this, &frmConfig::fcgTSLSettingsNotes_DoubleClick);
-            // 
-            // fcgTSTSettingsNotes
-            // 
-            this->fcgTSTSettingsNotes->BackColor = System::Drawing::SystemColors::Window;
-            this->fcgTSTSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(128)));
-            this->fcgTSTSettingsNotes->Margin = System::Windows::Forms::Padding(3, 0, 1, 0);
-            this->fcgTSTSettingsNotes->Name = L"fcgTSTSettingsNotes";
-            this->fcgTSTSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
-            this->fcgTSTSettingsNotes->Size = System::Drawing::Size(200, 25);
-            this->fcgTSTSettingsNotes->Text = L"メモ...";
-            this->fcgTSTSettingsNotes->Visible = false;
-            this->fcgTSTSettingsNotes->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_Leave);
-            this->fcgTSTSettingsNotes->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmConfig::fcgTSTSettingsNotes_KeyDown);
-            this->fcgTSTSettingsNotes->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_TextChanged);
-            // 
-            // toolStripSeparator4
-            // 
-            this->toolStripSeparator4->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
-            this->toolStripSeparator4->Name = L"toolStripSeparator4";
-            this->toolStripSeparator4->Size = System::Drawing::Size(6, 25);
-            // 
             // fcgtabControlMux
             // 
             this->fcgtabControlMux->Controls->Add(this->fcgtabPageMP4);
@@ -4780,6 +4622,164 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgPNHideTabControlMux->Size = System::Drawing::Size(388, 221);
             this->fcgPNHideTabControlMux->TabIndex = 14;
             // 
+            // fcgTSBSave
+            // 
+            this->fcgTSBSave->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSave.Image")));
+            this->fcgTSBSave->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBSave->Name = L"fcgTSBSave";
+            this->fcgTSBSave->Size = System::Drawing::Size(86, 22);
+            this->fcgTSBSave->Text = L"上書き保存";
+            this->fcgTSBSave->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSave_Click);
+            // 
+            // fcgTSBSaveNew
+            // 
+            this->fcgTSBSaveNew->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBSaveNew.Image")));
+            this->fcgTSBSaveNew->ImageTransparentColor = System::Drawing::Color::Black;
+            this->fcgTSBSaveNew->Name = L"fcgTSBSaveNew";
+            this->fcgTSBSaveNew->Size = System::Drawing::Size(77, 22);
+            this->fcgTSBSaveNew->Text = L"新規保存";
+            this->fcgTSBSaveNew->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBSaveNew_Click);
+            // 
+            // fcgTSBDelete
+            // 
+            this->fcgTSBDelete->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBDelete.Image")));
+            this->fcgTSBDelete->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBDelete->Name = L"fcgTSBDelete";
+            this->fcgTSBDelete->Size = System::Drawing::Size(53, 22);
+            this->fcgTSBDelete->Text = L"削除";
+            this->fcgTSBDelete->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBDelete_Click);
+            // 
+            // fcgtoolStripSeparator1
+            // 
+            this->fcgtoolStripSeparator1->Name = L"fcgtoolStripSeparator1";
+            this->fcgtoolStripSeparator1->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgTSSettings
+            // 
+            this->fcgTSSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSSettings.Image")));
+            this->fcgTSSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSSettings->Name = L"fcgTSSettings";
+            this->fcgTSSettings->Size = System::Drawing::Size(79, 22);
+            this->fcgTSSettings->Text = L"プリセット";
+            this->fcgTSSettings->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSSettings_DropDownItemClicked);
+            this->fcgTSSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSSettings_Click);
+            // 
+            // fcgTSBCMDOnly
+            // 
+            this->fcgTSBCMDOnly->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSBCMDOnly->CheckOnClick = true;
+            this->fcgTSBCMDOnly->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBCMDOnly.Image")));
+            this->fcgTSBCMDOnly->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBCMDOnly->Name = L"fcgTSBCMDOnly";
+            this->fcgTSBCMDOnly->Size = System::Drawing::Size(76, 22);
+            this->fcgTSBCMDOnly->Tag = L"chValue";
+            this->fcgTSBCMDOnly->Text = L"CLIモード";
+            this->fcgTSBCMDOnly->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBCMDOnly_CheckedChanged);
+            // 
+            // toolStripSeparator3
+            // 
+            this->toolStripSeparator3->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator3->Name = L"toolStripSeparator3";
+            this->toolStripSeparator3->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgTSLanguage
+            // 
+            this->fcgTSLanguage->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSLanguage->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSLanguage->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSLanguage.Image")));
+            this->fcgTSLanguage->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSLanguage->Name = L"fcgTSLanguage";
+            this->fcgTSLanguage->Size = System::Drawing::Size(44, 22);
+            this->fcgTSLanguage->Text = L"言語";
+            this->fcgTSLanguage->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmConfig::fcgTSLanguage_DropDownItemClicked);
+            // 
+            // toolStripSeparator5
+            // 
+            this->toolStripSeparator5->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator5->Name = L"toolStripSeparator5";
+            this->toolStripSeparator5->RightToLeft = System::Windows::Forms::RightToLeft::No;
+            this->toolStripSeparator5->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgTSBBitrateCalc
+            // 
+            this->fcgTSBBitrateCalc->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSBBitrateCalc->CheckOnClick = true;
+            this->fcgTSBBitrateCalc->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSBBitrateCalc->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBBitrateCalc.Image")));
+            this->fcgTSBBitrateCalc->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBBitrateCalc->Name = L"fcgTSBBitrateCalc";
+            this->fcgTSBBitrateCalc->Size = System::Drawing::Size(97, 22);
+            this->fcgTSBBitrateCalc->Text = L"ビットレート計算機";
+            this->fcgTSBBitrateCalc->CheckedChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSBBitrateCalc_CheckedChanged);
+            // 
+            // toolStripSeparator2
+            // 
+            this->toolStripSeparator2->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator2->Name = L"toolStripSeparator2";
+            this->toolStripSeparator2->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgTSBOtherSettings
+            // 
+            this->fcgTSBOtherSettings->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->fcgTSBOtherSettings->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
+            this->fcgTSBOtherSettings->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"fcgTSBOtherSettings.Image")));
+            this->fcgTSBOtherSettings->ImageTransparentColor = System::Drawing::Color::Magenta;
+            this->fcgTSBOtherSettings->Name = L"fcgTSBOtherSettings";
+            this->fcgTSBOtherSettings->Size = System::Drawing::Size(76, 22);
+            this->fcgTSBOtherSettings->Text = L"その他の設定";
+            this->fcgTSBOtherSettings->Click += gcnew System::EventHandler(this, &frmConfig::fcgTSBOtherSettings_Click);
+            // 
+            // fcgTSLSettingsNotes
+            // 
+            this->fcgTSLSettingsNotes->DoubleClickEnabled = true;
+            this->fcgTSLSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(128)));
+            this->fcgTSLSettingsNotes->Margin = System::Windows::Forms::Padding(3, 1, 0, 2);
+            this->fcgTSLSettingsNotes->Name = L"fcgTSLSettingsNotes";
+            this->fcgTSLSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
+            this->fcgTSLSettingsNotes->Size = System::Drawing::Size(45, 22);
+            this->fcgTSLSettingsNotes->Text = L"メモ表示";
+            this->fcgTSLSettingsNotes->DoubleClick += gcnew System::EventHandler(this, &frmConfig::fcgTSLSettingsNotes_DoubleClick);
+            // 
+            // fcgTSTSettingsNotes
+            // 
+            this->fcgTSTSettingsNotes->BackColor = System::Drawing::SystemColors::Window;
+            this->fcgTSTSettingsNotes->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(128)));
+            this->fcgTSTSettingsNotes->Margin = System::Windows::Forms::Padding(3, 0, 1, 0);
+            this->fcgTSTSettingsNotes->Name = L"fcgTSTSettingsNotes";
+            this->fcgTSTSettingsNotes->Overflow = System::Windows::Forms::ToolStripItemOverflow::Never;
+            this->fcgTSTSettingsNotes->Size = System::Drawing::Size(200, 25);
+            this->fcgTSTSettingsNotes->Text = L"メモ...";
+            this->fcgTSTSettingsNotes->Visible = false;
+            this->fcgTSTSettingsNotes->Leave += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_Leave);
+            this->fcgTSTSettingsNotes->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &frmConfig::fcgTSTSettingsNotes_KeyDown);
+            this->fcgTSTSettingsNotes->TextChanged += gcnew System::EventHandler(this, &frmConfig::fcgTSTSettingsNotes_TextChanged);
+            // 
+            // toolStripSeparator4
+            // 
+            this->toolStripSeparator4->Alignment = System::Windows::Forms::ToolStripItemAlignment::Right;
+            this->toolStripSeparator4->Name = L"toolStripSeparator4";
+            this->toolStripSeparator4->Size = System::Drawing::Size(6, 25);
+            // 
+            // fcgtoolStripSettings
+            // 
+            this->fcgtoolStripSettings->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(128)));
+            this->fcgtoolStripSettings->ImageScalingSize = System::Drawing::Size(18, 18);
+            this->fcgtoolStripSettings->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(15) {
+                this->fcgTSBSave,
+                    this->fcgTSBSaveNew, this->fcgTSBDelete, this->fcgtoolStripSeparator1, this->fcgTSSettings, this->fcgTSBCMDOnly, this->toolStripSeparator3,
+                    this->fcgTSLanguage, this->toolStripSeparator5, this->fcgTSBBitrateCalc, this->toolStripSeparator2, this->fcgTSBOtherSettings,
+                    this->fcgTSLSettingsNotes, this->fcgTSTSettingsNotes, this->toolStripSeparator4
+            });
+            this->fcgtoolStripSettings->Location = System::Drawing::Point(0, 0);
+            this->fcgtoolStripSettings->Name = L"fcgtoolStripSettings";
+            this->fcgtoolStripSettings->Padding = System::Windows::Forms::Padding(0);
+            this->fcgtoolStripSettings->Size = System::Drawing::Size(1008, 25);
+            this->fcgtoolStripSettings->TabIndex = 1;
+            this->fcgtoolStripSettings->Text = L"toolStrip1";
+            // 
             // fcgPNHideToolStripBorder
             // 
             this->fcgPNHideToolStripBorder->Location = System::Drawing::Point(0, 22);
@@ -5673,7 +5673,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             if (fcgTXX264PathSub->Text == LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH)) {
                 fcgTXX264Path->Text = LOAD_CLI_STRING(AUO_CONFIG_CX_USE_DEFAULT_EXE_PATH);
                 LocalStg.x264Path = L"";
-                fcgTXX264PathSub->ForeColor = System::Drawing::SystemColors::ControlDark;
+                fcgTXX264PathSub->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Disabled);
             } else {
                 LocalStg.x264Path = fcgTXX264PathSub->Text;
                 fcgTXX264PathSub->ForeColor = getTextBoxForeColor(themeMode, dwStgReader, DarkenWindowState::Normal);

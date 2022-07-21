@@ -257,10 +257,12 @@ static BOOL check_if_exe_is_lsmash(const char *exe_path, const char *version_arg
 static BOOL check_muxer_matched_with_ini(const MUXER_SETTINGS *mux_stg) {
     BOOL ret = TRUE;
     //不確定な場合は"0", mp4boxなら"-1", L-SMASHなら"1"
-    bool mp4box_ini = stristr(mux_stg[MUXER_MP4].filename, "mp4box") != nullptr;
-    if (mp4box_ini) {
-        error_mp4box_ini();
-        ret = FALSE;
+    if (ENCODER_X264 || ENCODER_X265) {
+        bool mp4box_ini = stristr(mux_stg[MUXER_MP4].filename, "mp4box") != nullptr;
+        if (mp4box_ini) {
+            error_mp4box_ini();
+            ret = FALSE;
+        }
     }
     return ret;
 }
@@ -1196,10 +1198,22 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         strcpy_s(stats, sizeof(stats), conf->vid.stats);
         cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
         move_temp_file(NULL, stats, NULL, ret, TRUE, g_auo_mes.get(AUO_ENCODE_STATUS_FILE), FALSE);
+#if ENCODER_X264
         strcat_s(stats, sizeof(stats), ".mbtree");
         wchar_t mbtree_status[256];
         swprintf_s(mbtree_status, L"mbtree %s", g_auo_mes.get(AUO_ENCODE_STATUS_FILE));
         move_temp_file(NULL, stats, NULL, ret, TRUE, mbtree_status, FALSE);
+#elif ENCODER_X265
+        strcat_s(stats, sizeof(stats), ".cutree");
+        wchar_t cutree_status[256];
+        swprintf_s(cutree_status, L"cutree %s", g_auo_mes.get(AUO_ENCODE_STATUS_FILE));
+        move_temp_file(NULL, stats, NULL, ret, TRUE, cutree_status, FALSE);
+        if (conf->enc.analysis_reuse) {
+            strcpy_s(stats, sizeof(stats), conf->vid.analysis_file);
+            cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
+            move_temp_file(NULL, stats, NULL, ret, TRUE, L"analysis result", FALSE);
+        }
+#endif
     }
     //音声ファイル(wav)
     if (strcmp(pe->append.aud[0], pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う

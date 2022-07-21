@@ -321,8 +321,9 @@ const REPLACE_STRINGS REPLACE_STRINGS_LIST[] = {
     { L"%{chpath}",            AUO_CONFIG_CX_REPLACE_CHPATH,           L"チャプターファイル名(フルパス)" },
     { L"%{tcpath}",            AUO_CONFIG_CX_REPLACE_TCPATH,           L"タイムコードファイル名(フルパス)" },
     { L"%{muxout}",            AUO_CONFIG_CX_REPLACE_MUXOUT,           L"muxで作成する一時ファイル名(フルパス)" },
+#if ENCODER_X264
     { L"%{x264path}",          AUO_CONFIG_CX_REPLACE_X264PATH,         L"指定された x264.exe のパス" },
-    { L"%{x264_10path}",       AUO_CONFIG_CX_REPLACE_X264_10PATH,      L"指定された x264.exe(10bit版) のパス" },
+#endif
     { L"%{audencpath}",        AUO_CONFIG_CX_REPLACE_AUDENCPATH,       L"実行された音声エンコーダのパス" },
     { L"%{mp4muxerpath}",      AUO_CONFIG_CX_REPLACE_MP4MUXERPATH,     L"mp4 muxerのパス" },
     { L"%{mkvmuxerpath}",      AUO_CONFIG_CX_REPLACE_MKVMUXERPATH,     L"mkv muxerのパス" },

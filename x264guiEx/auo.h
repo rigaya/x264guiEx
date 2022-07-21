@@ -99,7 +99,7 @@ enum {
 };
 typedef DWORD AUO_RESULT;
 
-typedef struct {
+typedef struct AUO_FONT_INFO {
     char   name[256]; //フォント名(family name)
     double size;      //フォントサイズ
     int    style;     //フォントスタイル

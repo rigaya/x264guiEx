@@ -317,7 +317,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             //
             this->ToolStripMenuItemx264Priority->Name = L"ToolStripMenuItemx264Priority";
             this->ToolStripMenuItemx264Priority->Size = System::Drawing::Size(244, 22);
-            this->ToolStripMenuItemx264Priority->Text = L"x264優先度";
+            this->ToolStripMenuItemx264Priority->Text = L"エンコーダ優先度";
             this->ToolStripMenuItemx264Priority->DropDownItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &frmLog::ToolStripMenuItemx264Priority_DropDownItemClicked);
             //
             // ToolStripMenuItemEncPause
@@ -457,8 +457,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             this->fontDialogLog->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->fontDialogLog->FontMustExist = true;
-            this->fontDialogLog->MaxSize = 9;
-            this->fontDialogLog->MinSize = 9;
+            this->fontDialogLog->MaxSize = 32;
+            this->fontDialogLog->MinSize = 6;
             this->fontDialogLog->ShowEffects = false;
             //
             // frmLog
@@ -473,7 +473,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             this->KeyPreview = true;
             this->Name = L"frmLog";
             this->ShowIcon = false;
-            this->Text = L"x264guiEx Log";
+            this->Text = L"guiEx Log";
             this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &frmLog::frmLog_FormClosing);
             this->Load += gcnew System::EventHandler(this, &frmLog::frmLog_Load);
             this->ClientSizeChanged += gcnew System::EventHandler(this, &frmLog::frmLog_ClientSizeChanged);
@@ -510,11 +510,11 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             LOAD_CLI_TEXT(toolStripStatusCurrentProgress);
             LOAD_CLI_MAIN_TEXT(FrmLogMain);
         }
-    private: 
+    private:
         System::Void frmLog_Load(System::Object^  sender, System::EventArgs^  e) {
             closed = false;
             pause_start = NULL;
-            
+
             guiEx_settings exstg(true);
             exstg.load_log_win();
             SetWindowPos(exstg.s_log.log_pos[0], exstg.s_log.log_pos[1]);
@@ -618,7 +618,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 SB->Append(frame_n);
                 if (add_progress) {
                     DWORD time_remain = (DWORD)(time_elapsed * ((double)(total_frame - frame_n) / (double)frame_n)) / 1000;
-                    SB->Insert(0, L"[" + ProgressPercent + "] ");
+                    if (!ENCODER_SVTAV1) SB->Insert(0, L"[" + ProgressPercent + "] ");
 
                     t = (int)(time_remain / 3600);
                     SB->Append(L", eta ");
@@ -631,6 +631,23 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                     time_remain -= t * 60;
                     SB->Append(time_remain.ToString(L"D2"));
                 }
+                title = SB->ToString();
+            } else if (ENCODER_SVTAV1 && add_progress) {
+                StringBuilder ^SB = gcnew StringBuilder();
+                SB->Append(title);
+                DWORD time_remain = (DWORD)(time_elapsed * ((double)(total_frame - frame_n) / (double)frame_n)) / 1000;
+                //SB->Insert(0, L"[" + ProgressPercent + "] ");
+
+                t = (int)(time_remain / 3600);
+                SB->Append(L", eta ");
+                SB->Append(t.ToString(L"D2"));
+                SB->Append(L":");
+                time_remain -= t * 3600;
+                t = (int)(time_remain / 60);
+                SB->Append(t.ToString(L"D2"));
+                SB->Append(L":");
+                time_remain -= t * 60;
+                SB->Append(time_remain.ToString(L"D2"));
                 title = SB->ToString();
             }
             toolStripCurrentProgress->Value = clamp((int)(progress * toolStripCurrentProgress->Maximum + 0.5), toolStripCurrentProgress->Minimum, toolStripCurrentProgress->Maximum);

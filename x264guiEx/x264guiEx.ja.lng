@@ -74,6 +74,9 @@ AUO_ERR_INVALID_RESOLUTION=%s入力解像度が %d で割りきれません。�
 AUO_ERR_INVALID_RESOLUTION_WIDTH=横
 AUO_ERR_INVALID_RESOLUTION_HEIGHT=縦
 AUO_ERR_LOG_LINE_CACHE=ログ保存キャッシュ用メモリ確保に失敗しました。
+AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED1=mp4出力ではafsでのVFR出力に対応していません。
+AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED2=mkv出力を検討してください。
+AUO_ERR_TC2MP4_AFS_NOT_SUPPORTED3=なお、デフォルトの出力形式は、設定画面右上の[その他の設定]から変更できます。
 AUO_ERR_NO_EXE_FILE1=指定された %s が %s にありません。
 AUO_ERR_NO_EXE_FILE2=%s の場所が指定されていません。
 AUO_ERR_NO_EXE_FILE3=%s を用意し、その場所を設定画面から正しく指定してください。
@@ -305,6 +308,7 @@ AUO_OPTION_LEVEL_AUTO=自動
 AUO_CONFIG_TEXT_LIMIT_LENGTH=入力された文字数が多すぎます。減らしてください。
 AUO_CONFIG_HELP_CMD_UNSET=ヘルプ表示用のコマンドが設定されていません。
 AUO_CONFIG_STATUS_FILE=ステータスファイル
+AUO_CONFIG_ANALYSIS_FILE=解析ファイル
 AUO_CONFIG_TC_FILE=タイムコードファイル
 AUO_CONFIG_CHAPTER_FILE=チャプターファイル
 AUO_CONFIG_BAT_FILE=バッチファイル
@@ -470,22 +474,6 @@ AuofcgCBAFSBitrateCorrection=設定したビットレートになるよう補正
 AuofcgCBAFS=自動フィールドシフト(afs)を使用する
 AuofcgTSExeFileshelp=helpを表示
 AuofcgtoolStripSettings=toolStrip1
-<<<<<<< HEAD
-<<<<<<< HEAD
-AuofcgTSBSave=�㏑���ۑ�
-AuofcgTSBSaveNew=�V�K�ۑ�
-AuofcgTSBDelete=�폜
-AuofcgTSSettings=�v���Z�b�g
-AuofcgTSBCMDOnly=CLI���[�h
-AuofcgTSBBitrateCalc=�r�b�g���[�g�v�Z�@
-AuofcgTSBOtherSettings=���̑��̐ݒ�
-AuofcgTSLSettingsNotes=�����\��
-AuofcgTSTSettingsNotes=����...
-AuofcgTSLanguage=����
-AuofcgTSUITheme=�e�[�}
-=======
-=======
->>>>>>> master
 AuofcgTSBSave=上書き保存
 AuofcgTSBSaveNew=新規保存
 AuofcgTSBDelete=削除
@@ -496,10 +484,6 @@ AuofcgTSBOtherSettings=その他の設定
 AuofcgTSLSettingsNotes=メモ表示
 AuofcgTSTSettingsNotes=メモ...
 AuofcgTSLanguage=言語
-<<<<<<< HEAD
->>>>>>> wstring
-=======
->>>>>>> master
 AuofcgtabPageMP4=mp4
 AuofcgCBMP4MuxApple=Apple形式に対応
 AuofcgBTTC2MP4Path=...

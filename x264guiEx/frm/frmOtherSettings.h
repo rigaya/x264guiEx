@@ -154,14 +154,9 @@ namespace AUO_NAME_R {
     private: System::Windows::Forms::CheckBox^  fosCBAutoRefLimitByLevel;
     private: System::Windows::Forms::ComboBox^  fosCXDefaultAudioEncoder;
     private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
-private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
-private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
-private: System::Windows::Forms::Panel^  fosPNHideTabPage;
-
-
-
-
-
+    private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
+    private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
+    private: System::Windows::Forms::Panel^  fosPNHideTabPage;
 
 
 
@@ -368,7 +363,7 @@ private: System::Windows::Forms::Panel^  fosPNHideTabPage;
             this->fosCBAutoRefLimitByLevel->Name = L"fosCBAutoRefLimitByLevel";
             this->fosCBAutoRefLimitByLevel->Size = System::Drawing::Size(283, 19);
             this->fosCBAutoRefLimitByLevel->TabIndex = 23;
-            this->fosCBAutoRefLimitByLevel->Text = L"参照距離をH.264のレベルに応じて自動的に制限する";
+            this->fosCBAutoRefLimitByLevel->Text = L"参照距離をレベルに応じて自動的に制限する";
             this->fosCBAutoRefLimitByLevel->UseVisualStyleBackColor = true;
             // 
             // fosCBChapConvertToUTF8
@@ -946,6 +941,9 @@ private: System::Windows::Forms::Panel^  fosPNHideTabPage;
             fosTXStgDir->Text = stgDir;
             fos_ex_stg->load_encode_stg();
             fos_ex_stg->load_log_win();
+#if ENCODER_X265
+            this->fosCBAutoRefLimitByLevel->Visible = false;
+#endif
 
             LoadLangText();
             fosSetComboBox();
