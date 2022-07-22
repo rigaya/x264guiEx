@@ -1328,6 +1328,16 @@ System::Void frmConfig::InitForm() {
     fcgNULookaheadThreads->Maximum = max_threads_set;
     //タイマーの初期化
     InitTimer();
+    //デフォルトの出力拡張子によってデフォルトのタブを変更
+    switch (sys_dat->exstg->s_local.default_output_ext) {
+    case 0: //mp4
+        fcgtabControlMux->SelectedTab = fcgtabPageMP4;
+        break;
+    case 1: //mkv
+    default:
+        fcgtabControlMux->SelectedTab = fcgtabPageMKV;
+        break;
+    }
     //パラメータセット
     ConfToFrm(conf, true);
     //イベントセット
