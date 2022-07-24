@@ -578,7 +578,7 @@ void guiEx_settings::load_fn_replace() {
     fn_rep_mc.init(ini_filesize);
 
     char *ptr = (char *)fn_rep_mc.GetPtr();
-    size_t len = GetPrivateProfileSection(INI_SECTION_FN, ptr, (DWORD)fn_rep_mc.GetRemain() / sizeof(ptr[0]), ini_fileName);
+    size_t len = GetPrivateProfileSectionStg(INI_SECTION_FN, ptr, (DWORD)fn_rep_mc.GetRemain() / sizeof(ptr[0]), ini_fileName, codepage_ini);
     fn_rep_mc.CutMem((len + 1) * sizeof(ptr[0]));
     for (; *ptr != NULL; ptr += strlen(ptr) + 1) {
         FILENAME_REPLACE rep = { 0 };

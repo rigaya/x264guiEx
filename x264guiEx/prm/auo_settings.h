@@ -116,6 +116,18 @@ enum {
     DISABLE_LOG_ALL        = DISABLE_LOG_PIPE_INPUT | DISABLE_LOG_NORMAL,
 };
 
+static size_t GetPrivateProfileSectionStg(const char *section, char *buf, size_t bufSize, const char *ini_file, const DWORD codepage) {
+    if (bufSize == 0) {
+        return 0;
+    }
+    size_t len = GetPrivateProfileSection(section, buf, (DWORD)bufSize, ini_file);
+    if (codepage == CP_THREAD_ACP) {
+        return len;
+    }
+    const auto str_thread_acp = wstring_to_string(char_to_wstring(buf, codepage), CP_THREAD_ACP);
+    strcpy_s(buf, bufSize, str_thread_acp.c_str());
+    return str_thread_acp.length();
+}
 static size_t GetPrivateProfileStringStg(const char *section, const char *keyname, const char *defaultString, char *buf, size_t bufSize, const char *ini_file, const DWORD codepage) {
     if (bufSize == 0) {
         return 0;
