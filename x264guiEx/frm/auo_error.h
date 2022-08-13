@@ -28,6 +28,8 @@
 #ifndef _AUO_ERROR_H_
 #define _AUO_ERROR_H_
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 
 void warning_conf_not_initialized(const char *default_stg_file);

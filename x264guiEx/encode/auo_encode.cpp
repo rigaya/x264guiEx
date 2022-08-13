@@ -25,6 +25,8 @@
 //
 // --------------------------------------------------------------------------------------------
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include <cmath>
 #include <float.h>
@@ -1341,7 +1343,7 @@ static AUO_RESULT get_duration_from_timecode(double *duration, const char *tc_fi
             case 0: //1フレームのみ
                 *duration = 1.0 / fps; break;
             default: //フレーム時間を求める((avg_frames-1)フレーム分から平均をとる)
-                int div = 0, n = min(frame, avg_frames);
+                int div = 0, n = std::min(frame, avg_frames);
                 double sum = 0.0;
                 for (int i = 0; i < n; i++) {
                     sum += timecode[i];
@@ -1379,7 +1381,7 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
 
 double get_amp_margin_bitrate(double base_bitrate, double margin_multi) {
     double clamp_offset = (margin_multi < 0.0) ? 0.2 : 0.0;
-    return base_bitrate * clamp(1.0 - margin_multi / sqrt(max(base_bitrate, 1.0) / 100.0), 0.8 + clamp_offset, 1.0 + clamp_offset);
+    return base_bitrate * clamp(1.0 - margin_multi / std::sqrt(std::max(base_bitrate, 1.0) / 100.0), 0.8 + clamp_offset, 1.0 + clamp_offset);
 }
 
 static AUO_RESULT amp_move_old_file(const char *muxout, const char *savefile) {
@@ -1609,9 +1611,9 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
         //まずビットレートの上限を計算
         double limit_bitrate_upper = DBL_MAX;
         if (status & AMPLIMIT_FILE_SIZE)
-            limit_bitrate_upper = min(limit_bitrate_upper, (conf->vid.amp_limit_file_size * 1024*1024)*8.0/1000 / duration);
+            limit_bitrate_upper = std::min(limit_bitrate_upper, (conf->vid.amp_limit_file_size * 1024*1024)*8.0/1000 / duration);
         if (status & AMPLIMIT_BITRATE_UPPER)
-            limit_bitrate_upper = min(limit_bitrate_upper, conf->vid.amp_limit_bitrate_upper);
+            limit_bitrate_upper = std::min(limit_bitrate_upper, conf->vid.amp_limit_bitrate_upper);
         //次にビットレートの下限を計算
         double limit_bitrate_lower = (status & AMPLIMIT_BITRATE_LOWER) ? conf->vid.amp_limit_bitrate_lower : 0.0;
         //上限・下限チェック
@@ -1687,7 +1689,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 double bitrate_limit_upper = (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) ? conf->enc.bitrate - 0.5 * (file_bitrate - conf->vid.amp_limit_bitrate_upper) : DBL_MAX;
                 double bitrate_limit_lower = (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) ? conf->enc.bitrate + 0.5 * (conf->vid.amp_limit_bitrate_lower - file_bitrate) : 0.0;
                 double filesize_limit = (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) ? conf->enc.bitrate - 0.5 * ((filesize - conf->vid.amp_limit_file_size*1024*1024))* 8.0/1000.0 / get_duration(conf, sys_dat, pe, oip) : conf->enc.bitrate;
-                conf->enc.bitrate = (int)(0.5 + max(min(margin_bitrate, min(filesize_limit, bitrate_limit_upper)), bitrate_limit_lower));
+                conf->enc.bitrate = (int)(0.5 + std::max(std::min(margin_bitrate, std::min(filesize_limit, bitrate_limit_upper)), bitrate_limit_lower));
                 if (conf->vid.amp_check & AMPLIMIT_BITRATE_LOWER) {
                     AUO_RESULT ret = amp_adjust_lower_bitrate_from_bitrate(&conf->enc, &conf->vid, sys_dat, pe, oip, duration, file_bitrate);
                     if (ret == AUO_RESULT_WARNING) {

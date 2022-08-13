@@ -28,6 +28,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
@@ -110,7 +112,7 @@ BOOL guiEx_config::adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int ol
         for (int i = 0; i < ((CONF_GUIEX *)data_table)->block_count; ++i) {
             block = (BYTE *)old_data + ((CONF_GUIEX *)data_table)->block_head_p[i];
             dst = (BYTE *)conf_buf + conf_block_pointer[i];
-            memcpy(dst, block, min(((CONF_GUIEX *)data_table)->block_size[i], conf_block_data[i]));
+            memcpy(dst, block, std::min(((CONF_GUIEX *)data_table)->block_size[i], conf_block_data[i]));
         }
         ret = TRUE;
     }
@@ -156,7 +158,7 @@ int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
     for (int i = 0; i < ((CONF_GUIEX *)dat)->block_count; i++) {
         filedat = dat + ((CONF_GUIEX *)dat)->block_head_p[i];
         dst = (BYTE *)conf + conf_block_pointer[i];
-        memcpy(dst, filedat, min(((CONF_GUIEX *)dat)->block_size[i], conf_block_data[i]));
+        memcpy(dst, filedat, std::min(((CONF_GUIEX *)dat)->block_size[i], conf_block_data[i]));
     }
 
     if (0 == strcmp(CONF_NAME_OLD_1, conf_name))

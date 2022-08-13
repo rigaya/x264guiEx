@@ -25,6 +25,8 @@
 //
 // --------------------------------------------------------------------------------------------
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include <malloc.h>
 #include <stdlib.h>
@@ -413,43 +415,43 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
     ZeroMemory(pixel_data->data, sizeof(pixel_data->data));
     switch (output_csp) {
         case OUT_CSP_YUY2: //YUY2であってもコピーフレーム機能をサポートするためにはコピーが必要となる
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             break;
 #if ENABLE_NV12
         case OUT_CSP_NV16:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             break;
         case OUT_CSP_NV12:
         default:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             break;
 #else
         case OUT_CSP_YUV422:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 2, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             pixel_data->data[2] = pixel_data->data[1] + frame_size / 2;
             break;
         case OUT_CSP_YV12:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3 / 2, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             pixel_data->data[2] = pixel_data->data[1] + frame_size / 4;
             break;
 #endif
         case OUT_CSP_YUV444:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             pixel_data->data[1] = pixel_data->data[0] + frame_size;
             pixel_data->data[2] = pixel_data->data[1] + frame_size;
             break;
         case OUT_CSP_RGB:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, max(align_size, 16))) == NULL)
+            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 3, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;
             break;
     }

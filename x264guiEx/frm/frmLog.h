@@ -27,6 +27,8 @@
 
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include <mmsystem.h>
 
@@ -542,8 +544,8 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 if (   check_range(x, allScreens[i]->Bounds.X, allScreens[i]->Bounds.X + allScreens[i]->Bounds.Width)
                     && check_range(y, allScreens[i]->Bounds.Y, allScreens[i]->Bounds.Y + allScreens[i]->Bounds.Height)) {
                     Point point;
-                    point.X = min(x, allScreens[i]->Bounds.X + allScreens[i]->Bounds.Width - 120);
-                    point.Y = min(y, allScreens[i]->Bounds.Y + allScreens[i]->Bounds.Height - 120);
+                    point.X = std::min(x, allScreens[i]->Bounds.X + allScreens[i]->Bounds.Width - 120);
+                    point.Y = std::min(y, allScreens[i]->Bounds.Y + allScreens[i]->Bounds.Height - 120);
                     this->Location = point;
                     return;
                 }
@@ -557,7 +559,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
 
             //デスクトップ領域(タスクバー等除く)
             System::Drawing::Rectangle screen = System::Windows::Forms::Screen::GetWorkingArea(this);
-            this->ClientSize = System::Drawing::Size(min(width, screen.Width), min(height, screen.Height));
+            this->ClientSize = System::Drawing::Size(std::min(width, screen.Width), std::min(height, screen.Height));
         }
     public:
         System::Void ReloadLogWindowSettings() {

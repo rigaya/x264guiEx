@@ -28,10 +28,9 @@
 #ifndef _AUO_CONF_H_
 #define _AUO_CONF_H_
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
-#if (_MSC_VER >= 1910)
-#include <intrin.h>
-#endif
 #include "auo.h"
 #include "auo_mes.h"
 #include "auo_options.h"

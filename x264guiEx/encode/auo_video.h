@@ -29,6 +29,7 @@
 #define _AUO_VIDEO_H_
 
 #include "output.h"
+#include "convert.h"
 #include "auo_conf.h"
 #include "auo_system.h"
 
@@ -44,6 +45,13 @@ enum {
     CF_LW48 = 3,
 };
 static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB", "LW48" };
+
+#ifndef MAKEFOURCC
+#define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
+                ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
+                ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
+#endif
+
 static const COLORFORMAT_DATA COLORFORMATS[] = {
     { MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
     { MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48

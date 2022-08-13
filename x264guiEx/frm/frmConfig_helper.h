@@ -109,7 +109,7 @@ namespace x264guiEx {
         int BitrateToTB(int rate) //ビットレートをTBの値に換算
         {
             for (int i = data->Length - 2; i >= 0; i--)
-                if (data[i].bitrate <= (int)min((DWORD)INT_MAX, (DWORD)rate)) //int:-1をDWORD:0xffffffffとして扱い、最大値として設定
+                if (data[i].bitrate <= (int)std::min((DWORD)INT_MAX, (DWORD)rate)) //int:-1をDWORD:0xffffffffとして扱い、最大値として設定
                     return data[i].count + (int)((rate - data[i].bitrate) / (double)data[i].step);
             return 0;
         };

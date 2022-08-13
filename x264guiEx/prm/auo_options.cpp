@@ -1175,7 +1175,7 @@ static void set_guiEx_auto_ref_limit_by_level(CONF_X264 *cx, int width, int heig
     int level_index = cx->h264_level;
     if (!level_index)
         level_index = calc_auto_level(width, height, 0, cx->interlaced, fps_num, fps_den, cx->vbv_maxrate, cx->vbv_bufsize);
-    cx->ref_frames = max(1, min(cx->ref_frames, get_ref_limit(level_index, width, height, cx->interlaced)));
+    cx->ref_frames = std::max(1, std::min(cx->ref_frames, get_ref_limit(level_index, width, height, cx->interlaced)));
 }
 
 void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {

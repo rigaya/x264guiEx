@@ -359,12 +359,12 @@ static void message_audio_length_different(const double video_length, const doub
     const int vid_h = (int)(video_length / 3600);
     const int vid_m = (int)(video_length - vid_h * 3600) / 60;
     const int vid_s = (int)(video_length - vid_h * 3600 - vid_m * 60);
-    const int vid_ms = min((int)((video_length - (double)(vid_h * 3600 + vid_m * 60 + vid_s)) * 1000.0), 999);
+    const int vid_ms = std::min((int)((video_length - (double)(vid_h * 3600 + vid_m * 60 + vid_s)) * 1000.0), 999);
 
     const int aud_h = (int)audio_length / 3600;
     const int aud_m = (int)(audio_length - aud_h * 3600) / 60;
     const int aud_s = (int)(audio_length - aud_h * 3600 - aud_m * 60);
-    const int aud_ms = min((int)((audio_length - (double)(aud_h * 3600 + aud_m * 60 + aud_s)) * 1000.0), 999);
+    const int aud_ms = std::min((int)((audio_length - (double)(aud_h * 3600 + aud_m * 60 + aud_s)) * 1000.0), 999);
 
     if (audio_length_changed) {
         write_log_auo_line(    LOG_INFO, g_auo_mes.get(AUO_ERR_AUDIO_LENGTH_DIFFERENT1));

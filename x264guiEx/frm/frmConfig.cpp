@@ -777,7 +777,7 @@ System::Void frmConfig::AdjustCXDropDownWidth(ComboBox^ CX) {
     System::Drawing::Graphics^ ds = CX->CreateGraphics();
     float maxwidth = 0.0;
     for (int i = 0; i < CX->Items->Count; i++)
-        maxwidth = max(maxwidth, ds->MeasureString(CX->Items[i]->ToString(), CX->Font).Width);
+        maxwidth = std::max(maxwidth, ds->MeasureString(CX->Items[i]->ToString(), CX->Font).Width);
     CX->DropDownWidth = (int)(maxwidth + 0.5);
     delete ds;
 }
@@ -790,7 +790,7 @@ System::Void frmConfig::InitCXCmdExInsert() {
     System::Drawing::Graphics^ ds = fcgCXCmdExInsert->CreateGraphics();
     float max_width_of_string = 0;
     for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++)
-        max_width_of_string = max(max_width_of_string, ds->MeasureString(String(REPLACE_STRINGS_LIST[i].string).ToString() + L" … ", fcgCXCmdExInsert->Font).Width);
+        max_width_of_string = std::max(max_width_of_string, ds->MeasureString(String(REPLACE_STRINGS_LIST[i].string).ToString() + L" … ", fcgCXCmdExInsert->Font).Width);
     for (int i = 0; REPLACE_STRINGS_LIST[i].desc; i++) {
         String^ AppenStr = String(REPLACE_STRINGS_LIST[i].string).ToString();
         const int length_of_string = AppenStr->Length;
