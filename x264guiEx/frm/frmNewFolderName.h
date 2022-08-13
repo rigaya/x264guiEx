@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------------
-// x264guiEx/x265guiEx/svtAV1guiEx by rigaya
+// x264guiEx/x265guiEx/svtAV1guiEx/ffmpegOut/QSVEnc/NVEnc/VCEEnc by rigaya
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
