@@ -477,6 +477,7 @@ static BOOL check_avx2() {
     return FALSE;
 }
 
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
 static DWORD get_availableSIMD() {
     int CPUInfo[4];
     __cpuid(CPUInfo, 1);
@@ -514,6 +515,10 @@ static DWORD get_availableSIMD() {
     return simd;
 }
 
+std::string GetFullPathFrom(const char *path, const char *baseDir);
+std::wstring GetFullPathFrom(const wchar_t *path, const wchar_t *baseDir);
+#endif
+
 static BOOL check_OS_Win7orLater() {
 #if (_MSC_VER >= 1800)
     return IsWindowsVersionOrGreater(6, 1, 0);
@@ -524,9 +529,6 @@ static BOOL check_OS_Win7orLater() {
     return ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && ((osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 1) || osvi.dwMajorVersion > 6));
 #endif
 }
-
-std::string GetFullPathFrom(const char *path, const char *baseDir);
-std::wstring GetFullPathFrom(const wchar_t *path, const wchar_t *baseDir);
 
 //文字列の置換に必要な領域を計算する
 static size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str) {

@@ -232,6 +232,7 @@ std::string conv_cp_part_to_utf8(const std::string& string_utf8_with_cp) {
     return string_utf8;
 }
 
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
 std::string GetFullPathFrom(const char *path, const char *baseDir) {
     if (auto p = std::filesystem::path(path); p.is_absolute()) {
         return path;
@@ -249,6 +250,7 @@ std::wstring GetFullPathFrom(const wchar_t *path, const wchar_t *baseDir) {
     const auto p = (baseDir) ? std::filesystem::path(baseDir).append(path) : std::filesystem::absolute(std::filesystem::path(path));
     return p.lexically_normal().wstring();
 }
+#endif
 
 static inline BOOL is_space_or_crlf(int c) {
     return (c == ' ' || c == '\r' || c == '\n');
