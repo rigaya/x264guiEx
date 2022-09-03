@@ -154,7 +154,6 @@ namespace AUO_NAME_R {
     private: System::Windows::Forms::CheckBox^  fosCBAutoRefLimitByLevel;
     private: System::Windows::Forms::ComboBox^  fosCXDefaultAudioEncoder;
     private: System::Windows::Forms::Label^  fosLBDefaultAudioEncoder;
-    private: System::Windows::Forms::CheckBox^  fosCBWineCompat;
     private: System::Windows::Forms::CheckBox^  fosCBOutputMoreLog;
     private: System::Windows::Forms::Panel^  fosPNHideTabPage;
 
@@ -210,7 +209,6 @@ namespace AUO_NAME_R {
             this->fosLBDefaultOutExt = (gcnew System::Windows::Forms::Label());
             this->fostabPageGUI = (gcnew System::Windows::Forms::TabPage());
             this->fosCBOutputMoreLog = (gcnew System::Windows::Forms::CheckBox());
-            this->fosCBWineCompat = (gcnew System::Windows::Forms::CheckBox());
             this->fosCBGetRelativePath = (gcnew System::Windows::Forms::CheckBox());
             this->fosBTSetFont = (gcnew System::Windows::Forms::Button());
             this->fosCBStgEscKey = (gcnew System::Windows::Forms::CheckBox());
@@ -429,7 +427,6 @@ namespace AUO_NAME_R {
             // fostabPageGUI
             // 
             this->fostabPageGUI->Controls->Add(this->fosCBOutputMoreLog);
-            this->fostabPageGUI->Controls->Add(this->fosCBWineCompat);
             this->fostabPageGUI->Controls->Add(this->fosCBGetRelativePath);
             this->fostabPageGUI->Controls->Add(this->fosBTSetFont);
             this->fostabPageGUI->Controls->Add(this->fosCBStgEscKey);
@@ -457,16 +454,6 @@ namespace AUO_NAME_R {
             this->fosCBOutputMoreLog->TabIndex = 26;
             this->fosCBOutputMoreLog->Text = L"音声・muxのログも表示";
             this->fosCBOutputMoreLog->UseVisualStyleBackColor = true;
-            // 
-            // fosCBWineCompat
-            // 
-            this->fosCBWineCompat->AutoSize = true;
-            this->fosCBWineCompat->Location = System::Drawing::Point(20, 261);
-            this->fosCBWineCompat->Name = L"fosCBWineCompat";
-            this->fosCBWineCompat->Size = System::Drawing::Size(104, 19);
-            this->fosCBWineCompat->TabIndex = 25;
-            this->fosCBWineCompat->Text = L"wine互換モード";
-            this->fosCBWineCompat->UseVisualStyleBackColor = true;
             // 
             // fosCBGetRelativePath
             // 
@@ -857,7 +844,6 @@ namespace AUO_NAME_R {
             LOAD_CLI_TEXT(fosLBDefaultOutExt);
             LOAD_CLI_TEXT(fostabPageGUI);
             LOAD_CLI_TEXT(fosCBOutputMoreLog);
-            LOAD_CLI_TEXT(fosCBWineCompat);
             LOAD_CLI_TEXT(fosCBGetRelativePath);
             LOAD_CLI_TEXT(fosBTSetFont);
             LOAD_CLI_TEXT(fosCBStgEscKey);
@@ -910,7 +896,6 @@ namespace AUO_NAME_R {
             fos_ex_stg->s_local.auto_ref_limit_by_level   = fosCBAutoRefLimitByLevel->Checked;
             fos_ex_stg->s_log.minimized                   = fosCBLogStartMinimized->Checked;
             fos_ex_stg->s_log.transparent                 = !fosCBLogDisableTransparency->Checked;
-            fos_ex_stg->s_log.wine_compat                 = fosCBWineCompat->Checked;
             fos_ex_stg->s_log.log_level                   =(fosCBOutputMoreLog->Checked) ? LOG_MORE : LOG_INFO;
             fos_ex_stg->s_local.get_relative_path         = fosCBGetRelativePath->Checked;
             fos_ex_stg->s_local.default_output_ext        = fosCXDefaultOutExt->SelectedIndex;
@@ -960,7 +945,6 @@ namespace AUO_NAME_R {
             fosCBAutoRefLimitByLevel->Checked       = fos_ex_stg->s_local.auto_ref_limit_by_level != 0;
             fosCBLogStartMinimized->Checked         = fos_ex_stg->s_log.minimized != 0;
             fosCBLogDisableTransparency->Checked    = fos_ex_stg->s_log.transparent == 0;
-            fosCBWineCompat->Checked                = fos_ex_stg->s_log.wine_compat != 0;
             fosCBOutputMoreLog->Checked             = fos_ex_stg->s_log.log_level != LOG_INFO;
             fosCBGetRelativePath->Checked           = fos_ex_stg->s_local.get_relative_path != 0;
             fosCXDefaultOutExt->SelectedIndex       = fos_ex_stg->s_local.default_output_ext;
