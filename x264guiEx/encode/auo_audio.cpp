@@ -280,7 +280,9 @@ static void show_audio_enc_info(const AUDIO_SETTINGS *aud_stg, const CONF_AUDIO 
         aud_stg->dispname, char_to_wstring(ver_str).c_str(),
         g_auo_mes.get(AUO_AUDIO_START_ENCODE), aud_stg->mode[cnf_aud->enc_mode].name, bitrate, use2pass);
     show_audio_delay_cut_info(cnf_aud->delay_cut, pe);
-    write_log_auo_line(LOG_MORE, char_to_wstring(aud_dat->args).c_str());
+    if (strlen(aud_dat->args) > 0) {
+        write_log_auo_line(LOG_DEBUG, char_to_wstring(aud_dat->args).c_str());
+    }
 }
 
 static void recalculate_audio_delay_cut_for_afs(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const AUDIO_SETTINGS *aud_stg) {
