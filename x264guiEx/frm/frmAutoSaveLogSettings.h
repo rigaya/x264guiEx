@@ -95,18 +95,16 @@ namespace AUO_NAME_R {
             }
         }
     private: System::Windows::Forms::Label^  fasLBAutoSaveLog;
-    protected: 
+    protected:
 
     private: System::Windows::Forms::ComboBox^  fasCXAutoSaveLog;
     private: System::Windows::Forms::TextBox^  fasTXAutoSaveLog;
-    protected: 
+    protected:
 
 
     private: System::Windows::Forms::Button^  fasBTAutoSaveLog;
     private: System::Windows::Forms::Button^  fasBTCancel;
     private: System::Windows::Forms::Button^  fasBTOK;
-
-
 
 
 
@@ -130,18 +128,18 @@ namespace AUO_NAME_R {
             this->fasBTCancel = (gcnew System::Windows::Forms::Button());
             this->fasBTOK = (gcnew System::Windows::Forms::Button());
             this->SuspendLayout();
-            // 
+            //
             // fasLBAutoSaveLog
-            // 
+            //
             this->fasLBAutoSaveLog->AutoSize = true;
             this->fasLBAutoSaveLog->Location = System::Drawing::Point(23, 28);
             this->fasLBAutoSaveLog->Name = L"fasLBAutoSaveLog";
             this->fasLBAutoSaveLog->Size = System::Drawing::Size(119, 15);
             this->fasLBAutoSaveLog->TabIndex = 0;
             this->fasLBAutoSaveLog->Text = L"自動ログ保存ファイル名";
-            // 
+            //
             // fasCXAutoSaveLog
-            // 
+            //
             this->fasCXAutoSaveLog->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
             this->fasCXAutoSaveLog->FormattingEnabled = true;
             this->fasCXAutoSaveLog->Items->AddRange(gcnew cli::array< System::Object^  >(2) {L"出力先と同じ", L"カスタム"});
@@ -149,16 +147,16 @@ namespace AUO_NAME_R {
             this->fasCXAutoSaveLog->Name = L"fasCXAutoSaveLog";
             this->fasCXAutoSaveLog->Size = System::Drawing::Size(178, 23);
             this->fasCXAutoSaveLog->TabIndex = 1;
-            // 
+            //
             // fasTXAutoSaveLog
-            // 
+            //
             this->fasTXAutoSaveLog->Location = System::Drawing::Point(52, 54);
             this->fasTXAutoSaveLog->Name = L"fasTXAutoSaveLog";
             this->fasTXAutoSaveLog->Size = System::Drawing::Size(290, 23);
             this->fasTXAutoSaveLog->TabIndex = 2;
-            // 
+            //
             // fasBTAutoSaveLog
-            // 
+            //
             this->fasBTAutoSaveLog->Location = System::Drawing::Point(348, 53);
             this->fasBTAutoSaveLog->Name = L"fasBTAutoSaveLog";
             this->fasBTAutoSaveLog->Size = System::Drawing::Size(33, 23);
@@ -166,9 +164,9 @@ namespace AUO_NAME_R {
             this->fasBTAutoSaveLog->Text = L"..";
             this->fasBTAutoSaveLog->UseVisualStyleBackColor = true;
             this->fasBTAutoSaveLog->Click += gcnew System::EventHandler(this, &frmAutoSaveLogSettings::fasBTAutoSaveLog_Click);
-            // 
+            //
             // fasBTCancel
-            // 
+            //
             this->fasBTCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
             this->fasBTCancel->Location = System::Drawing::Point(227, 93);
             this->fasBTCancel->Name = L"fasBTCancel";
@@ -177,9 +175,9 @@ namespace AUO_NAME_R {
             this->fasBTCancel->Text = L"キャンセル";
             this->fasBTCancel->UseVisualStyleBackColor = true;
             this->fasBTCancel->Click += gcnew System::EventHandler(this, &frmAutoSaveLogSettings::fasBTCancel_Click);
-            // 
+            //
             // fasBTOK
-            // 
+            //
             this->fasBTOK->Location = System::Drawing::Point(311, 93);
             this->fasBTOK->Name = L"fasBTOK";
             this->fasBTOK->Size = System::Drawing::Size(75, 32);
@@ -187,9 +185,9 @@ namespace AUO_NAME_R {
             this->fasBTOK->Text = L"OK";
             this->fasBTOK->UseVisualStyleBackColor = true;
             this->fasBTOK->Click += gcnew System::EventHandler(this, &frmAutoSaveLogSettings::fasBTOK_Click);
-            // 
+            //
             // frmAutoSaveLogSettings
-            // 
+            //
             this->AcceptButton = this->fasBTOK;
             this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
@@ -201,7 +199,7 @@ namespace AUO_NAME_R {
             this->Controls->Add(this->fasTXAutoSaveLog);
             this->Controls->Add(this->fasCXAutoSaveLog);
             this->Controls->Add(this->fasLBAutoSaveLog);
-            this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+            this->Font = (gcnew System::Drawing::Font(L"Meiryo UI", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
             this->KeyPreview = true;
@@ -265,23 +263,23 @@ namespace AUO_NAME_R {
             GetCHARfromString(fas_ex_stg->s_log.auto_save_log_path, sizeof(fas_ex_stg->s_log.auto_save_log_path), fasTXAutoSaveLog->Text);
             fas_ex_stg->save_log_win();
         }
-    private: 
+    private:
         System::Void frmAutoSaveLogSettings_Load(System::Object^  sender, System::EventArgs^  e) {
             fas_ex_stg->load_log_win();
             LoadLangText();
             SetCXIndex(fasCXAutoSaveLog, fas_ex_stg->s_log.auto_save_log_mode);
             fasTXAutoSaveLog->Text = String(fas_ex_stg->s_log.auto_save_log_path).ToString();
         }
-    private: 
+    private:
         System::Void fasBTOK_Click(System::Object^  sender, System::EventArgs^  e) {
             SavefasToStg();
             this->Close();
         }
-    private: 
+    private:
         System::Void fasBTCancel_Click(System::Object^  sender, System::EventArgs^  e) {
             this->Close();
         }
-    private: 
+    private:
         System::Void fasBTAutoSaveLog_Click(System::Object^  sender, System::EventArgs^  e) {
             String^ CurrentDir = Directory::GetCurrentDirectory();
             SaveFileDialog^ sfd = gcnew SaveFileDialog();
