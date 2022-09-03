@@ -1119,13 +1119,6 @@ std::string conv_cp_part_to_utf8(const std::string& string_utf8_with_cp);
 //値を削除できたらTRUEを返す
 BOOL del_arg(char *cmd, char *target_arg, int del_arg_delta);
 
-//TargetProcessIdに指定したプロセスのスレッドのうち、
-//スレッドのModuleがTargetModuleに指定した文字列に一致した場合(_strnicmpによる比較)
-//スレッド優先度をThreadPriorityに設定する
-//TargetModuleがNULLならTargetProcessIdの全スレッドに適用
-BOOL SetThreadPriorityForModule(DWORD TargetProcessId, const char *TargetModule, int ThreadPriority);
-BOOL SetThreadAffinityForModule(DWORD TargetProcessId, const char *TargetModule, DWORD_PTR ThreadAffinityMask);
-
 const TCHAR *getOSVersion(DWORD *buildNumber = nullptr);
 
 #endif //_AUO_UTIL_H_
