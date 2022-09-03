@@ -25,10 +25,13 @@
 //
 // --------------------------------------------------------------------------------------------
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <emmintrin.h>
+#include <chrono>
 
 #include "output.h"
 #include "auo.h"
@@ -69,9 +72,9 @@ static BOOL auo_rest_time_disp(int now, int total) {
         if (g_oip)
             g_oip->func_rest_time_disp(now, total);
         //進捗表示
-        static DWORD tm_last = timeGetTime();
-        DWORD tm;
-        if ((tm = timeGetTime()) - tm_last > LOG_UPDATE_INTERVAL * 5) {
+        static auto tm_last = std::chrono::system_clock::now();
+        decltype(tm_last) tm;
+        if (std::chrono::duration_cast<std::chrono::milliseconds>((tm = std::chrono::system_clock::now()) - tm_last).count() > LOG_UPDATE_INTERVAL * 5) {
             set_log_progress(now / (double)total);
             tm_last = tm;
         }
@@ -198,7 +201,7 @@ static int auo_kill_update_preview() {
 static AUO_RESULT audio_faw2aac_check(const char *audfile) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     UINT64 audfilesize = 0;
-    if (!PathFileExists(audfile) || 
+    if (!PathFileExists(audfile) ||
         (GetFileSizeUInt64(audfile, &audfilesize) && audfilesize == 0)) {
             //エラーが発生した場合
         ret |= AUO_RESULT_ERROR; error_audenc_failed(L"faw2aac.auo", NULL);
@@ -226,8 +229,8 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
     if (hModule == NULL) {
         ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_FAW2AAC_NOT_FOUND));
     } else if (
-           NULL == (getFAW2AACTable = (func_get_auo_table)GetProcAddress(hModule, "GetOutputPluginTable")) 
-        || NULL == (opt = getFAW2AACTable()) 
+           NULL == (getFAW2AACTable = (func_get_auo_table)GetProcAddress(hModule, "GetOutputPluginTable"))
+        || NULL == (opt = getFAW2AACTable())
         || NULL ==  opt->func_output) {
         ret = AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_FAW2AAC_NOT_LOADED));
     } else {
