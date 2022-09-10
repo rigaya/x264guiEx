@@ -81,13 +81,15 @@ namespace AUO_NAME_R {
             //これがfalseだとイベントで設定保存をするので、とりあえずtrue
             prevent_log_closing = true;
 
+            _start_time = 0;
+
             //設定から情報を取得
             guiEx_settings exstg;
             exstg.load_log_win();
             if (exstg.s_log.minimized)
                 this->WindowState = FormWindowState::Minimized;
-            _x264_priority = NULL;
-            _enc_pause = NULL;
+            _enc_priority = NULL;
+            _enc_pause = nullptr;
             LogTitle = String(AUO_FULL_NAME).ToString();
 
             InitializeComponent();
@@ -113,7 +115,7 @@ namespace AUO_NAME_R {
                     }
                     x264_priority->Name = L"ToolStripItem" + priority_name;
                     x264_priority->Text = priority_name;
-                    x264_priority->Checked = (_x264_priority != NULL && *_x264_priority == priority_table[i].value) ? true : false;
+                    x264_priority->Checked = (_enc_priority != NULL && *_enc_priority == priority_table[i].value) ? true : false;
                     this->ToolStripMenuItemVidEncPriority->DropDownItems->Add(x264_priority);
                 } else {
                     this->ToolStripMenuItemVidEncPriority->DropDownItems->Add(gcnew System::Windows::Forms::ToolStripSeparator());
@@ -179,9 +181,9 @@ namespace AUO_NAME_R {
     private:
         taskbarProgress *taskbar_progress; //タスクバーでの進捗表示
         HWND hWnd; //このウィンドウのハンドル
-        DWORD *_x264_priority; //x264優先度へのポインタ
-        BOOL *_enc_pause;      //エンコ一時停止へのポインタ
-        DWORD _x264_start_time; //x264エンコ開始時間
+        DWORD *_enc_priority; //x264優先度へのポインタ
+        bool *_enc_pause;      //エンコ一時停止へのポインタ
+        DWORD _start_time;//エンコ開始時間
         bool closed; //このウィンドウが閉じているか、開いているか
         bool prevent_log_closing; //ログウィンドウを閉じるを無効化するか・設定保存イベントのフラグでもある
         bool add_progress;
@@ -610,7 +612,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             String^ title = String(chr).ToString();
             double progress = frame_n / (double)total_frame;
             String^ ProgressPercent = (progress).ToString("P1");
-            DWORD time_elapsed = timeGetTime() - _x264_start_time;
+            DWORD time_elapsed = timeGetTime() - _start_time;
             int t;
             if (using_afs) {
                 StringBuilder^ SB = gcnew StringBuilder();
@@ -798,18 +800,18 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 SaveLog(String(log_filename).ToString());
         }
     public:
-        System::Void Enablex264Control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL _add_progress, DWORD start_time, int _total_frame) {
+        System::Void EnableEncControl(DWORD *priority, bool *enc_pause, BOOL afs, BOOL _add_progress, DWORD start_time, int _total_frame) {
             int i, j;
-            _x264_priority = priority;
+            _enc_priority = priority;
             _enc_pause = enc_pause;
             add_progress = _add_progress != 0;
             using_afs = afs != 0;
-            _x264_start_time = start_time;
+            _start_time = start_time;
             total_frame = _total_frame;
 
-            if (_x264_priority) {
+            if (_enc_priority) {
                 for (i = 0; priority_table[i].text; i++)
-                    if (*_x264_priority == priority_table[i].value)
+                    if (*_enc_priority == priority_table[i].value)
                         break;
 
                 for (j = 0; j < this->ToolStripMenuItemVidEncPriority->DropDownItems->Count; j++)
@@ -825,10 +827,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             }
         }
     public:
-        System::Void Disablex264Control() {
+        System::Void DisableEncControl() {
             this->ToolStripMenuItemVidEncPriority->Enabled = false;
             this->ToolStripMenuItemEncPause->Enabled = false;
-            _x264_priority = NULL;
+            _enc_priority = NULL;
             _enc_pause = NULL;
         }
     private:
@@ -908,7 +910,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
     private:
         System::Void ToolStripMenuItemEncPause_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
             if (_enc_pause) {
-                *_enc_pause = Convert::ToInt32(ToolStripMenuItemEncPause->Checked);
+                *_enc_pause = ToolStripMenuItemEncPause->Checked;
                 if (nullptr != taskbar_progress) {
                     (*_enc_pause) ? taskbar_progress->pause() : taskbar_progress->restart();
                 }
@@ -916,7 +918,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                 //    pause_start = timeGetTime(); //一時停止を開始した時間
                 //} else {
                 //    if (pause_start)
-                //        *_x264_start_time += timeGetTime() - pause_start; //開始時間を修正し、一時停止後も正しい時間情報を維持
+                //        *_start_time += timeGetTime() - pause_start; //開始時間を修正し、一時停止後も正しい時間情報を維持
                 //    pause_start = NULL;
                 //}
             }
@@ -944,7 +946,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
     private:
         System::Void ToolStripMenuItemx264Priority_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e) {
             int i, j;
-            if (_x264_priority != NULL && e->ClickedItem->GetType() == this->ToolStripMenuItemVidEncPriority->GetType()) {
+            if (_enc_priority != NULL && e->ClickedItem->GetType() == this->ToolStripMenuItemVidEncPriority->GetType()) {
                 System::Windows::Forms::ToolStripMenuItem^ item = (System::Windows::Forms::ToolStripMenuItem^)e->ClickedItem;
                 //一度全部のチェックを外す
                 for (i = 0; i < this->ToolStripMenuItemVidEncPriority->DropDownItems->Count; i++) {
@@ -963,7 +965,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                         }
                     }
                 }
-                *_x264_priority = priority_table[j].value;
+                *_enc_priority = priority_table[j].value;
             }
         }
     private:

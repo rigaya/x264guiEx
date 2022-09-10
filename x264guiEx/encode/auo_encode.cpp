@@ -82,6 +82,7 @@ static void avoid_exsisting_tmp_file(char *buf, size_t size) {
     }
 }
 
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
 #pragma warning (push)
 #pragma warning (disable: 4244)
 #pragma warning (disable: 4996)
@@ -91,6 +92,7 @@ static inline std::string tolowercase(const std::string& str) {
     return str_copy;
 }
 #pragma warning (pop)
+#endif
 
 static std::vector<std::filesystem::path> find_exe_files(const char *target_dir) {
     std::vector<std::filesystem::path> ret;
@@ -201,6 +203,13 @@ std::filesystem::path find_latest_videnc(const std::vector<std::filesystem::path
         }
 #elif ENCODER_SVTAV1
         if (get_svtav1_rev(path.string().c_str(), value) == 0) {
+            if (version_a_larger_than_b(value, version) > 0) {
+                memcpy(version, value, sizeof(version));
+                ret = path;
+            }
+        }
+#elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+        if (get_exe_version_info(path.string().c_str(), value) == 0) {
             if (version_a_larger_than_b(value, version) > 0) {
                 memcpy(version, value, sizeof(version));
                 ret = path;

@@ -822,7 +822,8 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 #if ENABLE_AMP
         UINT64 amp_filesize_limit = (UINT64)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
 #endif
-        BOOL enc_pause = FALSE, copy_frame = FALSE, drop = FALSE;
+        bool enc_pause = false;
+        BOOL copy_frame = FALSE, drop = FALSE;
         const DWORD aviutl_color_fmt = COLORFORMATS[get_aviutl_color_format(conf->enc.use_highbit_depth ? 16 : 8, conf->enc.output_csp, conf->vid.input_as_lw48)].FOURCC;
         double time_get_frame = 0.0;
         int64_t qp_freq, qp_start, qp_end;
@@ -839,7 +840,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
         //ログウィンドウ側から制御を可能に
         DWORD tm_vid_enc_start = timeGetTime();
-        enable_x264_control(&set_priority, &enc_pause, afs, afs && pe->current_pass == 1, tm_vid_enc_start, oip->n);
+        enable_enc_control(&set_priority, &enc_pause, afs, afs && pe->current_pass == 1, tm_vid_enc_start, oip->n);
 
         //------------メインループ------------
         for (i = 0, next_jitter = jitter + 1, pe->drop_count = 0; i < oip->n; i++, next_jitter++) {
@@ -933,7 +934,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         video_output_close_thread(&thread_data, ret);
 
         //ログウィンドウからのx264制御を無効化
-        disable_x264_control();
+        disable_enc_control();
 
         //パイプを閉じる
         CloseStdIn(&pipes);

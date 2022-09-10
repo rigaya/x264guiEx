@@ -159,7 +159,7 @@ void set_reconstructed_title_mes(const char *mes, int total_drop, int current_fr
 }
 #endif
 
-void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames, int total_frames) {
+void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int current_frames, int total_frames, LOG_CACHE *cache_line) {
     char *a, *b, *mes = msg;
     char *const fin = mes + *log_len; //null文字の位置
     *fin = '\0';
@@ -167,7 +167,7 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
         if ((b = strrchr(mes, '\r', a - mes - 2)) != NULL)
             mes = b + 1;
         *a = '\0';
-        write_log_enc_mes_line(mes, NULL);
+        write_log_enc_mes_line(mes, cache_line);
         mes = a + 1;
     }
     if ((a = strrchr(mes, '\r', fin - mes - 1)) != NULL) {
@@ -180,7 +180,7 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
 #if ENCODER_SVTAV1
         if (strstr(mes, "Encoding frame")) {
 #else
-        if (NULL == strstr(mes, "frames")) {
+        if ((ENCODER_X264 || ENCODER_X265) && NULL == strstr(mes, "frames")) {
 #endif
             set_reconstructed_title_mes(mes, total_drop, current_frames, total_frames);
         } else {

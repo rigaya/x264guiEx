@@ -89,13 +89,13 @@ void flush_audio_log() {
 }
 //ログウィンドウからのx264制御を有効化
 [STAThreadAttribute]
-void enable_x264_control(DWORD *priority, BOOL *enc_pause, BOOL afs, BOOL add_progress, DWORD start_time, int _total_frame) {
-    frmLog::Instance::get()->Enablex264Control(priority, enc_pause, afs, add_progress, start_time, _total_frame);
+void enable_enc_control(DWORD *priority, bool *enc_pause, BOOL afs, BOOL add_progress, DWORD start_time, int _total_frame) {
+    frmLog::Instance::get()->EnableEncControl(priority, enc_pause, afs, add_progress, start_time, _total_frame);
 }
 //ログウィンドウからのx264制御を無効化
 [STAThreadAttribute]
-void disable_x264_control() {
-    frmLog::Instance::get()->Disablex264Control();
+void disable_enc_control() {
+    frmLog::Instance::get()->DisableEncControl();
 }
 //ログウィンドウを閉じられるかどうかを設定
 [STAThreadAttribute]
