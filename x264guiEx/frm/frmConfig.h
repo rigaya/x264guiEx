@@ -169,7 +169,8 @@ private: System::Windows::Forms::Label^  fcgLBAMPAutoBitrate;
     private: System::Windows::Forms::ComboBox^  fcgCXPreset;
     private: System::Windows::Forms::ComboBox^  fcgCXProfile;
     private: System::Windows::Forms::Button^  fcgBTApplyPreset;
-    private: System::Windows::Forms::GroupBox^  fcggroupBoxAepectRatio;
+private: System::Windows::Forms::GroupBox^  fcgGroupBoxAspectRatio;
+
     private: System::Windows::Forms::NumericUpDown^  fcgNUAspectRatioX;
     private: System::Windows::Forms::ComboBox^  fcgCXAspectRatio;
 
@@ -870,7 +871,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgLBTransfer = (gcnew System::Windows::Forms::Label());
             this->fcgLBColorPrim = (gcnew System::Windows::Forms::Label());
             this->fcgLBColorMatrix = (gcnew System::Windows::Forms::Label());
-            this->fcggroupBoxAepectRatio = (gcnew System::Windows::Forms::GroupBox());
+            this->fcgGroupBoxAspectRatio = (gcnew System::Windows::Forms::GroupBox());
             this->fcgNUAspectRatioY = (gcnew System::Windows::Forms::NumericUpDown());
             this->fcgLBAspectRatio = (gcnew System::Windows::Forms::Label());
             this->fcgNUAspectRatioX = (gcnew System::Windows::Forms::NumericUpDown());
@@ -1158,7 +1159,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNULookaheadThreads))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUThreads))->BeginInit();
             this->fcggroupBoxColorMatrix->SuspendLayout();
-            this->fcggroupBoxAepectRatio->SuspendLayout();
+            this->fcgGroupBoxAspectRatio->SuspendLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioY))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioX))->BeginInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgpictureBoxX264))->BeginInit();
@@ -1255,7 +1256,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageX264Main->Controls->Add(this->fcgLBLevel);
             this->fcgtabPageX264Main->Controls->Add(this->fcgCXLevel);
             this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxColorMatrix);
-            this->fcgtabPageX264Main->Controls->Add(this->fcggroupBoxAepectRatio);
+            this->fcgtabPageX264Main->Controls->Add(this->fcgGroupBoxAspectRatio);
             this->fcgtabPageX264Main->Controls->Add(this->fcgpictureBoxX264);
             this->fcgtabPageX264Main->Controls->Add(this->fcgBTX264Path);
             this->fcgtabPageX264Main->Controls->Add(this->fcgTXX264Path);
@@ -1873,18 +1874,18 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgLBColorMatrix->TabIndex = 0;
             this->fcgLBColorMatrix->Text = L"colormatrix";
             // 
-            // fcggroupBoxAepectRatio
+            // fcgGroupBoxAspectRatio
             // 
-            this->fcggroupBoxAepectRatio->Controls->Add(this->fcgNUAspectRatioY);
-            this->fcggroupBoxAepectRatio->Controls->Add(this->fcgLBAspectRatio);
-            this->fcggroupBoxAepectRatio->Controls->Add(this->fcgNUAspectRatioX);
-            this->fcggroupBoxAepectRatio->Controls->Add(this->fcgCXAspectRatio);
-            this->fcggroupBoxAepectRatio->Location = System::Drawing::Point(396, 6);
-            this->fcggroupBoxAepectRatio->Name = L"fcggroupBoxAepectRatio";
-            this->fcggroupBoxAepectRatio->Size = System::Drawing::Size(205, 94);
-            this->fcggroupBoxAepectRatio->TabIndex = 20;
-            this->fcggroupBoxAepectRatio->TabStop = false;
-            this->fcggroupBoxAepectRatio->Text = L"アスペクト比";
+            this->fcgGroupBoxAspectRatio->Controls->Add(this->fcgNUAspectRatioY);
+            this->fcgGroupBoxAspectRatio->Controls->Add(this->fcgLBAspectRatio);
+            this->fcgGroupBoxAspectRatio->Controls->Add(this->fcgNUAspectRatioX);
+            this->fcgGroupBoxAspectRatio->Controls->Add(this->fcgCXAspectRatio);
+            this->fcgGroupBoxAspectRatio->Location = System::Drawing::Point(396, 6);
+            this->fcgGroupBoxAspectRatio->Name = L"fcgGroupBoxAspectRatio";
+            this->fcgGroupBoxAspectRatio->Size = System::Drawing::Size(205, 94);
+            this->fcgGroupBoxAspectRatio->TabIndex = 20;
+            this->fcgGroupBoxAspectRatio->TabStop = false;
+            this->fcgGroupBoxAspectRatio->Text = L"アスペクト比";
             // 
             // fcgNUAspectRatioY
             // 
@@ -4838,8 +4839,8 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUThreads))->EndInit();
             this->fcggroupBoxColorMatrix->ResumeLayout(false);
             this->fcggroupBoxColorMatrix->PerformLayout();
-            this->fcggroupBoxAepectRatio->ResumeLayout(false);
-            this->fcggroupBoxAepectRatio->PerformLayout();
+            this->fcgGroupBoxAspectRatio->ResumeLayout(false);
+            this->fcgGroupBoxAspectRatio->PerformLayout();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioY))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgNUAspectRatioX))->EndInit();
             (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fcgpictureBoxX264))->EndInit();
