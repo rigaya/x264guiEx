@@ -140,9 +140,10 @@
     </None>
     <None Include="x264guiEx.ini" />
     <None Include="x264guiEx.en.lng" />
-    <None Include="..\x264guiEx.ja.lng" />
     <None Include="x264guiEx.en.ini" />
     <None Include="x264guiEx.zh.ini" />
+    <None Include="x264guiEx.ja.lng" />
+    <None Include="x264guiEx.zh.lng" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="auo.h">
