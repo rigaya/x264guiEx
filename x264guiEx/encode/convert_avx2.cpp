@@ -31,8 +31,8 @@
 #include "convert.h"
 #include "convert_const.h"
 
-#if _MSC_VER >= 1800 && !defined(__AVX__) && !defined(_DEBUG)
-static_assert(false, "do not forget to set /arch:AVX or /arch:AVX2 for this file.");
+#if _MSC_VER >= 1800 && !defined(__AVX2__) && !defined(_DEBUG)
+static_assert(false, "do not forget to set /arch:AVX2 for this file.");
 #endif
 
 
@@ -952,7 +952,7 @@ void convert_lw48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const
     short *ycp;
     short *const ycp_fin = (short *)pixel + width * height * 3;
     __m256i y1, y2, y3, yY, yU, yV;
-    for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 96, Y += 16, U += 16, V += 16) {
+    for (ycp = (short *)pixel; ycp < ycp_fin; ycp += 96, Y += 32, U += 32, V += 32) {
         y1 = _mm256_loadu_si256((__m256i *)(ycp +  0));
         y2 = _mm256_loadu_si256((__m256i *)(ycp + 16));
         y3 = _mm256_loadu_si256((__m256i *)(ycp + 32));

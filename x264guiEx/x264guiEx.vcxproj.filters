@@ -130,6 +130,9 @@
     <ClCompile Include="frm\auo_mes.cpp">
       <Filter>ソース ファイル\frm</Filter>
     </ClCompile>
+    <ClCompile Include="encode\convert_avx512.cpp">
+      <Filter>ソース ファイル\encode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="x264guiEx.def">

@@ -96,6 +96,8 @@ void convert_yuy2_to_nv12_avx(void *frame, CONVERT_CF_DATA *pixel_data, const in
 void convert_yuy2_to_nv12_i_avx(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yuy2_to_nv12_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yuy2_to_nv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_nv12_avx512(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_nv12_i_avx512(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 //YUY2 -> yv12 (8bit)
@@ -114,6 +116,8 @@ void convert_yuy2_to_yv12_avx(void *frame, CONVERT_CF_DATA *pixel_data, const in
 void convert_yuy2_to_yv12_i_avx(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yuy2_to_yv12_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yuy2_to_yv12_i_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_yv12_avx512(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yuy2_to_yv12_i_avx512(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 
@@ -139,6 +143,11 @@ void convert_yc48_to_nv12_i_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, 
 void convert_yc48_to_nv12_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+void convert_yc48_to_nv12_10bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_10bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_10bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
 //YC48 -> nv12 (16bit)
 void convert_yc48_to_nv12_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -163,7 +172,15 @@ void convert_yc48_to_nv12_i_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, 
 void convert_yc48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+void convert_yc48_to_nv12_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_nv12_i_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
 //YC48 -> yv12 (10bit)
+void convert_yc48_to_yv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
 void convert_yc48_to_yv12_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yv12_i_10bit_sse2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yv12_10bit_sse2_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -183,6 +200,11 @@ void convert_yc48_to_yv12_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, co
 void convert_yc48_to_yv12_i_10bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yv12_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yv12_i_10bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
+void convert_yc48_to_yv12_10bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_i_10bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_10bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_i_10bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 //YC48 -> yv12 (16bit)
 void convert_yc48_to_yv12_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -208,10 +230,10 @@ void convert_yc48_to_yv12_i_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, 
 void convert_yc48_to_yv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
-//YC48 -> yv12 (10bit)
-void convert_yc48_to_yv12_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
-void convert_yc48_to_yv12_i_10bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
-
+void convert_yc48_to_yv12_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_i_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yv12_i_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 //YUY2 -> nv16
 void convert_yuy2_to_nv16(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -251,6 +273,8 @@ void convert_yc48_to_yuv444_sse41_mod16(void *pixel, CONVERT_CF_DATA *pixel_data
 
 void convert_yc48_to_yuv444_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 //YC48 -> yuv444 (10bit)
@@ -264,6 +288,8 @@ void convert_yc48_to_yuv444_16bit_sse41(void *pixel, CONVERT_CF_DATA *pixel_data
 void convert_yc48_to_yuv444_16bit_sse41_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_yc48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_yc48_to_yuv444_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 
@@ -290,6 +316,10 @@ void convert_lw48_to_nv12_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, co
 void convert_lw48_to_nv12_i_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_nv12_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_nv12_i_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_i_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_nv12_i_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 
@@ -315,6 +345,8 @@ void convert_lw48_to_yuv444_sse41(void *pixel, CONVERT_CF_DATA *pixel_data, cons
 void convert_lw48_to_yuv444_sse41_mod16(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_yuv444_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 
 void convert_lw48_to_yuv444_16bit(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
@@ -327,5 +359,7 @@ void convert_lw48_to_yuv444_16bit_sse41(void *pixel, CONVERT_CF_DATA *pixel_data
 void convert_lw48_to_yuv444_16bit_sse41_mod8(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_yuv444_16bit_avx(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_lw48_to_yuv444_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
 #endif //_CONVERT_H_

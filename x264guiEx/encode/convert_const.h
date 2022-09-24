@@ -158,7 +158,38 @@ ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = {
     {1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3},
     {3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1}
 };
-#ifdef _INCLUDED_IMM //AVX2
+
+#ifdef __AVX512BW__
+
+#define INT_SHORT2(i) (((unsigned int)(i) << 16) | (unsigned int)(i))
+#define INT_CHAR4(i)  (((unsigned int)(i) << 24) |((unsigned int)(i) << 16) |((unsigned int)(i) << 8) | (unsigned int)(i))
+
+#define _mm512_broadcast_int(x) (_mm512_broadcastd_epi32(_mm_cvtsi32_si128(x)))
+#define _mm512_broadcast_short(x) (_mm512_broadcastd_epi32(_mm_cvtsi32_si128(((((unsigned int)(x) << 16) | (unsigned int)(x))))))
+#define _mm512_broadcast_char(x) (_mm512_broadcastd_epi32(_mm_cvtsi32_si128((((unsigned int)(x) << 24) | ((unsigned int)(x) << 16) | ((unsigned int)(x) << 8) | (unsigned int)(x)))))
+
+#define zC_Y_L_MA_8           _mm512_broadcast_int(*(const int*) Array_Y_L_MA_8)
+#define zC_UV_L_MA_8_420P     _mm512_broadcast_int(*(const int*)Array_UV_L_MA_8_420P)
+#define zC_UV_L_MA_8_420I(i)  _mm512_broadcast_int(*(const int*)Array_UV_L_MA_8_420I[i])
+#define zC_UV_L_MA_8_444      _mm512_broadcast_int(*(const int*)Array_UV_L_MA_8_444)
+#define  zC_Y_L_MA_10         _mm512_broadcast_int(*(const int*) Array_Y_L_MA_10)
+#define zC_UV_L_MA_10_420P    _mm512_broadcast_int(*(const int*)Array_UV_L_MA_10_420P)
+#define zC_UV_L_MA_10_420I(i) _mm512_broadcast_int(*(const int*)Array_UV_L_MA_10_420I[i])
+#define zC_UV_L_MA_10_444     _mm512_broadcast_int(*(const int*)Array_UV_L_MA_10_444)
+#define  zC_Y_F_MA_10         _mm512_broadcast_int(*(const int*) Array_Y_F_MA_10)
+#define zC_UV_F_MA_10_420P    _mm512_broadcast_int(*(const int*)Array_UV_F_MA_10_420P)
+#define zC_UV_F_MA_10_420I(i) _mm512_broadcast_int(*(const int*)Array_UV_F_MA_10_420I[i])
+#define zC_UV_F_MA_10_444     _mm512_broadcast_int(*(const int*)Array_UV_F_MA_10_444)
+#define  zC_Y_L_MA_16         _mm512_broadcast_int(*(const int*) Array_Y_L_MA_16)
+#define zC_UV_L_MA_16_420P    _mm512_broadcast_int(*(const int*)Array_UV_L_MA_16_420P)
+#define zC_UV_L_MA_16_420I(i) _mm512_broadcast_int(*(const int*)Array_UV_L_MA_16_420I[i])
+#define zC_UV_L_MA_16_444     _mm512_broadcast_int(*(const int*)Array_UV_L_MA_16_444)
+#define  zC_Y_F_MA_16         _mm512_broadcast_int(*(const int*) Array_Y_F_MA_16)
+#define zC_UV_F_MA_16_420P    _mm512_broadcast_int(*(const int*)Array_UV_F_MA_16_420P)
+#define zC_UV_F_MA_16_420I(i) _mm512_broadcast_int(*(const int*)Array_UV_F_MA_16_420I[i])
+#define zC_UV_F_MA_16_444     _mm512_broadcast_int(*(const int*)Array_UV_F_MA_16_444)
+
+#elif defined(__AVX2__) //AVX2
 
 #define yC_Y_L_MA_8           _mm256_load_si256((__m256i*) Array_Y_L_MA_8)
 #define yC_UV_L_MA_8_420P     _mm256_load_si256((__m256i*)Array_UV_L_MA_8_420P)

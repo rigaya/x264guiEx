@@ -75,6 +75,8 @@ typedef struct {
 #define SSE42 AUO_SIMD_SSE42
 #define AVX   AUO_SIMD_AVX
 #define AVX2  AUO_SIMD_AVX2
+#define AVX512BW    (AUO_SIMD_AVX512F|AUO_SIMD_AVX512BW)
+#define AVX512VBMI  (AUO_SIMD_AVX512F|AUO_SIMD_AVX512BW|AUO_SIMD_AVX512VBMI)
 
 //なんの数字かわかりやすいようにこう定義する
 static const int BIT_8 =  8;
@@ -93,6 +95,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YUY2, OUT_CSP_YUY2,   BIT_8, A,  1,  NONE,                  copy_yuy2 },
 #if ENABLE_NV12
     //YUY2 -> nv12(8bit)
+    { CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX512BW,             convert_yuy2_to_nv12_avx512 },
+    { CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  AVX512BW,             convert_yuy2_to_nv12_i_avx512 },
     { CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX2|AVX,             convert_yuy2_to_nv12_avx2 },
     { CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  AVX2|AVX,             convert_yuy2_to_nv12_i_avx2 },
     { CF_YUY2, OUT_CSP_NV12,   BIT_8, P,  1,  AVX|SSE2,             convert_yuy2_to_nv12_avx },
@@ -107,6 +111,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YUY2, OUT_CSP_NV12,   BIT_8, I,  1,  NONE,                 convert_yuy2_to_nv12_i },
 #else
     //YUY2 -> yv12 (8bit)
+    { CF_YUY2, OUT_CSP_YV12,   BIT_8, P,  1,  AVX512BW,             convert_yuy2_to_yv12_avx512 },
+    { CF_YUY2, OUT_CSP_YV12,   BIT_8, I,  1,  AVX512BW,             convert_yuy2_to_yv12_i_avx512 },
     { CF_YUY2, OUT_CSP_YV12,   BIT_8, P,  1,  AVX2|AVX,             convert_yuy2_to_yv12_avx2 },
     { CF_YUY2, OUT_CSP_YV12,   BIT_8, I,  1,  AVX2|AVX,             convert_yuy2_to_yv12_i_avx2 },
     { CF_YUY2, OUT_CSP_YV12,   BIT_8, P,  1,  AVX|SSE2,             convert_yuy2_to_yv12_avx },
@@ -123,6 +129,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 #if ENABLE_16BIT
 #if ENABLE_NV12
     //YC48 -> nv12 (16bit)
+    { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX512VBMI,           convert_yc48_to_nv12_16bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX512BW,             convert_yc48_to_nv12_16bit_avx512bw },
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX2|AVX,             convert_yc48_to_nv12_16bit_avx2 },
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_16bit_avx },
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_16bit_sse41_mod8 },
@@ -132,7 +140,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  8,  SSE2,                 convert_yc48_to_nv12_16bit_sse2_mod8 },
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  SSE2,                 convert_yc48_to_nv12_16bit_sse2 },
     { CF_YC48, OUT_CSP_NV12,   BIT16, P,  1,  NONE,                 convert_yc48_to_nv12_16bit },
-
+    
+    { CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX512VBMI,           convert_yc48_to_nv12_i_16bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX512BW,             convert_yc48_to_nv12_i_16bit_avx512bw },
     { CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX2|AVX,             convert_yc48_to_nv12_i_16bit_avx2 },
     { CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_16bit_avx },
     { CF_YC48, OUT_CSP_NV12,   BIT16, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_16bit_sse41_mod8 },
@@ -144,6 +154,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_NV12,   BIT16, I,  1,  NONE,                 convert_yc48_to_nv12_i_16bit },
 #else
     //YC48 -> yv12 (16bit)
+    { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  AVX512VBMI,           convert_yc48_to_yv12_16bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  AVX512BW,             convert_yc48_to_yv12_16bit_avx512bw },
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  AVX2|AVX,             convert_yc48_to_yv12_16bit_avx2 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_16bit_avx },
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_16bit_sse41_mod8 },
@@ -153,7 +165,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  8,  SSE2,                 convert_yc48_to_yv12_16bit_sse2_mod8 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  SSE2,                 convert_yc48_to_yv12_16bit_sse2 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, P,  1,  NONE,                 convert_yc48_to_yv12_16bit },
-
+    
+    { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  AVX512VBMI,      convert_yc48_to_yv12_i_16bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  AVX512BW,             convert_yc48_to_yv12_i_16bit_avx512bw },
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  AVX2|AVX,             convert_yc48_to_yv12_i_16bit_avx2 },
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_i_16bit_avx },
     { CF_YC48, OUT_CSP_YV12,   BIT16, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_i_16bit_sse41_mod8 },
@@ -167,6 +181,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
 #else
 #if ENABLE_NV12
     //YC48 -> nv12 (10bit)
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX512VBMI,           convert_yc48_to_nv12_10bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX512BW,             convert_yc48_to_nv12_10bit_avx512bw },
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX2|AVX,             convert_yc48_to_nv12_10bit_avx2 },
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_10bit_avx },
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_10bit_sse41_mod8 },
@@ -175,7 +191,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  SSSE3|SSE2,           convert_yc48_to_nv12_10bit_ssse3 },
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  8,  SSE2,                 convert_yc48_to_nv12_10bit_sse2_mod8 },
     { CF_YC48, OUT_CSP_NV12,   BIT10, P,  1,  SSE2,                 convert_yc48_to_nv12_10bit_sse2 },
-
+        
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX512VBMI,      convert_yc48_to_nv12_i_10bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX512BW,             convert_yc48_to_nv12_i_10bit_avx512bw },
     { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX2|AVX,             convert_yc48_to_nv12_i_10bit_avx2 },
     { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_nv12_i_10bit_avx },
     { CF_YC48, OUT_CSP_NV12,   BIT10, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_nv12_i_10bit_sse41_mod8 },
@@ -186,6 +204,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_NV12,   BIT10, I,  1,  SSE2,                 convert_yc48_to_nv12_i_10bit_sse2 },
 #else
     //YC48 -> yv12 (10bit)
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX512VBMI,           convert_yc48_to_yv12_10bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX512BW,             convert_yc48_to_yv12_10bit_avx512bw },
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX2|AVX,             convert_yc48_to_yv12_10bit_avx2 },
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_10bit_avx },
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_10bit_sse41_mod8 },
@@ -194,7 +214,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  SSSE3|SSE2,           convert_yc48_to_yv12_10bit_ssse3 },
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  8,  SSE2,                 convert_yc48_to_yv12_10bit_sse2_mod8 },
     { CF_YC48, OUT_CSP_YV12,   BIT10, P,  1,  SSE2,                 convert_yc48_to_yv12_10bit_sse2 },
-
+        
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX512VBMI,           convert_yc48_to_yv12_i_10bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX512BW,             convert_yc48_to_yv12_i_10bit_avx512bw },
     { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX2|AVX,             convert_yc48_to_yv12_i_10bit_avx2 },
     { CF_YC48, OUT_CSP_YV12,   BIT10, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yv12_i_10bit_avx },
     { CF_YC48, OUT_CSP_YV12,   BIT10, I,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yv12_i_10bit_sse41_mod8 },
@@ -242,6 +264,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_YC48, OUT_CSP_YUV444, BIT10, A,  1,  NONE,                 convert_yc48_to_yuv444_10bit },
 
     //YC48 -> yuv444(16bit)
+    { CF_YC48, OUT_CSP_YUV444, BIT16, A,  1,  AVX512VBMI,           convert_yc48_to_yuv444_16bit_avx512vbmi },
+    { CF_YC48, OUT_CSP_YUV444, BIT16, A,  1,  AVX512BW,             convert_yc48_to_yuv444_16bit_avx512bw },
     { CF_YC48, OUT_CSP_YUV444, BIT16, A,  1,  AVX2|AVX,             convert_yc48_to_yuv444_16bit_avx2 },
     { CF_YC48, OUT_CSP_YUV444, BIT16, A,  1,  AVX|SSE41|SSSE3|SSE2, convert_yc48_to_yuv444_16bit_avx },
     { CF_YC48, OUT_CSP_YUV444, BIT16, A,  8,  SSE41|SSSE3|SSE2,     convert_yc48_to_yuv444_16bit_sse41_mod8 },
@@ -254,9 +278,13 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_LW48, OUT_CSP_NV12,   BIT_8, P,  1,  NONE,                 convert_lw48_to_nv12 },
     { CF_LW48, OUT_CSP_NV12,   BIT_8, I,  1,  NONE,                 convert_lw48_to_nv12_i },
     //LW48 -> nv12 (16bit)
-    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  8,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_nv12_i_16bit_avx2 },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  1,  AVX512VBMI,           convert_lw48_to_nv12_i_16bit_avx512vbmi },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  AVX512VBMI,           convert_lw48_to_nv12_16bit_avx512vbmi },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  1,  AVX512BW,             convert_lw48_to_nv12_i_16bit_avx512bw },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  AVX512BW,             convert_lw48_to_nv12_16bit_avx512bw },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_nv12_i_16bit_avx2 },
     { CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  AVX2|AVX,             convert_lw48_to_nv12_16bit_avx2 },
-    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  8,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_nv12_i_16bit_avx },
+    { CF_LW48, OUT_CSP_NV12,   BIT16, I,  1,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_nv12_i_16bit_avx },
     { CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_nv12_16bit_avx },
     { CF_LW48, OUT_CSP_NV12,   BIT16, P,  8,  SSE41|SSSE3|SSE2,     convert_lw48_to_nv12_16bit_sse41_mod8 },
     { CF_LW48, OUT_CSP_NV12,   BIT16, P,  1,  SSE41|SSSE3|SSE2,     convert_lw48_to_nv12_16bit_sse41 },
@@ -288,6 +316,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_LW48, OUT_CSP_NV16,   BIT16, A,  1,  NONE,                 convert_lw48_to_nv16_16bit },
 #endif
     //LW48 -> yuv444 (8bit)
+    { CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  AVX512VBMI,           convert_lw48_to_yuv444_avx512vbmi },
+    { CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  AVX512BW,             convert_lw48_to_yuv444_avx512bw },
     { CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  AVX2|AVX,             convert_lw48_to_yuv444_avx2 },
     { CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_yuv444_avx },
     { CF_LW48, OUT_CSP_YUV444, BIT_8, A, 16,  SSE41|SSSE3|SSE2,     convert_lw48_to_yuv444_sse41_mod16 },
@@ -297,6 +327,8 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_LW48, OUT_CSP_YUV444, BIT_8, A,  1,  NONE,                 convert_lw48_to_yuv444 },
 
     //LW48 -> yuv444 (16bit)
+    { CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  AVX512VBMI,           convert_lw48_to_yuv444_16bit_avx512vbmi },
+    { CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  AVX512BW,             convert_lw48_to_yuv444_16bit_avx512bw },
     { CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  AVX2|AVX,             convert_lw48_to_yuv444_16bit_avx2 },
     { CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  AVX|SSE41|SSSE3|SSE2, convert_lw48_to_yuv444_16bit_avx },
     { CF_LW48, OUT_CSP_YUV444, BIT16, A,  8,  SSE41|SSSE3|SSE2,     convert_lw48_to_yuv444_16bit_sse41_mod8 },
@@ -323,6 +355,8 @@ static void build_simd_info(DWORD simd, wchar_t *buf, DWORD nSize) {
         if (simd & SSE42) wcscat_s(buf, nSize, L" SSE4.2");
         if (simd & AVX)   wcscat_s(buf, nSize, L" AVX");
         if (simd & AVX2)  wcscat_s(buf, nSize, L" AVX2");
+        if ((simd & AVX512BW  ) == AVX512BW  ) wcscat_s(buf, nSize, L" AVX512BW");
+        if ((simd & AVX512VBMI) == AVX512VBMI) wcscat_s(buf, nSize, L" AVX512VBMI");
     }
 }
 
@@ -398,6 +432,18 @@ func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOO
 }
 #pragma warning( pop )
 
+static uint32_t get_align_size(const DWORD simd_check, const int to_yv12) {
+    if (simd_check & (AUO_SIMD_AVX512F|AUO_SIMD_AVX512DQ|AUO_SIMD_AVX512BW|AUO_SIMD_AVX512VBMI|AUO_SIMD_AVX512VNNI)) {
+        return (to_yv12) ? 128 : 64;
+    } else if (simd_check & AUO_SIMD_AVX2) {
+        return (to_yv12) ? 64 : 32;
+    } else if (simd_check & AUO_SIMD_SSE2) {
+        return (to_yv12) ? 32 : 16;
+    } else {
+        return 1;
+    }
+}
+
 BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height, int output_csp, int bit_depth) {
     BOOL ret = TRUE;
 #if ENABLE_NV12
@@ -407,7 +453,7 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
 #endif
     const DWORD pixel_size = (bit_depth > 8) ? sizeof(short) : sizeof(BYTE);
     const DWORD simd_check = get_availableSIMD();
-    const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? (32<<to_yv12) : (16<<to_yv12)) : 1;
+    const DWORD align_size = get_align_size(simd_check,to_yv12);
 #define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
     const DWORD frame_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
 #undef ALIGN_NEXT

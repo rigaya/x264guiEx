@@ -69,15 +69,30 @@ static const BYTE UTF16_BE_BOM[] = { 0xFE, 0xFF };
 
 //SIMD
 enum {
-    AUO_SIMD_NONE     = 0x0000,
-    AUO_SIMD_SSE2     = 0x0001,
-    AUO_SIMD_SSE3     = 0x0002, //使用していない
-    AUO_SIMD_SSSE3    = 0x0004,
-    AUO_SIMD_SSE41    = 0x0008,
-    AUO_SIMD_SSE42    = 0x0010, //使用していない
-    AUO_SIMD_AVX      = 0x0020,
-    AUO_SIMD_AVX2     = 0x0040,
-    AUO_SIMD_AVX2FAST = 0x0080,
+    AUO_SIMD_NONE            = 0x000000,
+    AUO_SIMD_SSE2            = 0x000001,
+    AUO_SIMD_SSE3            = 0x000002,
+    AUO_SIMD_SSSE3           = 0x000004,
+    AUO_SIMD_SSE41           = 0x000008,
+    AUO_SIMD_SSE42           = 0x000010,
+    AUO_SIMD_POPCNT          = 0x000020,
+    AUO_SIMD_AVX             = 0x000040,
+    AUO_SIMD_AVX2            = 0x000080,
+    AUO_SIMD_BMI1            = 0x000100,
+    AUO_SIMD_BMI2            = 0x000200,
+    AUO_SIMD_AVX512F         = 0x000400,
+    AUO_SIMD_AVX512DQ        = 0x000800,
+    AUO_SIMD_AVX512IFMA      = 0x001000,
+    AUO_SIMD_AVX512PF        = 0x002000,
+    AUO_SIMD_AVX512ER        = 0x004000,
+    AUO_SIMD_AVX512CD        = 0x008000,
+    AUO_SIMD_AVX512BW        = 0x010000,
+    AUO_SIMD_AVX512VL        = 0x020000,
+    AUO_SIMD_AVX512VBMI      = 0x040000,
+    AUO_SIMD_AVX512VBMI2     = 0x080000,
+    AUO_SIMD_AVX512VNNI      = 0x100000,
+    AUO_SIMD_AVX512BITALG    = 0x200000,
+    AUO_SIMD_AVX512VPOPCNTDQ = 0x400000,
 };
 
 //関数マクロ
@@ -482,34 +497,39 @@ static DWORD get_availableSIMD() {
     int CPUInfo[4];
     __cpuid(CPUInfo, 1);
     DWORD simd = AUO_SIMD_NONE;
-    if  (CPUInfo[3] & 0x04000000)
-        simd |= AUO_SIMD_SSE2;
-    if  (CPUInfo[2] & 0x00000001)
-        simd |= AUO_SIMD_SSE3;
-    if  (CPUInfo[2] & 0x00000200)
-        simd |= AUO_SIMD_SSSE3;
-    if  (CPUInfo[2] & 0x00080000)
-        simd |= AUO_SIMD_SSE41;
-    if  (CPUInfo[2] & 0x00100000)
-        simd |= AUO_SIMD_SSE42;
-    UINT64 XGETBV = 0;
+    if (CPUInfo[3] & 0x04000000) simd |= AUO_SIMD_SSE2;
+    if (CPUInfo[2] & 0x00000001) simd |= AUO_SIMD_SSE3;
+    if (CPUInfo[2] & 0x00000200) simd |= AUO_SIMD_SSSE3;
+    if (CPUInfo[2] & 0x00080000) simd |= AUO_SIMD_SSE41;
+    if (CPUInfo[2] & 0x00100000) simd |= AUO_SIMD_SSE42;
+    if (CPUInfo[2] & 0x00800000) simd |= AUO_SIMD_POPCNT;
+    uint64_t xgetbv = 0;
     if ((CPUInfo[2] & 0x18000000) == 0x18000000) {
-        XGETBV = _xgetbv(0);
-        if ((XGETBV & 0x06) == 0x06)
+        xgetbv = _xgetbv(0);
+        if ((xgetbv & 0x06) == 0x06)
             simd |= AUO_SIMD_AVX;
     }
     __cpuid(CPUInfo, 7);
-    if ((simd & AUO_SIMD_AVX) && (CPUInfo[1] & 0x00000020))
+    if (!!(simd & AUO_SIMD_AVX) && (CPUInfo[1] & 0x00000020)) {
         simd |= AUO_SIMD_AVX2;
-    if (simd & AUO_SIMD_AVX2) {
-        __cpuid(CPUInfo, 0);
-        char vendor[16] = { 0 };
-        memcpy(vendor + 0, &CPUInfo[1], sizeof(CPUInfo[1]));
-        memcpy(vendor + 4, &CPUInfo[3], sizeof(CPUInfo[3]));
-        memcpy(vendor + 8, &CPUInfo[2], sizeof(CPUInfo[2]));
-        //if (strcmp(vendor, "GenuineIntel") == 0) {
-        if (strcmp(vendor, "AuthenticAMD") != 0) {
-            simd |= AUO_SIMD_AVX2FAST;
+    }
+    if (!!(simd & AUO_SIMD_AVX) && ((xgetbv >> 5) & 7) == 7) {
+        if (CPUInfo[1] & (1u << 3)) simd |= AUO_SIMD_BMI1;
+        if (CPUInfo[1] & (1u << 8)) simd |= AUO_SIMD_BMI2;
+        if (CPUInfo[1] & (1u << 16)) simd |= AUO_SIMD_AVX512F;
+        if (!!(simd & AUO_SIMD_AVX512F)) {
+            if (CPUInfo[1] & (1u << 17)) simd |= AUO_SIMD_AVX512DQ;
+            if (CPUInfo[1] & (1u << 21)) simd |= AUO_SIMD_AVX512IFMA;
+            if (CPUInfo[1] & (1u << 26)) simd |= AUO_SIMD_AVX512PF;
+            if (CPUInfo[1] & (1u << 27)) simd |= AUO_SIMD_AVX512ER;
+            if (CPUInfo[1] & (1u << 28)) simd |= AUO_SIMD_AVX512CD;
+            if (CPUInfo[1] & (1u << 30)) simd |= AUO_SIMD_AVX512BW;
+            if (CPUInfo[1] & (1u << 31)) simd |= AUO_SIMD_AVX512VL;
+            if (CPUInfo[2] & (1u <<  1)) simd |= AUO_SIMD_AVX512VBMI;
+            if (CPUInfo[2] & (1u <<  6)) simd |= AUO_SIMD_AVX512VBMI2;
+            if (CPUInfo[2] & (1u << 11)) simd |= AUO_SIMD_AVX512VNNI;
+            if (CPUInfo[2] & (1u << 12)) simd |= AUO_SIMD_AVX512BITALG;
+            if (CPUInfo[2] & (1u << 14)) simd |= AUO_SIMD_AVX512VPOPCNTDQ;
         }
     }
     return simd;
