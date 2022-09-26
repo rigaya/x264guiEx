@@ -926,9 +926,7 @@ namespace AUO_NAME_R {
             fosTXStgDir->Text = stgDir;
             fos_ex_stg->load_encode_stg();
             fos_ex_stg->load_log_win();
-#if ENCODER_X265
-            this->fosCBAutoRefLimitByLevel->Visible = false;
-#endif
+            this->fosCBAutoRefLimitByLevel->Visible = (ENCODER_X264) != 0;
 
             LoadLangText();
             fosSetComboBox();
