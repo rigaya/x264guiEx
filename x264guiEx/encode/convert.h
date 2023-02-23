@@ -76,8 +76,13 @@ typedef void (*func_convert_frame) (void *frame, CONVERT_CF_DATA *pixel_data, co
 void copy_yuy2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void copy_yuy2_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void copy_rgb_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void sort_to_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void sort_to_rgb_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
+void copy_rgba(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
+void copy_rgba_sse2(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
 
 
 //YUY2 -> nv12 (8bit)

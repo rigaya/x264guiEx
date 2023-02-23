@@ -232,7 +232,7 @@ std::string conv_cp_part_to_utf8(const std::string& string_utf8_with_cp) {
     return string_utf8;
 }
 
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_FFMPEG
 std::string GetFullPathFrom(const char *path, const char *baseDir) {
     if (auto p = std::filesystem::path(path); p.is_absolute()) {
         return path;

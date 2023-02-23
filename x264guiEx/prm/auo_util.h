@@ -492,7 +492,7 @@ static BOOL check_avx2() {
     return FALSE;
 }
 
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_FFMPEG
 static DWORD get_availableSIMD() {
     int CPUInfo[4];
     __cpuid(CPUInfo, 1);

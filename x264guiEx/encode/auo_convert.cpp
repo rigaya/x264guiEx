@@ -338,6 +338,12 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     { CF_LW48, OUT_CSP_YUV444, BIT16, A,  1,  NONE,                 convert_lw48_to_yuv444_16bit },
 
     //Copy RGB
+    { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSE2,                 copy_rgb_sse2 },
+    { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  NONE,                 copy_rgb },
+    //Copy RGBA
+    //{ CF_RGBA,  OUT_CSP_RGBA,  BIT_8, A,  1,  SSE2,                 copy_rgba_sse2 },
+    //{ CF_RGBA,  OUT_CSP_RGBA,  BIT_8, A,  1,  NONE,                 copy_rgba },
+    //Copy RGB
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSSE3|SSE2,           sort_to_rgb_ssse3 },
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  NONE,                 sort_to_rgb },
 
