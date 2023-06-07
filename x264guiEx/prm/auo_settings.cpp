@@ -334,7 +334,7 @@ BOOL guiEx_settings::get_init_success(BOOL no_message) {
 
 int guiEx_settings::get_faw_index() {
     for (int i = 0; i < s_aud_count; i++)
-        if (stristr(s_aud[i].filename, "faw"))
+        if (wcsstr(s_aud[i].dispname, L"FakeAacWav"))
             return i;
     return FAW_INDEX_ERROR;
 }

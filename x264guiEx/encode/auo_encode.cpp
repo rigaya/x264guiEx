@@ -420,7 +420,7 @@ BOOL audio_encoder_exe_exists(const CONF_GUIEX *conf, const guiEx_settings *exst
     if (!str_has_char(aud_stg->filename)) {
         return TRUE;
     }
-    if (conf->aud.encoder == exstg->s_aud_faw_index && check_if_faw2aac_exists()) {
+    if (conf->aud.encoder == exstg->s_aud_faw_index) {
         return TRUE;
     }
     return PathFileExists(aud_stg->fullpath);
@@ -596,14 +596,14 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                     }
                 }
                 if (!PathFileExists(aud_stg->fullpath)) {
-                    //fawの場合はfaw2aacがあればOKだが、それもなければエラー
-                    if (!(conf->aud.encoder == exstg->s_aud_faw_index && check_if_faw2aac_exists())) {
+                    //fawの場合はOK
+                    if (conf->aud.encoder != exstg->s_aud_faw_index) {
                         error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
                         check = FALSE;
                     }
                 }
             }
-            if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index || !check_if_faw2aac_exists())) {
+            if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index)) {
                 info_use_exe_found(aud_stg->dispname, aud_stg->fullpath);
             }
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {

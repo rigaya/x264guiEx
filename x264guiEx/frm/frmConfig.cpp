@@ -266,8 +266,7 @@ System::Boolean frmConfig::CheckLocalStg() {
         String^ AudioEncoderPath = LocalStg.audEncPath[fcgCXAudioEncoder->SelectedIndex];
         if (AudioEncoderPath->Length > 0
             && !File::Exists(AudioEncoderPath)
-            && (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index
-                || !check_if_faw2aac_exists()) ) {
+            && (fcgCXAudioEncoder->SelectedIndex != sys_dat->exstg->s_aud_faw_index)) {
             //音声実行ファイルがない かつ
             //選択された音声がfawでない または fawであってもfaw2aacがない
             if (error) err += L"\n\n";
@@ -283,13 +282,6 @@ System::Boolean frmConfig::CheckLocalStg() {
             err += LOAD_CLI_STRING(AUO_CONFIG_FAW_STG_NOT_FOUND_IN_INI1) + L"\n"
                 +  LOAD_CLI_STRING(AUO_CONFIG_FAW_STG_NOT_FOUND_IN_INI2) + L"\n"
                 +  LOAD_CLI_STRING(AUO_CONFIG_FAW_STG_NOT_FOUND_IN_INI3);
-        } else if (!File::Exists(LocalStg.audEncPath[sys_dat->exstg->s_aud_faw_index])
-                   && !check_if_faw2aac_exists()) {
-            //fawの実行ファイルが存在しない かつ faw2aacも存在しない
-            if (error) err += L"\n\n";
-            error = true;
-            err += LOAD_CLI_STRING(AUO_CONFIG_FAW_PATH_UNSET1) + L"\n"
-                +  LOAD_CLI_STRING(AUO_CONFIG_FAW_PATH_UNSET2);
         }
     }
     //自動マルチパスの自動ビットレート設定のチェック

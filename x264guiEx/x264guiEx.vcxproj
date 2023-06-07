@@ -57,7 +57,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;.\encode;.\prm;.\frm;..\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\encode;.\prm;.\frm;..\tinyxml2;..\auoCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
@@ -101,7 +101,7 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>.\;.\encode;.\prm;.\frm;..\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\encode;.\prm;.\frm;..\tinyxml2;..\auoCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -423,6 +423,9 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\auoCommon\auoCommon.vcxproj">
+      <Project>{c7c2269e-87f0-45d4-a5f3-2c6c158d65c5}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\tinyxml2\tinyxml2.vcxproj">
       <Project>{a34ca86d-6c2b-482f-984e-2687459e65e9}</Project>
     </ProjectReference>
