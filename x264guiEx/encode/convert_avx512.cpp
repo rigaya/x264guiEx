@@ -142,7 +142,7 @@ void convert_yuy2_to_yv12_avx512(void *frame, CONVERT_CF_DATA *pixel_data, const
         Y  = (BYTE *)dst_Y +  x;
         U  = (BYTE *)dst_U + (x>>2);
         V  = (BYTE *)dst_V + (x>>2);
-        for (x = 0; x < width; x += 64, p += 128, pw += 128) {
+        for (x = 0; x < width; x += 128, p += 256, pw += 256) {
             __m512i z0, z1, z3, z6;
             //-----------1行目---------------
             z0 = _mm512_loadu_si512((const __m512i*)(p+ 0));
@@ -260,7 +260,7 @@ void convert_yuy2_to_yv12_i_avx512(void *frame, CONVERT_CF_DATA *pixel_data, con
             Y  = (BYTE *)dst_Y +  x;
             U  = (BYTE *)dst_U + ((x+width*i)>>2);
             V  = (BYTE *)dst_V + ((x+width*i)>>2);
-            for (x = 0; x < width; x += 64, p += 128, pw += 128) {
+            for (x = 0; x < width; x += 128, p += 256, pw += 256) {
                 __m512i z0, z1, z3, z6;
                 //-----------    1+i行目   ---------------
                 z0 = _mm512_loadu_si512((__m128i*)(p+ 0));
@@ -678,7 +678,7 @@ void __forceinline convert_yc48_to_yv12_highbit_avx512(void *pixel, CONVERT_CF_D
         Y   = (short*)dst_Y + width * y;
         U   = (short*)dst_U + width * y / 4;
         V   = (short*)dst_V + width * y / 4;
-        for (x = 0; x < width; x += 32, ycp += 96, ycpw += 96) {
+        for (x = 0; x < width; x += 64, ycp += 192, ycpw += 192) {
             __m512i z0, z1, z2, z3, z4;
             z1 = _mm512_loadu_si512((__m512i *)(ycp +  0));
             z2 = _mm512_loadu_si512((__m512i *)(ycp + 32));
