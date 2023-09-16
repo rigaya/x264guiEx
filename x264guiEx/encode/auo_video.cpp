@@ -997,19 +997,12 @@ BOOL check_videnc_mp4_output(const char *exe_path, const char *temp_filename) {
     pipes.stdErr.mode = AUO_PIPE_ENABLE;
     pipes.stdIn.bufferSize = test_buffer.size();
 
-    char test_path[1024] = { 0 };
-    for (int i = 0; !i || PathFileExists(test_path); i++) {
-        char test_filename[32] = { 0 };
-        sprintf_s(test_filename, _countof(test_filename), "_test_%d.mp4", i);
-        PathCombineLong(test_path, _countof(test_path), temp_filename, test_filename);
-    }
-
     char exe_dir[1024] = { 0 };
     strcpy_s(exe_dir, _countof(exe_dir), exe_path);
     PathRemoveFileSpecFixed(exe_dir);
 
     char fullargs[8192] = { 0 };
-    sprintf_s(fullargs, _countof(fullargs), "\"%s\" --fps 1 --frames 1 --input-depth 8 --input-res %dx%d -o \"%s\" --input-csp nv12 -", exe_path, TEST_WIDTH, TEST_HEIGHT, test_path);
+    sprintf_s(fullargs, _countof(fullargs), "\"%s\" --fps 1 --frames 1 --input-depth 8 --input-res %dx%d -o nul --input-csp nv12 -", exe_path, TEST_WIDTH, TEST_HEIGHT);
     if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
 
         while (WAIT_TIMEOUT == WaitForInputIdle(pi.hProcess, LOG_UPDATE_INTERVAL))
@@ -1056,7 +1049,6 @@ BOOL check_videnc_mp4_output(const char *exe_path, const char *temp_filename) {
     if (pipes.stdIn.mode)  CloseHandle(pipes.stdIn.h_read);
     if (pipes.stdOut.mode) CloseHandle(pipes.stdOut.h_read);
     if (pipes.stdErr.mode) CloseHandle(pipes.stdErr.h_read);
-    if (PathFileExists(test_path)) remove(test_path);
     return ret;
 }
 
