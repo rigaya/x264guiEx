@@ -1081,12 +1081,12 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
             char aud_file[MAX_PATH_LEN];
             apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud[i_aud]);
             if (!PathFileExists(aud_file)) {
-                error_no_aud_file();
+                error_no_aud_file(aud_file);
                 return AUO_RESULT_ERROR;
             }
             UINT64 filesize_tmp = 0;
             if (!GetFileSizeUInt64(aud_file, &filesize_tmp)) {
-                warning_failed_get_aud_size(); warning_amp_failed();
+                warning_failed_get_aud_size(aud_file); warning_amp_failed();
                 return AUO_RESULT_ERROR;
             }
             aud_filesize += filesize_tmp;

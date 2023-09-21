@@ -420,40 +420,40 @@ void warning_no_mux_tmp_root(const char *dir) {
     write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_NO_MUX_TMP_ROOT), char_to_wstring(dir).c_str());
 }
 
-void warning_failed_mux_tmp_drive_space() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_TMP_DRIVE_SPACE));
+void warning_failed_mux_tmp_drive_space(const char *drivename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_TMP_DRIVE_SPACE), char_to_wstring(drivename).c_str());
 }
 
-void warning_failed_muxer_drive_space() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_MUX_DRIVE_SPACE));
+void warning_failed_muxer_drive_space(const char *drivename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_MUX_DRIVE_SPACE), char_to_wstring(drivename).c_str());
 }
 
-void warning_failed_out_drive_space() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_OUT_DRIVE_SPACE));
+void warning_failed_out_drive_space(const char *drivename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_OUT_DRIVE_SPACE), char_to_wstring(drivename).c_str());
 }
 
-void warning_failed_get_aud_size() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_GET_AUD_SIZE));
+void warning_failed_get_aud_size(const char *filename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_GET_AUD_SIZE), char_to_wstring(filename).c_str());
 }
 
-void warning_failed_get_vid_size() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_GET_VID_SIZE));
+void warning_failed_get_vid_size(const char *filename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_GET_VID_SIZE), char_to_wstring(filename).c_str());
 }
 
-void error_no_aud_file() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_NO_AUD_FILE));
+void error_no_aud_file(const char *filename) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_NO_AUD_FILE), char_to_wstring(filename).c_str());
 }
 
-void error_no_vid_file() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_NO_VID_FILE));
+void error_no_vid_file(const char *filename) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_NO_VID_FILE), char_to_wstring(filename).c_str());
 }
 
-void error_aud_file_zero_byte() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_AUD_FILE_ZERO_BYTE));
+void error_aud_file_zero_byte(const char *filename) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_AUD_FILE_ZERO_BYTE), char_to_wstring(filename).c_str());
 }
 
-void error_vid_file_zero_byte() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VID_FILE_ZERO_BYTE));
+void error_vid_file_zero_byte(const char *filename) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_VID_FILE_ZERO_BYTE), char_to_wstring(filename).c_str());
 }
 
 void warning_mux_tmp_not_enough_space(const char *drive, const uint64_t free_diskspace, const uint64_t required_diskspace) {

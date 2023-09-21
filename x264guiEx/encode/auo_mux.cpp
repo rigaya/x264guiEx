@@ -100,7 +100,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
             return AUO_RESULT_SUCCESS;
         //ドライブの空き容量取得
         } else if (!GetDiskFreeSpaceEx(temp_root, &temp_drive_avail_space, NULL, NULL)) {
-            ret = AUO_RESULT_WARNING; warning_failed_mux_tmp_drive_space();
+            ret = AUO_RESULT_WARNING; warning_failed_mux_tmp_drive_space(temp_root);
         //一時フォルダと出力先が同じフォルダかどうかで、一時フォルダの必要とされる空き領域が変わる
         } else {
             tmp_same_drive_as_out = (_stricmp(vid_root, temp_root) == NULL) ? 1 : 0;
@@ -124,7 +124,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
         ULARGE_INTEGER muxer_drive_avail_space = { 0 };
         if (!PathGetRoot(mux_stg->fullpath, muxer_root, _countof(muxer_root)) ||
             !GetDiskFreeSpaceEx(muxer_root, &muxer_drive_avail_space, NULL, NULL)) {
-            warning_failed_muxer_drive_space(); return AUO_RESULT_WARNING;
+            warning_failed_muxer_drive_space(muxer_root); return AUO_RESULT_WARNING;
         }
         //一時フォルダと出力先が同じフォルダかどうかで、一時フォルダの必要とされる空き領域が変わる
         BOOL muxer_same_drive_as_out = (_stricmp(vid_root, muxer_root) == NULL) ? 1 : 0;
@@ -139,7 +139,7 @@ static AUO_RESULT check_mux_disk_space(const MUXER_SETTINGS *mux_stg, const char
     //ドライブの空き容量取得
     ULARGE_INTEGER out_drive_avail_space = { 0 };
     if (!GetDiskFreeSpaceEx(vid_root, &out_drive_avail_space, NULL, NULL)) {
-        warning_failed_out_drive_space(); return AUO_RESULT_WARNING;
+        warning_failed_out_drive_space(vid_root); return AUO_RESULT_WARNING;
     }
     if ((uint64_t)out_drive_avail_space.QuadPart < required_space) {
         error_out_drive_not_enough_space(vid_root, (uint64_t)out_drive_avail_space.QuadPart, required_space); return AUO_RESULT_ERROR;
@@ -154,13 +154,13 @@ static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_vid_mux, 
     if (enable_vid_mux) {
         UINT64 vid_size = 0;
         if (!PathFileExists(pe->temp_filename)) {
-            error_no_vid_file(); return AUO_RESULT_ERROR;
+            error_no_vid_file(pe->temp_filename); return AUO_RESULT_ERROR;
         }
         if (!GetFileSizeUInt64(pe->temp_filename, &vid_size)) {
-            warning_failed_get_vid_size(); return AUO_RESULT_WARNING;
+            warning_failed_get_vid_size(pe->temp_filename); return AUO_RESULT_WARNING;
         }
         if (vid_size == 0) {
-            error_vid_file_zero_byte(); return AUO_RESULT_ERROR;
+            error_vid_file_zero_byte(pe->temp_filename); return AUO_RESULT_ERROR;
         }
         *_expected_filesize += vid_size;
     }
@@ -172,13 +172,13 @@ static AUO_RESULT get_expected_filesize(const PRM_ENC *pe, BOOL enable_vid_mux, 
                 char audfile[MAX_PATH_LEN] = { 0 };
                 get_aud_filename(audfile, _countof(audfile), pe, i_aud);
                 if (!PathFileExists(audfile)) {
-                    error_no_aud_file(); return AUO_RESULT_ERROR;
+                    error_no_aud_file(audfile); return AUO_RESULT_ERROR;
                 }
                 if (!GetFileSizeUInt64(audfile, &aud_size)) {
-                    warning_failed_get_aud_size(); return AUO_RESULT_WARNING;
+                    warning_failed_get_aud_size(audfile); return AUO_RESULT_WARNING;
                 }
                 if (aud_size == 0) {
-                    error_aud_file_zero_byte(); return AUO_RESULT_ERROR;
+                    error_aud_file_zero_byte(audfile); return AUO_RESULT_ERROR;
                 }
                 *_expected_filesize += aud_size;
             }
