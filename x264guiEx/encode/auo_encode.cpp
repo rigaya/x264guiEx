@@ -660,11 +660,11 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     return check;
 }
 
-void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int current_pass, int total_pass, bool amp_crf_reenc) {
+void open_log_window(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, int current_pass, int total_pass, bool amp_crf_reenc) {
     wchar_t mes[MAX_PATH_LEN + 512];
     const wchar_t *newLine = (get_current_log_len(current_pass == 1 && !amp_crf_reenc)) ? L"\r\n\r\n" : L""; //必要なら行送り
     static const wchar_t *SEPARATOR = L"------------------------------------------------------------------------------------------------------------------------------";
-    const std::wstring savefile_w = char_to_wstring(savefile);
+    const std::wstring savefile_w = char_to_wstring(oip->savefile);
     if (total_pass < 2 || current_pass > total_pass)
         swprintf_s(mes, L"%s%s\r\n[%s]\r\n%s", newLine, SEPARATOR, savefile_w.c_str(), SEPARATOR);
     else
@@ -679,6 +679,24 @@ void open_log_window(const char *savefile, const SYSTEM_DATA *sys_dat, int curre
     const auto osver = char_to_wstring(getOSVersion(&buildNumber));
     write_log_auo_line_fmt(LOG_INFO, L"%s %s / %s %s (%d) / %s",
         AUO_NAME_WITHOUT_EXT_W, AUO_VERSION_STR_W, osver.c_str(), is_64bit_os() ? L"x64" : L"x86", buildNumber, char_to_wstring(cpu_info).c_str());
+
+    const double video_length = oip->n * (double)oip->scale / oip->rate;
+    const double audio_length = oip->audio_n / (double)oip->audio_rate;
+
+    const int vid_h = (int)(video_length / 3600);
+    const int vid_m = (int)(video_length - vid_h * 3600) / 60;
+    const int vid_s = (int)(video_length - vid_h * 3600 - vid_m * 60);
+    const int vid_ms = std::min((int)((video_length - (double)(vid_h * 3600 + vid_m * 60 + vid_s)) * 1000.0), 999);
+
+    const int aud_h = (int)audio_length / 3600;
+    const int aud_m = (int)(audio_length - aud_h * 3600) / 60;
+    const int aud_s = (int)(audio_length - aud_h * 3600 - aud_m * 60);
+    const int aud_ms = std::min((int)((audio_length - (double)(aud_h * 3600 + aud_m * 60 + aud_s)) * 1000.0), 999);
+
+    write_log_auo_line_fmt(LOG_INFO, L"video: %d:%02d:%02d.%03d %d/%d(%.3f) fps",
+        vid_h, vid_m, vid_s, vid_ms, oip->rate, oip->scale, oip->rate / (double)oip->scale);
+    write_log_auo_line_fmt(LOG_INFO, L"audio: %d:%02d:%02d.%03d %dch %.1fkHz %d samples",
+        aud_h, aud_m, aud_s, aud_ms, oip->audio_ch, oip->audio_rate / 1000.0, oip->audio_n);
 }
 
 static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, const SYSTEM_DATA *sys_dat) {
@@ -1740,7 +1758,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, (std::max)(pe->amp_reset_pass_count, pe->current_pass - conf->enc.auto_npass), (amp_result == 2) ? conf->aud.bitrate : conf->enc.bitrate);
 
     if (show_header)
-        open_log_window(oip->savefile, sys_dat, pe->current_pass, pe->total_pass, amp_crf_reenc);
+        open_log_window(oip, sys_dat, pe->current_pass, pe->total_pass, amp_crf_reenc);
 
     return amp_result;
 }
