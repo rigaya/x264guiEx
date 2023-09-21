@@ -798,7 +798,10 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     write_log_auo_line_fmt(LOG_INFO, L"%s options...", ENCODER_NAME_W);
     write_args(x264cmd);
     sprintf_s(x264args, _countof(x264args), "\"%s\" %s", sys_dat->exstg->s_enc.fullpath, x264cmd);
-    remove(pe->temp_filename); //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
+    if (PathFileExists(pe->temp_filename)) {
+        //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
+        if (!DeleteFile(pe->temp_filename)) { auto err = GetLastError(); error_failed_remove_file((pe->temp_filename), err); return AUO_RESULT_ERROR; }
+    }
 
     if (conf->vid.afs && conf->enc.interlaced) {
         ret |= AUO_RESULT_ERROR; error_afs_interlace_stg();

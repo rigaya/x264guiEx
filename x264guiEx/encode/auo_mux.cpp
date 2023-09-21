@@ -540,29 +540,32 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
         //最後のメッセージを回収
         while (ReadLogExe(&pipes, mux_stg->dispname, &log_line_cache) > 0);
 
+#define REMOVE_AND_CHECK(REMOVEFILE) { if (!DeleteFile(REMOVEFILE)) { auto err = GetLastError(); error_failed_remove_file((REMOVEFILE), err); return AUO_RESULT_ERROR; } }
+#define RENAME_AND_CHECK(OLDFILE, NEWFILE) { if (!MoveFile((OLDFILE), (NEWFILE))) { auto err = GetLastError(); error_failed_rename_file((NEWFILE), err); return AUO_RESULT_ERROR; } }
+
         ret |= check_muxout_filesize(muxout, expected_filesize);
         int muxer_log_level = LOG_MORE;
         if (ret == AUO_RESULT_SUCCESS) {
             if (enable_vid_mux) {
-                if (str_has_char(pe->muxed_vid_filename) && PathFileExists(pe->muxed_vid_filename)) remove(pe->muxed_vid_filename);
+                if (str_has_char(pe->muxed_vid_filename) && PathFileExists(pe->muxed_vid_filename)) REMOVE_AND_CHECK(pe->muxed_vid_filename);
                 apply_appendix(pe->muxed_vid_filename, _countof(pe->muxed_vid_filename), pe->temp_filename, VID_FILE_APPENDIX);
                 strcat_s(pe->muxed_vid_filename, _countof(pe->muxed_vid_filename), PathFindExtension(pe->temp_filename));
-                if (PathFileExists(pe->muxed_vid_filename)) remove(pe->muxed_vid_filename);
-                rename(pe->temp_filename, pe->muxed_vid_filename);
+                if (PathFileExists(pe->muxed_vid_filename)) REMOVE_AND_CHECK(pe->muxed_vid_filename);
+                RENAME_AND_CHECK(pe->temp_filename, pe->muxed_vid_filename);
                 change_ext(pe->temp_filename, _countof(pe->temp_filename), mux_stg->out_ext); //拡張子を変更
-                if (PathFileExists(pe->temp_filename)) remove(pe->temp_filename);
-                rename(muxout, pe->temp_filename);
+                if (PathFileExists(pe->temp_filename)) REMOVE_AND_CHECK(pe->temp_filename);
+                RENAME_AND_CHECK(muxout, pe->temp_filename);
             } else {
                 //音声のみmuxなら、一時音声ファイルの情報を変更する
                 char aud_file[MAX_PATH_LEN] = { 0 };
                 for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
                     if (enable_aud_mux & (0x01 << i_aud)) {
                         get_aud_filename(aud_file, _countof(aud_file), pe, i_aud);
-                        remove(aud_file);
+                        REMOVE_AND_CHECK(aud_file);
                         change_ext(pe->append.aud[i_aud], _countof(pe->append.aud[i_aud]), mux_stg->out_ext); //拡張子を変更
                         get_aud_filename(aud_file, _countof(aud_file), pe, i_aud);
-                        if (PathFileExists(aud_file)) remove(aud_file);
-                        rename(muxout, aud_file);
+                        if (PathFileExists(aud_file)) REMOVE_AND_CHECK(aud_file);
+                        RENAME_AND_CHECK(muxout, aud_file);
                     }
                 }
             }
@@ -570,7 +573,7 @@ AUO_RESULT mux(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, cons
             muxer_log_level = LOG_ERROR;
             error_mux_failed(mux_stg->dispname, muxargs);
             if (PathFileExists(muxout))
-                remove(muxout);
+                REMOVE_AND_CHECK(muxout);
         } else {
             //AUO_RESULT_WARNING
             change_mux_vid_filename(muxout, pe);

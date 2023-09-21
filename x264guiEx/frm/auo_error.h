@@ -31,6 +31,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <string>
 
 void warning_conf_not_initialized(const char *default_stg_file);
 void warning_failed_getting_temp_path();
@@ -102,6 +103,8 @@ void warning_failed_to_get_duration_from_timecode();
 void error_check_muxout_exist(const char *filename);
 void error_check_muxout_too_small(const char *filename, int expected_filesize_KB, int muxout_filesize_KB);
 void warning_failed_check_muxout_filesize(const char *filename);
+void error_failed_remove_file(const char *filename, const DWORD err);
+void error_failed_rename_file(const char *filename, const DWORD err);
 void warning_amp_failed();
 void warning_amp_filesize_over_limit();
 void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate_upper, double limit_filebitrate_lower, int retry_count, int new_bitrate);
@@ -121,5 +124,7 @@ void warning_malloc_batfile_tmp();
 void warning_failed_open_bat_orig();
 void warning_failed_open_bat_new();
 void warning_video_very_short();
+
+std::wstring getLastErrorStr(DWORD err);
 
 #endif //_AUO_ERROR_H_

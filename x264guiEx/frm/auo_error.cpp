@@ -491,6 +491,28 @@ void warning_failed_check_muxout_filesize(const char *filename) {
     write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_GET_SIZE), char_to_wstring(filename).c_str());
 }
 
+std::wstring getLastErrorStr(DWORD err) {
+    std::wstring message;
+    char *mesBuffer = nullptr;
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)&mesBuffer, 0, NULL);
+    if (mesBuffer != nullptr) {
+        message = char_to_wstring(mesBuffer);
+        LocalFree(mesBuffer);
+    }
+    return message;
+}
+
+void error_failed_remove_file(const char *filename, const DWORD err) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_REMOVE_FILE), getLastErrorStr(err).c_str(), char_to_wstring(filename).c_str());
+}
+
+void error_failed_rename_file(const char *filename, const DWORD err) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_RENAME_FILE), getLastErrorStr(err).c_str(), char_to_wstring(filename).c_str());
+}
+
 void warning_amp_failed() {
     write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_AMP_FAILED));
 }
