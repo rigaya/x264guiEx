@@ -478,17 +478,17 @@ void warning_failed_to_get_duration_from_timecode() {
     write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_TO_GET_DURATION_FROM_TIMECODE3));
 }
 
-void error_check_muxout_exist() {
-    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_EXIST));
+void error_check_muxout_exist(const char *filename) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_EXIST), char_to_wstring(filename).c_str());
 }
 
-void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB) {
-    write_log_auo_line    (LOG_ERROR, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_TO_SMALL1));
+void error_check_muxout_too_small(const char *filename, int expected_filesize_KB, int muxout_filesize_KB) {
+    write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_TO_SMALL1), char_to_wstring(filename).c_str());
     write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_TO_SMALL2), expected_filesize_KB, muxout_filesize_KB);
 }
 
-void warning_failed_check_muxout_filesize() {
-    write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_GET_SIZE));
+void warning_failed_check_muxout_filesize(const char *filename) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_CHECK_MUXOUT_GET_SIZE), char_to_wstring(filename).c_str());
 }
 
 void warning_amp_failed() {

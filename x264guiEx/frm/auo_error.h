@@ -99,9 +99,9 @@ void warning_mux_tmp_not_enough_space(const char *drive, const uint64_t free_dis
 void error_muxer_drive_not_enough_space(const char *drive, const uint64_t free_diskspace, const uint64_t required_diskspace);
 void error_out_drive_not_enough_space(const char *drive, const uint64_t free_diskspace, const uint64_t required_diskspace);
 void warning_failed_to_get_duration_from_timecode();
-void error_check_muxout_exist();
-void error_check_muxout_too_small(int expected_filesize_KB, int muxout_filesize_KB);
-void warning_failed_check_muxout_filesize();
+void error_check_muxout_exist(const char *filename);
+void error_check_muxout_too_small(const char *filename, int expected_filesize_KB, int muxout_filesize_KB);
+void warning_failed_check_muxout_filesize(const char *filename);
 void warning_amp_failed();
 void warning_amp_filesize_over_limit();
 void info_amp_result(DWORD status, int amp_result, UINT64 filesize, double file_bitrate, double limit_filesize, double limit_filebitrate_upper, double limit_filebitrate_lower, int retry_count, int new_bitrate);

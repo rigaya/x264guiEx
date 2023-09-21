@@ -193,7 +193,7 @@ static AUO_RESULT check_muxout_filesize(const char *muxout, UINT64 expected_file
     const double FILE_SIZE_THRESHOLD_MULTI = 0.95;
     UINT64 muxout_filesize = 0;
     if (!PathFileExists(muxout)) {
-        error_check_muxout_exist();
+        error_check_muxout_exist(muxout);
         return AUO_RESULT_ERROR;
     }
     //推定ファイルサイズの取得に失敗していたら終了
@@ -202,12 +202,12 @@ static AUO_RESULT check_muxout_filesize(const char *muxout, UINT64 expected_file
     if (GetFileSizeUInt64(muxout, &muxout_filesize)) {
         //ファイルサイズの取得に成功したら、予想サイズとの比較を行う
         if (((double)muxout_filesize) <= ((double)expected_filesize * FILE_SIZE_THRESHOLD_MULTI * (1.0 - exp(-1.0 * (double)expected_filesize / (128.0 * 1024.0))))) {
-            error_check_muxout_too_small((int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
+            error_check_muxout_too_small(muxout, (int)(expected_filesize / 1024), (int)(muxout_filesize / 1024));
             return AUO_RESULT_ERROR;
         }
         return AUO_RESULT_SUCCESS;
     }
-    warning_failed_check_muxout_filesize();
+    warning_failed_check_muxout_filesize(muxout);
     return AUO_RESULT_WARNING;
 }
 

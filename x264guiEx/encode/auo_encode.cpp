@@ -1593,14 +1593,14 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
         //tempfileがない場合、mux後ファイルをチェックする
         get_muxout_filename(muxout, _countof(muxout), sys_dat, pe);
         if (pe->muxer_to_be_used < 0 || !PathFileExists(muxout)) {
-            error_check_muxout_exist(); warning_amp_failed();
+            error_check_muxout_exist(muxout); warning_amp_failed();
             return -1;
         }
     }
     //ファイルサイズを取得し、ビットレートを計算する
     UINT64 filesize = 0;
     if (!GetFileSizeUInt64(muxout, &filesize)) {
-        warning_failed_check_muxout_filesize(); warning_amp_failed();
+        warning_failed_check_muxout_filesize(muxout); warning_amp_failed();
         return -1;
     }
     const double duration = get_duration(conf, sys_dat, pe, oip);
