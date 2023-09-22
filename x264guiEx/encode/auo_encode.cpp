@@ -725,23 +725,29 @@ void open_log_window(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, int cur
     write_log_auo_line_fmt(LOG_INFO, L"%s %s / %s %s (%d) / %s",
         AUO_NAME_WITHOUT_EXT_W, AUO_VERSION_STR_W, osver.c_str(), is_64bit_os() ? L"x64" : L"x86", buildNumber, char_to_wstring(cpu_info).c_str());
 
-    const double video_length = oip->n * (double)oip->scale / oip->rate;
-    const double audio_length = oip->audio_n / (double)oip->audio_rate;
+    if (oip->flag & OUTPUT_INFO_FLAG_VIDEO) {
+        const double video_length = oip->n * (double)oip->scale / oip->rate;
 
-    const int vid_h = (int)(video_length / 3600);
-    const int vid_m = (int)(video_length - vid_h * 3600) / 60;
-    const int vid_s = (int)(video_length - vid_h * 3600 - vid_m * 60);
-    const int vid_ms = std::min((int)((video_length - (double)(vid_h * 3600 + vid_m * 60 + vid_s)) * 1000.0), 999);
+        const int vid_h = (int)(video_length / 3600);
+        const int vid_m = (int)(video_length - vid_h * 3600) / 60;
+        const int vid_s = (int)(video_length - vid_h * 3600 - vid_m * 60);
+        const int vid_ms = std::min((int)((video_length - (double)(vid_h * 3600 + vid_m * 60 + vid_s)) * 1000.0), 999);
 
-    const int aud_h = (int)audio_length / 3600;
-    const int aud_m = (int)(audio_length - aud_h * 3600) / 60;
-    const int aud_s = (int)(audio_length - aud_h * 3600 - aud_m * 60);
-    const int aud_ms = std::min((int)((audio_length - (double)(aud_h * 3600 + aud_m * 60 + aud_s)) * 1000.0), 999);
+        write_log_auo_line_fmt(LOG_INFO, L"video: %d:%02d:%02d.%03d %d/%d(%.3f) fps",
+            vid_h, vid_m, vid_s, vid_ms, oip->rate, oip->scale, oip->rate / (double)oip->scale);
+    }
 
-    write_log_auo_line_fmt(LOG_INFO, L"video: %d:%02d:%02d.%03d %d/%d(%.3f) fps",
-        vid_h, vid_m, vid_s, vid_ms, oip->rate, oip->scale, oip->rate / (double)oip->scale);
-    write_log_auo_line_fmt(LOG_INFO, L"audio: %d:%02d:%02d.%03d %dch %.1fkHz %d samples",
-        aud_h, aud_m, aud_s, aud_ms, oip->audio_ch, oip->audio_rate / 1000.0, oip->audio_n);
+    if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+        const double audio_length = oip->audio_n / (double)oip->audio_rate;
+
+        const int aud_h = (int)audio_length / 3600;
+        const int aud_m = (int)(audio_length - aud_h * 3600) / 60;
+        const int aud_s = (int)(audio_length - aud_h * 3600 - aud_m * 60);
+        const int aud_ms = std::min((int)((audio_length - (double)(aud_h * 3600 + aud_m * 60 + aud_s)) * 1000.0), 999);
+
+        write_log_auo_line_fmt(LOG_INFO, L"audio: %d:%02d:%02d.%03d %dch %.1fkHz %d samples",
+            aud_h, aud_m, aud_s, aud_ms, oip->audio_ch, oip->audio_rate / 1000.0, oip->audio_n);
+    }
 }
 
 static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, const SYSTEM_DATA *sys_dat) {
