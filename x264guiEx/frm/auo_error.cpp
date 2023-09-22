@@ -238,12 +238,22 @@ void error_invalid_ini_file() {
 
 void error_unsupported_audio_format_by_muxer(const int video_out_type, const wchar_t *selected_aud, const wchar_t *default_aud) {
     if (video_out_type < _countof(OUTPUT_FILE_EXT)) {
-        write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER1), selected_aud, char_to_wstring(OUTPUT_FILE_EXT[video_out_type] + 1).c_str());
+        write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER1), selected_aud, char_to_wstring(OUTPUT_FILE_EXT[video_out_type] + 1).c_str());
         if (default_aud) {
-            write_log_auo_line_fmt(LOG_ERROR, g_auo_mes.get(AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER2), default_aud);
+            write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER2), default_aud);
         } else {
             write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_UNSUPPORTED_AUDIO_FORMAT_BY_MUXER3));
         }
+    }
+}
+
+void error_failed_to_run_audio_encoder(const wchar_t *selected_aud, const wchar_t *error_mes, const wchar_t *default_aud) {
+    write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_TO_RUN_AUDIO_ENCODER1), selected_aud);
+    write_log_auo_line(LOG_WARNING, error_mes);
+    if (default_aud) {
+        write_log_auo_line_fmt(LOG_WARNING, g_auo_mes.get(AUO_ERR_FAILED_TO_RUN_AUDIO_ENCODER2), default_aud);
+    } else {
+        write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_FAILED_TO_RUN_AUDIO_ENCODER3));
     }
 }
 

@@ -542,7 +542,9 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
         const bool default_audenc_auo_avail = (DEFAULT_AUDIO_ENCODER < exstg->s_aud_count
                 && str_has_char(exstg->s_aud[DEFAULT_AUDIO_ENCODER].filename));
         if ((conf->aud.encoder < 0 || exstg->s_aud_count <= conf->aud.encoder)) {
-            if (default_audenc_cnf_avail) {
+            if (default_audenc_cnf_avail
+                && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
+                && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
                 conf->aud.encoder = exstg->s_local.default_audio_encoder;
                 warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
             } else if (default_audenc_auo_avail) {
@@ -560,6 +562,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
                 const int orig_encoder = conf->aud.encoder;
                 if (default_audenc_cnf_avail
+                    && orig_encoder != exstg->s_local.default_audio_encoder
                     && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
                     && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
                     conf->aud.encoder = exstg->s_local.default_audio_encoder;
@@ -591,7 +594,9 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                     }
                 }
                 //みつからなければ、デフォルトエンコーダを探す
-                if (!PathFileExists(aud_stg->fullpath) && default_audenc_cnf_avail) {
+                if (!PathFileExists(aud_stg->fullpath) && default_audenc_cnf_avail
+                    && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
+                    && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
                     conf->aud.encoder = exstg->s_local.default_audio_encoder;
                     aud_stg = &exstg->s_aud[conf->aud.encoder];
                     if (!PathFileExists(aud_stg->fullpath)) {
@@ -631,6 +636,30 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                 }
             }
             if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index)) {
+                std::wstring exe_message;
+                if (!check_audenc_output(aud_stg, exe_message)) {
+                    const int orig_encoder = conf->aud.encoder;
+                    if (default_audenc_cnf_avail
+                        && orig_encoder != exstg->s_local.default_audio_encoder
+                        && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
+                        && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
+                        conf->aud.encoder = exstg->s_local.default_audio_encoder;
+                    } else if (default_audenc_auo_avail) {
+                        conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
+                    }
+                    error_failed_to_run_audio_encoder(
+                        exstg->s_aud[orig_encoder].dispname,
+                        exe_message.c_str(),
+                        (orig_encoder != conf->aud.encoder) ? exstg->s_aud[conf->aud.encoder].dispname : nullptr);
+                    // 同じエンコーダあるいはデフォルトエンコーダがうまく取得できな場合は再チェックしても意味がない
+                    if (orig_encoder == conf->aud.encoder) {
+                        check = FALSE;
+                        break;
+                    }
+                    // デフォルトエンコーダに戻して再チェック
+                    warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
+                    continue;
+                }
                 info_use_exe_found(aud_stg->dispname, aud_stg->fullpath);
             }
             // ここまで来たらエンコーダの確認終了なのでbreak

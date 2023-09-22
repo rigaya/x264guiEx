@@ -61,6 +61,7 @@ void error_no_exe_file(const wchar_t *name, const char *path);
 void warning_use_default_audio_encoder(const wchar_t *name);
 void error_invalid_ini_file();
 void error_unsupported_audio_format_by_muxer(const int video_out_type, const wchar_t *selected_aud, const wchar_t *default_aud);
+void error_failed_to_run_audio_encoder(const wchar_t *selected_aud, const wchar_t *error_mes, const wchar_t *default_aud);
 void info_use_exe_found(const wchar_t *target, const char *path);
 void error_mp4box_ini();
 void warning_auto_afs_disable();
