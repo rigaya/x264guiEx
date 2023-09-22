@@ -550,8 +550,34 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                 warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
             }
         }
-        if (0 <= conf->aud.encoder && conf->aud.encoder < exstg->s_aud_count) {
+        for (;;) {
+            if (conf->aud.encoder < 0 || exstg->s_aud_count <= conf->aud.encoder) {
+                error_invalid_ini_file();
+                check = FALSE;
+                break;
+            }
             AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
+            if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
+                const int orig_encoder = conf->aud.encoder;
+                if (default_audenc_cnf_avail
+                    && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
+                    && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
+                    conf->aud.encoder = exstg->s_local.default_audio_encoder;
+                } else if (default_audenc_auo_avail) {
+                    conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
+                }
+                error_unsupported_audio_format_by_muxer(pe->video_out_type,
+                    exstg->s_aud[orig_encoder].dispname,
+                    (orig_encoder != conf->aud.encoder) ? exstg->s_aud[conf->aud.encoder].dispname : nullptr);
+                // 同じエンコーダあるいはデフォルトエンコーダがうまく取得できな場合は再チェックしても意味がない
+                if (orig_encoder == conf->aud.encoder) {
+                    check = FALSE;
+                    break;
+                }
+                // デフォルトエンコーダに戻して再チェック
+                warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
+                continue;
+            }
             if (!audio_encoder_exe_exists(conf, exstg)) {
                 //とりあえず、exe_filesを探す
                 {
@@ -600,25 +626,15 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                     if (conf->aud.encoder != exstg->s_aud_faw_index) {
                         error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
                         check = FALSE;
+                        break;
                     }
                 }
             }
             if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index)) {
                 info_use_exe_found(aud_stg->dispname, aud_stg->fullpath);
             }
-            if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
-                AUDIO_SETTINGS *aud_default = nullptr;
-                if (default_audenc_cnf_avail) {
-                    aud_default = &exstg->s_aud[exstg->s_local.default_audio_encoder];
-                } else if (default_audenc_auo_avail) {
-                    aud_default = &exstg->s_aud[DEFAULT_AUDIO_ENCODER];
-                }
-                error_unsupported_audio_format_by_muxer(pe->video_out_type, aud_stg->dispname, (aud_default) ? aud_default->dispname : nullptr);
-                check = FALSE;
-            }
-        } else {
-            error_invalid_ini_file();
-            check = FALSE;
+            // ここまで来たらエンコーダの確認終了なのでbreak
+            break;
         }
     }
 
