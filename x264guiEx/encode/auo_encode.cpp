@@ -279,11 +279,7 @@ static BOOL check_muxer_matched_with_ini(const MUXER_SETTINGS *mux_stg) {
 }
 
 bool is_afsvfr(const CONF_GUIEX *conf) {
-#if ENCODER_SVTAV1
-    return (conf->vid.afs != 0 && !conf->vid.afs_24fps);
-#else
     return conf->vid.afs != 0;
-#endif
 }
 
 static BOOL check_amp(CONF_GUIEX *conf) {
@@ -1174,12 +1170,6 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     //%{fps_rate}
     int fps_rate = oip->rate;
     int fps_scale = oip->scale;
-#if ENCODER_SVTAV1
-    if (conf->vid.afs && conf->vid.afs_24fps) {
-        fps_rate *= 4;
-        fps_scale *= 5;
-    }
-#endif
 #ifdef MSDK_SAMPLE_VERSION
     if (conf->qsv.vpp.nDeinterlace == MFX_DEINTERLACE_IT)
         fps_rate = (fps_rate * 4) / 5;
