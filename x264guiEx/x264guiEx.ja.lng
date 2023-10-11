@@ -797,6 +797,7 @@ AuofosCBAutoAFSDisable=自動フィールドシフト(afs)オンで初期化に�
 AuofosCBAutoDelChap=mux正常終了後、チャプターファイルを自動的に削除する
 AuofostabPageGeneral=エンコード
 AuofosLBDefaultAudioEncoder=デフォルトの音声エンコーダ
+AuofosLBPowerThrottling=電力スロットリング
 AuofosCBAutoRefLimitByLevel=参照距離をH.264のレベルに応じて自動的に制限する
 AuofosCBChapConvertToUTF8=チャプターmux時、UTF-8に変換する
 AuofosCBKeepQPFile=キーフレーム検出時、キーフレームリストを保存する

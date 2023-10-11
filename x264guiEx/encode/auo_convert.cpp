@@ -84,7 +84,7 @@ static const int BIT10 = 10;
 static const int BIT12 = 12;
 static const int BIT16 = 16;
 
-#define ENABLE_NV12 (ENCODER_X264 != 0)
+#define ENABLE_NV12 (ENCODER_X264 != 0 || ENCODER_FFMPEG != 0)
 #define ENABLE_16BIT (ENCODER_SVTAV1 == 0)
 
 //変換関数のテーブル
@@ -342,7 +342,7 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     //Copy RGB
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSSE3|SSE2,           sort_to_rgb_ssse3 },
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  NONE,                 sort_to_rgb },
-#else
+#elif ENCODER_FFMPEG
     //Copy RGB
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSE2,                 copy_rgb_sse2 },
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  NONE,                 copy_rgb },

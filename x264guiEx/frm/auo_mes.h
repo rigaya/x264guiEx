@@ -927,6 +927,7 @@ enum AuoMes {
         AuofosCBAutoDelChap,
         AuofostabPageGeneral,
         AuofosLBDefaultAudioEncoder,
+        AuofosLBPowerThrottling,
         AuofosCBAutoRefLimitByLevel,
         AuofosCBChapConvertToUTF8,
         AuofosCBKeepQPFile,

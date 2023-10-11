@@ -798,6 +798,7 @@ AuofosCBAutoAFSDisable=若启用自动场移位(afs)后初始化失败，请关�
 AuofosCBAutoDelChap=mux正常完成后将自动删除章节文件
 AuofostabPageGeneral=编码
 AuofosLBDefaultAudioEncoder=默认音频编码器
+AuofosLBPowerThrottling=功率节流
 AuofosCBAutoRefLimitByLevel=根据H.264级别自动限制参考距离
 AuofosCBChapConvertToUTF8=章节mux时，将其转换为UTF-8
 AuofosCBKeepQPFile=检测到关键帧时保存关键帧列表

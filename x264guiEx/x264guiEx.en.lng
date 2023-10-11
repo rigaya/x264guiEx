@@ -798,6 +798,7 @@ AuofosCBAutoAFSDisable=When failed initialization when Auto field shift (afs) on
 AuofosCBAutoDelChap=Delete chapter file after muxing
 AuofostabPageGeneral=Encode
 AuofosLBDefaultAudioEncoder=Default audio encoder
+AuofosLBPowerThrottling=Power Throttling
 AuofosCBAutoRefLimitByLevel=Limit ref by H.264 level
 AuofosCBChapConvertToUTF8=Convert to UTF-8 when muxing chapter
 AuofosCBKeepQPFile=Save keyframe list when keyframe detection is enabled
