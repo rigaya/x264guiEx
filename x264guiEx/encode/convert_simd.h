@@ -521,7 +521,7 @@ static __forceinline void convert_yc48_to_nv12_10bit_simd(void *pixel, CONVERT_C
 
 template <BOOL aligned_store>
 static __forceinline void convert_yc48_to_nv12_16bit_simd(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
-    convert_yc48_to_nv12_highbit_simd<aligned_store>(pixel, pixel_data, width, height, LSFT_YCC_16, xC_Y_L_MA_16, Y_L_RSH_16, xC_UV_L_MA_16_420P, UV_L_RSH_16_420P, LIMIT_10);
+    convert_yc48_to_nv12_highbit_simd<aligned_store>(pixel, pixel_data, width, height, LSFT_YCC_16, xC_Y_L_MA_16, Y_L_RSH_16, xC_UV_L_MA_16_420P, UV_L_RSH_16_420P, LIMIT_16);
 }
 
 template <BOOL aligned_store>
