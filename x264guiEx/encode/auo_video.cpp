@@ -871,6 +871,12 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
                 //x264優先度
                 check_enc_priority(pe->h_p_aviutl, pi_enc.hProcess, set_priority);
 
+                if (!(i & 255)) {
+                    if (thread_pthrottling_mode != RGYThreadPowerThrottlingMode::Unset) {
+                        SetThreadPowerThrottolingModeForModule(pi_enc.dwProcessId, nullptr, thread_pthrottling_mode);
+                    }
+                }
+
                 //音声同時処理
                 ret |= aud_parallel_task(oip, pe);
 
