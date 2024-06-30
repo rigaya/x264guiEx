@@ -235,8 +235,6 @@ System::Void frmConfig::LoadLocalStg() {
     LocalStg.MKVMuxerPath    = String(_ex_stg->s_mux[MUXER_MKV].fullpath).ToString();
     LocalStg.TC2MP4ExeName   = String(_ex_stg->s_mux[MUXER_TC2MP4].filename).ToString();
     LocalStg.TC2MP4Path      = String(_ex_stg->s_mux[MUXER_TC2MP4].fullpath).ToString();
-    LocalStg.MPGMuxerExeName = String(_ex_stg->s_mux[MUXER_MPG].filename).ToString();
-    LocalStg.MPGMuxerPath    = String(_ex_stg->s_mux[MUXER_MPG].fullpath).ToString();
     LocalStg.MP4RawExeName   = String(_ex_stg->s_mux[MUXER_MP4_RAW].filename).ToString();
     LocalStg.MP4RawPath      = String(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath).ToString();
 
@@ -311,7 +309,6 @@ System::Void frmConfig::SaveLocalStg() {
     GetCHARfromString(_ex_stg->s_mux[MUXER_MP4].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MP4].fullpath),     LocalStg.MP4MuxerPath);
     GetCHARfromString(_ex_stg->s_mux[MUXER_MKV].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MKV].fullpath),     LocalStg.MKVMuxerPath);
     GetCHARfromString(_ex_stg->s_mux[MUXER_TC2MP4].fullpath,  sizeof(_ex_stg->s_mux[MUXER_TC2MP4].fullpath),  LocalStg.TC2MP4Path);
-    GetCHARfromString(_ex_stg->s_mux[MUXER_MPG].fullpath,     sizeof(_ex_stg->s_mux[MUXER_MPG].fullpath),     LocalStg.MPGMuxerPath);
     GetCHARfromString(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath, sizeof(_ex_stg->s_mux[MUXER_MP4_RAW].fullpath), LocalStg.MP4RawPath);
     for (int i = 0; i < _ex_stg->s_aud_count; i++)
         GetCHARfromString(_ex_stg->s_aud[i].fullpath,         sizeof(_ex_stg->s_aud[i].fullpath),             LocalStg.audEncPath[i]);
@@ -326,7 +323,6 @@ System::Void frmConfig::SetLocalStg() {
     fcgTXMP4MuxerPath->Text       = LocalStg.MP4MuxerPath;
     fcgTXMKVMuxerPath->Text       = LocalStg.MKVMuxerPath;
     fcgTXTC2MP4Path->Text         = LocalStg.TC2MP4Path;
-    fcgTXMPGMuxerPath->Text       = LocalStg.MPGMuxerPath;
     fcgTXMP4RawPath->Text         = LocalStg.MP4RawPath;
     fcgTXCustomAudioTempDir->Text = LocalStg.CustomAudTmpDir;
     fcgTXCustomTempDir->Text      = LocalStg.CustomTmpDir;
@@ -334,7 +330,6 @@ System::Void frmConfig::SetLocalStg() {
     fcgLBMP4MuxerPath->Text       = LocalStg.MP4MuxerExeName + LOAD_CLI_STRING(AUO_CONFIG_SPECIFY_EXE_PATH);
     fcgLBMKVMuxerPath->Text       = LocalStg.MKVMuxerExeName + LOAD_CLI_STRING(AUO_CONFIG_SPECIFY_EXE_PATH);
     fcgLBTC2MP4Path->Text         = LocalStg.TC2MP4ExeName   + LOAD_CLI_STRING(AUO_CONFIG_SPECIFY_EXE_PATH);
-    fcgLBMPGMuxerPath->Text       = LocalStg.MPGMuxerExeName + LOAD_CLI_STRING(AUO_CONFIG_SPECIFY_EXE_PATH);
     fcgLBMP4RawPath->Text         = LocalStg.MP4RawExeName   + LOAD_CLI_STRING(AUO_CONFIG_SPECIFY_EXE_PATH);
 
     fcgTXX264Path->SelectionStart           = fcgTXX264Path->Text->Length;
@@ -342,7 +337,6 @@ System::Void frmConfig::SetLocalStg() {
     fcgTXMP4MuxerPath->SelectionStart       = fcgTXMP4MuxerPath->Text->Length;
     fcgTXTC2MP4Path->SelectionStart         = fcgTXTC2MP4Path->Text->Length;
     fcgTXMKVMuxerPath->SelectionStart       = fcgTXMKVMuxerPath->Text->Length;
-    fcgTXMPGMuxerPath->SelectionStart       = fcgTXMPGMuxerPath->Text->Length;
     fcgTXMP4RawPath->SelectionStart         = fcgTXMP4RawPath->Text->Length;
 }
 
@@ -1183,7 +1177,6 @@ System::Void frmConfig::InitComboBox() {
 
     setMuxerCmdExNames(fcgCXMP4CmdEx, MUXER_MP4);
     setMuxerCmdExNames(fcgCXMKVCmdEx, MUXER_MKV);
-    setMuxerCmdExNames(fcgCXMPGCmdEx, MUXER_MPG);
 
     setAudioEncoderNames();
 
@@ -1206,7 +1199,6 @@ System::Void frmConfig::SetTXMaxLenAll() {
     SetTXMaxLen(fcgTXMP4MuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MP4].fullpath) - 1);
     SetTXMaxLen(fcgTXMKVMuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MKV].fullpath) - 1);
     SetTXMaxLen(fcgTXTC2MP4Path,           sizeof(sys_dat->exstg->s_mux[MUXER_TC2MP4].fullpath) - 1);
-    SetTXMaxLen(fcgTXMPGMuxerPath,         sizeof(sys_dat->exstg->s_mux[MUXER_MPG].fullpath) - 1);
     SetTXMaxLen(fcgTXMP4RawPath,           sizeof(sys_dat->exstg->s_mux[MUXER_MP4_RAW].fullpath) - 1);
     SetTXMaxLen(fcgTXCustomTempDir,        sizeof(sys_dat->exstg->s_local.custom_tmp_dir) - 1);
     SetTXMaxLen(fcgTXCustomAudioTempDir,   sizeof(sys_dat->exstg->s_local.custom_audio_tmp_dir) - 1);
@@ -1512,11 +1504,6 @@ System::Void frmConfig::LoadLangText() {
     LOAD_CLI_TEXT(fcgLBMKVMuxerPath);
     LOAD_CLI_TEXT(fcgLBMKVMuxerCmdEx);
     LOAD_CLI_TEXT(fcgCBMKVMuxerExt);
-    LOAD_CLI_TEXT(fcgtabPageMPG);
-    LOAD_CLI_TEXT(fcgBTMPGMuxerPath);
-    LOAD_CLI_TEXT(fcgLBMPGMuxerPath);
-    LOAD_CLI_TEXT(fcgLBMPGMuxerCmdEx);
-    LOAD_CLI_TEXT(fcgCBMPGMuxerExt);
     LOAD_CLI_TEXT(fcgtabPageMux);
     LOAD_CLI_TEXT(fcgLBMuxPriority);
     LOAD_CLI_TEXT(fcgtabPageBat);
@@ -1761,8 +1748,6 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
         SetCXIndex(fcgCXMP4BoxTempDir,       cnf->mux.mp4_temp_dir);
         fcgCBMKVMuxerExt->Checked          = cnf->mux.disable_mkvext == 0;
         SetCXIndex(fcgCXMKVCmdEx,            cnf->mux.mkv_mode);
-        fcgCBMPGMuxerExt->Checked          = cnf->mux.disable_mpgext == 0;
-        SetCXIndex(fcgCXMPGCmdEx,            cnf->mux.mpg_mode);
         SetCXIndex(fcgCXMuxPriority,         cnf->mux.priority);
 
         fcgCBRunBatBefore->Checked         =(cnf->oth.run_bat & RUN_BAT_BEFORE_PROCESS) != 0;
@@ -1920,8 +1905,6 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     cnf->mux.mp4_temp_dir           = fcgCXMP4BoxTempDir->SelectedIndex;
     cnf->mux.disable_mkvext         = !fcgCBMKVMuxerExt->Checked;
     cnf->mux.mkv_mode               = fcgCXMKVCmdEx->SelectedIndex;
-    cnf->mux.disable_mpgext         = !fcgCBMPGMuxerExt->Checked;
-    cnf->mux.mpg_mode               = fcgCXMPGCmdEx->SelectedIndex;
     cnf->mux.priority               = fcgCXMuxPriority->SelectedIndex;
 
     cnf->oth.run_bat                = RUN_BAT_NONE;
@@ -2357,9 +2340,6 @@ System::Void frmConfig::SetHelpToolTips() {
     SET_TOOL_TIP_EX(fcgCBMKVMuxerExt);
     SET_TOOL_TIP_EX(fcgCXMKVCmdEx);
     SET_TOOL_TIP_EX(fcgBTMKVMuxerPath);
-    SET_TOOL_TIP_EX(fcgCBMPGMuxerExt);
-    SET_TOOL_TIP_EX(fcgCXMPGCmdEx);
-    SET_TOOL_TIP_EX(fcgBTMPGMuxerPath);
     SET_TOOL_TIP_EX(fcgCXMuxPriority);
     //バッチファイル実行
     SET_TOOL_TIP_EX(fcgCBRunBatBefore);

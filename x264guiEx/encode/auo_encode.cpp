@@ -313,7 +313,6 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
     case MUXER_MP4:
         return aud_stg->unsupported_mp4 == 0;
     case MUXER_MKV:
-    case MUXER_MPG:
     case MUXER_DISABLED:
         return TRUE;
     default:
@@ -985,7 +984,6 @@ int get_mux_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
     int mode = 0;
     switch (pe->muxer_to_be_used) {
         case MUXER_MKV:     mode = conf->mux.mkv_mode; break;
-        case MUXER_MPG:     mode = conf->mux.mpg_mode; break;
         case MUXER_MP4:
         case MUXER_TC2MP4:
         case MUXER_MP4_RAW: mode = conf->mux.mp4_mode; break;
@@ -1381,8 +1379,6 @@ int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, c
         muxer_to_be_used = is_afsvfr(conf) ? MUXER_TC2MP4 : MUXER_MP4;
     else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
         muxer_to_be_used = MUXER_MKV;
-    else if (video_output_type == VIDEO_OUTPUT_MPEG2 && !conf->mux.disable_mpgext)
-        muxer_to_be_used = MUXER_MPG;
 
     //muxerが必要ないかどうかチェック
     BOOL no_muxer = TRUE;

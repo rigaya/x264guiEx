@@ -53,8 +53,6 @@ namespace x264guiEx {
         String^ MKVMuxerPath;
         String^ TC2MP4ExeName;
         String^ TC2MP4Path;
-        String^ MPGMuxerExeName;
-        String^ MPGMuxerPath;
         String^ MP4RawExeName;
         String^ MP4RawPath;
         String^ CustomTmpDir;
