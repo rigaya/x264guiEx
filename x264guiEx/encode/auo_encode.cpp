@@ -854,7 +854,7 @@ void free_enc_prm(PRM_ENC *pe) {
     }
 }
 
-void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
+void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
     //初期化
     ZeroMemory(pe, sizeof(PRM_ENC));
     //設定更新
@@ -862,7 +862,25 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     sys_dat->exstg->load_append();
     sys_dat->exstg->load_fn_replace();
 
+    strcpy_s(pe->save_file_name, oip->savefile);
     pe->video_out_type = check_video_ouput(conf, oip);
+
+    // 不明な拡張子だった場合、デフォルトの出力拡張子を付与する
+    if (pe->video_out_type == VIDEO_OUTPUT_UNKNOWN) {
+        int out_ext_idx = sys_dat->exstg->s_local.default_output_ext;
+        if (out_ext_idx < 0 || out_ext_idx >= _countof(OUTPUT_FILE_EXT)) {
+            out_ext_idx = 0;
+        }
+        // 拡張子を付与
+        strcat_s(pe->save_file_name, OUTPUT_FILE_EXT[out_ext_idx]);
+        // オリジナルのsavefileのポインタを保存
+        pe->org_save_file_name = oip->savefile;
+        // 保存先のファイル名を変更
+        oip->savefile = pe->save_file_name;
+        // 再度チェック
+        pe->video_out_type = check_video_ouput(conf, oip);
+    }
+
     pe->total_pass = get_total_path(conf);
     pe->amp_pass_limit = pe->total_pass + sys_dat->exstg->s_local.amp_retry_limit;
     pe->amp_reset_pass_count = 0;
@@ -1323,9 +1341,11 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 int check_video_ouput(const char *filename) {
     if (check_ext(filename, ".mp4"))  return VIDEO_OUTPUT_MP4;
     if (check_ext(filename, ".mkv"))  return VIDEO_OUTPUT_MKV;
-    if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
-    if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
-    return VIDEO_OUTPUT_RAW;
+    //if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
+    //if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
+    if (check_ext(filename, ENOCDER_RAW_EXT)) return VIDEO_OUTPUT_RAW;
+    if (check_ext(filename, ".raw")) return VIDEO_OUTPUT_RAW;
+    return VIDEO_OUTPUT_UNKNOWN;
 }
 
 int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
