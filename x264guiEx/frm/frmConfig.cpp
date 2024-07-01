@@ -391,7 +391,6 @@ System::Void frmConfig::fcgTSBOtherSettings_Click(System::Object^  sender, Syste
     ActivateToolTip(stg.s_local.disable_tooltip_help == FALSE);
     if (str_has_char(stg.s_local.conf_font.name))
         SetFontFamilyToForm(this, gcnew FontFamily(String(stg.s_local.conf_font.name).ToString()), this->Font->FontFamily);
-    LoadLangText();
 }
 
 System::Void frmConfig::fcgTSBCMDOnly_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
