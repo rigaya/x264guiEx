@@ -853,7 +853,7 @@ void free_enc_prm(PRM_ENC *pe) {
     }
 }
 
-void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
+void init_enc_prm(const CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
     //初期化
     ZeroMemory(pe, sizeof(PRM_ENC));
     //設定更新
@@ -879,7 +879,10 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const SYSTEM_D
         // 再度チェック
         pe->video_out_type = check_video_ouput(conf, oip);
     }
+}
 
+void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
+    pe->video_out_type = check_video_ouput(conf, oip);
     pe->total_pass = get_total_path(conf);
     pe->amp_pass_limit = pe->total_pass + sys_dat->exstg->s_local.amp_retry_limit;
     pe->amp_reset_pass_count = 0;
