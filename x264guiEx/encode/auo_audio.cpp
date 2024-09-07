@@ -56,6 +56,7 @@
 #include "cpu_info.h"
 
 const int WAVE_HEADER_SIZE = 44;
+const int DS64_SIZE        = 28;
 const int RIFF_SIZE_POS    = 4;
 const int WAVE_SIZE_POS    = WAVE_HEADER_SIZE - 4;
 
@@ -175,48 +176,80 @@ int check_audio_length(OUTPUT_INFO *oip, double av_length_threshold) {
     return 0;
 }
 
-static void build_wave_header(BYTE *head, const int audio_ch, const int audio_rate, BOOL use_8bit, int sample_n) {
+static bool need_r64(int sample_n, const int audio_ch, BOOL use_8bit) {
+    const int   size = (use_8bit) ? sizeof(BYTE) : sizeof(short);
+    const uint64_t riff_file_length = (uint64_t)sample_n * (size * audio_ch) + WAVE_HEADER_SIZE - 8;
+    return riff_file_length > std::numeric_limits<uint32_t>::max();
+}
+
+static uint32_t build_wave_header(BYTE *head, const int audio_ch, const int audio_rate, BOOL use_8bit, int sample_n, BOOL enable_rf64) {
     static const char * const RIFF_HEADER = "RIFF";
+    static const char * const RF64_HEADER = "RF64";
     static const char * const WAVE_HEADER = "WAVE";
+    static const char * const DS64_CHUNK = "ds64";
     static const char * const FMT_CHUNK = "fmt ";
     static const char * const DATA_CHUNK = "data";
     const DWORD FMT_SIZE = 16;
     const short FMT_ID = 1;
     const int   size = (use_8bit) ? sizeof(BYTE) : sizeof(short);
+    const uint64_t riff_file_length = (uint64_t)sample_n * (size * audio_ch) + WAVE_HEADER_SIZE - 8;
+    const bool rf64 = enable_rf64 && need_r64(sample_n, audio_ch, use_8bit);
+    const uint64_t file_length = riff_file_length + ((rf64) ? DS64_SIZE + 8/*DS64_HEADER*/ : 0);
 
-    memcpy(head + 0, RIFF_HEADER, strlen(RIFF_HEADER));
-    *(DWORD*)(head + 4) = sample_n * (size * audio_ch) + WAVE_HEADER_SIZE - 8;
-    memcpy(head + 8, WAVE_HEADER, strlen(WAVE_HEADER));
-    memcpy(head + 12, FMT_CHUNK, strlen(FMT_CHUNK));
-    *(DWORD*)(head + 16) = FMT_SIZE;
-    *(short*)(head + 20) = FMT_ID;
-    *(short*)(head + 22) = (short)audio_ch;
-    *(DWORD*)(head + 24) = audio_rate;
-    *(DWORD*)(head + 28) = audio_rate * audio_ch * size;
-    *(short*)(head + 32) = (short)(size * audio_ch);
-    *(short*)(head + 34) = (short)(size * 8);
-    memcpy(head + 36, DATA_CHUNK, strlen(DATA_CHUNK));
-    *(DWORD*)(head + 40) = sample_n * (size * audio_ch);
+    uint32_t offset = 0;
+    memcpy(head + offset, rf64 ? RF64_HEADER : RIFF_HEADER, strlen(RIFF_HEADER)); offset += 4; // 0
+    *(DWORD*)(head + offset) = rf64 ? 0xffffffff : (DWORD)file_length; offset += 4; // 4
+    memcpy(head + offset, WAVE_HEADER, strlen(WAVE_HEADER)); offset += 4; // 8
+    if (rf64) {
+        memcpy(head + offset, DS64_CHUNK, strlen(DS64_CHUNK)); offset += 4; // 12
+        *(uint32_t*)(head + offset) = DS64_SIZE; offset += 4; // 16
+        *(uint64_t*)(head + offset) = file_length; offset += 8; // 20
+        *(uint64_t*)(head + offset) = (uint64_t)sample_n * (size * audio_ch); offset += 8; // 28
+        *(uint64_t*)(head + offset) = (uint64_t)sample_n; offset += 8; // 36
+        uint32_t table_entry_count = 0;
+        *(uint32_t*)(head + offset) = table_entry_count; offset += 4; // 40
+    }
+    memcpy(head + offset, FMT_CHUNK, strlen(FMT_CHUNK)); offset += 4;
+    *(DWORD*)(head + offset) = FMT_SIZE; offset += 4;
+    *(short*)(head + offset) = FMT_ID; offset += 2;
+    *(short*)(head + offset) = (short)audio_ch; offset += 2;
+    *(DWORD*)(head + offset) = audio_rate; offset += 4;
+    *(DWORD*)(head + offset) = audio_rate * audio_ch * size; offset += 4;
+    *(short*)(head + offset) = (short)(size * audio_ch); offset += 2;
+    *(short*)(head + offset) = (short)(size * 8); offset += 2;
+    memcpy(head + offset, DATA_CHUNK, strlen(DATA_CHUNK)); offset += 4;
+    *(DWORD*)(head + offset) = rf64 ? 0xffffffff : sample_n * (size * audio_ch); offset += 4;
+    return offset;
     //計44byte(WAVE_HEADER_SIZE)
 }
 
-static void build_wave_header(BYTE *head, const OUTPUT_INFO *oip, BOOL use_8bit, int sample_n) {
-    build_wave_header(head, oip->audio_ch, oip->audio_rate, use_8bit, sample_n);
+static uint32_t build_wave_header(BYTE *head, const OUTPUT_INFO *oip, BOOL use_8bit, int sample_n, BOOL enable_rf64) {
+    return build_wave_header(head, oip->audio_ch, oip->audio_rate, use_8bit, sample_n, enable_rf64);
 }
 
-static void correct_header(FILE *f_out, int data_size) {
+static void correct_header(FILE *f_out, int samples_read, uint64_t data_size64, BOOL use_rf64) {
     //2箇所の出力データサイズ部分を書き換え
-    int riff_size = data_size + (WAVE_SIZE_POS - RIFF_SIZE_POS);
-    _fseeki64(f_out, RIFF_SIZE_POS, SEEK_SET);
-    fwrite(&riff_size, sizeof(int), 1, f_out);
-    _fseeki64(f_out, WAVE_SIZE_POS - RIFF_SIZE_POS, SEEK_CUR);
-    fwrite(&data_size, sizeof(int), 1, f_out);
+    if (use_rf64) {
+        uint32_t riff_size64 = data_size64 + (WAVE_SIZE_POS + DS64_SIZE+8/*DS64_HEADER*/ - RIFF_SIZE_POS);
+        uint64_t samples_read64 = samples_read;
+        _fseeki64(f_out, 20, SEEK_SET);
+        fwrite(&riff_size64, sizeof(uint64_t), 1, f_out);
+        fwrite(&data_size64, sizeof(uint64_t), 1, f_out);
+        fwrite(&samples_read64, sizeof(uint64_t), 1, f_out);
+    } else {
+        uint32_t data_size32 = (uint32_t)data_size64;
+        uint32_t riff_size32 = data_size32 + (WAVE_SIZE_POS - RIFF_SIZE_POS);
+        _fseeki64(f_out, RIFF_SIZE_POS, SEEK_SET);
+        fwrite(&riff_size32, sizeof(uint32_t), 1, f_out);
+        _fseeki64(f_out, WAVE_SIZE_POS - RIFF_SIZE_POS, SEEK_CUR);
+        fwrite(&data_size32, sizeof(uint32_t), 1, f_out);
+    }
 }
 
-static void write_wav_header(FILE *f_out, const OUTPUT_INFO *oip, BOOL use_8bit) {
-    BYTE head[WAVE_HEADER_SIZE];
-    build_wave_header(head, oip, use_8bit, oip->audio_n);
-    _fwrite_nolock(&head, sizeof(head), 1, f_out);
+static void write_wav_header(FILE *f_out, const OUTPUT_INFO *oip, BOOL use_8bit, BOOL enable_rf64) {
+    BYTE head[WAVE_HEADER_SIZE + DS64_SIZE+8/*DS64_HEADER*/] = { 0 };
+    auto size = build_wave_header(head, oip, use_8bit, oip->audio_n, enable_rf64);
+    _fwrite_nolock(&head, size, 1, f_out);
 }
 
 typedef struct {
@@ -359,7 +392,7 @@ static AUO_RESULT silent_wav_output(FILE *fp, int samples, int wav_8bit, int aud
     return AUO_RESULT_SUCCESS;
 }
 
-static AUO_RESULT wav_file_open(aud_data_t *aud_dat, const OUTPUT_INFO *oip, BOOL use_pipe, BOOL wav_8bit, int bufsize,
+static AUO_RESULT wav_file_open(aud_data_t *aud_dat, const OUTPUT_INFO *oip, BOOL use_pipe, BOOL wav_8bit, BOOL enable_rf64, int bufsize,
                                 const wchar_t *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     if (use_pipe) {
@@ -384,15 +417,16 @@ static AUO_RESULT wav_file_open(aud_data_t *aud_dat, const OUTPUT_INFO *oip, BOO
     }
     //wavヘッダ出力
     if (!ret)
-        write_wav_header(aud_dat->fp_out, oip, wav_8bit);
+        write_wav_header(aud_dat->fp_out, oip, wav_8bit, enable_rf64);
     return ret;
 }
 
-static AUO_RESULT wav_file_close(aud_data_t *aud_dat, const OUTPUT_INFO *oip, int samples_read, int wav_sample_size, BOOL use_pipe) {
+static AUO_RESULT wav_file_close(aud_data_t *aud_dat, const OUTPUT_INFO *oip, int samples_read, BOOL wav_8bit, BOOL use_pipe, BOOL enable_rf64) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
+    const int wav_sample_size = oip->audio_ch * ((wav_8bit) ? sizeof(BYTE) : sizeof(short));
     //終了処理
     if (!use_pipe && oip->audio_n != samples_read)
-        correct_header(aud_dat->fp_out, samples_read * wav_sample_size);
+        correct_header(aud_dat->fp_out, samples_read, (uint64_t)samples_read * wav_sample_size, enable_rf64 && need_r64(oip->audio_n, oip->audio_ch, wav_8bit));
 
     //ファイルを閉じる
     (use_pipe) ? CloseStdIn(&aud_dat->pipes) : fclose(aud_dat->fp_out);
@@ -404,7 +438,7 @@ static AUO_RESULT wav_file_close(aud_data_t *aud_dat, const OUTPUT_INFO *oip, in
     return ret;
 }
 
-static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_ENC *pe, int wav_8bit, int bufsize,
+static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_ENC *pe, int wav_8bit, BOOL enable_rf64, int bufsize,
                         const wchar_t *auddispname, const char *auddir, DWORD encoder_priority, DWORD disable_log)
 {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
@@ -430,7 +464,7 @@ static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_EN
     if_valid_wait_for_single_object(pe->aud_parallel.he_aud_start, INFINITE);
     //パイプ or ファイルオープン
     for (int i_aud = 0; !ret && i_aud < pe->aud_count; i_aud++)
-        ret |= wav_file_open(&aud_dat[i_aud], oip, use_pipe, wav_8bit, bufsize, auddispname, auddir, encoder_priority, disable_log);
+        ret |= wav_file_open(&aud_dat[i_aud], oip, use_pipe, wav_8bit, enable_rf64, bufsize, auddispname, auddir, encoder_priority, disable_log);
 
     if (!ret) {
         //メッセージ
@@ -470,7 +504,7 @@ static AUO_RESULT wav_output(aud_data_t *aud_dat, const OUTPUT_INFO *oip, PRM_EN
 
         //ファイルクローズ
         for (int i_aud = 0; i_aud < pe->aud_count; i_aud++)
-            ret |= wav_file_close(&aud_dat[i_aud], oip, samples_read, wav_sample_size, use_pipe);
+            ret |= wav_file_close(&aud_dat[i_aud], oip, samples_read, wav_8bit, use_pipe, enable_rf64);
     }
     if (buf8bit) _aligned_free(buf8bit);
 
@@ -591,7 +625,7 @@ AUO_RESULT audio_output(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, c
     PathGetDirectory(auddir, _countof(auddir), aud_stg->fullpath);
 
     //wav出力
-    ret |= wav_output(aud_dat, oip, pe, aud_stg->mode[conf->aud.enc_mode].use_8bit, sys_dat->exstg->s_local.audio_buffer_size, aud_stg->dispname, auddir, encoder_priority, aud_stg->disable_log);
+    ret |= wav_output(aud_dat, oip, pe, aud_stg->mode[conf->aud.enc_mode].use_8bit, aud_stg->enable_rf64, sys_dat->exstg->s_local.audio_buffer_size, aud_stg->dispname, auddir, encoder_priority, aud_stg->disable_log);
 
     //音声エンコード前バッチ処理
     if (!ret) ret |= run_bat_file(conf, oip, pe, sys_dat, RUN_BAT_BEFORE_AUDIO);
@@ -636,6 +670,7 @@ BOOL check_audenc_output(const AUDIO_SETTINGS *aud_stg, std::wstring& exe_messag
     const int audio_n = audio_rate;
     const int audio_ch = 2;
     const int audio_use_8bit = FALSE;
+    const BOOL audio_enable_rf64 = FALSE;
     const int audio_elem_size = (audio_use_8bit) ? 1 : 2;
     std::vector<char> test_buffer(audio_n * audio_ch * audio_elem_size, 0);
 
@@ -658,7 +693,7 @@ BOOL check_audenc_output(const AUDIO_SETTINGS *aud_stg, std::wstring& exe_messag
             log_process_events();
 
         BYTE head[WAVE_HEADER_SIZE];
-        build_wave_header(head, audio_ch, audio_rate, audio_use_8bit, audio_n);
+        build_wave_header(head, audio_ch, audio_rate, audio_use_8bit, audio_enable_rf64, audio_n);
         _fwrite_nolock(&head, 1, sizeof(head), pipes.f_stdin);
         _fwrite_nolock(&test_buffer[0], 1, test_buffer.size(), pipes.f_stdin);
         CloseStdIn(&pipes);
