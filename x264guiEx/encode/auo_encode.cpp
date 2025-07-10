@@ -437,7 +437,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
 
     char pluginsDir[MAX_PATH_LEN] = { 0 };
     char defaultExeDir2[MAX_PATH_LEN] = { 0 };
-    PathCombineLong(pluginsDir, _countof(pluginsDir), aviutl_dir, "plugins");
+    get_auo_dir(pluginsDir, _countof(pluginsDir));
     PathCombineLong(defaultExeDir2, _countof(defaultExeDir2), pluginsDir, DEFAULT_EXE_DIR);
 
     const auto auo_check_fileopen_path = find_auo_check_fileopen(defaultExeDir, defaultExeDir2);
@@ -766,7 +766,7 @@ static void set_tmpdir(PRM_ENC *pe, int tmp_dir_index, const char *savefile, con
 
             char pluginsDir[MAX_PATH_LEN] = { 0 };
             char defaultExeDir2[MAX_PATH_LEN] = { 0 };
-            PathCombineLong(pluginsDir, _countof(pluginsDir), sys_dat->aviutl_dir, "plugins");
+            get_auo_dir(pluginsDir, _countof(pluginsDir));
             PathCombineLong(defaultExeDir2, _countof(defaultExeDir2), pluginsDir, DEFAULT_EXE_DIR);
 
             const auto auo_check_fileopen_path = find_auo_check_fileopen(defaultExeDir, defaultExeDir2);

@@ -1103,6 +1103,10 @@ static inline void get_auo_path(char *auo_path, size_t nSize) {
 static inline void get_auo_path(WCHAR *auo_path, size_t nSize) {
     GetModuleFileNameW(GetModuleHandleW(AUO_NAME_W), auo_path, (DWORD)nSize);
 }
+static inline void get_auo_dir(char *auo_dir, size_t nSize) {
+    GetModuleFileNameA(GetModuleHandleA(AUO_NAME), auo_dir, (DWORD)nSize);
+    PathRemoveFileSpecFixed(auo_dir);
+}
 
 static inline int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {
     int ret = 0;
