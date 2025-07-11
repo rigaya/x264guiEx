@@ -157,6 +157,48 @@ void copy_yuy2_sse2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, c
         *(int*)dst = *(int*)src;
 }
 
+template<typename TypeOut, int out_bit_depth>
+void convert_rgb_to_yuv444_base(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    BYTE *ptrY = pixel_data->data[0];
+    BYTE *ptrU = pixel_data->data[1];
+    BYTE *ptrV = pixel_data->data[2];
+    const float COEFF_RGB2YUV[2][9] = {
+        { 0.299f,     0.587f,   0.114f,
+         -0.168736f, -0.331264f,  0.5f,
+          0.5f,      -0.418688f, -0.081312f },
+        { 0.2126f,    0.7152f,    0.0722f,
+         -0.114572f, -0.385427f,  0.5f,
+          0.5f,      -0.453596f, -0.045977f }
+    };
+    const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
+    int y0 = 0, y1 = height - 1;
+    const int srcstep = (width*3 + 3) & ~3;
+    for (; y0 < height; y0++, y1--) {
+        TypeOut *dstY = (TypeOut *)(ptrY + y1*width*sizeof(TypeOut));
+        TypeOut *dstU = (TypeOut *)(ptrU + y1*width*sizeof(TypeOut));
+        TypeOut *dstV = (TypeOut *)(ptrV + y1*width*sizeof(TypeOut));
+        BYTE *src = (BYTE*)frame + y0*srcstep;
+        for (int x = 0; x < width; x++) {
+            const float r = (float)src[x*3 + 0];
+            const float g = (float)src[x*3 + 1];
+            const float b = (float)src[x*3 + 2];
+            const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
+            const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            dstY[x] = clamp((TypeOut)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = clamp((TypeOut)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = clamp((TypeOut)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+        }
+    }
+}
+
+void convert_rgb_to_yuv444(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_rgb_to_yuv444_base<BYTE, 8>(frame, pixel_data, width, height);
+}
+void convert_rgb_to_yuv444_16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    convert_rgb_to_yuv444_base<USHORT, 16>(frame, pixel_data, width, height);
+}
+
 void copy_rgb(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
     BYTE *ptr = pixel_data->data[0];
     BYTE *dst, *src;

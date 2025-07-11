@@ -342,6 +342,9 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     //Copy RGB
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSSE3|SSE2,           sort_to_rgb_ssse3 },
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  NONE,                 sort_to_rgb },
+    //Convert RGB to YUV444 
+    { CF_RGB,  OUT_CSP_YUV444, BIT_8, A,  1,  NONE,                 convert_rgb_to_yuv444 },
+    { CF_RGB,  OUT_CSP_YUV444, BIT16, A,  1,  NONE,                 convert_rgb_to_yuv444_16 },
 #elif ENCODER_FFMPEG
     //Copy RGB
     { CF_RGB,  OUT_CSP_RGB,    BIT_8, A,  1,  SSE2,                 copy_rgb_sse2 },
@@ -511,6 +514,7 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
                 ret = FALSE;
             break;
     }
+    pixel_data->colormatrix = height >= 720 ? 1 : 0;
     return ret;
 }
 

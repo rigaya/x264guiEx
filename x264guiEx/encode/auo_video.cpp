@@ -83,13 +83,25 @@ static const char * specify_input_csp(int output_csp) {
     return specify_csp[output_csp];
 }
 
+int get_encoder_send_bitdepth(const CONF_X264 *cnf) {
+    if (is_aviutl2()) {
+        if (cnf->output_csp == OUT_CSP_YUV444) {
+            return cnf->use_highbit_depth ? 16 : 8;
+        }
+        return 8;
+    }
+    return cnf->use_highbit_depth ? 16 : 8;
+}
+
 int get_aviutl_color_format(int bit_depth, int output_csp, int input_as_lw48) {
     //Aviutlからの入力に使用するフォーマット
+
+    const bool isAviutl2 = is_aviutl2();
 
     const int cf_aviutl_pixel48 = (input_as_lw48) ? CF_LW48 : CF_YC48;
     switch (output_csp) {
         case OUT_CSP_YUV444:
-            return cf_aviutl_pixel48;
+            return (isAviutl2) ? CF_RGB : cf_aviutl_pixel48;
         case OUT_CSP_RGB:
             return CF_RGB;
         case OUT_CSP_NV12:
@@ -99,7 +111,7 @@ int get_aviutl_color_format(int bit_depth, int output_csp, int input_as_lw48) {
         case OUT_CSP_YUV422:
         case OUT_CSP_YUV400:
         default:
-            return (bit_depth > 8) ? cf_aviutl_pixel48 : CF_YUY2;
+            return (isAviutl2) ? CF_YUY2 : ((bit_depth > 8) ? cf_aviutl_pixel48 : CF_YUY2);
     }
 }
 
@@ -773,13 +785,14 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
 
     //YUY2/YC48->NV12/YUV444, RGBコピー用関数
     const int input_csp_idx = get_aviutl_color_format(conf->enc.use_highbit_depth ? 16 : 8, conf->enc.output_csp, conf->vid.input_as_lw48);
-    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, (conf->enc.use_highbit_depth) ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
+    const int out_bit_depth = get_encoder_send_bitdepth(&conf->enc);
+    const func_convert_frame convert_frame = get_convert_func(oip->w, input_csp_idx, out_bit_depth ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
     if (convert_frame == NULL) {
-        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, (conf->enc.use_highbit_depth) ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
+        ret |= AUO_RESULT_ERROR; error_select_convert_func(oip->w, oip->h, out_bit_depth ? 16 : 8, conf->enc.interlaced, conf->enc.output_csp);
         return ret;
     }
     //映像バッファ用メモリ確保
-    if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->enc.output_csp, (conf->enc.use_highbit_depth) ? 16 : 8)) {
+    if (!malloc_pixel_data(&pixel_data, oip->w, oip->h, conf->enc.output_csp, out_bit_depth ? 16 : 8)) {
         ret |= AUO_RESULT_ERROR; error_malloc_pixel_data();
         return ret;
     }

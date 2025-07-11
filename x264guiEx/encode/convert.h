@@ -53,6 +53,7 @@ typedef struct {
     int byte_per_pixel;
 #endif
     int   total_size;  //全planarのサイズの総和
+    int   colormatrix; //色空間 (BT601 / BT709)
 } CONVERT_CF_DATA;
 
 
@@ -84,6 +85,8 @@ void sort_to_rgb_ssse3(void *frame, CONVERT_CF_DATA *pixel_data, const int width
 void copy_rgba(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
 void copy_rgba_sse2(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
 
+void convert_rgb_to_yuv444(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
+void convert_rgb_to_yuv444_16(void* frame, CONVERT_CF_DATA* pixel_data, const int width, const int height);
 
 //YUY2 -> nv12 (8bit)
 void convert_yuy2_to_nv12(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height);

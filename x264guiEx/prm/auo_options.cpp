@@ -38,6 +38,7 @@
 #include "auo_conf.h"
 #include "auo_options.h"
 
+int get_encoder_send_bitdepth(const CONF_X264 *cnf);
 
 //オプションの種類(色々便利なので1から始める)
 enum {
@@ -742,7 +743,7 @@ static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, 
 }
 static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_highbit_depth)
-        return strcpy_s(cmd, nSize, " --input-depth 16 --output-depth 10");
+        return sprintf_s(cmd, nSize, " --input-depth %d --output-depth 10", get_encoder_send_bitdepth(cx));
     return 0;
 }
 static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {    

@@ -1107,6 +1107,11 @@ static inline void get_auo_dir(char *auo_dir, size_t nSize) {
     GetModuleFileNameA(GetModuleHandleA(AUO_NAME), auo_dir, (DWORD)nSize);
     PathRemoveFileSpecFixed(auo_dir);
 }
+static bool is_aviutl2() {
+    char exe_name[MAX_PATH_LEN] = { 0 };
+    get_exe_name(exe_name, _countof(exe_name));
+    return strcmp(exe_name, "pipe32auo.exe") == 0;
+}
 
 static inline int replace_cmd_CRLF_to_Space(char *cmd, size_t nSize) {
     int ret = 0;
