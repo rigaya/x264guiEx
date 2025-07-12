@@ -179,15 +179,15 @@ void convert_rgb_to_yuv444_base(void *frame, CONVERT_CF_DATA *pixel_data, const 
         TypeOut *dstV = (TypeOut *)(ptrV + y1*width*sizeof(TypeOut));
         BYTE *src = (BYTE*)frame + y0*srcstep;
         for (int x = 0; x < width; x++) {
-            const float r = (float)src[x*3 + 0];
+            const float b = (float)src[x*3 + 0];
             const float g = (float)src[x*3 + 1];
-            const float b = (float)src[x*3 + 2];
+            const float r = (float)src[x*3 + 2];
             const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
             const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
             const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
-            dstY[x] = clamp((TypeOut)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstU[x] = clamp((TypeOut)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstV[x] = clamp((TypeOut)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstY[x] = (TypeOut)clamp((int)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = (TypeOut)clamp((int)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = (TypeOut)clamp((int)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
         }
     }
 }
@@ -195,7 +195,7 @@ void convert_rgb_to_yuv444_base(void *frame, CONVERT_CF_DATA *pixel_data, const 
 void convert_rgb_to_yuv444(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
     convert_rgb_to_yuv444_base<BYTE, 8>(frame, pixel_data, width, height);
 }
-void convert_rgb_to_yuv444_16(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+void convert_rgb_to_yuv444_16bit(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
     convert_rgb_to_yuv444_base<USHORT, 16>(frame, pixel_data, width, height);
 }
 
