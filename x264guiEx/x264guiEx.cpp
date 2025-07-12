@@ -254,7 +254,7 @@ BOOL func_output( OUTPUT_INFO *oip ) {
     log_process_events();
     if (isAviutl2) {
         if (error_or_abort) {
-            MessageBoxA(NULL, "エラーが発生しました。ログウィンドウをご確認ください。\nログウィンドウを閉じると続行します。", AUO_FULL_NAME " 出力エラー", MB_OK);
+            MessageBoxA(NULL, "エラーが発生しました。ログウィンドウをご確認ください。\nログウィンドウを閉じると続行します。", AUO_FULL_NAME " 出力エラー", MB_OK | MB_ICONWARNING);
             while (!is_log_window_closed()) {
                 Sleep(16);
                 log_process_events();
