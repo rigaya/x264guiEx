@@ -34,7 +34,41 @@ x264guiExでよく発生するエラーと対処方法を[こちら](./x264guiEx
 
 また、よくわからない場合は、[twitter](https://twitter.com/rigaya34589)か[ブログのコメント](https://rigaya34589.blog.fc2.com/blog-category-5.html)等で具体的なエラーの状況をお聞かせください。可能な範囲で回答したいと思います。
 
-## x264guiEx の Aviutl への導入・更新
+## x264guiEx の AviUtl2 への導入・更新
+
+> [!IMPORTANT]
+> AviUtl(無印) 向けには、後述の[AviUtl (無印) への導入・更新](#x264guiex-の-aviutl-無印-への導入・更新)をご覧ください。
+
+### ダウンロード
+
+まず、AviUtl**2**_x264guiEx_x.xx_install.exe を[こちら](https://github.com/rigaya/x264guiEx/releases)からダウンロードします。
+
+### AviUtl2 への導入・更新
+
+ダウンロードしたexeファイルをダブルクリックして開きます。
+
+![exeのダブルクリック](./data/x264guiEx_3_33_install_aviutl2_01.png)
+
+インストールしますか? とでたら [はい] をクリックします。
+
+![インストールしますか](./data/x264guiEx_3_33_install_aviutl2_02.png)
+
+自動的にアーカイブが展開され、インストールが開始されます。
+
+![exeのダブルクリック](./data/x264guiEx_3_33_install_aviutl2_03.png)
+
+x264guiExの動作に必要な追加モジュール(VC runtime)の導入が追加で必要な環境では、ユーザーアカウント制御画面が表示されます。
+その場合は、 [はい] をクリックします。
+_環境によっては準備が不要な場合があり、その場合は表示されません。_
+
+<img src="./data/x264guiEx_3_33_install_aviutl2_04.png" width="360px">
+
+下記のような画面になり、「x264guiEx を使用する準備が完了しました。」と出れば終了です。
+ウィンドウを閉じ、AviUtl2を起動してx264guiExが追加されているか確認してください。
+
+![インストール完了](./data/x264guiEx_3_33_install_aviutl2_05.png)
+
+## x264guiEx の AviUtl (無印) への導入・更新
 
 下記では動画で導入方法を紹介していますので、こちらも参考としてみてください。(画像をクリック。)  
 [![](https://img.youtube.com/vi/pTfFv_V2Isc/0.jpg)](https://www.youtube.com/watch?v=pTfFv_V2Isc)
@@ -43,20 +77,13 @@ x264guiExでよく発生するエラーと対処方法を[こちら](./x264guiEx
 
 まず、x264guiExを[こちら](https://github.com/rigaya/x264guiEx/releases)からダウンロードします。
 
-### 導入・更新
+### AviUtl (無印) への導入・更新
 
 ダウンロードしたzipファイルをダブルクリックして開きます。中身はこんな感じです。
 
 ![zipファイルの中身](./data/x264guiEx_3_00_install_02.png)
 
 中身をすべてAviutlフォルダにコピーします。
-
-> [!IMPORTANT]
-> Aviutl2では、
-> - exe_filesフォルダをAviutlフォルダの中に、
-> - ```plugins```フォルダの**中身**を全て```C:\ProgramData\aviutl2\Plugin```の中に
->
-> それぞれコピーしてください。
 
 ![中身のコピー](./data/x264guiEx_3_00_install_03.png)
 
