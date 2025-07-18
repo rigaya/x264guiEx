@@ -306,8 +306,10 @@ void guiEx_settings::clear_all() {
 BOOL guiEx_settings::check_inifile() {
     ini_ver = GetPrivateProfileInt(ini_section_main, "ini_ver", 0, ini_fileName);
     BOOL ret = (ini_ver >= INI_VER_MIN);
-    if (ret && !GetFileSizeDWORD(ini_fileName, &ini_filesize))
+    uint64_t filesize = 0;
+    if (ret && !rgy_get_filesize(ini_fileName, &filesize))
         ret = FALSE;
+    ini_filesize = (DWORD)filesize;
     codepage_ini = ini_ver >= INI_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
     codepage_cnf = CP_THREAD_ACP;
     return ret;

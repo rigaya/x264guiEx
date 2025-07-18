@@ -220,10 +220,6 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
-    <ClCompile Include="encode\auo_chapter.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
-    </ClCompile>
     <ClCompile Include="encode\auo_convert.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
@@ -323,7 +319,6 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
     <ClInclude Include="encode\afs_client.h" />
     <ClInclude Include="encode\auo_audio.h" />
     <ClInclude Include="encode\auo_audio_parallel.h" />
-    <ClInclude Include="encode\auo_chapter.h" />
     <ClInclude Include="encode\auo_convert.h" />
     <ClInclude Include="encode\auo_encode.h" />
     <ClInclude Include="encode\auo_faw2aac.h" />

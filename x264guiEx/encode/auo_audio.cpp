@@ -561,9 +561,9 @@ static AUO_RESULT audio_finish_enc(AUO_RESULT ret, aud_data_t *aud_dat, const AU
         //最後のメッセージを回収
         while (ReadLogExe(&aud_dat->pipes, aud_stg->dispname, &aud_dat->log_line_cache) > 0);
 
-        UINT64 audfilesize = 0;
+        uint64_t audfilesize = 0;
         if (!PathFileExists(aud_dat->audfile) ||
-            (GetFileSizeUInt64(aud_dat->audfile, &audfilesize) && audfilesize == 0)) {
+            (rgy_get_filesize(aud_dat->audfile, &audfilesize) && audfilesize == 0)) {
                 //エラーが発生した場合
                 ret |= AUO_RESULT_ERROR; error_audenc_failed(aud_stg->dispname, aud_dat->args);
                 write_cached_lines(LOG_ERROR, aud_stg->dispname, &aud_dat->log_line_cache);

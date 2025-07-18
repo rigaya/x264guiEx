@@ -36,6 +36,7 @@
 #include "auo_video.h"
 #include "auo_frm.h"
 #include "convert.h"
+#include "rgy_simd.h"
 
 //音声の16bit->8bit変換の選択
 func_audio_16to8 get_audio_16to8_func(BOOL split) {
@@ -44,10 +45,13 @@ func_audio_16to8 get_audio_16to8_func(BOOL split) {
         { convert_audio_16to8_sse2, split_audio_16to8x2_sse2 },
         { convert_audio_16to8_avx2, split_audio_16to8x2_avx2 },
     };
-    int simd = 0;
-    if (0 == (simd = (!!check_avx2() * 2)))
-        simd = check_sse2();
-    return FUNC_CONVERT_AUDIO[simd][!!split];
+    const auto simd = get_availableSIMD();
+    int simdidx = 0;
+    if ((simd & RGY_SIMD::AVX2) != RGY_SIMD::NONE)
+        simdidx = 2;
+    else if ((simd & RGY_SIMD::SSE2) != RGY_SIMD::NONE)
+        simdidx = 1;
+    return FUNC_CONVERT_AUDIO[simdidx][!!split];
 }
 
 enum eInterlace {
@@ -62,21 +66,21 @@ typedef struct {
     int        bit_depth;         //bit深度
     eInterlace for_interlaced;    //インタレース用関数であるかどうか
     DWORD      mod;               //幅(横解像)に制限(割り切れるかどうか)
-    DWORD      SIMD;              //対応するSIMD
+    RGY_SIMD   SIMD;              //対応するSIMD
     func_convert_frame func;      //関数へのポインタ
 } COVERT_FUNC_INFO;
 
 //表でうっとおしいので省略する
-#define NONE  AUO_SIMD_NONE
-#define SSE2  AUO_SIMD_SSE2
-#define SSE3  AUO_SIMD_SSE3
-#define SSSE3 AUO_SIMD_SSSE3
-#define SSE41 AUO_SIMD_SSE41
-#define SSE42 AUO_SIMD_SSE42
-#define AVX   AUO_SIMD_AVX
-#define AVX2  AUO_SIMD_AVX2
-#define AVX512BW    (AUO_SIMD_AVX512F|AUO_SIMD_AVX512BW)
-#define AVX512VBMI  (AUO_SIMD_AVX512F|AUO_SIMD_AVX512BW|AUO_SIMD_AVX512VBMI)
+#define NONE  RGY_SIMD::NONE
+#define SSE2  RGY_SIMD::SSE2
+#define SSE3  RGY_SIMD::SSE3
+#define SSSE3 RGY_SIMD::SSSE3
+#define SSE41 RGY_SIMD::SSE41
+#define SSE42 RGY_SIMD::SSE42
+#define AVX   RGY_SIMD::AVX
+#define AVX2  RGY_SIMD::AVX2
+#define AVX512BW    RGY_SIMD::AVX512BW
+#define AVX512VBMI  RGY_SIMD::AVX512VBMI
 
 //なんの数字かわかりやすいようにこう定義する
 static const int BIT_8 =  8;
@@ -371,24 +375,34 @@ static const COVERT_FUNC_INFO FUNC_TABLE[] = {
     //{ CF_RGBA,  OUT_CSP_RGBA,  BIT_8, A,  1,  SSE2,                 copy_rgba_sse2 },
     //{ CF_RGBA,  OUT_CSP_RGBA,  BIT_8, A,  1,  NONE,                 copy_rgba },
 #endif
-    { 0, 0, 0, A, 0, 0, NULL }
+    { 0, 0, 0, A, 0, NONE, NULL }
 };
 
-static void build_simd_info(DWORD simd, wchar_t *buf, DWORD nSize) {
+static void build_simd_info(RGY_SIMD simd, wchar_t *buf, DWORD nSize) {
     ZeroMemory(buf, nSize);
     if (simd != NONE) {
         wcscpy_s(buf, nSize, L", using");
-        if (simd & SSE2)  wcscat_s(buf, nSize, L" SSE2");
-        if (simd & SSE3)  wcscat_s(buf, nSize, L" SSE3");
-        if (simd & SSSE3) wcscat_s(buf, nSize, L" SSSE3");
-        if (simd & SSE41) wcscat_s(buf, nSize, L" SSE4.1");
-        if (simd & SSE42) wcscat_s(buf, nSize, L" SSE4.2");
-        if (simd & AVX)   wcscat_s(buf, nSize, L" AVX");
-        if (simd & AVX2)  wcscat_s(buf, nSize, L" AVX2");
+        if ((simd & SSE2)   == SSE2) wcscat_s(buf, nSize, L" SSE2");
+        if ((simd & SSE3)   == SSE3) wcscat_s(buf, nSize, L" SSE3");
+        if ((simd & SSSE3)  == SSSE3) wcscat_s(buf, nSize, L" SSSE3");
+        if ((simd & SSE41)  == SSE41) wcscat_s(buf, nSize, L" SSE4.1");
+        if ((simd & SSE42)  == SSE42) wcscat_s(buf, nSize, L" SSE4.2");
+        if ((simd & AVX)    == AVX) wcscat_s(buf, nSize, L" AVX");
+        if ((simd & AVX2)   == AVX2) wcscat_s(buf, nSize, L" AVX2");
         if ((simd & AVX512BW  ) == AVX512BW  ) wcscat_s(buf, nSize, L" AVX512BW");
         if ((simd & AVX512VBMI) == AVX512VBMI) wcscat_s(buf, nSize, L" AVX512VBMI");
     }
 }
+#undef NONE
+#undef SSE2
+#undef SSE3
+#undef SSSE3
+#undef SSE41
+#undef SSE42
+#undef AVX
+#undef AVX2
+#undef AVX512BW
+#undef AVX512VBMI
 
 static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
     wchar_t simd_buf[128];
@@ -432,7 +446,7 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
 #pragma warning( disable: 4189 )
 //使用する関数を選択する
 func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOOL interlaced, int output_csp) {
-    const DWORD availableSIMD = get_availableSIMD();
+    const auto availableSIMD = get_availableSIMD();
 
     const COVERT_FUNC_INFO *func_info = NULL;
     for (int i = 0; FUNC_TABLE[i].func; i++) {
@@ -462,12 +476,12 @@ func_convert_frame get_convert_func(int width, int input_csp, int bit_depth, BOO
 }
 #pragma warning( pop )
 
-static uint32_t get_align_size(const DWORD simd_check, const int to_yv12) {
-    if (simd_check & (AUO_SIMD_AVX512F|AUO_SIMD_AVX512DQ|AUO_SIMD_AVX512BW|AUO_SIMD_AVX512VBMI|AUO_SIMD_AVX512VNNI)) {
+static uint32_t get_align_size(const RGY_SIMD simd_check, const int to_yv12) {
+    if ((simd_check & (RGY_SIMD::AVX512F|RGY_SIMD::AVX512DQ|RGY_SIMD::AVX512BW|RGY_SIMD::AVX512VBMI|RGY_SIMD::AVX512VNNI)) != RGY_SIMD::NONE) {
         return (to_yv12) ? 128 : 64;
-    } else if (simd_check & AUO_SIMD_AVX2) {
+    } else if ((simd_check & RGY_SIMD::AVX2) != RGY_SIMD::NONE) {
         return (to_yv12) ? 64 : 32;
-    } else if (simd_check & AUO_SIMD_SSE2) {
+    } else if ((simd_check & RGY_SIMD::SSE2) != RGY_SIMD::NONE) {
         return (to_yv12) ? 32 : 16;
     } else {
         return 1;
@@ -482,7 +496,7 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
     const int to_yv12 = (output_csp == OUT_CSP_YV12);
 #endif
     const DWORD pixel_size = (bit_depth > 8) ? sizeof(short) : sizeof(BYTE);
-    const DWORD simd_check = get_availableSIMD();
+    const auto simd_check = get_availableSIMD();
     const DWORD align_size = get_align_size(simd_check,to_yv12);
 #define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
     const DWORD extra = align_size * 2;

@@ -29,10 +29,10 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <string>
-#include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
 #include "auo_pipe.h"
-#include "auo_util.h"
+#include "rgy_util.h"
+#include "rgy_filesystem.h"
+#include "auo_version.h"
 #include "exe_version.h"
 #if ENCODER_X265
 #include <regex>
@@ -63,31 +63,31 @@ std::string ver_string(int ver[4]) {
     if (allZero)
         return "";
     if (isRev)
-        return strprintf("r%d", ver[0]);
+        return strsprintf("r%d", ver[0]);
 
-    auto str = strprintf("v%d", ver[0]);
+    auto str = strsprintf("v%d", ver[0]);
     int loop_fin = VER_LENGTH-1;
     for (int i = 1; i < loop_fin; i++) {
         if (ver[i]) {
-            str += strprintf(".%d", ver[i]);
+            str += strsprintf(".%d", ver[i]);
         }
     }
     if (ver[loop_fin]) {
-        str += strprintf("+%d", ver[loop_fin]);
+        str += strsprintf("+%d", ver[loop_fin]);
     }
     return str;
 }
 
 #if ENCODER_X264
 int get_x264_version_from_filename(const char *exe_path, int version[4]) {
-    const char *filename = PathFindFileNameA(exe_path);
+    const auto filename = PathGetFilename(exe_path);
 
     int rev = 0;
-    if (sscanf_s(filename, "x264_%d_x64.exe", &rev) == 1) {
+    if (sscanf_s(filename.c_str(), "x264_%d_x64.exe", &rev) == 1) {
         version[2] = rev;
         return 0;
     }
-    if (sscanf_s(filename, "x264_%d_x86.exe", &rev) == 1) {
+    if (sscanf_s(filename.c_str(), "x264_%d_x86.exe", &rev) == 1) {
         version[2] = rev;
         return 0;
     }
@@ -283,7 +283,7 @@ int get_exe_version_info(const char *exe_path, int version[4]) {
 
 int get_exe_version_from_cmd(const char *exe_path, const char *cmd_ver, int version[4]) {
     int ret = -1;
-    if (nullptr == version || nullptr == exe_path || !PathFileExists(exe_path))
+    if (nullptr == version || nullptr == exe_path || !rgy_file_exists(exe_path))
         return ret;
 
     memset(version, 0, sizeof(int) * 4);
@@ -368,7 +368,7 @@ int get_exe_version_from_cmd(const char *exe_path, const char *cmd_ver, int vers
 #if ENCODER_X264
 int get_x264_rev(const char *x264fullpath) {
     int ret = -1;
-    if (!PathFileExists(x264fullpath))
+    if (!rgy_file_exists(x264fullpath))
         return ret;
 
     int version[4] = { 0 };
@@ -456,11 +456,9 @@ static BOOL qaac_dll_available(const char *dir) {
     if (nullptr == dir || !str_has_char(dir))
         return FALSE;
 
-    char temp[1024] = { 0 };
     static const char *QAAC_DLL[] = { "CoreAudioToolbox.dll", "CoreFoundation.dll" };
     for (int i = 0; i < _countof(QAAC_DLL); i++) {
-        PathCombineLong(temp, _countof(temp), dir, QAAC_DLL[i]);
-        if (!PathFileExists(temp))
+        if (!rgy_file_exists(PathCombineS(dir, QAAC_DLL[i])))
             return FALSE;
     }
     return TRUE;
@@ -472,10 +470,8 @@ QTDLL check_if_apple_dll_required_for_qaac(const char *exe_dir, const char *curr
     if (qaac_dll_available(exe_dir))
         return QAAC_APPLEDLL_IN_EXEDIR;
     if (nullptr != current_fullpath && str_has_char(current_fullpath)) {
-        char temp[1024] = { 0 };
-        strcpy_s(temp, _countof(temp), current_fullpath);
-        PathRemoveFileSpecFixed(temp);
-        if (qaac_dll_available(temp))
+        auto [ ret , dir ] = PathRemoveFileSpecFixed(current_fullpath);
+        if (qaac_dll_available(dir.c_str()))
             return QAAC_APPLEDLL_IN_CURRENTDIR;
     }
     return QAAC_APPLEDLL_UNAVAILABLE;

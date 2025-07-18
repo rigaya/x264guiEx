@@ -59,6 +59,7 @@
 #include "auo_faw2aac.h"
 #include "cpu_info.h"
 #include "exe_version.h"
+#include "rgy_env.h"
 
 using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
 
@@ -81,18 +82,6 @@ static void avoid_exsisting_tmp_file(char *buf, size_t size) {
         }
     }
 }
-
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
-#pragma warning (push)
-#pragma warning (disable: 4244)
-#pragma warning (disable: 4996)
-static inline std::string tolowercase(const std::string& str) {
-    std::string str_copy = str;
-    std::transform(str_copy.cbegin(), str_copy.cend(), str_copy.begin(), tolower);
-    return str_copy;
-}
-#pragma warning (pop)
-#endif
 
 static std::vector<std::filesystem::path> find_exe_files(const char *target_dir) {
     std::vector<std::filesystem::path> ret;
@@ -169,7 +158,7 @@ static std::vector<std::filesystem::path> select_exe_file(const std::vector<std:
             }
         }
     }
-    if (is_64bit_os()) {
+    if (rgy_is_64bit_os()) {
         return (exe64bit.size() > 0) ? exe64bit : exeUnknown;
     } else {
         return (exe32bit.size() > 0) ? exe32bit : exeUnknown;
@@ -230,7 +219,7 @@ static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const char *aviutl_dir,
     const auto targetExes = select_exe_file(find_target_exe_files(muxer_stg->filename, exe_files));
     if (targetExes.size() > 0) {
         if (get_relative_path) {
-            GetRelativePathTo(muxer_stg->fullpath, _countof(muxer_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+            GetRelativePathTo(muxer_stg->fullpath, _countof(muxer_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
         } else {
             strcpy_s(muxer_stg->fullpath, targetExes.front().string().c_str());
         }
@@ -345,7 +334,7 @@ static std::string find_auo_check_fileopen(const char *defaultExeDir, const char
 static BOOL check_temp_file_open(const char *target, const std::string& auo_check_fileopen_path, const bool check_dir, const bool auo_check_fileopen_warning) {
     DWORD err = ERROR_SUCCESS;
 
-    if (is_64bit_os() && (auo_check_fileopen_path.length() == 0 || !PathFileExists(auo_check_fileopen_path.c_str())) && auo_check_fileopen_warning) {
+    if (rgy_is_64bit_os() && (auo_check_fileopen_path.length() == 0 || !PathFileExists(auo_check_fileopen_path.c_str())) && auo_check_fileopen_warning) {
         warning_no_auo_check_fileopen();
     }
 
@@ -357,7 +346,7 @@ static BOOL check_temp_file_open(const char *target, const std::string& auo_chec
         strcpy_s(test_filename, target);
     }
 
-    if (is_64bit_os() && auo_check_fileopen_path.length() > 0 && PathFileExists(auo_check_fileopen_path.c_str())) {
+    if (rgy_is_64bit_os() && auo_check_fileopen_path.length() > 0 && PathFileExists(auo_check_fileopen_path.c_str())) {
         //64bit OSでは、32bitアプリに対してはVirtualStoreが働く一方、
         //64bitアプリに対してはVirtualStoreが働かない
         //x264を64bitで実行することを考慮すると、
@@ -514,7 +503,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
             if (targetExes.size() > 0) {
                 const auto latestVidEnc = find_latest_videnc(targetExes);
                 if (exstg->s_local.get_relative_path) {
-                    GetRelativePathTo(exstg->s_enc.fullpath, _countof(exstg->s_enc.fullpath), latestVidEnc.string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                    GetRelativePathTo(exstg->s_enc.fullpath, _countof(exstg->s_enc.fullpath), latestVidEnc.string().c_str(), aviutl_dir);
                 } else {
                     strcpy_s(exstg->s_enc.fullpath, latestVidEnc.string().c_str());
                 }
@@ -584,7 +573,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                     const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                     if (targetExes.size() > 0) {
                         if (exstg->s_local.get_relative_path) {
-                            GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                            GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
                         } else {
                             strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
                         }
@@ -600,7 +589,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                         const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                         if (targetExes.size() > 0) {
                             if (exstg->s_local.get_relative_path) {
-                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
                             } else {
                                 strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
                             }
@@ -615,7 +604,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                         const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
                         if (targetExes.size() > 0) {
                             if (exstg->s_local.get_relative_path) {
-                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), FILE_ATTRIBUTE_NORMAL, aviutl_dir);
+                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
                             } else {
                                 strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
                             }
@@ -710,10 +699,10 @@ void open_log_window(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, int cur
 
     char cpu_info[256];
     getCPUInfo(cpu_info);
-    DWORD buildNumber = 0;
-    const auto osver = char_to_wstring(getOSVersion(&buildNumber));
+    OSVERSIONINFOEXW osverinfo = { 0 };
+    const auto osver = char_to_wstring(getOSVersion(&osverinfo));
     write_log_auo_line_fmt(LOG_INFO, L"%s %s / %s %s (%d) / %s",
-        AUO_NAME_WITHOUT_EXT_W, AUO_VERSION_STR_W, osver.c_str(), is_64bit_os() ? L"x64" : L"x86", buildNumber, char_to_wstring(cpu_info).c_str());
+        AUO_NAME_WITHOUT_EXT_W, AUO_VERSION_STR_W, osver.c_str(), rgy_is_64bit_os() ? L"x64" : L"x86", osverinfo.dwBuildNumber, char_to_wstring(cpu_info).c_str());
 
     if (oip->flag & OUTPUT_INFO_FLAG_VIDEO) {
         const double video_length = oip->n * (double)oip->scale / oip->rate;
@@ -1061,7 +1050,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
         } else {
             dar_x = sar_x * w;
             dar_y = sar_y * h;
-            const int gcd = get_gcd(dar_x, dar_y);
+            const int gcd = rgy_gcd(dar_x, dar_y);
             dar_x /= gcd;
             dar_y /= gcd;
         }
@@ -1099,7 +1088,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
         } else {
             dar_x = sar_x * w;
             dar_y = sar_y * h;
-            const int gcd = get_gcd(dar_x, dar_y);
+            const int gcd = rgy_gcd(dar_x, dar_y);
             dar_x /= gcd;
             dar_y /= gcd;
         }
@@ -1202,7 +1191,7 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     if (conf->qsv.vpp.nDeinterlace == MFX_DEINTERLACE_IT)
         fps_rate = (fps_rate * 4) / 5;
 #endif
-    const int fps_gcd = get_gcd(fps_rate, fps_scale);
+    const int fps_gcd = rgy_gcd(fps_rate, fps_scale);
     fps_rate /= fps_gcd;
     fps_scale /= fps_gcd;
     sprintf_s(tmp, sizeof(tmp), "%d", fps_rate);
@@ -1523,7 +1512,7 @@ static double get_vid_ratio(double actual_vid_bitrate, double vid_lower_limit_bi
 }
 
 static double get_audio_bitrate(const PRM_ENC *pe, const OUTPUT_INFO *oip, double duration) {
-    UINT64 aud_filesize = 0;
+    uint64_t aud_filesize = 0;
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
         for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
             char aud_file[MAX_PATH_LEN];
@@ -1532,8 +1521,8 @@ static double get_audio_bitrate(const PRM_ENC *pe, const OUTPUT_INFO *oip, doubl
                 error_no_aud_file(aud_file);
                 return AUO_RESULT_ERROR;
             }
-            UINT64 filesize_tmp = 0;
-            if (!GetFileSizeUInt64(aud_file, &filesize_tmp)) {
+            uint64_t filesize_tmp = 0;
+            if (!rgy_get_filesize(aud_file, &filesize_tmp)) {
                 warning_failed_get_aud_size(aud_file); warning_amp_failed();
                 return AUO_RESULT_ERROR;
             }
@@ -1700,7 +1689,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     }
     //ファイルサイズを取得し、ビットレートを計算する
     UINT64 filesize = 0;
-    if (!GetFileSizeUInt64(muxout, &filesize)) {
+    if (!rgy_get_filesize(muxout, &filesize)) {
         warning_failed_check_muxout_filesize(muxout); warning_amp_failed();
         return -1;
     }
@@ -1869,283 +1858,6 @@ void write_cached_lines(int log_level, const wchar_t *exename, LOG_CACHE *log_li
         }
     }
     if (buffer) free(buffer);
-}
-
-#include <tlhelp32.h>
-
-static bool check_parent(size_t check_pid, const size_t target_pid, const std::unordered_map<size_t, size_t>& map_pid) {
-    for (size_t i = 0; i < map_pid.size(); i++) { // 最大でもmap_pid.size()を超えてチェックする必要はないはず
-        if (check_pid == target_pid) return true;
-        if (check_pid == 0) return false;
-        auto key = map_pid.find(check_pid);
-        if (key == map_pid.end() || key->second == 0 || key->second == key->first) return false;
-        check_pid = key->second;
-    }
-    return false;
-};
-
-static std::vector<size_t> createChildProcessIDList(const size_t target_pid) {
-    auto h = unique_handle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0), [](HANDLE h) { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); });
-    if (h.get() == INVALID_HANDLE_VALUE) {
-        return std::vector<size_t>();
-    }
-
-    PROCESSENTRY32 pe = { 0 };
-    pe.dwSize = sizeof(PROCESSENTRY32);
-
-    std::unordered_map<size_t, size_t> map_pid;
-    if (Process32First(h.get(), &pe)) {
-        do {
-            map_pid[pe.th32ProcessID] = pe.th32ParentProcessID;
-        } while (Process32Next(h.get(), &pe));
-    }
-
-    std::vector<size_t> list_childs;
-    for (auto& [pid, parentpid] : map_pid) {
-        if (check_parent(parentpid, target_pid, map_pid)) {
-            list_childs.push_back(pid);
-        }
-    }
-    return list_childs;
-}
-
-// ----------------------------------------------------------------------------------------------------------------
-
-#include <winternl.h>
-
-typedef __kernel_entry NTSYSCALLAPI NTSTATUS(NTAPI *NtQueryObject_t)(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength);
-typedef __kernel_entry NTSTATUS(NTAPI *NtQuerySystemInformation_t)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
-
-typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX {
-    PVOID Object;
-    ULONG_PTR UniqueProcessId;
-    ULONG_PTR HandleValue;
-    ULONG GrantedAccess;
-    USHORT CreatorBackTraceIndex;
-    USHORT ObjectTypeIndex;
-    ULONG HandleAttributes;
-    ULONG Reserved;
-} SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX, *PSYSTEM_HANDLE_TABLE_ENTRY_INFO_EX;
-
-typedef struct _SYSTEM_HANDLE_INFORMATION_EX {
-    ULONG_PTR  NumberOfHandles;
-    ULONG_PTR  Reserved;
-    SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
-} SYSTEM_HANDLE_INFORMATION_EX, * PSYSTEM_HANDLE_INFORMATION_EX;
-
-#pragma warning(push)
-#pragma warning(disable: 4200) //C4200: 非標準の拡張機能が使用されています: 構造体または共用体中にサイズが 0 の配列があります。
-typedef struct _OBJECT_NAME_INFORMATION {
-    UNICODE_STRING          Name;
-    WCHAR                   NameBuffer[0];
-} OBJECT_NAME_INFORMATION, * POBJECT_NAME_INFORMATION;
-#pragma warning(pop)
-
-typedef struct _OBJECT_BASIC_INFORMATION {
-    ULONG Attributes;
-    ACCESS_MASK GrantedAccess;
-    ULONG HandleCount;
-    ULONG PointerCount;
-    ULONG PagedPoolCharge;
-    ULONG NonPagedPoolCharge;
-    ULONG Reserved[3];
-    ULONG NameInfoSize;
-    ULONG TypeInfoSize;
-    ULONG SecurityDescriptorSize;
-    LARGE_INTEGER CreationTime;
-} OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
-
-typedef struct _OBJECT_TYPE_INFORMATION {
-    UNICODE_STRING TypeName;
-    ULONG TotalNumberOfObjects;
-    ULONG TotalNumberOfHandles;
-    ULONG TotalPagedPoolUsage;
-    ULONG TotalNonPagedPoolUsage;
-    ULONG TotalNamePoolUsage;
-    ULONG TotalHandleTableUsage;
-    ULONG HighWaterNumberOfObjects;
-    ULONG HighWaterNumberOfHandles;
-    ULONG HighWaterPagedPoolUsage;
-    ULONG HighWaterNonPagedPoolUsage;
-    ULONG HighWaterNamePoolUsage;
-    ULONG HighWaterHandleTableUsage;
-    ULONG InvalidAttributes;
-    GENERIC_MAPPING GenericMapping;
-    ULONG ValidAccessMask;
-    BOOLEAN SecurityRequired;
-    BOOLEAN MaintainHandleCount;
-    UCHAR TypeIndex; // since WINBLUE
-    CHAR ReservedByte;
-    ULONG PoolType;
-    ULONG DefaultPagedPoolCharge;
-    ULONG DefaultNonPagedPoolCharge;
-} OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
-
-typedef struct _OBJECT_TYPES_INFORMATION {
-    ULONG NumberOfTypes;
-} OBJECT_TYPES_INFORMATION, *POBJECT_TYPES_INFORMATION;
-
-#ifndef STATUS_INFO_LENGTH_MISMATCH
-#define STATUS_INFO_LENGTH_MISMATCH ((NTSTATUS)0xC0000004L)
-#endif
-
-#define CEIL_INT(x, div) (((x + div - 1) / div) * div)
-
-static std::vector<unique_handle> createProcessHandleList(const std::vector<size_t>& list_pid, const wchar_t *handle_type) {
-    std::vector<unique_handle> handle_list;
-    std::unique_ptr<std::remove_pointer<HMODULE>::type, decltype(&FreeLibrary)> hNtDll(LoadLibrary(_T("ntdll.dll")), FreeLibrary);
-    if (hNtDll == NULL) return handle_list;
-
-    auto fNtQueryObject = (decltype(NtQueryObject) *)GetProcAddress(hNtDll.get(), "NtQueryObject");
-    auto fNtQuerySystemInformation = (decltype(NtQuerySystemInformation) *)GetProcAddress(hNtDll.get(), "NtQuerySystemInformation");
-    if (fNtQueryObject == nullptr || fNtQuerySystemInformation == nullptr) {
-        return handle_list;
-    }
-
-    //auto getObjectTypeNumber = [fNtQueryObject](wchar_t * TypeName) {
-    //    static const auto ObjectTypesInformation = (OBJECT_INFORMATION_CLASS)3;
-    //    std::vector<char> data(1024, 0);
-    //    NTSTATUS status = STATUS_INFO_LENGTH_MISMATCH;
-    //    do {
-    //        data.resize(data.size() * 2);
-    //        ULONG size = 0;
-    //        status = fNtQueryObject(NULL, ObjectTypesInformation, data.data(), data.size(), &size);
-    //    } while (status == STATUS_INFO_LENGTH_MISMATCH);
-
-    //    POBJECT_TYPES_INFORMATION objectTypes = (POBJECT_TYPES_INFORMATION)data.data();
-    //    char *ptr = data.data() + CEIL_INT(sizeof(OBJECT_TYPES_INFORMATION), sizeof(ULONG_PTR));
-    //    for (size_t i = 0; i < objectTypes->NumberOfTypes; i++) {
-    //        POBJECT_TYPE_INFORMATION objectType = (POBJECT_TYPE_INFORMATION)ptr;
-    //        if (wcsicmp(objectType->TypeName.Buffer, TypeName) == 0) {
-    //            return (int)objectType->TypeIndex;
-    //        }
-    //        ptr += sizeof(OBJECT_TYPE_INFORMATION) + CEIL_INT(objectType->TypeName.MaximumLength, sizeof(ULONG_PTR));
-    //    }
-    //    return -1;
-    //};
-    //const int fileObjectTypeIndex = getObjectTypeNumber(L"File");
-
-    static const SYSTEM_INFORMATION_CLASS SystemExtendedHandleInformation = (SYSTEM_INFORMATION_CLASS)0x40;
-    ULONG size = 0;
-    fNtQuerySystemInformation(SystemExtendedHandleInformation, NULL, 0, &size);
-    std::vector<char> shibuffer;
-    NTSTATUS status = STATUS_INFO_LENGTH_MISMATCH;
-    do {
-        shibuffer.resize(size + 16*1024);
-        status = fNtQuerySystemInformation(SystemExtendedHandleInformation, shibuffer.data(), shibuffer.size(), &size);
-    } while (status == STATUS_INFO_LENGTH_MISMATCH);
-
-    if (NT_SUCCESS(status)) {
-        const auto currentPID = GetCurrentProcessId();
-        const auto currentProcessHandle = GetCurrentProcess();
-        const auto shi = (PSYSTEM_HANDLE_INFORMATION_EX)shibuffer.data();
-        for (decltype(shi->NumberOfHandles) i = 0; i < shi->NumberOfHandles; i++) {
-            const auto handlePID = shi->Handles[i].UniqueProcessId;
-            if (std::find(list_pid.begin(), list_pid.end(), handlePID) != list_pid.end()) {
-                auto handle = unique_handle((HANDLE)shi->Handles[i].HandleValue, []([[maybe_unused]] HANDLE h) { /*Do nothing*/ });
-                // handleValue はプロセスごとに存在する
-                // 自プロセスでなければ、DuplicateHandle で自プロセスでの調査用のhandleをつくる
-                // その場合は新たに作ったhandleなので CloseHandle が必要
-                if (shi->Handles[i].UniqueProcessId != currentPID) {
-                    const auto hProcess = std::unique_ptr<std::remove_pointer<HANDLE>::type, decltype(&CloseHandle)>(OpenProcess(PROCESS_DUP_HANDLE, FALSE, handlePID), CloseHandle);
-                    if (hProcess) {
-                        HANDLE handleDup = NULL;
-                        const BOOL ret = DuplicateHandle(hProcess.get(), (HANDLE)shi->Handles[i].HandleValue, currentProcessHandle, &handleDup, 0, FALSE, DUPLICATE_SAME_ACCESS);
-                        if (ret) {
-                            handle = unique_handle((HANDLE)handleDup, [](HANDLE h) { CloseHandle(h); });
-                        }
-                    }
-                }
-                if (handle_type) {
-                    // handleの種類を確認する
-                    size = 0;
-                    status = fNtQueryObject(handle.get(), ObjectTypeInformation, NULL, 0, &size);
-                    if (status == STATUS_INFO_LENGTH_MISMATCH) { // 問題なければ、STATUS_INFO_LENGTH_MISMATCHが返る
-                        std::vector<char> otibuffer(size, 0);
-                        status = fNtQueryObject(handle.get(), ObjectTypeInformation, otibuffer.data(), otibuffer.size(), &size);
-                        const auto oti = (PPUBLIC_OBJECT_TYPE_INFORMATION)otibuffer.data();
-                        if (NT_SUCCESS(status) && oti->TypeName.Buffer && _wcsicmp(oti->TypeName.Buffer, handle_type) == 0) {
-                            //static const OBJECT_INFORMATION_CLASS ObjectNameInformation = (OBJECT_INFORMATION_CLASS)1;
-                            //status = fNtQueryObject(handle, ObjectNameInformation, NULL, 0, &size);
-                            //std::vector<char> buffer3(size, 0);
-                            //status = fNtQueryObject(handle, ObjectNameInformation, buffer3.data(), buffer3.size(), &size);
-                            //POBJECT_NAME_INFORMATION oni = (POBJECT_NAME_INFORMATION)buffer3.data();
-                            handle_list.push_back(std::move(handle));
-                        }
-                    }
-                } else {
-                    handle_list.push_back(std::move(handle));
-                }
-            }
-        }
-    }
-    return handle_list;
-}
-
-static std::vector<std::basic_string<TCHAR>> createProcessOpenedFileList(const std::vector<size_t>& list_pid) {
-    const auto list_handle = createProcessHandleList(list_pid, L"File");
-    std::vector<std::basic_string<TCHAR>> list_file;
-    std::vector<TCHAR> filename(32768+1, 0);
-    for (const auto& handle : list_handle) {
-        const auto fileType = GetFileType(handle.get());
-        if (fileType == FILE_TYPE_DISK) { //ハンドルがパイプだとGetFinalPathNameByHandleがフリーズするため使用不可
-            memset(filename.data(), 0, sizeof(filename[0]) * filename.size());
-            auto ret = GetFinalPathNameByHandle(handle.get(), filename.data(), filename.size(), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-            if (ret != 0) {
-                try {
-                    auto f = std::filesystem::canonical(filename.data());
-                    if (std::filesystem::is_regular_file(f)) {
-                        list_file.push_back(f.string<TCHAR>());
-                    }
-                } catch (...) {}
-            }
-        }
-    }
-    // 重複を排除
-    std::sort(list_file.begin(), list_file.end());
-    auto result = std::unique(list_file.begin(), list_file.end());
-    // 不要になった要素を削除
-    list_file.erase(result, list_file.end());
-    return list_file;
-}
-
-static std::vector<std::wstring> createProcessModuleList() {
-    std::vector<std::wstring> moduleList;
-    const auto currentPID = GetCurrentProcessId();
-    std::unique_ptr<std::remove_pointer<HANDLE>::type, decltype(&CloseHandle)> hProcess(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, currentPID), CloseHandle);
-    HMODULE hMods[1024];
-    DWORD cbNeeded = 0;
-    if (EnumProcessModules(hProcess.get(), hMods, sizeof(hMods), &cbNeeded)) {
-        for (size_t i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
-            wchar_t moduleName[MAX_PATH_LEN] = { 0 };
-            if (GetModuleFileNameExW(hProcess.get(), hMods[i], moduleName, _countof(moduleName))) {
-                moduleList.push_back(moduleName);
-            }
-        }
-    }
-    return moduleList;
-}
-
-bool checkIfModuleLoaded(const wchar_t *moduleName) {
-    const auto moduleList = createProcessModuleList();
-    for (const auto& modulePath : moduleList) {
-        const auto moduleFilename = std::filesystem::path(modulePath).filename().wstring();
-        if (_wcsicmp(moduleName, moduleFilename.c_str()) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool rgy_path_is_same(const TCHAR *path1, const TCHAR *path2) {
-    try {
-        const auto p1 = std::filesystem::path(path1);
-        const auto p2 = std::filesystem::path(path2);
-        std::error_code ec;
-        return std::filesystem::equivalent(p1, p2, ec);
-    } catch (...) {
-        return false;
-    }
 }
 
 static void create_aviutl_opened_file_list(PRM_ENC *pe) {

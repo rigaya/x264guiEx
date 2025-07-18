@@ -1128,7 +1128,7 @@ void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
         int x = -1 * *sar_x * height;
         int y = -1 * *sar_y * width;
         if (abs(y - x) > -16 * *sar_y) {
-            int gcd = get_gcd(x, y);
+            int gcd = rgy_gcd(x, y);
             *sar_x = x / gcd;
             *sar_y = y / gcd;
         } else {

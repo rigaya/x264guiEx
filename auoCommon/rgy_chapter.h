@@ -1,9 +1,9 @@
 ﻿// -----------------------------------------------------------------------------------------
-// x264guiEx/x265guiEx/svtAV1guiEx/ffmpegOut/QSVEnc/NVEnc/VCEEnc by rigaya
+// QSVEnc/NVEnc by rigaya
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
-// Copyright (c) 2010-2022 rigaya
+// Copyright (c) 2019 rigaya
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,24 +23,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// --------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
-#ifndef _AUO_CHAPTER_H_
-#define _AUO_CHAPTER_H_
+#ifndef __RGY_CHAPTER_H__
+#define __RGY_CHAPTER_H__
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
+#include <cstdint>
 #include <string>
 #include <memory>
 #include <vector>
-#include <mlang.h>
+#include "rgy_tchar.h"
 
-enum {
+namespace tinyxml2 {
+    class XMLElement;
+}
+
+enum ChapType {
     CHAP_TYPE_ANOTHER = -1,
     CHAP_TYPE_UNKNOWN = 0,
-    CHAP_TYPE_NERO    = 1,
-    CHAP_TYPE_APPLE   = 2,
+    CHAP_TYPE_NERO,
+    CHAP_TYPE_APPLE,
+    CHAP_TYPE_MATROSKA,
 };
 
 enum {
@@ -60,9 +63,9 @@ enum {
     AUO_CHAP_ERR_PARSE_XML
 };
 
-class chapter {
+class ChapData {
 public:
-    std::wstring name;
+    std::string name;
     int h = 0;
     int m = 0;
     int s = 0;
@@ -84,49 +87,41 @@ public:
     }
 };
 
-class chapter_file {
+class ChapterRW {
 private:
-    std::wstring wchar_filedata;           //チャプターファイルの文字列をwcharに変換したもの
-    const char *filepath = nullptr;        //読み込むチャプターファイル
-    int sts = AUO_CHAP_ERR_NONE;           //現在のエラー情報
-    int chapter_type = CHAP_TYPE_UNKNOWN;  //読み込んだチャプターの種類
-    DWORD code_page = 0;                   //読み込んだチャプターの文字コード
-    double duration = 0.0;                 //動画の長さ情報 (秒)
-
-    IMultiLanguage2 *pImul = nullptr;      //文字コード変更用
-
+    std::string m_filedata;   //チャプターファイルの文字列をwcharに変換したもの
+    const TCHAR *m_filepath;  //読み込むチャプターファイル
+    ChapType m_chapter_type;  //読み込んだチャプターの種類
+    uint32_t m_code_page;     //読み込んだチャプターの文字コード
+    double m_duration;        //動画の長さ情報 (秒)
+    std::vector<std::unique_ptr<ChapData>> chapters; //読み込んだチャプターのリスト
 public:
-    std::vector<std::unique_ptr<chapter>> chapters; //読み込んだチャプターのリスト
+    ChapterRW();
+    ~ChapterRW();
 
-    chapter_file();
-    ~chapter_file();
-
-    //読み込んだチャプターの種類(chapter_type)を返す
+    //読み込んだチャプターの種類(m_chapter_type)を返す
     int file_chapter_type();
 
-    //読み込んだチャプターの文字コード(code_page)を返す
-    DWORD file_code_page();
-
-    //エラー情報(sts)を返す
-    int get_result();
+    //読み込んだチャプターの文字コード(m_code_page)を返す
+    uint32_t file_code_page();
 
     //チャプターファイルの読み込み
     //filepath ...読み込むファイル
-    //code_page...ファイルの文字コードを指定
+    //m_code_page...ファイルの文字コードを指定
     //duration ...動画の長さ情報(秒)を渡す
-    int read_file(const char *filepath, DWORD code_page, double duration);
+    int read_file(const TCHAR *filepath, uint32_t code_page, double duration);
 
     //チャプターファイルの書き出し
     //out_filepath...出力先
     //out_chapter_type...出力するチャプターの種類
     //nero_in_utf8...出力するチャプターがneroの場合に、utf-8で出力する
-    int write_file(const char *out_filepath, int out_chapter_type, bool nero_in_utf8);
+    int write_file(const TCHAR *out_filepath, ChapType out_chapter_type, bool nero_in_utf8);
 
     //チャプターファイルを上書きする
     //失敗した場合にはなにもしない
     //out_chapter_type...出力するチャプターの種類
     //nero_in_utf8...出力するチャプターがneroの場合に、utf-8で出力する
-    int overwrite_file(int out_chapter_type, bool nero_in_utf8);
+    int overwrite_file(ChapType out_chapter_type, bool nero_in_utf8);
 
     //チャプターリストの先頭に、0秒の位置にダミーチャプターを追加する
     void add_dummy_chap_zero_pos();
@@ -134,33 +129,35 @@ public:
     //時間0秒の位置にあるチャプター以外に遅延を追加する
     void delay_chapter(int delay_ms);
 
+    const std::vector<std::unique_ptr<ChapData>>& chapterlist() {
+        return chapters;
+    }
+
 private:
+
     void init(); //初期化
     void close(); //終了、リソース開放
     int read_file(); //ファイルの読み込み
 
-    //wcharの文字列をUTF-8に変換
-    std::string to_utf8(std::wstring string);
-
-    //内部のcode_pageに従って文字データをwcharに変換
-    int get_unicode_data(std::wstring& wchar_data, std::vector<char>& src);
+    //内部のm_code_pageに従って文字データをUTF-8に変換
+    int get_unicode_data(std::string& data, std::vector<char>& src);
 
     //文字データの文字コードをチェック、判定した文字コードを返す
-    DWORD check_code_page(std::vector<char>& src, DWORD orig_code_page);
+    uint32_t check_code_page(std::vector<char>& src, uint32_t orig_code_page);
 
     //ファイルからデータを取得し、
-    // 1. check_code_pageを使って、内部のcode_pageに判定結果をセット
-    // 2. get_unicode_dataで文字列をwcharに変換し、wchar_filedataにセット
-    int get_unicode_data_from_file(std::wstring& wchar_data);
+    // 1. check_code_pageを使って、内部のm_code_pageに判定結果をセット
+    // 2. get_unicode_dataで文字列をUTF-8変換し、m_filedataにセット
+    int get_unicode_data_from_file(std::string& data);
 
     //読み込んだチャプターの種類を判定
-    int check_chap_type_from_file();
+    ChapType check_chap_type_from_file();
 
     //文字列データからチャプターの種類を判定
-    int check_chap_type(const std::wstring& data);
+    ChapType check_chap_type(const std::string& data);
 
     //ファイルを読み込み、チャプターリスト(chapters)を作成
-    //chapter_typeに従って処理を振り分け
+    //m_chapter_typeに従って処理を振り分け
     int read_chapter();
 
     //neroチャプターから、チャプターリスト(chapters)を作成
@@ -169,6 +166,11 @@ private:
     //appleチャプターから、チャプターリスト(chapters)を作成
     int read_chapter_apple();
 
+    int read_chapter_matroska_chapter_atom(tinyxml2::XMLElement *elem, int &count);
+
+    //matroskaチャプターから、チャプターリスト(chapters)を作成
+    int read_chapter_matroska();
+
     //appleチャプターのヘッダー部分を作成
     int write_chapter_apple_header(std::ostream& ostream);
 
@@ -176,11 +178,10 @@ private:
     int write_chapter_apple_foot(std::ostream& ostream);
 
     //チャプターリスト(chapters)からappleチャプターを作成
-    int write_chapter_apple(const char *filepath);
+    int write_chapter_apple(const TCHAR *filepath);
 
     //チャプターリスト(chapters)からneroチャプターを作成
-    int write_chapter_nero(const char *filepath, bool utf8);
+    int write_chapter_nero(const TCHAR *filepath, bool utf8);
 };
 
-
-#endif //_AUO_CHAPTER_H_
+#endif //__RGY_CHAPTER_H__

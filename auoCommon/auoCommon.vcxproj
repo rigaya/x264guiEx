@@ -20,12 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpu_info.cpp" />
+    <ClCompile Include="rgy_chapter.cpp" />
     <ClCompile Include="rgy_codepage.cpp" />
+    <ClCompile Include="rgy_env.cpp" />
     <ClCompile Include="rgy_faw.cpp" />
     <ClCompile Include="rgy_faw_avx2.cpp">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
+    <ClCompile Include="rgy_filesystem.cpp" />
     <ClCompile Include="rgy_memmem.cpp" />
     <ClCompile Include="rgy_memmem_avx2.cpp">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
@@ -39,8 +42,11 @@
   <ItemGroup>
     <ClInclude Include="cpu_info.h" />
     <ClInclude Include="rgy_arch.h" />
+    <ClInclude Include="rgy_chapter.h" />
     <ClInclude Include="rgy_codepage.h" />
+    <ClInclude Include="rgy_env.h" />
     <ClInclude Include="rgy_faw.h" />
+    <ClInclude Include="rgy_filesystem.h" />
     <ClInclude Include="rgy_memmem.h" />
     <ClInclude Include="rgy_osdep.h" />
     <ClInclude Include="rgy_simd.h" />
@@ -125,7 +131,7 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>.\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\tinyxml2;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4505;4564;4091;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -146,7 +152,7 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>.\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\tinyxml2;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4505;4564;4091;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -167,7 +173,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>.\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\tinyxml2;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4505;4564;4091;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -188,7 +194,7 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>.\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\tinyxml2;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4505;4564;4091;</DisableSpecificWarnings>
     </ClCompile>
     <Link>

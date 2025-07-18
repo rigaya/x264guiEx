@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
-// Copyright (c) 2019 rigaya
+// Copyright (c) 2011-2016 rigaya
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,33 +23,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// -------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef __RGY_CODEPAGE_H__
-#define __RGY_CODEPAGE_H__
+#ifndef __RGY_ENV_H__
+#define __RGY_ENV_H__
 
-//日本語環境の一般的なコードページ一覧
-enum : uint32_t {
-    CODE_PAGE_SJIS        = 932, //Shift-JIS
-    CODE_PAGE_JIS         = 50220,
-    CODE_PAGE_EUC_JP      = 51932,
-    CODE_PAGE_UTF8        = 65001,
-    CODE_PAGE_UTF16_LE    = 1200, //WindowsのUnicode WCHAR のコードページ
-    CODE_PAGE_UTF16_BE    = 1201,
-    CODE_PAGE_US_ASCII    = 20127,
-    CODE_PAGE_WEST_EUROPE = 1252,  //厄介な西ヨーロッパ言語
-    CODE_PAGE_UNSET       = 0xffffffff,
-};
+#include <memory>
+#include <vector>
+#include <functional>
+#include "rgy_util.h"
 
-//BOM文字リスト
-static const int MAX_UTF8_CHAR_LENGTH = 6;
-static const uint8_t UTF8_BOM[]     = { 0xEF, 0xBB, 0xBF };
-static const uint8_t UTF16_LE_BOM[] = { 0xFF, 0xFE };
-static const uint8_t UTF16_BE_BOM[] = { 0xFE, 0xFF };
+#if defined(_WIN32) || defined(_WIN64)
+tstring getOSVersion(OSVERSIONINFOEXW *osinfo);
+tstring getOSVersion();
+#else
+tstring getOSVersion();
+#endif
+BOOL rgy_is_64bit_os();
+uint64_t getPhysicalRamSize(uint64_t *ramUsed);
+tstring getEnviromentInfo(int device_id = 0);
 
-uint32_t jpn_check(const void *str, uint32_t size_in_byte);
-uint32_t get_code_page(const void *str, uint32_t size_in_byte);
-const char *codepage_str(uint32_t codepage);
+BOOL check_OS_Win8orLater();
 
-#endif //__RGY_CODEPAGE_H__
+#if defined(_WIN32) || defined(_WIN64)
+using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
+
+std::vector<size_t> createChildProcessIDList(const size_t target_pid);
+std::vector<unique_handle> createProcessHandleList(const std::vector<size_t>& list_pid, const wchar_t *handle_type);
+std::vector<std::wstring> createProcessModuleList();
+bool checkIfModuleLoaded(const wchar_t *moduleName);
+#endif
+
+#endif //__RGY_ENV_H__

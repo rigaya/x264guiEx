@@ -26,7 +26,7 @@
 // --------------------------------------------------------------------------------------------
 
 #include "auo.h"
-#include "auo_util.h"
+#include "rgy_util.h"
 #include "h264_level.h"
 
 #if ENCODER_X264

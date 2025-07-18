@@ -58,7 +58,7 @@
 #include "auo_convert.h"
 #include "auo_system.h"
 #include "auo_version.h"
-#include "auo_chapter.h"
+#include "rgy_chapter.h"
 #include "auo_mes.h"
 
 #include "auo_encode.h"
@@ -66,6 +66,7 @@
 #include "auo_audio_parallel.h"
 #include "cpu_info.h"
 #include "rgy_thread_affinity.h"
+#include "rgy_simd.h"
 
 const int DROP_FRAME_FLAG = INT_MAX;
 
@@ -119,8 +120,8 @@ static int calc_input_frame_size(int width, int height, int color_format, int& b
     width = (color_format == CF_RGB) ? (width+3) & ~3 : (width+1) & ~1;
     //widthが割り切れない場合、多めにアクセスが発生するので、そのぶんを確保しておく
     const DWORD pixel_size = COLORFORMATS[color_format].size;
-    const DWORD simd_check = get_availableSIMD();
-    const DWORD align_size = (simd_check & AUO_SIMD_SSE2) ? ((simd_check & AUO_SIMD_AVX2) ? 64 : 32) : 1;
+    const auto simd_check = get_availableSIMD();
+    const auto align_size = ((simd_check & RGY_SIMD::SSE2) != RGY_SIMD::NONE) ? ((simd_check & RGY_SIMD::AVX2) != RGY_SIMD::NONE ? 64 : 32) : 1;
 #define ALIGN_NEXT(i, align) (((i) + (align-1)) & (~(align-1))) //alignは2の累乗(1,2,4,8,16,32...)
     buf_size = ALIGN_NEXT(width * height * pixel_size + (ALIGN_NEXT(width, align_size / pixel_size) - width) * 2 * pixel_size, align_size);
 #undef ALIGN_NEXT
@@ -261,24 +262,24 @@ static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, con
         strcpy_s(chap_file, _countof(chap_file), muxer_mode->chap_file);
         cmd_replace(chap_file, _countof(chap_file), pe, sys_dat, conf, oip);
 
-        chapter_file chapter;
+        ChapterRW chapter;
         if (!str_has_char(chap_file) || !PathFileExists(chap_file)) {
             write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_NO_CHAPTER));
         //チャプターリストを取得
         } else if (AUO_CHAP_ERR_NONE != chapter.read_file(chap_file, CODE_PAGE_UNSET, 0.0)) {
             ret |= AUO_RESULT_ERROR; write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_NO_CHAPTER));
         //チャプターがない場合
-        } else if (0 == chapter.chapters.size()) {
+        } else if (0 == chapter.chapterlist().size()) {
             write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_CHAPTER_READ_ERROR));
         } else {
             const double fps = oip->rate / (double)oip->scale;
             //QPファイルを出力
-            for (const auto& chap : chapter.chapters) {
+            for (const auto& chap : chapter.chapterlist()) {
                 double chap_time_s = chap->get_ms() / 1000.0;
                 int i_frame = (int)(chap_time_s * fps + 0.5);
                 keyframe_list->push_back(i_frame);
             }
-            write_log_auo_line_fmt(LOG_INFO, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_RESULT), chapter.chapters.size());
+            write_log_auo_line_fmt(LOG_INFO, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_RESULT), chapter.chapterlist().size());
         }
     }
     return ret;
@@ -537,7 +538,7 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
     sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_input_csp(prm.enc.output_csp));
     //fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
     if (!prm.enc.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
-        int gcd = get_gcd(oip->rate, oip->scale);
+        int gcd = rgy_gcd(oip->rate, oip->scale);
         sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
     }
     //出力ファイル
@@ -667,23 +668,23 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
 }
 
 #if ENABLE_AMP
-static UINT64 get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
-    UINT64 filesize_limit = MAXUINT64;
+static uint64_t get_amp_filesize_limit(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
+    uint64_t filesize_limit = UINT64_MAX;
     if (conf->enc.use_auto_npass) {
         //上限ファイルサイズのチェック
         if (conf->vid.amp_check & AMPLIMIT_FILE_SIZE) {
-            filesize_limit = std::min(filesize_limit, (UINT64)(conf->vid.amp_limit_file_size*1024*1024));
+            filesize_limit = std::min(filesize_limit, (uint64_t)(conf->vid.amp_limit_file_size*1024*1024));
         }
         //上限ビットレートのチェック
         if (conf->vid.amp_check & AMPLIMIT_BITRATE_UPPER) {
             const double duration = get_duration(conf, sys_dat, pe, oip);
-            filesize_limit = std::min(filesize_limit, (UINT64)(conf->vid.amp_limit_bitrate_upper * 1000 / 8 * duration));
+            filesize_limit = std::min(filesize_limit, (uint64_t)(conf->vid.amp_limit_bitrate_upper * 1000 / 8 * duration));
         }
     }
     //音声のサイズはここでは考慮しない
     //音声のサイズも考慮してしまうと、のちの判定で面倒なことになる
     //(muxをしないファイルを評価してしまい、上限をクリアしていると判定されてしまう)
-    return (MAXUINT64 == filesize_limit) ? 0 : filesize_limit;
+    return (UINT64_MAX == filesize_limit) ? 0 : filesize_limit;
 }
 #endif
 
@@ -837,7 +838,7 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
         void *frame = NULL;
         int *next_jitter = NULL;
 #if ENABLE_AMP
-        UINT64 amp_filesize_limit = (UINT64)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
+        uint64_t amp_filesize_limit = (uint64_t)(1.02 * get_amp_filesize_limit(conf, oip, pe, sys_dat));
 #endif
         bool enc_pause = false;
         BOOL copy_frame = FALSE, drop = FALSE;
@@ -898,8 +899,8 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
                 if (!(i & 63)
                     && amp_filesize_limit //上限設定が存在する
                     && !(1 == pe->current_pass && 1 < pe->total_pass)) { //multi passエンコードの1pass目でない
-                    UINT64 current_filesize = 0;
-                    if (GetFileSizeUInt64(pe->temp_filename, &current_filesize) && current_filesize > amp_filesize_limit) {
+                    uint64_t current_filesize = 0;
+                    if (rgy_get_filesize(pe->temp_filename, &current_filesize) && current_filesize > amp_filesize_limit) {
                         warning_amp_filesize_over_limit();
                         pe->muxer_to_be_used = MUXER_DISABLED; //muxをスキップ
                         break;
@@ -1112,7 +1113,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
     //音声ファイルサイズ取得
     double aud_bitrate = 0.0;
     const double duration = get_duration(conf, sys_dat, pe, oip);
-    UINT64 aud_filesize = 0;
+    uint64_t aud_filesize = 0;
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
         if (!str_has_char(pe->append.aud[0])) { //音声エンコがまだ終了していない
             info_amp_do_aud_enc_first(conf->vid.amp_check);
@@ -1125,8 +1126,8 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
                 error_no_aud_file(aud_file);
                 return AUO_RESULT_ERROR;
             }
-            UINT64 filesize_tmp = 0;
-            if (!GetFileSizeUInt64(aud_file, &filesize_tmp)) {
+            uint64_t filesize_tmp = 0;
+            if (!rgy_get_filesize(aud_file, &filesize_tmp)) {
                 warning_failed_get_aud_size(aud_file); warning_amp_failed();
                 return AUO_RESULT_ERROR;
             }
