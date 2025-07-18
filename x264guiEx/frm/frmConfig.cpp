@@ -1580,8 +1580,8 @@ System::Void frmConfig::LoadLangText() {
 /////////////         データ <-> GUI     /////////////
 System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
     //ひたすら書くだけ。めんどい
-    CONF_X264 *cx264 = &cnf->enc;
-    memcpy(cnf_fcgTemp, cx264, sizeof(CONF_X264)); //一時保存用
+    CONF_ENC *cx264 = &cnf->enc;
+    memcpy(cnf_fcgTemp, cx264, sizeof(CONF_ENC)); //一時保存用
     this->SuspendLayout();
     fcgCBUsehighbit->Checked = cx264->use_highbit_depth != 0;
     switch (cx264->rc_mode) {

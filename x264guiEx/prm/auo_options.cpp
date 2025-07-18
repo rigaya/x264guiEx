@@ -38,7 +38,7 @@
 #include "auo_conf.h"
 #include "auo_options.h"
 
-int get_encoder_send_bitdepth(const CONF_X264 *cnf);
+int get_encoder_send_bitdepth(const CONF_ENC *cnf);
 
 //オプションの種類(色々便利なので1から始める)
 enum {
@@ -87,126 +87,126 @@ static const DWORD OPTION_NO_VALUE[] = {
 static guiEx_settings *ex_stg;
 
 static X264_OPTIONS x264_options_table[] = {
-    { "input-depth",      "",   OPTION_TYPE_INPUT_DEPTH,   NULL,                 offsetof(CONF_X264, use_highbit_depth) },
-    { "output-depth",     "",   OPTION_TYPE_OUTPUT_DEPTH,  NULL,                 offsetof(CONF_X264, use_highbit_depth) },
-    { "output-csp",       "",   OPTION_TYPE_LIST,          list_output_csp,      offsetof(CONF_X264, output_csp     ) },
-    { "pass",             "p",  OPTION_TYPE_PASS,          NULL,                 offsetof(CONF_X264, pass           ) },
-    { "slow-firstpass",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, slow_first_pass) },
+    { "input-depth",      "",   OPTION_TYPE_INPUT_DEPTH,   NULL,                 offsetof(CONF_ENC, use_highbit_depth) },
+    { "output-depth",     "",   OPTION_TYPE_OUTPUT_DEPTH,  NULL,                 offsetof(CONF_ENC, use_highbit_depth) },
+    { "output-csp",       "",   OPTION_TYPE_LIST,          list_output_csp,      offsetof(CONF_ENC, output_csp     ) },
+    { "pass",             "p",  OPTION_TYPE_PASS,          NULL,                 offsetof(CONF_ENC, pass           ) },
+    { "slow-firstpass",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, slow_first_pass) },
     //{ "stats",            "",   OPTION_TYPE_STATS,         NULL,                 NULL                                  },
-    { "preset",           "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_X264, preset         ) },
-    { "tune",             "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_X264, tune           ) },
-    { "profile",          "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_X264, profile        ) },
+    { "preset",           "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_ENC, preset         ) },
+    { "tune",             "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_ENC, tune           ) },
+    { "profile",          "",   OPTION_TYPE_LIST,          NULL,                 offsetof(CONF_ENC, profile        ) },
     { "crf",              "",   OPTION_TYPE_CRF,           NULL,                 NULL                                 },
     { "bitrate",          "B",  OPTION_TYPE_BITRATE,       NULL,                 NULL                                 },
     { "qp",               "q",  OPTION_TYPE_QP,            NULL,                 NULL                                 },
-    { "ipratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, ip_ratio       ) },
-    { "pbratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, pb_ratio       ) },
-    { "qpmin",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_min         ) },
-    { "qpmax",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_max         ) },
-    { "qpstep",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, qp_step        ) },
-    { "qcomp",            "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, qp_compress    ) },
-    { "chroma-qp-offset", "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, chroma_qp_offset) },
-    { "no-mbtree",        "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, mbtree         ) },
-    { "mbtree",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, mbtree         ) },
-    { "rc-lookahead",     "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, rc_lookahead   ) },
-    { "vbv-bufsize",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_bufsize    ) },
-    { "vbv-maxrate",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_maxrate    ) },
-    { "aq-mode",          "",   OPTION_TYPE_INT,           list_aq,              offsetof(CONF_X264, aq_mode        ) },
-    { "aq-strength",      "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, aq_strength    ) },
-    { "psy-rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_X264, psy_rd         ) },
-    { "psy",              "",   OPTION_TYPE_PSY,           NULL,                 offsetof(CONF_X264, psy_rd         ) },
-    { "no-psy",           "",   OPTION_TYPE_BOOL2_REVERSE, NULL,                 offsetof(CONF_X264, psy_rd         ) },
-    { "scenecut",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, scenecut       ) },
-    { "no-scenecut",      "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, scenecut       ) },
-    { "keyint",           "I",  OPTION_TYPE_KEYINT,        NULL,                 offsetof(CONF_X264, keyint_max     ) },
-    { "min-keyint",       "i",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, keyint_min     ) },
-    { "open-gop",         "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, open_gop       ) },
-    { "no-cabac",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, cabac          ) },
-    { "cabac",            "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, cabac          ) },
-    { "bframes",          "b",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, bframes        ) },
-    { "b-adapt",          "",   OPTION_TYPE_INT,           list_b_adpat,         offsetof(CONF_X264, b_adapt        ) },
-    { "no-b-adapt",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, b_adapt        ) },
-    { "b-bias",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, b_bias         ) },
-    { "b-pyramid",        "",   OPTION_TYPE_LIST,          list_b_pyramid,       offsetof(CONF_X264, b_pyramid      ) },
-    { "slices",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, slice_n        ) },
+    { "ipratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, ip_ratio       ) },
+    { "pbratio",          "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, pb_ratio       ) },
+    { "qpmin",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, qp_min         ) },
+    { "qpmax",            "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, qp_max         ) },
+    { "qpstep",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, qp_step        ) },
+    { "qcomp",            "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, qp_compress    ) },
+    { "chroma-qp-offset", "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, chroma_qp_offset) },
+    { "no-mbtree",        "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, mbtree         ) },
+    { "mbtree",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, mbtree         ) },
+    { "rc-lookahead",     "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, rc_lookahead   ) },
+    { "vbv-bufsize",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, vbv_bufsize    ) },
+    { "vbv-maxrate",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, vbv_maxrate    ) },
+    { "aq-mode",          "",   OPTION_TYPE_INT,           list_aq,              offsetof(CONF_ENC, aq_mode        ) },
+    { "aq-strength",      "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, aq_strength    ) },
+    { "psy-rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_ENC, psy_rd         ) },
+    { "psy",              "",   OPTION_TYPE_PSY,           NULL,                 offsetof(CONF_ENC, psy_rd         ) },
+    { "no-psy",           "",   OPTION_TYPE_BOOL2_REVERSE, NULL,                 offsetof(CONF_ENC, psy_rd         ) },
+    { "scenecut",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, scenecut       ) },
+    { "no-scenecut",      "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, scenecut       ) },
+    { "keyint",           "I",  OPTION_TYPE_KEYINT,        NULL,                 offsetof(CONF_ENC, keyint_max     ) },
+    { "min-keyint",       "i",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, keyint_min     ) },
+    { "open-gop",         "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, open_gop       ) },
+    { "no-cabac",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, cabac          ) },
+    { "cabac",            "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, cabac          ) },
+    { "bframes",          "b",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, bframes        ) },
+    { "b-adapt",          "",   OPTION_TYPE_INT,           list_b_adpat,         offsetof(CONF_ENC, b_adapt        ) },
+    { "no-b-adapt",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, b_adapt        ) },
+    { "b-bias",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, b_bias         ) },
+    { "b-pyramid",        "",   OPTION_TYPE_LIST,          list_b_pyramid,       offsetof(CONF_ENC, b_pyramid      ) },
+    { "slices",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, slice_n        ) },
     { "deblock",          "f",  OPTION_TYPE_DEBLOCK,       NULL,                 NULL                                 },
-    { "no-deblock",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, use_deblock    ) },
-    { "no-interlace",     "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, interlaced     ) },
+    { "no-deblock",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, use_deblock    ) },
+    { "no-interlace",     "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, interlaced     ) },
     { "tff",              "",   OPTION_TYPE_TFF,           NULL,                 NULL                                 },
     { "bff",              "",   OPTION_TYPE_BFF,           NULL,                 NULL                                 },
-    { "partitions",       "A",  OPTION_TYPE_MB_PARTITION,  NULL,                 offsetof(CONF_X264, mb_partition   ) },
-    { "no-8x8dct",        "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, dct8x8         ) },
-    { "8x8dct",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, dct8x8         ) },
-    { "me",               "",   OPTION_TYPE_LIST,          list_me,              offsetof(CONF_X264, me             ) },
-    { "subme",            "m",  OPTION_TYPE_INT,           list_subme,           offsetof(CONF_X264, subme          ) },
-    { "merange",          "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, me_range       ) },
-    { "no-chroma-me",     "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, chroma_me      ) },
-    { "chroma-me",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, chroma_me      ) },
-    { "direct",           "",   OPTION_TYPE_LIST,          list_direct,          offsetof(CONF_X264, direct_mv      ) },
-    { "ref",              "r",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, ref_frames     ) },
-    { "no-mixed-refs",    "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, mixed_ref      ) },
-    { "mixed-refs",       "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, mixed_ref      ) },
-    { "no-weightb",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, weight_b       ) },
-    { "weightb",          "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, weight_b       ) },
-    { "weightp",          "",   OPTION_TYPE_INT,           list_weightp,         offsetof(CONF_X264, weight_p       ) },
-    { "nr",               "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, noise_reduction) },
-    { "no-fast-pskip",    "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, no_fast_pskip  ) },
-    { "no-dct-decimate",  "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, no_dct_decimate) },
-    { "trellis",          "t",  OPTION_TYPE_INT,           list_trellis,         offsetof(CONF_X264, trellis        ) },
-    { "cqm",              "",   OPTION_TYPE_CQM,           list_cqm,             offsetof(CONF_X264, cqm            ) },
+    { "partitions",       "A",  OPTION_TYPE_MB_PARTITION,  NULL,                 offsetof(CONF_ENC, mb_partition   ) },
+    { "no-8x8dct",        "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, dct8x8         ) },
+    { "8x8dct",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, dct8x8         ) },
+    { "me",               "",   OPTION_TYPE_LIST,          list_me,              offsetof(CONF_ENC, me             ) },
+    { "subme",            "m",  OPTION_TYPE_INT,           list_subme,           offsetof(CONF_ENC, subme          ) },
+    { "merange",          "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, me_range       ) },
+    { "no-chroma-me",     "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, chroma_me      ) },
+    { "chroma-me",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, chroma_me      ) },
+    { "direct",           "",   OPTION_TYPE_LIST,          list_direct,          offsetof(CONF_ENC, direct_mv      ) },
+    { "ref",              "r",  OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, ref_frames     ) },
+    { "no-mixed-refs",    "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, mixed_ref      ) },
+    { "mixed-refs",       "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, mixed_ref      ) },
+    { "no-weightb",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, weight_b       ) },
+    { "weightb",          "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, weight_b       ) },
+    { "weightp",          "",   OPTION_TYPE_INT,           list_weightp,         offsetof(CONF_ENC, weight_p       ) },
+    { "nr",               "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, noise_reduction) },
+    { "no-fast-pskip",    "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, no_fast_pskip  ) },
+    { "no-dct-decimate",  "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, no_dct_decimate) },
+    { "trellis",          "t",  OPTION_TYPE_INT,           list_trellis,         offsetof(CONF_ENC, trellis        ) },
+    { "cqm",              "",   OPTION_TYPE_CQM,           list_cqm,             offsetof(CONF_ENC, cqm            ) },
     //{ "cqmfile",          "",   OPTION_TYPE_CQMFILE,       NULL,                 NULL                                 },
-    { "colormatrix",      "",   OPTION_TYPE_LIST,          list_colormatrix,     offsetof(CONF_X264, colormatrix    ) },
-    { "colorprim",        "",   OPTION_TYPE_LIST,          list_colorprim,       offsetof(CONF_X264, colorprim      ) },
-    { "transfer",         "",   OPTION_TYPE_LIST,          list_transfer,        offsetof(CONF_X264, transfer       ) },
-    { "input-range",      "",   OPTION_TYPE_LIST,          list_input_range,     offsetof(CONF_X264, input_range    ) },
-    { "sar",              "",   OPTION_TYPE_INT2,          NULL,                 offsetof(CONF_X264, sar            ) },
-    { "level",            "",   OPTION_TYPE_LEVEL,         list_x264guiEx_level, offsetof(CONF_X264, h264_level     ) },
-    { "videoformat",      "",   OPTION_TYPE_LIST,          list_videoformat,     offsetof(CONF_X264, videoformat    ) },
-    { "aud",              "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, aud            ) },
-    { "pic-struct",       "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, pic_struct     ) },
-    { "nal-hrd",          "",   OPTION_TYPE_LIST,          list_nal_hrd,         offsetof(CONF_X264, nal_hrd        ) },
-    { "bluray-compat",    "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, bluray_compat  ) },
-    { "threads",          "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, threads        ) },
-    { "lookahead-threads","",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, lookahead_threads) },
-    { "sliced-threads",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, sliced_threading) },
-    { "log-level",        "",   OPTION_TYPE_LIST,          list_log_type,        offsetof(CONF_X264, log_mode       ) },
-    { "psnr",             "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, psnr           ) },
-    { "ssim",             "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, ssim           ) },
+    { "colormatrix",      "",   OPTION_TYPE_LIST,          list_colormatrix,     offsetof(CONF_ENC, colormatrix    ) },
+    { "colorprim",        "",   OPTION_TYPE_LIST,          list_colorprim,       offsetof(CONF_ENC, colorprim      ) },
+    { "transfer",         "",   OPTION_TYPE_LIST,          list_transfer,        offsetof(CONF_ENC, transfer       ) },
+    { "input-range",      "",   OPTION_TYPE_LIST,          list_input_range,     offsetof(CONF_ENC, input_range    ) },
+    { "sar",              "",   OPTION_TYPE_INT2,          NULL,                 offsetof(CONF_ENC, sar            ) },
+    { "level",            "",   OPTION_TYPE_LEVEL,         list_x264guiEx_level, offsetof(CONF_ENC, h264_level     ) },
+    { "videoformat",      "",   OPTION_TYPE_LIST,          list_videoformat,     offsetof(CONF_ENC, videoformat    ) },
+    { "aud",              "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, aud            ) },
+    { "pic-struct",       "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, pic_struct     ) },
+    { "nal-hrd",          "",   OPTION_TYPE_LIST,          list_nal_hrd,         offsetof(CONF_ENC, nal_hrd        ) },
+    { "bluray-compat",    "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, bluray_compat  ) },
+    { "threads",          "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, threads        ) },
+    { "lookahead-threads","",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, lookahead_threads) },
+    { "sliced-threads",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, sliced_threading) },
+    { "log-level",        "",   OPTION_TYPE_LIST,          list_log_type,        offsetof(CONF_ENC, log_mode       ) },
+    { "psnr",             "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, psnr           ) },
+    { "ssim",             "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, ssim           ) },
     { "tcfile-in",        "",   OPTION_TYPE_TCFILE_IN,     NULL,                 NULL                                 },
     { "timebase",         "",   OPTION_TYPE_TIMEBASE,      NULL,                 NULL                                 },
-    { "progress",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, disable_progress) },
-    { "no-progress",      "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, disable_progress) },
+    { "progress",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, disable_progress) },
+    { "no-progress",      "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, disable_progress) },
     //書き出しの場合はここまでで終わり
     { NULL,               NULL, NULL,                      NULL,                 NULL                                 },
     //MediaInfoの書式を回収する
-    { "analyse",          "",   OPTION_TYPE_ANALYSE,       NULL,                 offsetof(CONF_X264, mb_partition   ) },
-    { "psy_rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_X264, psy_rd         ) },
-    { "mixed_ref",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, mixed_ref      ) },
-    { "me_range",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, me_range       ) },
-    { "chroma_me",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, chroma_me      ) },
-    { "fast_pskip",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, no_fast_pskip  ) },
-    { "chroma_qp_offset", "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, chroma_qp_offset) },
-    { "lookahead_threads","",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, lookahead_threads) },
-    { "sliced_threads",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, sliced_threading) },
-    { "decimate",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_X264, no_dct_decimate) },
-    { "bluray_compat",    "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, bluray_compat  ) },
-    { "b_pyramid",        "",   OPTION_TYPE_LIST,          list_b_pyramid,       offsetof(CONF_X264, b_pyramid      ) },
-    { "b_adapt",          "",   OPTION_TYPE_INT,           list_b_adpat,         offsetof(CONF_X264, b_adapt        ) },
-    { "b_bias",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, b_bias         ) },
-    { "open_gop",         "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, open_gop       ) },
-    { "keyint_min",       "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, keyint_min     ) },
-    { "rc_lookahead",     "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, rc_lookahead   ) },
-    { "nal_hrd",          "",   OPTION_TYPE_LIST,          list_nal_hrd,         offsetof(CONF_X264, nal_hrd        ) },
-    { "ip_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, ip_ratio       ) },
-    { "pb_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_X264, pb_ratio       ) },
-    { "vbv_maxrate",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_maxrate    ) },
-    { "vbv_bufsize",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_X264, vbv_bufsize    ) },
+    { "analyse",          "",   OPTION_TYPE_ANALYSE,       NULL,                 offsetof(CONF_ENC, mb_partition   ) },
+    { "psy_rd",           "",   OPTION_TYPE_FLOAT2,        NULL,                 offsetof(CONF_ENC, psy_rd         ) },
+    { "mixed_ref",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, mixed_ref      ) },
+    { "me_range",         "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, me_range       ) },
+    { "chroma_me",        "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, chroma_me      ) },
+    { "fast_pskip",       "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, no_fast_pskip  ) },
+    { "chroma_qp_offset", "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, chroma_qp_offset) },
+    { "lookahead_threads","",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, lookahead_threads) },
+    { "sliced_threads",   "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, sliced_threading) },
+    { "decimate",         "",   OPTION_TYPE_BOOL_REVERSE,  NULL,                 offsetof(CONF_ENC, no_dct_decimate) },
+    { "bluray_compat",    "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, bluray_compat  ) },
+    { "b_pyramid",        "",   OPTION_TYPE_LIST,          list_b_pyramid,       offsetof(CONF_ENC, b_pyramid      ) },
+    { "b_adapt",          "",   OPTION_TYPE_INT,           list_b_adpat,         offsetof(CONF_ENC, b_adapt        ) },
+    { "b_bias",           "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, b_bias         ) },
+    { "open_gop",         "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, open_gop       ) },
+    { "keyint_min",       "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, keyint_min     ) },
+    { "rc_lookahead",     "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, rc_lookahead   ) },
+    { "nal_hrd",          "",   OPTION_TYPE_LIST,          list_nal_hrd,         offsetof(CONF_ENC, nal_hrd        ) },
+    { "ip_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, ip_ratio       ) },
+    { "pb_ratio",         "",   OPTION_TYPE_FLOAT,         NULL,                 offsetof(CONF_ENC, pb_ratio       ) },
+    { "vbv_maxrate",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, vbv_maxrate    ) },
+    { "vbv_bufsize",      "",   OPTION_TYPE_INT,           NULL,                 offsetof(CONF_ENC, vbv_bufsize    ) },
     { "interlaced",       "",   OPTION_TYPE_INTERLACED,    NULL,                 NULL                                 },
     { "mbaff",            "",   OPTION_TYPE_INTERLACED,    NULL,                 NULL                                 },
     { "rc",               "",   OPTION_TYPE_RC,            NULL,                 NULL                                 },
     { "aq",               "",   OPTION_TYPE_AQ,            NULL,                 NULL                                 },
-    { "wpredb",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_X264, weight_b       ) },
-    { "wpredp",           "",   OPTION_TYPE_INT,           list_weightp,         offsetof(CONF_X264, weight_p       ) },
+    { "wpredb",           "",   OPTION_TYPE_BOOL,          NULL,                 offsetof(CONF_ENC, weight_b       ) },
+    { "wpredp",           "",   OPTION_TYPE_INT,           list_weightp,         offsetof(CONF_ENC, weight_p       ) },
 };
 
 static BOOL x264guiEx_strtol(int *i, const char *str, DWORD len) {
@@ -400,19 +400,19 @@ static BOOL set_list(void *i, const char *value, const ENC_OPTION_STR *list) {
     return ret; 
 }
 static BOOL set_crf(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
+    ((CONF_ENC *)cx)->rc_mode = X264_RC_CRF;
     float f = 23.0f;
     x264guiEx_strtof(&f, value, NULL);
-    ((CONF_X264 *)cx)->crf = (int)(f * 100 + 0.5);
+    ((CONF_ENC *)cx)->crf = (int)(f * 100 + 0.5);
     return TRUE;
 }
 static BOOL set_bitrate(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
-    return x264guiEx_strtol(&((CONF_X264 *)cx)->bitrate, value, NULL);
+    ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+    return x264guiEx_strtol(&((CONF_ENC *)cx)->bitrate, value, NULL);
 }
 static BOOL set_qp(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->rc_mode = X264_RC_QP;
-    return x264guiEx_strtol(&((CONF_X264 *)cx)->qp, value, NULL);
+    ((CONF_ENC *)cx)->rc_mode = X264_RC_QP;
+    return x264guiEx_strtol(&((CONF_ENC *)cx)->qp, value, NULL);
 }
 static BOOL set_keyint(void *i, const char *value, const ENC_OPTION_STR *list) {
     if ((*(int*)i = _stricmp(value, "infinite")) != NULL)
@@ -424,14 +424,14 @@ static BOOL set_deblock(void *cx, const char *value, const ENC_OPTION_STR *list)
     int a, b, c;
     if (3 == sscanf_s(value, "%d:%d:%d", &a, &b, &c)) {
         //type mediainfo
-        ((CONF_X264 *)cx)->use_deblock = !!a;
-        ((CONF_X264 *)cx)->deblock.x = b;
-        ((CONF_X264 *)cx)->deblock.y = c;
+        ((CONF_ENC *)cx)->use_deblock = !!a;
+        ((CONF_ENC *)cx)->deblock.x = b;
+        ((CONF_ENC *)cx)->deblock.y = c;
         ret = TRUE;
     }
     if (!ret)
-        if (FALSE != (ret = set_int2(&((CONF_X264 *)cx)->deblock, value, list)))
-            ((CONF_X264 *)cx)->use_deblock = TRUE;
+        if (FALSE != (ret = set_int2(&((CONF_ENC *)cx)->deblock, value, list)))
+            ((CONF_ENC *)cx)->use_deblock = TRUE;
     return ret;
 }
 static BOOL set_input_depth(void *b, const char *value, const ENC_OPTION_STR *list) {
@@ -474,18 +474,18 @@ static BOOL set_mb_partitions(void *cx, const char *value, const ENC_OPTION_STR 
     return ret;
 }
 static BOOL set_tff(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->interlaced = TRUE;
-    ((CONF_X264 *)cx)->tff = TRUE;
+    ((CONF_ENC *)cx)->interlaced = TRUE;
+    ((CONF_ENC *)cx)->tff = TRUE;
     return TRUE;
 }
 static BOOL set_bff(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->interlaced = TRUE;
-    ((CONF_X264 *)cx)->tff = FALSE;
+    ((CONF_ENC *)cx)->interlaced = TRUE;
+    ((CONF_ENC *)cx)->tff = FALSE;
     return TRUE;
 }
 static BOOL set_timebase(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_X264 *)cx)->use_timebase = TRUE;
-    return set_int2(&((CONF_X264 *)cx)->timebase, value, list);
+    ((CONF_ENC *)cx)->use_timebase = TRUE;
+    return set_int2(&((CONF_ENC *)cx)->timebase, value, list);
 }
 static BOOL set_level(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = FALSE;
@@ -541,17 +541,17 @@ static BOOL set_analyse(void *cx, const char *value, const ENC_OPTION_STR *list)
 static BOOL set_rc(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (NULL == strncmp(value, "2pass", strlen("2pass"))) {
-        ((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
-        ((CONF_X264 *)cx)->use_auto_npass = TRUE;
-        ((CONF_X264 *)cx)->auto_npass = 2;
+        ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+        ((CONF_ENC *)cx)->use_auto_npass = TRUE;
+        ((CONF_ENC *)cx)->auto_npass = 2;
     } else if (NULL == strncmp(value, "crf", strlen("crf"))) {
-        ((CONF_X264 *)cx)->rc_mode = X264_RC_CRF;
+        ((CONF_ENC *)cx)->rc_mode = X264_RC_CRF;
     } else if (NULL == strncmp(value, "cbr", strlen("cbr"))
             || NULL == strncmp(value, "abr", strlen("abr"))) {
-        ((CONF_X264 *)cx)->rc_mode = X264_RC_BITRATE;
-        ((CONF_X264 *)cx)->use_auto_npass = FALSE;
+        ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+        ((CONF_ENC *)cx)->use_auto_npass = FALSE;
     } else if (NULL == strncmp(value, "cqp", strlen("cqp"))) {
-        ((CONF_X264 *)cx)->rc_mode = X264_RC_QP;
+        ((CONF_ENC *)cx)->rc_mode = X264_RC_QP;
     } else {
         ret = FALSE;
     }
@@ -561,25 +561,25 @@ static BOOL set_aq(void *cx, const char *value, const ENC_OPTION_STR *list) {
     FLOAT2 f_val = { 0, 0 };
     BOOL ret = set_float2(&f_val, value, list);
     if (ret) {
-        ((CONF_X264 *)cx)->aq_mode = ((int)(f_val.x + 0.5));
-        ((CONF_X264 *)cx)->aq_strength = f_val.y;
+        ((CONF_ENC *)cx)->aq_mode = ((int)(f_val.x + 0.5));
+        ((CONF_ENC *)cx)->aq_strength = f_val.y;
     }
     return ret; 
 }
 static BOOL set_interlaced(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (!value) {
-        ((CONF_X264 *)cx)->interlaced = TRUE;
-        ((CONF_X264 *)cx)->tff = TRUE;
+        ((CONF_ENC *)cx)->interlaced = TRUE;
+        ((CONF_ENC *)cx)->tff = TRUE;
     } else if (NULL == strncmp(value, "tff", strlen("tff"))) {
-        ((CONF_X264 *)cx)->interlaced = TRUE;
-        ((CONF_X264 *)cx)->tff = TRUE;
+        ((CONF_ENC *)cx)->interlaced = TRUE;
+        ((CONF_ENC *)cx)->tff = TRUE;
     } else if (NULL == strncmp(value, "bff", strlen("bff"))) {
-        ((CONF_X264 *)cx)->interlaced = TRUE;
-        ((CONF_X264 *)cx)->tff = FALSE;
+        ((CONF_ENC *)cx)->interlaced = TRUE;
+        ((CONF_ENC *)cx)->tff = FALSE;
     } else if (NULL == strncmp(value, "0", strlen("0"))) {
-        ((CONF_X264 *)cx)->interlaced = FALSE;
-        ((CONF_X264 *)cx)->tff = FALSE;
+        ((CONF_ENC *)cx)->interlaced = FALSE;
+        ((CONF_ENC *)cx)->tff = FALSE;
     } else {
         ret = FALSE;
     }
@@ -604,7 +604,7 @@ static BOOL set_do_nothing(void *cx, const char *value, const ENC_OPTION_STR *li
 }
 
 
-static int write_bool(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     BOOL *bptr = (BOOL*)((BYTE*)cx + options->p_offset);
     BOOL *defptr = (BOOL*)((BYTE*)def + options->p_offset);
     if ((write_all || *bptr != *defptr) && *bptr)
@@ -612,7 +612,7 @@ static int write_bool(char *cmd, size_t nSize, const X264_OPTIONS *options, cons
     return 0;
 }
 
-static int write_bool_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     BOOL *bptr = (BOOL*)((BYTE*)cx + options->p_offset);
     BOOL *defptr = (BOOL*)((BYTE*)def + options->p_offset);
     if ((write_all || *bptr != *defptr) && !(*bptr))
@@ -620,14 +620,14 @@ static int write_bool_reverse(char *cmd, size_t nSize, const X264_OPTIONS *optio
     return 0;
 }
 
-static int write_bool2_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bool2_reverse(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     INT2 *bptr = (INT2*)((BYTE*)cx + options->p_offset);
     if (!(bptr->x | bptr->y))
         return sprintf_s(cmd, nSize, " --%s", options->long_name);
     return 0;
 }
 
-static int write_int(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_int(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr)
@@ -647,7 +647,7 @@ static inline int write_float_ex(char *cmd, size_t nSize, float f) {
     return p - cmd;
 }
 
-static int write_float(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_float(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     float *fptr = (float*)((BYTE*)cx + options->p_offset);
     float *defptr = (float*)((BYTE*)def + options->p_offset);
     if (write_all || abs(*fptr - *defptr) > EPS_FLOAT) {
@@ -657,7 +657,7 @@ static int write_float(char *cmd, size_t nSize, const X264_OPTIONS *options, con
     return 0;
 }
 
-static int write_int2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_int2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     INT2 *iptr = (INT2*)((BYTE*)cx + options->p_offset);
     INT2 *defptr = (INT2*)((BYTE*)def + options->p_offset);
     if (write_all || iptr->x != defptr->x || iptr->y != defptr->y)
@@ -665,7 +665,7 @@ static int write_int2(char *cmd, size_t nSize, const X264_OPTIONS *options, cons
     return 0;
 }
 
-static int write_float2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_float2(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     FLOAT2 *fptr = (FLOAT2*)((BYTE*)cx + options->p_offset);
     FLOAT2 *defptr = (FLOAT2*)((BYTE*)def + options->p_offset);
     if (write_all || fptr->x != defptr->x || fptr->y != defptr->y) {
@@ -678,7 +678,7 @@ static int write_float2(char *cmd, size_t nSize, const X264_OPTIONS *options, co
     return 0;
 }
 
-static int write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr)
@@ -686,14 +686,14 @@ static int write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, cons
     return 0;
 }
 
-static int write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_CRF) {
         int len = sprintf_s(cmd, nSize, " --%s ", options->long_name);
         return len + write_float_ex(cmd + len, nSize - len, cx->crf / 100.0f);
     }
     return 0;
 }
-static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_BITRATE) {
         int len = sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->bitrate);
         if (cx->pass) {
@@ -704,12 +704,12 @@ static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, c
     }
     return 0;
 }
-static int write_qp(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_qp(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->rc_mode == X264_RC_QP)
         return sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->qp);
     return 0;
 }
-static int write_keyint(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_keyint(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     int *iptr = (int*)((BYTE*)cx + options->p_offset);
     int *defptr = (int*)((BYTE*)def + options->p_offset);
     if (write_all || *iptr != *defptr) {
@@ -718,13 +718,13 @@ static int write_keyint(char *cmd, size_t nSize, const X264_OPTIONS *options, co
     }
     return 0;
 }
-static int write_deblock(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_deblock(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_deblock)
         if (write_all || cx->deblock.x != def->deblock.x || cx->deblock.y != def->deblock.y)
             return sprintf_s(cmd, nSize, " --%s %d:%d", options->long_name, cx->deblock.x, cx->deblock.y);
     return 0;
 }
-static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->cqm < 2) {
         return write_list(cmd, nSize, options, cx, def, vid, write_all);
     } else {
@@ -733,7 +733,7 @@ static int write_cqm(char *cmd, size_t nSize, const X264_OPTIONS *options, const
         return sprintf_s(cmd, nSize, " --cqmfile \"%s\"", GetFullPathFrom(vid->cqmfile, aviutl_dir).c_str());
     }
 }
-static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_tcfilein) {
         char aviutl_dir[MAX_PATH_LEN] = { 0 };
         get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
@@ -741,12 +741,12 @@ static int write_tcfilein(char *cmd, size_t nSize, const X264_OPTIONS *options, 
     }
     return 0;
 }
-static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_input_depth(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_highbit_depth)
         return sprintf_s(cmd, nSize, " --input-depth %d --output-depth 10", get_encoder_send_bitdepth(cx));
     return 0;
 }
-static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {    
+static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {    
     DWORD *dwptr = (DWORD*)((BYTE*)cx + options->p_offset);
     DWORD *defptr = (DWORD*)((BYTE*)def + options->p_offset);
     if (write_all || *dwptr != *defptr) {
@@ -772,19 +772,19 @@ static int write_mb_partitions(char *cmd, size_t nSize, const X264_OPTIONS *opti
     }
     return 0;
 }
-static int write_tff(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_tff(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->interlaced)
         return sprintf_s(cmd, nSize, " --%s ", (cx->tff) ? "tff" : "bff");
     return 0;
 }
-static int write_timebase(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_timebase(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     if (cx->use_timebase)
         if (write_all || cx->timebase.x != def->timebase.x || cx->timebase.y != def->timebase.y)
             if (cx->timebase.x > 0 && cx->timebase.y > 0)
                 return sprintf_s(cmd, nSize, " --%s %d/%d", options->long_name, cx->timebase.x, cx->timebase.y);
     return 0;
 }
-static int write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all) {
+static int write_do_nothing(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
     return 0;
 }
 
@@ -825,7 +825,7 @@ const SET_VALUE set_value[] = {
 };
 
 //この配列に従って各関数に飛ばされる
-typedef int (*WRITE_CMD) (char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_X264 *cx, const CONF_X264 *def, const CONF_VIDEO *vid, BOOL write_all);
+typedef int (*WRITE_CMD) (char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all);
 const WRITE_CMD write_cmd[] = {
     NULL, 
     write_bool,
@@ -975,7 +975,7 @@ static void set_setting_list() {
 }
 
 //MediaInfoからの情報の補正を行う
-static void check_values_from_mediainfo(const std::vector<CMD_ARG> &cmd_arg_list, CONF_X264 *conf_set) {
+static void check_values_from_mediainfo(const std::vector<CMD_ARG> &cmd_arg_list, CONF_ENC *conf_set) {
     BOOL keyint_from_mediainfo = FALSE;
     BOOL keyint_min_from_mediainfo = FALSE;
     BOOL chroma_qp_offset_from_mediainfo = FALSE;
@@ -1011,7 +1011,7 @@ static inline BOOL option_has_no_value(DWORD type) {
     return FALSE;
 }
 
-static void set_conf(std::vector<CMD_ARG> &cmd_arg_list, CONF_X264 *conf_set) {
+static void set_conf(std::vector<CMD_ARG> &cmd_arg_list, CONF_ENC *conf_set) {
     foreach (it_arg, cmd_arg_list) {
         int i;
         for (i = 0; i < _countof(x264_options_table); i++) {
@@ -1029,7 +1029,7 @@ static void set_conf(std::vector<CMD_ARG> &cmd_arg_list, CONF_X264 *conf_set) {
     check_values_from_mediainfo(cmd_arg_list, conf_set);
 }
 
-void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
+void set_cmd_to_conf(char *cmd, CONF_ENC *conf_set, size_t cmd_len, BOOL build_not_imported_cmd) {
     std::vector<CMD_ARG> cmd_arg_list;
     set_setting_list();
     parse_arg(cmd, cmd_len, cmd_arg_list);
@@ -1057,7 +1057,7 @@ void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_
     }
 }
 
-void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set) {
+void set_cmd_to_conf(const char *cmd_src, CONF_ENC *conf_set) {
     //parse_argでコマンドラインは書き変えられるので、
     //一度コピーしておく
     size_t cmd_len = strlen(cmd_src) + 1;
@@ -1067,46 +1067,46 @@ void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set) {
     free(cmd);
 }
 
-void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_highbit) {
-    ZeroMemory(conf_set, sizeof(CONF_X264));
+void get_default_conf_x264(CONF_ENC *conf_set, BOOL use_highbit) {
+    ZeroMemory(conf_set, sizeof(CONF_ENC));
     set_cmd_to_conf(ex_stg->s_enc.default_cmd, conf_set);
     if (use_highbit)
         set_cmd_to_conf(ex_stg->s_enc.default_cmd_highbit, conf_set);
 }
 
-void set_preset_to_conf(CONF_X264 *conf_set, int preset_index) {
+void set_preset_to_conf(CONF_ENC *conf_set, int preset_index) {
     set_cmd_to_conf(ex_stg->s_enc.preset.cmd[preset_index], conf_set);
 }
 
-void set_tune_to_conf(CONF_X264 *conf_set, int tune_index) {
+void set_tune_to_conf(CONF_ENC *conf_set, int tune_index) {
     set_cmd_to_conf(ex_stg->s_enc.tune.cmd[tune_index], conf_set);
 }
 
-void set_profile_to_conf(CONF_X264 *conf_set, int profile_index) {
+void set_profile_to_conf(CONF_ENC *conf_set, int profile_index) {
     set_cmd_to_conf(ex_stg->s_enc.profile.cmd[profile_index], conf_set);
 }
 
-void apply_presets(CONF_X264 *conf_set) {
+void apply_presets(CONF_ENC *conf_set) {
     set_preset_to_conf(conf_set, conf_set->preset);
     set_tune_to_conf(conf_set, conf_set->tune);
     set_profile_to_conf(conf_set, conf_set->profile);
 }
 
-int check_profile(const CONF_X264 *conf_set) {
-    CONF_X264 check;
+int check_profile(const CONF_ENC *conf_set) {
+    CONF_ENC check;
     int profile_index;
     for (profile_index = 0; ex_stg->s_enc.profile.cmd[profile_index]; profile_index++) {
-        memcpy(&check, conf_set, sizeof(CONF_X264));
+        memcpy(&check, conf_set, sizeof(CONF_ENC));
         set_cmd_to_conf(ex_stg->s_enc.profile.cmd[profile_index], &check);
-        if (memcmp(&check, conf_set, sizeof(CONF_X264)) == NULL)
+        if (memcmp(&check, conf_set, sizeof(CONF_ENC)) == NULL)
             return profile_index;
     }
     return profile_index - 1;
 }
 
-void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const void *_vid, BOOL write_all) {
-    CONF_X264 x264def;
-    CONF_X264 *def = &x264def;
+void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_ENC *conf, const void *_vid, BOOL write_all) {
+    CONF_ENC x264def;
+    CONF_ENC *def = &x264def;
     CONF_VIDEO *vid = (CONF_VIDEO *)_vid;
     get_default_conf_x264(def, conf->use_highbit_depth);
     set_preset_to_conf(def, conf->preset);
@@ -1138,11 +1138,11 @@ void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
         *sar_x = *sar_y = 0;
     }
 }
-static void set_guiEx_auto_sar(CONF_X264 *cx, int width, int height) {
+static void set_guiEx_auto_sar(CONF_ENC *cx, int width, int height) {
     set_guiEx_auto_sar(&cx->sar.x, &cx->sar.y, width, height);
 }
 
-static void set_guiEx_auto_colormatrix(CONF_X264 *cx, int height) {
+static void set_guiEx_auto_colormatrix(CONF_ENC *cx, int height) {
     int auto_matrix = (height >= COLOR_MATRIX_THRESHOLD) ? COLOR_MATRIX_HD : COLOR_MATRIX_SD;
     if (cx->colormatrix == COLOR_MATRIX_AUTO)
         cx->colormatrix = auto_matrix;
@@ -1152,7 +1152,7 @@ static void set_guiEx_auto_colormatrix(CONF_X264 *cx, int height) {
         cx->transfer = auto_matrix;
 }
 
-static void set_x264guiEx_auto_vbv(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
+static void set_x264guiEx_auto_vbv(CONF_ENC *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
     if (cx->vbv_bufsize < 0 || cx->vbv_maxrate < 0) {
         int profile_index = check_profile(cx);
         int level_index = cx->h264_level;
@@ -1164,13 +1164,13 @@ static void set_x264guiEx_auto_vbv(CONF_X264 *cx, int width, int height, int fps
     }
 }
 
-void set_guiEx_auto_keyint(CONF_X264 *cx, int fps_num, int fps_den) {
+void set_guiEx_auto_keyint(CONF_ENC *cx, int fps_num, int fps_den) {
     if (cx->keyint_max < 0) {
         cx->keyint_max = (int)((fps_num + (fps_den - 1)) / fps_den) * 10; // 60000/1001 fpsの時に 600になるように最後に10倍する (599とか嫌すぎる)
     }
 }
 
-static void set_guiEx_auto_ref_limit_by_level(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
+static void set_guiEx_auto_ref_limit_by_level(CONF_ENC *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
     if (!ref_limit_by_level)
         return;
     int level_index = cx->h264_level;
@@ -1179,7 +1179,7 @@ static void set_guiEx_auto_ref_limit_by_level(CONF_X264 *cx, int width, int heig
     cx->ref_frames = std::max(1, std::min(cx->ref_frames, get_ref_limit(level_index, width, height, cx->interlaced)));
 }
 
-void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
+void apply_guiEx_auto_settings(CONF_ENC *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level) {
     set_guiEx_auto_sar(cx, width, height);
     set_guiEx_auto_colormatrix(cx, height);
     set_guiEx_auto_keyint(cx, fps_num, fps_den);

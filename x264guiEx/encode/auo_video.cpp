@@ -84,7 +84,7 @@ static const char * specify_input_csp(int output_csp) {
     return specify_csp[output_csp];
 }
 
-int get_encoder_send_bitdepth(const CONF_X264 *cnf) {
+int get_encoder_send_bitdepth(const CONF_ENC *cnf) {
     //if (is_aviutl2()) {
     //    if (cnf->output_csp == OUT_CSP_YUV444) {
     //        return cnf->use_highbit_depth ? 16 : 8;

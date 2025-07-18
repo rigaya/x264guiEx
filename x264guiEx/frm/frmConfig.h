@@ -74,7 +74,7 @@ namespace AUO_NAME_R {
             list_lng = nullptr;
             dwStgReader = nullptr;
             themeMode = AuoTheme::DefaultLight;
-            cnf_fcgTemp = (CONF_X264*)calloc(1, sizeof(CONF_X264));
+            cnf_fcgTemp = (CONF_ENC*)calloc(1, sizeof(CONF_ENC));
             cnf_stgSelected = (CONF_GUIEX*)calloc(1, sizeof(CONF_GUIEX));
             InitializeComponent();
             //
@@ -4843,7 +4843,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         }
 #pragma endregion
     private:
-        CONF_X264 *cnf_fcgTemp;
+        CONF_ENC *cnf_fcgTemp;
         const SYSTEM_DATA *sys_dat;
         std::vector<std::string> *list_lng;
         CONF_GUIEX *conf;

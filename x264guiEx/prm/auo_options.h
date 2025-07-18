@@ -354,7 +354,7 @@ typedef struct {
     INT2    timebase;
     BOOL    disable_progress;
     int     lookahead_threads;
-} CONF_X264;
+} CONF_ENC;
 #pragma pack(pop)
 
 typedef struct {
@@ -381,18 +381,18 @@ typedef struct CMD_ARG {
 } CMD_ARG;
 
 //コマンドラインの解析・生成
-void set_cmd_to_conf(const char *cmd_src, CONF_X264 *conf_set);
-void set_cmd_to_conf(char *cmd, CONF_X264 *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
-void get_default_conf_x264(CONF_X264 *conf_set, BOOL use_highbit);
-//void set_preset_to_conf(CONF_X264 *conf_set, int preset_index);
-//void set_tune_to_conf(CONF_X264 *conf_set, int tune_index);
-void set_profile_to_conf(CONF_X264 *conf_set, int profile_index);
-void apply_presets(CONF_X264 *conf_set);
-int check_profile(const CONF_X264 *conf_set);
-void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_X264 *conf, const void *_vid, BOOL write_all);
+void set_cmd_to_conf(const char *cmd_src, CONF_ENC *conf_set);
+void set_cmd_to_conf(char *cmd, CONF_ENC *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
+void get_default_conf_x264(CONF_ENC *conf_set, BOOL use_highbit);
+//void set_preset_to_conf(CONF_ENC *conf_set, int preset_index);
+//void set_tune_to_conf(CONF_ENC *conf_set, int tune_index);
+void set_profile_to_conf(CONF_ENC *conf_set, int profile_index);
+void apply_presets(CONF_ENC *conf_set);
+int check_profile(const CONF_ENC *conf_set);
+void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_ENC *conf, const void *_vid, BOOL write_all);
 void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height);
-void set_guiEx_auto_keyint(CONF_X264 *cx, int fps_num, int fps_den);
-void apply_guiEx_auto_settings(CONF_X264 *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level);
+void set_guiEx_auto_keyint(CONF_ENC *cx, int fps_num, int fps_den);
+void apply_guiEx_auto_settings(CONF_ENC *cx, int width, int height, int fps_num, int fps_den, BOOL ref_limit_by_level);
 const ENC_OPTION_STR * get_option_list(const char *option_name);
 void set_ex_stg_ptr(guiEx_settings *_ex_stg);
 int get_option_value(const char *cmd_src, const char *target_option_name, char *buffer, size_t nSize);
