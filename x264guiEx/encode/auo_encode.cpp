@@ -661,7 +661,14 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
         case MUXER_MP4:
             check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             if (str_has_char(exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
-                check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+                if (wcscmp(exstg->s_mux[MUXER_MP4].dispname, exstg->s_mux[MUXER_MP4_RAW].dispname) == 0) { // mp4box使用で同じ名前の場合
+                    if (!str_has_char(exstg->s_mux[MUXER_MP4_RAW].fullpath) || !PathFileExists(exstg->s_mux[MUXER_MP4_RAW].fullpath)) {
+                        // MUXER_MP4_RAW の指定がない場合は、MUXER_MP4の指定で代用
+                        strcpy_s(exstg->s_mux[MUXER_MP4_RAW].fullpath, exstg->s_mux[MUXER_MP4].fullpath);
+                    }
+                } else {
+                    check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+                }
             }
             check &= check_muxer_matched_with_ini(exstg->s_mux);
             break;
@@ -808,7 +815,7 @@ static void set_aud_delay_cut(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *
 bool use_auto_npass(const CONF_GUIEX *conf) {
 #if ENCODER_SVTAV1	
     if (!conf->oth.disable_guicmd) {
-        CONF_ENCODER enc = get_default_prm();
+        CONF_ENC enc = get_default_prm();
         set_cmd(&enc, conf->enc.cmd, true);
         return enc.pass > 1;
     }
