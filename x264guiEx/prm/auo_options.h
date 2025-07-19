@@ -38,17 +38,23 @@
 
 //エンコードモード
 enum {
-    X264_RC_CRF = 0,
-    X264_RC_BITRATE,
-    X264_RC_QP,
+    ENC_RC_CRF = 0,
+    ENC_RC_BITRATE,
+    ENC_RC_QP,
 };
 
 //QPの最大値
-const int X264_QP_MAX_8BIT  = 69;
-const int X264_QP_MAX_10BIT = 81;
+const int ENC_QP_MAX_8BIT  = 69;
+const int ENC_QP_MAX_10BIT = 81;
 
 //差がこのくらいなら等しいとみなす(オプション用なのでこのくらいで十分)
 const float EPS_FLOAT = 1.0e-4f;
+
+#if ENCODER_X265
+static const int AUO_KEYINT_MAX_AUTO = 0;
+#elif ENCODER_X264 || ENCODER_SVTAV1
+static const int AUO_KEYINT_MAX_AUTO = -1;
+#endif
 
 //マクロブロックタイプの一般的なオプション
 enum {
@@ -380,10 +386,12 @@ typedef struct CMD_ARG {
     BOOL type_mediainfo; //MediaInfoの書式だったかどうか
 } CMD_ARG;
 
+static bool ishighbitdepth(const CONF_ENC *enc) { return enc->use_highbit_depth != FALSE; }
+
 //コマンドラインの解析・生成
 void set_cmd_to_conf(const char *cmd_src, CONF_ENC *conf_set);
 void set_cmd_to_conf(char *cmd, CONF_ENC *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
-void get_default_conf_x264(CONF_ENC *conf_set, BOOL use_highbit);
+void get_default_conf(CONF_ENC *conf_set, BOOL use_highbit);
 //void set_preset_to_conf(CONF_ENC *conf_set, int preset_index);
 //void set_tune_to_conf(CONF_ENC *conf_set, int tune_index);
 void set_profile_to_conf(CONF_ENC *conf_set, int profile_index);

@@ -178,7 +178,7 @@ System::Void frmConfig::CloseBitrateCalc() {
 System::Void frmConfig::fcgTSBBitrateCalc_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
     if (fcgTSBBitrateCalc->Checked) {
         int videoBitrate = 0;
-        bool videoBitrateMode = (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE);
+        bool videoBitrateMode = (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == ENC_RC_BITRATE);
         videoBitrateMode &= Int32::TryParse(fcgTXQuality->Text, videoBitrate);
 
         frmBitrateCalculator::Instance::get()->Init(
@@ -204,7 +204,7 @@ System::Void frmConfig::SetfbcBTVBEnable(bool enable) {
 }
 
 System::Void frmConfig::SetVideoBitrate(int bitrate) {
-    if (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == X264_RC_BITRATE)
+    if (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex] == ENC_RC_BITRATE)
         fcgTXQuality->Text = bitrate.ToString();
 }
 
@@ -425,7 +425,7 @@ System::Void frmConfig::fcgCBUsehighbit_CheckedChanged(System::Object^  sender, 
     SendMessage(reinterpret_cast<HWND>(this->Handle.ToPointer()), WM_SETREDRAW, 0, 0);
     //8bit/highbitで異なるQPの最大最小を管理する
     int old_max = (int)fcgNUQpmax->Maximum;
-    fcgNUQpmax->Maximum = (fcgCBUsehighbit->Checked) ? X264_QP_MAX_10BIT : X264_QP_MAX_8BIT;
+    fcgNUQpmax->Maximum = (fcgCBUsehighbit->Checked) ? ENC_QP_MAX_10BIT : ENC_QP_MAX_8BIT;
     fcgNUQpmin->Maximum = fcgNUQpmax->Maximum;
     fcgNUQpstep->Maximum = fcgNUQpmax->Maximum;
     fcgNUChromaQp->Minimum = -1 * fcgNUQpmax->Maximum;
@@ -511,7 +511,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
     cnf_fcgTemp->rc_mode = x264_encmode_to_RCint[index];
     cnf_fcgTemp->use_auto_npass = (fcgCXX264Mode->SelectedIndex == 5 || fcgCXX264Mode->SelectedIndex == 6);
     switch (cnf_fcgTemp->rc_mode) {
-        case X264_RC_BITRATE:
+        case ENC_RC_BITRATE:
             fcgLBQuality->Text = (fcgCXX264Mode->SelectedIndex == 5) ? LOAD_CLI_STRING(AUO_CONFIG_MODE_TARGET_BITRATE) : LOAD_CLI_STRING(AUO_CONFIG_MODE_BITRATE);
             fcgLBQualityLeft->Text = LOAD_CLI_STRING(AUO_CONFIG_QUALITY_LOW);
             fcgLBQualityRight->Text = LOAD_CLI_STRING(AUO_CONFIG_QUALITY_HIGH);
@@ -544,7 +544,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
                 fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
             SetfbcBTVBEnable(true);
             break;
-        case X264_RC_QP:
+        case ENC_RC_QP:
             fcgLBQuality->Text = LOAD_CLI_STRING(AUO_CONFIG_MODE_QP);
             fcgLBQualityLeft->Text = LOAD_CLI_STRING(AUO_CONFIG_QUALITY_HIGH);
             fcgLBQualityRight->Text = LOAD_CLI_STRING(AUO_CONFIG_QUALITY_LOW);
@@ -557,7 +557,7 @@ System::Void frmConfig::fcgCXX264Mode_SelectedIndexChanged(System::Object^  send
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->qp);
             SetfbcBTVBEnable(false);
             break;
-        case X264_RC_CRF:
+        case ENC_RC_CRF:
         default:
             fcgLBQuality->Text = LOAD_CLI_STRING(AUO_CONFIG_MODE_CRF);
             fcgLBQualityLeft->Text = LOAD_CLI_STRING(AUO_CONFIG_QUALITY_HIGH);
@@ -606,7 +606,7 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
         restore = true;
     } else {
         switch (x264_encmode_to_RCint[index]) {
-        case X264_RC_BITRATE:
+        case ENC_RC_BITRATE:
             //自動マルチパス時は-1(自動)もあり得る
             if (Int32::TryParse(fcgTXQuality->Text, i) && i >= ((fcgCXX264Mode->SelectedIndex == 5) ? -1 : 0)) {
                 cnf_fcgTemp->bitrate = i;
@@ -617,14 +617,14 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
                 restore = true;
             }
             break;
-        case X264_RC_QP:
+        case ENC_RC_QP:
             if (Int32::TryParse(fcgTXQuality->Text, i)) {
                 i = SetTBValue(fcgTBQuality, i);
                 cnf_fcgTemp->qp = i;
                 fcgTXQuality->Text = Convert::ToString(i);
             }
             break;
-        case X264_RC_CRF:
+        case ENC_RC_CRF:
         default:
             if (Double::TryParse(fcgTXQuality->Text, d)) {
                 int TBmin = fcgTBQuality->Minimum * 50;
@@ -647,17 +647,17 @@ System::Void frmConfig::fcgTXQuality_TextChanged(System::Object^  sender, System
 
 System::Void frmConfig::fcgTXQuality_Validating(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
     switch (x264_encmode_to_RCint[fcgCXX264Mode->SelectedIndex]) {
-        case X264_RC_BITRATE:
+        case ENC_RC_BITRATE:
             //自動モードの場合は除く
             if (fcgCXX264Mode->SelectedIndex == 5 && cnf_fcgTemp->bitrate == -1) {
                 fcgTXQuality->Text = STR_BITRATE_AUTO;
             } else
                 fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
             break;
-        case X264_RC_QP:
+        case ENC_RC_QP:
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->qp);
             break;
-        case X264_RC_CRF:
+        case ENC_RC_CRF:
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->crf / 100.0);
         default:
             break;
@@ -667,15 +667,15 @@ System::Void frmConfig::fcgTXQuality_Validating(System::Object^  sender, System:
 System::Void frmConfig::SetTBValueToTextBox() {
     int index = fcgCXX264Mode->SelectedIndex;
     switch (x264_encmode_to_RCint[index]) {
-        case X264_RC_BITRATE:
+        case ENC_RC_BITRATE:
             cnf_fcgTemp->bitrate = TBBConvert.TBToBitrate(fcgTBQuality->Value);
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->bitrate);
             break;
-        case X264_RC_QP:
+        case ENC_RC_QP:
             cnf_fcgTemp->qp = fcgTBQuality->Value;
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->qp);
             break;
-        case X264_RC_CRF:
+        case ENC_RC_CRF:
         default:
             cnf_fcgTemp->crf = fcgTBQuality->Value * 50;
             fcgTXQuality->Text = Convert::ToString(cnf_fcgTemp->crf / 100.0);
@@ -1585,10 +1585,10 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
     this->SuspendLayout();
     fcgCBUsehighbit->Checked = cx264->use_highbit_depth != 0;
     switch (cx264->rc_mode) {
-        case X264_RC_QP:
+        case ENC_RC_QP:
             fcgCXX264Mode->SelectedIndex = 1;
             break;
-        case X264_RC_BITRATE:
+        case ENC_RC_BITRATE:
             if (cx264->use_auto_npass)
                 fcgCXX264Mode->SelectedIndex = 5;
             else {
@@ -1599,7 +1599,7 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
                 }
             }
             break;
-        case X264_RC_CRF:
+        case ENC_RC_CRF:
         default:
             fcgCXX264Mode->SelectedIndex = (cx264->use_auto_npass) ? 6 : 2;
             break;

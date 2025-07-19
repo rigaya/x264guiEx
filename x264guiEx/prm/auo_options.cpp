@@ -400,18 +400,18 @@ static BOOL set_list(void *i, const char *value, const ENC_OPTION_STR *list) {
     return ret; 
 }
 static BOOL set_crf(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_ENC *)cx)->rc_mode = X264_RC_CRF;
+    ((CONF_ENC *)cx)->rc_mode = ENC_RC_CRF;
     float f = 23.0f;
     x264guiEx_strtof(&f, value, NULL);
     ((CONF_ENC *)cx)->crf = (int)(f * 100 + 0.5);
     return TRUE;
 }
 static BOOL set_bitrate(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+    ((CONF_ENC *)cx)->rc_mode = ENC_RC_BITRATE;
     return x264guiEx_strtol(&((CONF_ENC *)cx)->bitrate, value, NULL);
 }
 static BOOL set_qp(void *cx, const char *value, const ENC_OPTION_STR *list) {
-    ((CONF_ENC *)cx)->rc_mode = X264_RC_QP;
+    ((CONF_ENC *)cx)->rc_mode = ENC_RC_QP;
     return x264guiEx_strtol(&((CONF_ENC *)cx)->qp, value, NULL);
 }
 static BOOL set_keyint(void *i, const char *value, const ENC_OPTION_STR *list) {
@@ -541,17 +541,17 @@ static BOOL set_analyse(void *cx, const char *value, const ENC_OPTION_STR *list)
 static BOOL set_rc(void *cx, const char *value, const ENC_OPTION_STR *list) {
     BOOL ret = TRUE;
     if (NULL == strncmp(value, "2pass", strlen("2pass"))) {
-        ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+        ((CONF_ENC *)cx)->rc_mode = ENC_RC_BITRATE;
         ((CONF_ENC *)cx)->use_auto_npass = TRUE;
         ((CONF_ENC *)cx)->auto_npass = 2;
     } else if (NULL == strncmp(value, "crf", strlen("crf"))) {
-        ((CONF_ENC *)cx)->rc_mode = X264_RC_CRF;
+        ((CONF_ENC *)cx)->rc_mode = ENC_RC_CRF;
     } else if (NULL == strncmp(value, "cbr", strlen("cbr"))
             || NULL == strncmp(value, "abr", strlen("abr"))) {
-        ((CONF_ENC *)cx)->rc_mode = X264_RC_BITRATE;
+        ((CONF_ENC *)cx)->rc_mode = ENC_RC_BITRATE;
         ((CONF_ENC *)cx)->use_auto_npass = FALSE;
     } else if (NULL == strncmp(value, "cqp", strlen("cqp"))) {
-        ((CONF_ENC *)cx)->rc_mode = X264_RC_QP;
+        ((CONF_ENC *)cx)->rc_mode = ENC_RC_QP;
     } else {
         ret = FALSE;
     }
@@ -687,14 +687,14 @@ static int write_list(char *cmd, size_t nSize, const X264_OPTIONS *options, cons
 }
 
 static int write_crf(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
-    if (cx->rc_mode == X264_RC_CRF) {
+    if (cx->rc_mode == ENC_RC_CRF) {
         int len = sprintf_s(cmd, nSize, " --%s ", options->long_name);
         return len + write_float_ex(cmd + len, nSize - len, cx->crf / 100.0f);
     }
     return 0;
 }
 static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
-    if (cx->rc_mode == X264_RC_BITRATE) {
+    if (cx->rc_mode == ENC_RC_BITRATE) {
         int len = sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->bitrate);
         if (cx->pass) {
             len += sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --pass %d", cx->pass);
@@ -705,7 +705,7 @@ static int write_bitrate(char *cmd, size_t nSize, const X264_OPTIONS *options, c
     return 0;
 }
 static int write_qp(char *cmd, size_t nSize, const X264_OPTIONS *options, const CONF_ENC *cx, const CONF_ENC *def, const CONF_VIDEO *vid, BOOL write_all) {
-    if (cx->rc_mode == X264_RC_QP)
+    if (cx->rc_mode == ENC_RC_QP)
         return sprintf_s(cmd, nSize, " --%s %d", options->long_name, cx->qp);
     return 0;
 }
@@ -1067,7 +1067,7 @@ void set_cmd_to_conf(const char *cmd_src, CONF_ENC *conf_set) {
     free(cmd);
 }
 
-void get_default_conf_x264(CONF_ENC *conf_set, BOOL use_highbit) {
+void get_default_conf(CONF_ENC *conf_set, BOOL use_highbit) {
     ZeroMemory(conf_set, sizeof(CONF_ENC));
     set_cmd_to_conf(ex_stg->s_enc.default_cmd, conf_set);
     if (use_highbit)
@@ -1108,7 +1108,7 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_ENC *conf, const vo
     CONF_ENC x264def;
     CONF_ENC *def = &x264def;
     CONF_VIDEO *vid = (CONF_VIDEO *)_vid;
-    get_default_conf_x264(def, conf->use_highbit_depth);
+    get_default_conf(def, conf->use_highbit_depth);
     set_preset_to_conf(def, conf->preset);
     set_tune_to_conf(def, conf->tune);
     set_profile_to_conf(def, conf->profile);
