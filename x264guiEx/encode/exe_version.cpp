@@ -97,16 +97,16 @@ int get_x264_version_from_filename(const char *exe_path, int version[4]) {
 
 #if ENCODER_X265
 int get_x265_version_from_filename(const char *exe_path, int version[4]) {
-    const char *filename = PathFindFileNameA(exe_path);
+    const auto filename = PathGetFilename(exe_path);
 
     int value[4] = { 0 };
     memset(version, 0, sizeof(value));
 
     int rev = 0;
-    if (   sscanf_s(filename, "x265_%d.%d+%d_x64.exe", &value[0], &value[1], &value[3]) == 3
-        || sscanf_s(filename, "x265_%d.%d+%d_x86.exe", &value[0], &value[1], &value[3]) == 3
-        || sscanf_s(filename, "x265_%d.%d_x64.exe",    &value[0], &value[1]) == 2
-        || sscanf_s(filename, "x265_%d.%d_x86.exe",    &value[0], &value[1]) == 2) {
+    if (   sscanf_s(filename.c_str(), "x265_%d.%d+%d_x64.exe", &value[0], &value[1], &value[3]) == 3
+        || sscanf_s(filename.c_str(), "x265_%d.%d+%d_x86.exe", &value[0], &value[1], &value[3]) == 3
+        || sscanf_s(filename.c_str(), "x265_%d.%d_x64.exe",    &value[0], &value[1]) == 2
+        || sscanf_s(filename.c_str(), "x265_%d.%d_x86.exe",    &value[0], &value[1]) == 2) {
         memcpy(version, value, sizeof(value));
         return 0;
     }
@@ -141,42 +141,42 @@ int get_x265ver_regex(const char *txt, int v[4]) {
 
 #if ENCODER_SVTAV1
 int get_svtav1_version_from_filename(const char *exe_path, int version[4]) {
-    const char *filename = PathFindFileNameA(exe_path);
+    const auto filename = PathGetFilename(exe_path);
 
     int value[4] = { 0 };
     memset(version, 0, sizeof(value));
     
     int value4 = 0;
-    if (   sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d+%d_x86.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d-%d_x64.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d-%d_x86.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d+%d_x64.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d+%d_x86.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d_x64.exe",    &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-rc%d_x86.exe",    &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d_x64.exe",     &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-rc%d_x86.exe",     &value[0], &value[1], &value[2], &value[3]) == 4) {
+    if (   sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d+%d_x86.exe", &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d-%d_x64.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d-%d_x86.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d+%d_x64.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d+%d_x86.exe",  &value[0], &value[1], &value[2], &value[3], &value4) == 5
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d_x64.exe",    &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-rc%d_x86.exe",    &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d_x64.exe",     &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-rc%d_x86.exe",     &value[0], &value[1], &value[2], &value[3]) == 4) {
         value[3] *= RC_VER_MUL;
         value[3] += RC_VER_ADD;
         value[3] += value4;
         memcpy(version, value, sizeof(value));
         return 0;
     }
-    if (   sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d+%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x64.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d-%d_x86.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d+%d_x64.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d+%d_x86.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d_x64.exe",    &value[0], &value[1], &value[2]) == 3
-        || sscanf_s(filename, "SvtAv1EncApp_v%d.%d.%d_x86.exe",    &value[0], &value[1], &value[2]) == 3
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d_x64.exe",     &value[0], &value[1], &value[2]) == 3
-        || sscanf_s(filename, "SvtAv1EncApp_%d.%d.%d_x86.exe",     &value[0], &value[1], &value[2]) == 3) {
+    if (   sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d-%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d+%d_x64.exe", &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d+%d_x86.exe", &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-%d_x64.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d-%d_x86.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d+%d_x64.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d+%d_x86.exe",  &value[0], &value[1], &value[2], &value[3]) == 4
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d_x64.exe",    &value[0], &value[1], &value[2]) == 3
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_v%d.%d.%d_x86.exe",    &value[0], &value[1], &value[2]) == 3
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d_x64.exe",     &value[0], &value[1], &value[2]) == 3
+        || sscanf_s(filename.c_str(), "SvtAv1EncApp_%d.%d.%d_x86.exe",     &value[0], &value[1], &value[2]) == 3) {
         memcpy(version, value, sizeof(value));
         return 0;
     }
@@ -426,7 +426,7 @@ int get_x265ver_from_txt(const char *txt, int v[4]) {
 #if ENCODER_SVTAV1
 int get_svtav1_rev(const char *svtav1fullpath, int version[4]) {
     int ret = -1;
-    if (!PathFileExists(svtav1fullpath))
+    if (!rgy_file_exists(svtav1fullpath))
         return ret;
 
     int value[4] = { 0 };
