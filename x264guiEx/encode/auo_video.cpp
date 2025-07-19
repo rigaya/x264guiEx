@@ -403,64 +403,6 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
     return ret;
 }
 
-static AUO_RESULT write_log_x264_version(const char *x264fullpath) {
-    AUO_RESULT ret = AUO_RESULT_WARNING;
-    static const int REQUIRED_X264_CORE = 104;
-    static const int REQUIRED_X264_REV = 1673;
-    char buffer[2048] = { 0 };
-    if (get_exe_message(x264fullpath, "--version", buffer, _countof(buffer), AUO_PIPE_MUXED) == RP_SUCCESS) {
-        char print_line[512] = { 0 };
-        const char *LINE_HEADER = "x264 version: ";
-        const char *LINE_CONFIGURATION = "configuration:";
-        BOOL line_configuration = FALSE; //現在取得中かどうか
-        BOOL got_line_configuration = FALSE; //一度取得したかどうか
-        int configuration_pos = 0; //取得開始の文字の位置
-        sprintf_s(print_line, _countof(print_line), LINE_HEADER);
-        int a = -1, b = -1, c = -1;
-        for (char *ptr = buffer, *qtr = NULL; NULL != (ptr = strtok_s(ptr, "\r\n", &qtr)); ) {
-            if (ptr == buffer) {
-                strcat_s(print_line, _countof(print_line), ptr + strlen("x264 ") * (NULL == strncmp(ptr, "x264 ", strlen("x264 "))));
-                if (3 != sscanf_s(ptr, "x264 %d.%d.%d", &a, &b, &c))
-                    a = b = c = -1;
-            } else if (strstr(ptr, LINE_CONFIGURATION) && !got_line_configuration) {
-                const char *rtr = strstr(ptr, LINE_CONFIGURATION) + strlen(LINE_CONFIGURATION);
-                while (*rtr == ' ') rtr++;
-                strcat_s(print_line, _countof(print_line), " ");
-                strcat_s(print_line, _countof(print_line), rtr);
-                configuration_pos = rtr - ptr;
-                line_configuration = TRUE;
-                got_line_configuration = TRUE;
-            } else if (line_configuration) {
-                const char *rtr = ptr;
-                while (*rtr == ' ') rtr++;
-                if ((int)(rtr - ptr) == configuration_pos) {
-                    strcat_s(print_line, _countof(print_line), " ");
-                    strcat_s(print_line, _countof(print_line), rtr);
-                } else {
-                    line_configuration = FALSE;
-                }
-            } else {
-                line_configuration = FALSE;
-            }
-            ptr = NULL;
-        }
-        if (strlen(print_line) > strlen(LINE_HEADER)) {
-            write_log_auo_line(LOG_INFO, char_to_wstring(print_line).c_str());
-        }
-        if (a >= 0 && b >= 0 && c >= 0) {
-            ret = (b >= REQUIRED_X264_CORE || c >= REQUIRED_X264_REV) ? AUO_RESULT_SUCCESS : AUO_RESULT_ERROR;
-        }
-        if (ret & AUO_RESULT_ERROR) {
-            char required_ver[128] = { 0 };
-            char current_ver[128] = { 0 };
-            sprintf_s(required_ver, _countof(required_ver), "Core:%4d, Rev: %4d", REQUIRED_X264_CORE, REQUIRED_X264_REV);
-            sprintf_s(current_ver,  _countof(current_ver),  "Core:%4d, Rev: %4d", b, c);
-            error_videnc_version(required_ver, current_ver);
-        }
-    }
-    return ret;
-}
-
 //auo_pipe.cppのread_from_pipeの特別版
 static int ReadLogEnc(PIPE_SET *pipes, int total_drop, int current_frames, int total_frames) {
     DWORD pipe_read = 0;
@@ -802,11 +744,6 @@ static AUO_RESULT x264_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe
     pipes.stdIn.mode = AUO_PIPE_ENABLE;
     pipes.stdErr.mode = AUO_PIPE_ENABLE;
     pipes.stdIn.bufferSize = pixel_data.total_size * 2;
-
-    //x264バージョン情報表示・チェック
-    if (AUO_RESULT_ERROR == write_log_x264_version(sys_dat->exstg->s_enc.fullpath)) {
-        return (ret | AUO_RESULT_ERROR);
-    }
 
     //コマンドライン生成
     build_full_cmd(x264cmd, _countof(x264cmd), conf, oip, pe, sys_dat, PIPE_FN);
