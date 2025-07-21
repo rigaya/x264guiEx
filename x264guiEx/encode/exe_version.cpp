@@ -384,7 +384,7 @@ int get_x264_rev(const char *x264fullpath) {
 #if ENCODER_X265
 int get_x265_rev(const char *x265fullpath, int version[4]) {
     int ret = -1;
-    if (!PathFileExists(x265fullpath))
+    if (!rgy_file_exists(x265fullpath))
         return ret;
 
     int value[4] = { 0 };
