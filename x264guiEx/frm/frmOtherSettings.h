@@ -926,7 +926,14 @@ namespace AUO_NAME_R {
             fos_ex_stg->s_local.get_relative_path         = fosCBGetRelativePath->Checked;
             fos_ex_stg->s_local.default_output_ext        = fosCXDefaultOutExt->SelectedIndex;
             fos_ex_stg->s_local.run_bat_minimized         = fosCBRunBatMinimized->Checked;
-            fos_ex_stg->s_local.default_audio_encoder     = fosCXDefaultAudioEncoder->SelectedIndex;
+            const int default_encoder = fosCXDefaultAudioEncoder->SelectedIndex;
+            if (default_encoder >= fos_ex_stg->s_aud_int_count) {
+                fos_ex_stg->s_local.default_audio_encoder_ext = default_encoder - fos_ex_stg->s_aud_int_count;
+                fos_ex_stg->s_local.default_audenc_use_in = FALSE;
+            } else {
+                fos_ex_stg->s_local.default_audio_encoder_in = default_encoder;
+                fos_ex_stg->s_local.default_audenc_use_in = TRUE;
+            }
             fos_ex_stg->s_local.thread_pthrottling_mode   = (int)RGY_THREAD_POWER_THROTTOLING_MODE_STR[fosCXPowerThrottling->SelectedIndex].first;
             fos_ex_stg->save_local();
             fos_ex_stg->save_log_win();
@@ -943,8 +950,10 @@ namespace AUO_NAME_R {
 
             fosCXDefaultAudioEncoder->SuspendLayout();
             fosCXDefaultAudioEncoder->Items->Clear();
-            for (int i = 0; i < fos_ex_stg->s_aud_count; i++)
-                fosCXDefaultAudioEncoder->Items->Add(String(fos_ex_stg->s_aud[i].dispname).ToString());
+            for (int i = 0; i < fos_ex_stg->s_aud_int_count; i++)
+                fosCXDefaultAudioEncoder->Items->Add(String(fos_ex_stg->s_aud_int[i].dispname).ToString());
+            for (int i = 0; i < fos_ex_stg->s_aud_ext_count; i++)
+                fosCXDefaultAudioEncoder->Items->Add(LOAD_CLI_STRING(AUO_OTHER_SETTINGS_AUDIO_ENCODER_EXTERNAL) + L": " + String(fos_ex_stg->s_aud_ext[i].dispname).ToString());
             fosCXDefaultAudioEncoder->ResumeLayout();
 
             fosCXPowerThrottling->SuspendLayout();
@@ -980,7 +989,11 @@ namespace AUO_NAME_R {
             fosCBGetRelativePath->Checked           = fos_ex_stg->s_local.get_relative_path != 0;
             fosCXDefaultOutExt->SelectedIndex       = fos_ex_stg->s_local.default_output_ext;
             fosCBRunBatMinimized->Checked           = fos_ex_stg->s_local.run_bat_minimized != 0;
-            fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder, 0, fosCXDefaultAudioEncoder->Items->Count);
+            if (fos_ex_stg->s_local.default_audenc_use_in) {
+                fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder_in, 0, fos_ex_stg->s_aud_int_count-1);
+            } else {
+                fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder_ext, 0, fos_ex_stg->s_aud_ext_count-1) + fos_ex_stg->s_aud_int_count;
+            }
             for (int i = 0; i < RGY_THREAD_POWER_THROTTOLING_MODE_STR.size(); i++) {
                 if ((int)RGY_THREAD_POWER_THROTTOLING_MODE_STR[i].first == fos_ex_stg->s_local.thread_pthrottling_mode) {
                     fosCXPowerThrottling->SelectedIndex = i;

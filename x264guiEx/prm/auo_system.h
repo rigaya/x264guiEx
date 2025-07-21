@@ -42,10 +42,22 @@
 #define ALIGN_PTR __declspec(align(8))
 #endif
 
+namespace std {
+    class mutex;
+}
+
+struct faw2aacbuf {
+    void *buffer;
+    DWORD  buf_len;
+    DWORD threadid;
+};
+
 typedef struct ALIGN_PTR {
     HANDLE ALIGN_PTR he_aud_start; //InterlockedExchangeを使用するため、__declspec(align(4))が必要
     HANDLE ALIGN_PTR he_vid_start; //InterlockedExchangeを使用するため、__declspec(align(4))が必要
     HANDLE th_aud;
+    std::mutex *mtx_aud;
+    faw2aacbuf faw2aac[2];
     void  *buffer;
     DWORD  buf_len;
     DWORD  buf_max_size;
@@ -66,6 +78,7 @@ typedef struct {
     int drop_count;                        //ドロップ数
     BOOL afs_init;                         //動画入力の準備ができているか
     HANDLE h_p_aviutl;                     //優先度取得用のAviutlのハンドル
+    HANDLE h_p_videnc;                     //動画エンコーダのハンドル
     char **opened_aviutl_files;            //Aviutlの開いているファイルリスト
     int n_opened_aviutl_files;             //Aviutlの開いているファイルリストの数
     char *org_save_file_name;              //オリジナルの保存ファイル名

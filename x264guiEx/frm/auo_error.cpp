@@ -307,6 +307,30 @@ void error_video_output_thread_start() {
     write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_OUTPUT_THREAD_START));
 }
 
+void error_video_create_param_mem() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_CREATE_PARAM_MEM));
+}
+
+void error_video_create_event() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_CREATE_EVENT));
+}
+
+void error_video_wait_event() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_WAIT_EVENT));
+}
+
+void error_video_set_event() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_SET_EVENT));
+}
+
+void error_video_open_shared_input_buf() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_OPEN_SHARED_INPUT_BUF));
+}
+
+void error_video_get_conv_func() {
+    write_log_auo_line(LOG_ERROR, g_auo_mes.get(AUO_ERR_VIDEO_GET_CONV_FUNC));
+}
+
 void warning_auto_qpfile_failed() {
     write_log_auo_line(LOG_WARNING, g_auo_mes.get(AUO_ERR_QPFILE_FAILED));
 }

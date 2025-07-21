@@ -4873,7 +4873,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         System::Void fcgTBQualityChange();
         System::Void InitTimer();
         System::Void InitComboBox();
-        System::Void setAudioDisplay();
+        System::Void setAudioExtDisplay();
         System::Void AudioEncodeModeChanged();
         System::Void InitStgFileList();
         System::Void RebuildStgFileDropDown(String^ stgDir);
@@ -4955,6 +4955,13 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         System::Void SetAudioBitrate(int bitrate);
         System::Void InformfbcClosed();
     private:
+        System::Boolean useAudioExt() {
+            #if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+                return true;
+            #else
+                return fcgCBAudioUseExt->Checked;
+            #endif
+        }
         System::Void AddfcgLBAMPAutoBitrate() {
             //fcgLBAMPAutoBitrateには拡張した簡易透過ラベルを使用する(背景透過&マウスイベント透過)
             //普通に作成しておくと、フォームデザイナが使用できなくなり厄介なので、ここで作っておく
@@ -5725,7 +5732,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             array<ExeControls>^ ControlList = {
                 { fcgBTX264Path->Name,           fcgTXX264Path->Text,           sys_dat->exstg->s_enc.help_cmd },
                 { fcgBTX264PathSub->Name,        fcgTXX264PathSub->Text,        sys_dat->exstg->s_enc.help_cmd },
-                { fcgBTAudioEncoderPath->Name,   fcgTXAudioEncoderPath->Text,   sys_dat->exstg->s_aud[fcgCXAudioEncoder->SelectedIndex].cmd_help },
+                { fcgBTAudioEncoderPath->Name,   fcgTXAudioEncoderPath->Text,   sys_dat->exstg->s_aud_ext[fcgCXAudioEncoder->SelectedIndex].cmd_help },
                 { fcgBTMP4MuxerPath->Name,       fcgTXMP4MuxerPath->Text,       sys_dat->exstg->s_mux[MUXER_MP4].help_cmd },
                 { fcgBTTC2MP4Path->Name,         fcgTXTC2MP4Path->Text,         sys_dat->exstg->s_mux[MUXER_TC2MP4].help_cmd },
                 { fcgBTMP4RawPath->Name,         fcgTXMP4RawPath->Text,         sys_dat->exstg->s_mux[MUXER_MP4_RAW].help_cmd },

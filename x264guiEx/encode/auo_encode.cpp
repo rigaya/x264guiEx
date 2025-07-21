@@ -58,8 +58,9 @@
 #include "auo_audio.h"
 #include "auo_faw2aac.h"
 #include "cpu_info.h"
-#include "exe_version.h"
 #include "rgy_env.h"
+#include "rgy_filesystem.h"
+#include "exe_version.h"
 
 using unique_handle = std::unique_ptr<std::remove_pointer<HANDLE>::type, std::function<void(HANDLE)>>;
 
@@ -211,6 +212,31 @@ std::filesystem::path find_latest_videnc(const std::vector<std::filesystem::path
     return ret;
 }
 
+std::string find_latest_videnc_for_frm() {
+    char aviutl_dir[MAX_PATH_LEN] = { 0 };
+    get_aviutl_dir(aviutl_dir, _countof(aviutl_dir));
+
+    char defaultExeDir[MAX_PATH_LEN] = { 0 };
+    PathCombineLong(defaultExeDir, _countof(defaultExeDir), aviutl_dir, DEFAULT_EXE_DIR);
+
+    char pluginsDir[MAX_PATH_LEN] = { 0 };
+    char defaultExeDir2[MAX_PATH_LEN] = { 0 };
+    get_auo_dir(pluginsDir, _countof(pluginsDir));
+    PathCombineLong(defaultExeDir2, _countof(defaultExeDir2), pluginsDir, DEFAULT_EXE_DIR);
+
+    const auto exeFiles = find_exe_files(defaultExeDir, defaultExeDir2);
+    const auto targetExes = find_target_exe_files(ENCODER_NAME, exeFiles);
+    if (targetExes.size() > 0) {
+        const auto latestVidEnc = find_latest_videnc(targetExes);
+        return latestVidEnc.string().c_str();
+    }
+    return "";
+}
+
+void get_audio_pipe_name(char *pipename, size_t nSize, int audIdx) {
+    sprintf_s(pipename, nSize, AUO_NAMED_PIPE_BASE, GetCurrentProcessId(), audIdx);
+}
+
 static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const char *aviutl_dir, const BOOL get_relative_path, const std::vector<std::filesystem::path>& exe_files) {
     if (PathFileExists(muxer_stg->fullpath)) {
         info_use_exe_found(muxer_stg->dispname, muxer_stg->fullpath);
@@ -230,6 +256,18 @@ static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const char *aviutl_dir,
     }
     error_no_exe_file(muxer_stg->dispname, muxer_stg->fullpath);
     return FALSE;
+}
+
+const MUXER_CMD_EX *get_muxer_mode(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, int muxer_to_be_used) {
+    int mode = -1;
+    switch (muxer_to_be_used) {
+    case MUXER_TC2MP4:
+    case MUXER_MP4:      mode = conf->mux.mp4_mode; break;
+    case MUXER_MKV:      mode = conf->mux.mkv_mode; break;
+    case MUXER_INTERNAL: mode = conf->mux.internal_mode; break;
+    default: break;
+    }
+    return (mode >= 0) ? &sys_dat->exstg->s_mux[muxer_to_be_used].ex_cmd[mode] : nullptr;
 }
 
 static BOOL check_if_exe_is_mp4box(const char *exe_path, const char *version_arg) {
@@ -257,7 +295,7 @@ static BOOL check_if_exe_is_lsmash(const char *exe_path, const char *version_arg
 static BOOL check_muxer_matched_with_ini(const MUXER_SETTINGS *mux_stg) {
     BOOL ret = TRUE;
     //不確定な場合は"0", mp4boxなら"-1", L-SMASHなら"1"
-    if (ENCODER_X264 || ENCODER_X265) {
+    if constexpr (ENCODER_X264 || ENCODER_X265) {
         bool mp4box_ini = stristr(mux_stg[MUXER_MP4].filename, "mp4box") != nullptr;
         if (mp4box_ini) {
             error_mp4box_ini();
@@ -288,7 +326,8 @@ static BOOL check_amp(CONF_GUIEX *conf) {
         if (conf->vid.amp_limit_file_size <= 0.0)
             conf->vid.amp_check &= ~AMPLIMIT_FILE_SIZE; //フラグを折る
     }
-    if (conf->vid.amp_check && conf->vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == conf->aud.delay_cut) {
+    const CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
+    if (conf->vid.amp_check && conf->vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == cnf_aud->delay_cut) {
         check = FALSE; error_amp_afs_audio_delay_confliction();
     }
 #endif
@@ -303,6 +342,7 @@ static BOOL muxer_supports_audio_format(const int muxer_to_be_used, const AUDIO_
         return aud_stg->unsupported_mp4 == 0;
     case MUXER_MKV:
     case MUXER_DISABLED:
+    case MUXER_INTERNAL:
         return TRUE;
     default:
         return FALSE;
@@ -400,11 +440,14 @@ static BOOL check_temp_file_open(const char *target, const std::string& auo_chec
 }
 
 BOOL audio_encoder_exe_exists(const CONF_GUIEX *conf, const guiEx_settings *exstg) {
-    AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
+    const BOOL use_internal = conf->aud.use_internal;
+    const int aud_idx = (use_internal) ? conf->aud.in.encoder : conf->aud.ext.encoder;
+    const AUDIO_SETTINGS *aud_list = (use_internal) ? exstg->s_aud_int : exstg->s_aud_ext;
+    const AUDIO_SETTINGS *aud_stg = &aud_list[aud_idx];
     if (!str_has_char(aud_stg->filename)) {
         return TRUE;
     }
-    if (conf->aud.encoder == exstg->s_aud_faw_index) {
+    if (aud_idx == exstg->get_faw_index(use_internal)) {
         return TRUE;
     }
     return PathFileExists(aud_stg->fullpath);
@@ -518,176 +561,226 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
 
     //音声エンコーダ
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
+        // 内蔵エンコーダ非対応
+        if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+            conf->aud.use_internal = FALSE;
+        }
         //音声長さチェック
         if (check_audio_length(oip, exstg->s_local.av_length_threshold)) {
             check = FALSE;
         }
 
-        const bool default_audenc_cnf_avail = (exstg->s_local.default_audio_encoder < exstg->s_aud_count
-            && str_has_char(exstg->s_aud[exstg->s_local.default_audio_encoder].filename));
-        const bool default_audenc_auo_avail = (DEFAULT_AUDIO_ENCODER < exstg->s_aud_count
-                && str_has_char(exstg->s_aud[DEFAULT_AUDIO_ENCODER].filename));
-        if ((conf->aud.encoder < 0 || exstg->s_aud_count <= conf->aud.encoder)) {
-            if (default_audenc_cnf_avail
-                && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
-                && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
-                conf->aud.encoder = exstg->s_local.default_audio_encoder;
-                warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
-            } else if (default_audenc_auo_avail) {
-                conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
-                warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
+        if (conf->aud.use_internal) {
+            CONF_AUDIO_BASE *cnf_aud = &conf->aud.in;
+            cnf_aud->audio_encode_timing = 2;
+            cnf_aud->delay_cut = AUDIO_DELAY_CUT_NONE;
+
+            const bool default_audenc_cnf_avail = (exstg->s_local.default_audio_encoder_in < exstg->s_aud_int_count
+                && str_has_char(exstg->s_aud_int[exstg->s_local.default_audio_encoder_in].filename));
+            const bool default_audenc_auo_avail = (DEFAULT_AUDIO_ENCODER_IN < exstg->s_aud_int_count
+                && str_has_char(exstg->s_aud_int[DEFAULT_AUDIO_ENCODER_IN].filename));
+            if (cnf_aud->encoder < 0 || exstg->s_aud_int_count <= cnf_aud->encoder) {
+                if (default_audenc_cnf_avail) {
+                    cnf_aud->encoder = exstg->s_local.default_audio_encoder_ext;
+                    warning_use_default_audio_encoder(exstg->s_aud_int[cnf_aud->encoder].dispname);
+                } else if (default_audenc_auo_avail) {
+                    cnf_aud->encoder = DEFAULT_AUDIO_ENCODER_IN;
+                    warning_use_default_audio_encoder(exstg->s_aud_int[cnf_aud->encoder].dispname);
+                }
             }
-        }
-        for (;;) {
-            if (conf->aud.encoder < 0 || exstg->s_aud_count <= conf->aud.encoder) {
+            if (cnf_aud->encoder < 0 || exstg->s_aud_int_count <= cnf_aud->encoder) {
                 error_invalid_ini_file();
                 check = FALSE;
-                break;
             }
-            AUDIO_SETTINGS *aud_stg = &exstg->s_aud[conf->aud.encoder];
+            AUDIO_SETTINGS *aud_stg = &exstg->s_aud_int[cnf_aud->encoder];
             if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
-                const int orig_encoder = conf->aud.encoder;
-                if (default_audenc_cnf_avail
-                    && orig_encoder != exstg->s_local.default_audio_encoder
-                    && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
-                    && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
-                    conf->aud.encoder = exstg->s_local.default_audio_encoder;
+                AUDIO_SETTINGS *aud_default = nullptr;
+                if (default_audenc_cnf_avail) {
+                    aud_default = &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext];
                 } else if (default_audenc_auo_avail) {
-                    conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
+                    aud_default = &exstg->s_aud_ext[DEFAULT_AUDIO_ENCODER_EXT];
                 }
-                error_unsupported_audio_format_by_muxer(pe->video_out_type,
-                    exstg->s_aud[orig_encoder].dispname,
-                    (orig_encoder != conf->aud.encoder) ? exstg->s_aud[conf->aud.encoder].dispname : nullptr);
-                // 同じエンコーダあるいはデフォルトエンコーダがうまく取得できな場合は再チェックしても意味がない
-                if (orig_encoder == conf->aud.encoder) {
+                error_unsupported_audio_format_by_muxer(pe->video_out_type, aud_stg->dispname, (aud_default) ? aud_default->dispname : nullptr);
+                check = FALSE;
+            }
+        } else {
+            CONF_AUDIO_BASE *cnf_aud = &conf->aud.ext;
+            const bool default_audenc_cnf_avail = (exstg->s_local.default_audio_encoder_ext < exstg->s_aud_ext_count
+                && str_has_char(exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext].filename));
+            const bool default_audenc_auo_avail = (DEFAULT_AUDIO_ENCODER_EXT < exstg->s_aud_ext_count
+                && str_has_char(exstg->s_aud_ext[DEFAULT_AUDIO_ENCODER_EXT].filename));
+            if ((cnf_aud->encoder < 0 || exstg->s_aud_ext_count <= cnf_aud->encoder)) {
+                if (default_audenc_cnf_avail
+                    && 0 <= exstg->s_local.default_audio_encoder_ext && exstg->s_local.default_audio_encoder_ext < exstg->s_aud_ext_count
+                    && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext])) {
+                    cnf_aud->encoder = exstg->s_local.default_audio_encoder_ext;
+                    warning_use_default_audio_encoder(exstg->s_aud_ext[cnf_aud->encoder].dispname);
+                } else if (default_audenc_auo_avail) {
+                    cnf_aud->encoder = DEFAULT_AUDIO_ENCODER_EXT;
+                    warning_use_default_audio_encoder(exstg->s_aud_ext[cnf_aud->encoder].dispname);
+                }
+            }
+            for (;;) {
+                if (cnf_aud->encoder < 0 || exstg->s_aud_ext_count <= cnf_aud->encoder) {
+                    error_invalid_ini_file();
                     check = FALSE;
                     break;
                 }
-                // デフォルトエンコーダに戻して再チェック
-                warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
-                continue;
-            }
-            if (!audio_encoder_exe_exists(conf, exstg)) {
-                //とりあえず、exe_filesを探す
-                {
-                    const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
-                    if (targetExes.size() > 0) {
-                        if (exstg->s_local.get_relative_path) {
-                            GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
-                        } else {
-                            strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                AUDIO_SETTINGS *aud_stg = &exstg->s_aud_ext[cnf_aud->encoder];
+                if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
+                    const bool retry_with_default_audenc = ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1; // ffmpeg_audencを配布していないQSV/NV/VCEEncではここのretryは無効化する
+                    const int orig_encoder = cnf_aud->encoder;
+                    if (retry_with_default_audenc) {
+                        if (default_audenc_cnf_avail
+                            && orig_encoder != exstg->s_local.default_audio_encoder_ext
+                            && 0 <= exstg->s_local.default_audio_encoder_ext && exstg->s_local.default_audio_encoder_ext < exstg->s_aud_ext_count
+                            && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext])) {
+                            cnf_aud->encoder = exstg->s_local.default_audio_encoder_ext;
+                        } else if (default_audenc_auo_avail) {
+                            cnf_aud->encoder = DEFAULT_AUDIO_ENCODER_EXT;
                         }
                     }
-                }
-                //みつからなければ、デフォルトエンコーダを探す
-                if (!PathFileExists(aud_stg->fullpath) && default_audenc_cnf_avail
-                    && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
-                    && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
-                    conf->aud.encoder = exstg->s_local.default_audio_encoder;
-                    aud_stg = &exstg->s_aud[conf->aud.encoder];
-                    if (!PathFileExists(aud_stg->fullpath)) {
-                        const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
-                        if (targetExes.size() > 0) {
-                            if (exstg->s_local.get_relative_path) {
-                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
-                            } else {
-                                strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
-                            }
-                            warning_use_default_audio_encoder(aud_stg->dispname);
-                        }
-                    }
-                }
-                if (!PathFileExists(aud_stg->fullpath) && default_audenc_auo_avail) {
-                    conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
-                    aud_stg = &exstg->s_aud[conf->aud.encoder];
-                    if (!PathFileExists(aud_stg->fullpath)) {
-                        const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
-                        if (targetExes.size() > 0) {
-                            if (exstg->s_local.get_relative_path) {
-                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
-                            } else {
-                                strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
-                            }
-                            warning_use_default_audio_encoder(aud_stg->dispname);
-                        }
-                    }
-                }
-                if (!PathFileExists(aud_stg->fullpath)) {
-                    //fawの場合はOK
-                    if (conf->aud.encoder != exstg->s_aud_faw_index) {
-                        error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
-                        check = FALSE;
-                        break;
-                    }
-                }
-            }
-            if (str_has_char(aud_stg->filename) && (conf->aud.encoder != exstg->s_aud_faw_index)) {
-                std::wstring exe_message;
-                if (!check_audenc_output(aud_stg, exe_message)) {
-                    const int orig_encoder = conf->aud.encoder;
-                    if (default_audenc_cnf_avail
-                        && orig_encoder != exstg->s_local.default_audio_encoder
-                        && 0 <= exstg->s_local.default_audio_encoder && exstg->s_local.default_audio_encoder < exstg->s_aud_count
-                        && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud[exstg->s_local.default_audio_encoder])) {
-                        conf->aud.encoder = exstg->s_local.default_audio_encoder;
-                    } else if (default_audenc_auo_avail) {
-                        conf->aud.encoder = DEFAULT_AUDIO_ENCODER;
-                    }
-                    error_failed_to_run_audio_encoder(
-                        exstg->s_aud[orig_encoder].dispname,
-                        exe_message.c_str(),
-                        (orig_encoder != conf->aud.encoder) ? exstg->s_aud[conf->aud.encoder].dispname : nullptr);
+                    error_unsupported_audio_format_by_muxer(pe->video_out_type,
+                        exstg->s_aud_ext[orig_encoder].dispname,
+                        (orig_encoder != cnf_aud->encoder) ? exstg->s_aud_ext[cnf_aud->encoder].dispname : nullptr);
                     // 同じエンコーダあるいはデフォルトエンコーダがうまく取得できな場合は再チェックしても意味がない
-                    if (orig_encoder == conf->aud.encoder) {
+                    if (orig_encoder == cnf_aud->encoder) {
                         check = FALSE;
                         break;
                     }
                     // デフォルトエンコーダに戻して再チェック
-                    warning_use_default_audio_encoder(exstg->s_aud[conf->aud.encoder].dispname);
+                    warning_use_default_audio_encoder(exstg->s_aud_ext[cnf_aud->encoder].dispname);
                     continue;
                 }
-                info_use_exe_found(aud_stg->dispname, aud_stg->fullpath);
+                if (!audio_encoder_exe_exists(conf, exstg)) {
+                    //とりあえず、exe_filesを探す
+                    {
+                        const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
+                        if (targetExes.size() > 0) {
+                            if (exstg->s_local.get_relative_path) {
+                                GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
+                            } else {
+                                strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                            }
+                        }
+                    }
+                    //みつからなければ、デフォルトエンコーダを探す
+                    if (!PathFileExists(aud_stg->fullpath) && default_audenc_cnf_avail
+                        && 0 <= exstg->s_local.default_audio_encoder_ext && exstg->s_local.default_audio_encoder_ext < exstg->s_aud_ext_count
+                        && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext])) {
+                        cnf_aud->encoder = exstg->s_local.default_audio_encoder_ext;
+                        aud_stg = &exstg->s_aud_ext[cnf_aud->encoder];
+                        if (!PathFileExists(aud_stg->fullpath)) {
+                            const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
+                            if (targetExes.size() > 0) {
+                                if (exstg->s_local.get_relative_path) {
+                                    GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
+                                } else {
+                                    strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                                }
+                                warning_use_default_audio_encoder(aud_stg->dispname);
+                            }
+                        }
+                    }
+                    if (!PathFileExists(aud_stg->fullpath) && default_audenc_auo_avail) {
+                        cnf_aud->encoder = DEFAULT_AUDIO_ENCODER_EXT;
+                        aud_stg = &exstg->s_aud_ext[cnf_aud->encoder];
+                        if (!PathFileExists(aud_stg->fullpath)) {
+                            const auto targetExes = select_exe_file(find_target_exe_files(aud_stg->filename, exeFiles));
+                            if (targetExes.size() > 0) {
+                                if (exstg->s_local.get_relative_path) {
+                                    GetRelativePathTo(aud_stg->fullpath, _countof(aud_stg->fullpath), targetExes.front().string().c_str(), aviutl_dir);
+                                } else {
+                                    strcpy_s(aud_stg->fullpath, targetExes.front().string().c_str());
+                                }
+                                warning_use_default_audio_encoder(aud_stg->dispname);
+                            }
+                        }
+                    }
+                    if (!PathFileExists(aud_stg->fullpath)) {
+                        //fawの場合はOK
+                        if (cnf_aud->encoder != exstg->get_faw_index(conf->aud.use_internal)) {
+                            error_no_exe_file(aud_stg->dispname, aud_stg->fullpath);
+                            check = FALSE;
+                            break;
+                        }
+                    }
+                }
+                if (str_has_char(aud_stg->filename) && (cnf_aud->encoder != exstg->get_faw_index(conf->aud.use_internal))) {
+                    std::wstring exe_message;
+                    if (!check_audenc_output(aud_stg, exe_message)) {
+                        const bool retry_with_default_audenc = ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1; // ffmpeg_audencを配布していないQSV/NV/VCEEncではここのretryは無効化する
+                        const int orig_encoder = cnf_aud->encoder;
+                        if (retry_with_default_audenc) {
+                            if (default_audenc_cnf_avail
+                                && orig_encoder != exstg->s_local.default_audio_encoder_ext
+                                && 0 <= exstg->s_local.default_audio_encoder_ext && exstg->s_local.default_audio_encoder_ext < exstg->s_aud_ext_count
+                                && muxer_supports_audio_format(pe->muxer_to_be_used, &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext])) {
+                                cnf_aud->encoder = exstg->s_local.default_audio_encoder_ext;
+                            } else if (default_audenc_auo_avail) {
+                                cnf_aud->encoder = DEFAULT_AUDIO_ENCODER_EXT;
+                            }
+                            error_failed_to_run_audio_encoder(
+                                exstg->s_aud_ext[orig_encoder].dispname,
+                                exe_message.c_str(),
+                                (orig_encoder != cnf_aud->encoder) ? exstg->s_aud_ext[cnf_aud->encoder].dispname : nullptr);
+                        }
+                        // 同じエンコーダあるいはデフォルトエンコーダがうまく取得できな場合は再チェックしても意味がない
+                        if (orig_encoder == cnf_aud->encoder) {
+                            check = FALSE;
+                            break;
+                        }
+                        // デフォルトエンコーダに戻して再チェック
+                        warning_use_default_audio_encoder(exstg->s_aud_ext[cnf_aud->encoder].dispname);
+                        continue;
+                    }
+                    info_use_exe_found(aud_stg->dispname, aud_stg->fullpath);
+                }
+                // ここまで来たらエンコーダの確認終了なのでbreak
+                break;
             }
-            // ここまで来たらエンコーダの確認終了なのでbreak
-            break;
         }
     }
 
     //muxer
     switch (pe->muxer_to_be_used) {
-        case MUXER_TC2MP4:
-            check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
-            //下へフォールスルー
-        case MUXER_MP4:
-            check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
-            if (str_has_char(exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
-                if (wcscmp(exstg->s_mux[MUXER_MP4].dispname, exstg->s_mux[MUXER_MP4_RAW].dispname) == 0) { // mp4box使用で同じ名前の場合
-                    if (!str_has_char(exstg->s_mux[MUXER_MP4_RAW].fullpath) || !PathFileExists(exstg->s_mux[MUXER_MP4_RAW].fullpath)) {
-                        // MUXER_MP4_RAW の指定がない場合は、MUXER_MP4の指定で代用
-                        strcpy_s(exstg->s_mux[MUXER_MP4_RAW].fullpath, exstg->s_mux[MUXER_MP4].fullpath);
-                    }
-                } else {
-                    check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+    case MUXER_TC2MP4:
+        check &= check_muxer_exist(&exstg->s_mux[MUXER_TC2MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles); //tc2mp4使用時は追加でmp4boxも必要
+        //下へフォールスルー
+    case MUXER_MP4:
+        check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+        if (str_has_char(exstg->s_mux[MUXER_MP4_RAW].base_cmd)) {
+            if (wcscmp(exstg->s_mux[MUXER_MP4].dispname, exstg->s_mux[MUXER_MP4_RAW].dispname) == 0) { // mp4box使用で同じ名前の場合
+                if (!str_has_char(exstg->s_mux[MUXER_MP4_RAW].fullpath) || !PathFileExists(exstg->s_mux[MUXER_MP4_RAW].fullpath)) {
+                    // MUXER_MP4_RAW の指定がない場合は、MUXER_MP4の指定で代用
+                    strcpy_s(exstg->s_mux[MUXER_MP4_RAW].fullpath, exstg->s_mux[MUXER_MP4].fullpath);
                 }
+            } else {
+                check &= check_muxer_exist(&exstg->s_mux[MUXER_MP4_RAW], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
             }
+        }
+    	if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
             check &= check_muxer_matched_with_ini(exstg->s_mux);
-            break;
-        case MUXER_MKV:
-            check &= check_muxer_exist(&exstg->s_mux[pe->muxer_to_be_used], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
-            break;
-        default:
-            break;
+        }
+        break;
+    case MUXER_MKV:
+        check &= check_muxer_exist(&exstg->s_mux[pe->muxer_to_be_used], aviutl_dir, exstg->s_local.get_relative_path, exeFiles);
+        break;
+    default:
+        break;
     }
 
-    //自動マルチパス設定
-    check &= check_amp(conf);
+    if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+        //自動マルチパス設定
+        check &= check_amp(conf);
 
-    //オーディオディレイカット
-    if (conf->vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == conf->aud.delay_cut) {
-        info_afs_audio_delay_confliction();
-        conf->aud.audio_encode_timing = 0;
+        //オーディオディレイカット
+        CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
+        if (conf->vid.afs && AUDIO_DELAY_CUT_ADD_VIDEO == cnf_aud->delay_cut) {
+            info_afs_audio_delay_confliction();
+            cnf_aud->audio_encode_timing = 0;
+        }
     }
-
     return check;
 }
 
@@ -703,13 +796,14 @@ void open_log_window(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, int cur
 
     show_log_window(sys_dat->aviutl_dir, sys_dat->exstg->s_local.disable_visual_styles);
     write_log_line(LOG_INFO, mes);
-
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_FFMPEG
     char cpu_info[256];
     getCPUInfo(cpu_info);
     OSVERSIONINFOEXW osverinfo = { 0 };
     const auto osver = char_to_wstring(getOSVersion(&osverinfo));
     write_log_auo_line_fmt(LOG_INFO, L"%s %s / %s %s (%d) / %s",
         AUO_NAME_WITHOUT_EXT_W, AUO_VERSION_STR_W, osver.c_str(), rgy_is_64bit_os() ? L"x64" : L"x86", osverinfo.dwBuildNumber, char_to_wstring(cpu_info).c_str());
+#endif
 
     if (oip->flag & OUTPUT_INFO_FLAG_VIDEO) {
         const double video_length = oip->n * (double)oip->scale / oip->rate;
@@ -789,25 +883,30 @@ static void set_aud_delay_cut(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *
     pe->delay_cut_additional_vframe = 0;
     pe->delay_cut_additional_aframe = 0;
     if (oip->flag & OUTPUT_INFO_FLAG_AUDIO) {
-        int audio_delay = sys_dat->exstg->s_aud[conf->aud.encoder].mode[conf->aud.enc_mode].delay;
-        if (audio_delay) {
-            const double fps = oip->rate / (double)oip->scale;
-            const int audio_rate = oip->audio_rate;
-            switch (conf->aud.delay_cut) {
-            case AUDIO_DELAY_CUT_DELETE_AUDIO:
-                pe->delay_cut_additional_aframe = -1 * audio_delay;
-                break;
-            case AUDIO_DELAY_CUT_ADD_VIDEO:
-                pe->delay_cut_additional_vframe = additional_vframe_for_aud_delay_cut(fps, audio_rate, audio_delay);
-                pe->delay_cut_additional_aframe = additional_silence_for_aud_delay_cut(fps, audio_rate, audio_delay);
-                break;
-            case AUDIO_DELAY_CUT_NONE:
-            case AUDIO_DELAY_CUT_EDTS:
-            default:
-                break;
-            }
+        if (conf->aud.use_internal) {
+            conf->aud.in.delay_cut = AUDIO_DELAY_CUT_NONE;
         } else {
-            conf->aud.delay_cut = AUDIO_DELAY_CUT_NONE;
+            CONF_AUDIO_BASE *cnf_aud = &conf->aud.ext;
+            const AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud_ext[cnf_aud->encoder];
+            int audio_delay = aud_stg->mode[cnf_aud->enc_mode].delay;
+            if (audio_delay) {
+                const double fps = oip->rate / (double)oip->scale;
+                const int audio_rate = oip->audio_rate;
+                switch (cnf_aud->delay_cut) {
+                case AUDIO_DELAY_CUT_DELETE_AUDIO:
+                    pe->delay_cut_additional_aframe = -1 * audio_delay;
+                    break;
+                case AUDIO_DELAY_CUT_ADD_VIDEO:
+                    pe->delay_cut_additional_vframe = additional_vframe_for_aud_delay_cut(fps, audio_rate, audio_delay);
+                    pe->delay_cut_additional_aframe = additional_silence_for_aud_delay_cut(fps, audio_rate, audio_delay);
+                    break;
+                case AUDIO_DELAY_CUT_NONE:
+                default:
+                    break;
+                }
+            } else {
+                cnf_aud->delay_cut = AUDIO_DELAY_CUT_NONE;
+            }
         }
     }
 }
@@ -826,14 +925,16 @@ bool use_auto_npass(const CONF_GUIEX *conf) {
 }
 
 int get_total_path(const CONF_GUIEX *conf) {
-#if ENCODER_SVTAV1
-    return use_auto_npass(conf) ? 2 : 1;
-#else
-    return (conf->enc.use_auto_npass
+    if constexpr (ENCODER_SVTAV1) {
+        return use_auto_npass(conf) ? 2 : 1;
+    } else if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG) {
+        return (conf->enc.use_auto_npass
          && conf->enc.rc_mode == ENC_RC_BITRATE
          && !conf->oth.disable_guicmd)
          ? conf->enc.auto_npass : 1;
-#endif
+    } else {
+        return 1;
+    }
 }
 
 void free_enc_prm(PRM_ENC *pe) {
@@ -908,15 +1009,17 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
 
     //音声一時フォルダの決定
     char *cus_aud_tdir = pe->temp_filename;
-    if (conf->aud.aud_temp_dir) {
-        if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_audio_tmp_dir)) {
-            cus_aud_tdir = sys_dat->exstg->s_local.custom_audio_tmp_dir;
-            write_log_auo_line_fmt(LOG_INFO, L"%s : %s", g_auo_mes.get(AUO_ENCODE_TMP_FOLDER_AUDIO), char_to_wstring(GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir)).c_str());
-        } else {
-            warning_no_aud_temp_root(sys_dat->exstg->s_local.custom_audio_tmp_dir);
+    if (!conf->aud.use_internal) {
+        if (conf->aud.ext.aud_temp_dir) {
+            if (DirectoryExistsOrCreate(sys_dat->exstg->s_local.custom_audio_tmp_dir)) {
+                cus_aud_tdir = sys_dat->exstg->s_local.custom_audio_tmp_dir;
+                write_log_auo_line_fmt(LOG_INFO, L"%s : %s", g_auo_mes.get(AUO_ENCODE_TMP_FOLDER_AUDIO), char_to_wstring(GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir)).c_str());
+            } else {
+                warning_no_aud_temp_root(sys_dat->exstg->s_local.custom_audio_tmp_dir);
+            }
         }
+        strcpy_s(pe->aud_temp_dir, GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
     }
-    strcpy_s(pe->aud_temp_dir, GetFullPathFrom(cus_aud_tdir, sys_dat->aviutl_dir).c_str());
 
     //ファイル名置換を行い、一時ファイル名を作成
     char filename_replace[MAX_PATH_LEN] = { 0 };
@@ -924,7 +1027,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
-    if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
+    if ((ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!check_videnc_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
             change_ext(pe->temp_filename, _countof(pe->temp_filename), ENOCDER_RAW_EXT);
@@ -934,7 +1037,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     //ファイルの上書きを避ける
     avoid_exsisting_tmp_file(pe->temp_filename, _countof(pe->temp_filename));
 
-    pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+    pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
     if (pe->muxer_to_be_used >= 0) {
         const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[get_mux_excmd_mode(conf, pe)];
         if (str_has_char(muxer_mode->chap_file) && strstr(muxer_mode->chap_file, "chapter.%{pid}.txt")) {
@@ -955,7 +1058,8 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     }
 
     //FAWチェックとオーディオディレイの修正
-    if (conf->aud.faw_check)
+    const CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
+    if (cnf_aud->faw_check)
         auo_faw_check(&conf->aud, oip, pe, sys_dat->exstg);
     set_aud_delay_cut(conf, pe, oip, sys_dat);
 }
@@ -996,10 +1100,11 @@ BOOL fps_after_afs_is_24fps(const int frame_n, const PRM_ENC *pe) {
 int get_mux_excmd_mode(const CONF_GUIEX *conf, const PRM_ENC *pe) {
     int mode = 0;
     switch (pe->muxer_to_be_used) {
-        case MUXER_MKV:     mode = conf->mux.mkv_mode; break;
-        case MUXER_MP4:
-        case MUXER_TC2MP4:
-        case MUXER_MP4_RAW: mode = conf->mux.mp4_mode; break;
+    case MUXER_INTERNAL: mode = conf->mux.internal_mode; break;
+    case MUXER_MKV:      mode = conf->mux.mkv_mode; break;
+    case MUXER_MP4:
+    case MUXER_TC2MP4:
+    case MUXER_MP4_RAW:  mode = conf->mux.mp4_mode; break;
     }
     return mode;
 }
@@ -1038,6 +1143,22 @@ void insert_num_to_replace_key(char *key, size_t nSize, int num) {
     sprintf_s(tmp, _countof(tmp), "%d%s", num, &key[key_len-1]);
     key[key_len-1] = '\0';
     strcat_s(key, nSize, tmp);
+}
+
+void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
+    if (width > 0 && height > 0 && *sar_x < 0 && *sar_y < 0) {
+        int x = -1 * *sar_x * height;
+        int y = -1 * *sar_y * width;
+        if (abs(y - x) > -16 * *sar_y) {
+            int gcd = rgy_gcd(x, y);
+            *sar_x = x / gcd;
+            *sar_y = y / gcd;
+        } else {
+            *sar_x = *sar_y = 1;
+        }
+    } else if (*sar_x * *sar_y < 0) {
+        *sar_x = *sar_y = 0;
+    }
 }
 
 static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -1194,10 +1315,6 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     //%{fps_rate}
     int fps_rate = oip->rate;
     int fps_scale = oip->scale;
-#ifdef MSDK_SAMPLE_VERSION
-    if (conf->qsv.vpp.nDeinterlace == MFX_DEINTERLACE_IT)
-        fps_rate = (fps_rate * 4) / 5;
-#endif
     const int fps_gcd = rgy_gcd(fps_rate, fps_scale);
     fps_rate /= fps_gcd;
     fps_scale /= fps_gcd;
@@ -1211,15 +1328,24 @@ void cmd_replace(char *cmd, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *
     sprintf_s(tmp, sizeof(tmp), "%d", fps_scale);
     replace(cmd, nSize, "%{fps_scale}", tmp);
     //アスペクト比
-    replace_aspect_ratio(cmd, nSize, conf, oip);
+    if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+        replace_aspect_ratio(cmd, nSize, conf, oip);
+    }
     //%{pid}
     sprintf_s(tmp, sizeof(tmp), "%d", GetCurrentProcessId());
     replace(cmd, nSize, "%{pid}", tmp);
 
     replace(cmd, nSize, ENCODER_REPLACE_MACRO, GetFullPathFrom(sys_dat->exstg->s_enc.fullpath,                    sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{audencpath}",       GetFullPathFrom(sys_dat->exstg->s_aud[conf->aud.encoder].fullpath, sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{mp4muxerpath}",     GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MP4].fullpath,         sys_dat->aviutl_dir).c_str());
-    replace(cmd, nSize, "%{mkvmuxerpath}",     GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MKV].fullpath,         sys_dat->aviutl_dir).c_str());
+
+    if (conf->aud.use_internal) {
+        replace(cmd, nSize, "%{audencpath}", "");
+    } else {
+        const CONF_AUDIO_BASE *cnf_aud = &conf->aud.ext;
+        const AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud_ext[cnf_aud->encoder];
+        replace(cmd, nSize, "%{audencpath}", GetFullPathFrom(aud_stg->fullpath, sys_dat->aviutl_dir).c_str());
+    }
+    replace(cmd, nSize, "%{mp4muxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MP4].fullpath, sys_dat->aviutl_dir).c_str());
+    replace(cmd, nSize, "%{mkvmuxerpath}", GetFullPathFrom(sys_dat->exstg->s_mux[MUXER_MKV].fullpath, sys_dat->aviutl_dir).c_str());
 }
 
 static void remove_file(const char *target, const wchar_t *name) {
@@ -1308,7 +1434,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         }
     }
     //ステータスファイル
-    if (use_auto_npass(conf) && sys_dat->exstg->s_local.auto_del_stats) {
+    if ((ENCODER_X264 || ENCODER_X265) && use_auto_npass(conf) && sys_dat->exstg->s_local.auto_del_stats) {
         char stats[MAX_PATH_LEN];
         strcpy_s(stats, sizeof(stats), conf->vid.stats);
         cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
@@ -1352,11 +1478,14 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 int check_video_ouput(const char *filename) {
     if (check_ext(filename, ".mp4"))  return VIDEO_OUTPUT_MP4;
     if (check_ext(filename, ".mkv"))  return VIDEO_OUTPUT_MKV;
-    //if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
-    //if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
-    if (check_ext(filename, ENOCDER_RAW_EXT)) return VIDEO_OUTPUT_RAW;
-    if (check_ext(filename, ".raw")) return VIDEO_OUTPUT_RAW;
-    return VIDEO_OUTPUT_UNKNOWN;
+    if (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+        //if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
+        //if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
+        if (check_ext(filename, ENOCDER_RAW_EXT)) return VIDEO_OUTPUT_RAW;
+        if (check_ext(filename, ".raw")) return VIDEO_OUTPUT_RAW;
+        return VIDEO_OUTPUT_UNKNOWN;
+    }
+    return VIDEO_OUTPUT_RAW;
 }
 
 int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -1367,12 +1496,17 @@ int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
 }
 
 BOOL check_output_has_chapter(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, int muxer_to_be_used) {
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
     BOOL has_chapter = FALSE;
     if (muxer_to_be_used == MUXER_MKV || muxer_to_be_used == MUXER_TC2MP4 || muxer_to_be_used == MUXER_MP4) {
         const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[muxer_to_be_used].ex_cmd[(muxer_to_be_used == MUXER_MKV) ? conf->mux.mkv_mode : conf->mux.mp4_mode];
         has_chapter = str_has_char(muxer_mode->chap_file);
     }
     return has_chapter;
+#else
+    const MUXER_CMD_EX *muxer_mode = get_muxer_mode(conf, sys_dat, muxer_to_be_used);
+    return (muxer_mode != nullptr) ? str_has_char(muxer_mode->chap_file) : FALSE;
+#endif
 }
 
 BOOL check_tcfilein_is_used(const CONF_GUIEX *conf) {
@@ -1383,18 +1517,28 @@ BOOL check_tcfilein_is_used(const CONF_GUIEX *conf) {
 #endif
 }
 
-int check_muxer_to_be_used(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
+int check_muxer_to_be_used(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
     //if (conf.vid.afs)
     //    conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
 
     int muxer_to_be_used = MUXER_DISABLED;
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
     if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
         muxer_to_be_used = is_afsvfr(conf) ? MUXER_TC2MP4 : MUXER_MP4;
     else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
         muxer_to_be_used = MUXER_MKV;
+#else
+    if (conf->mux.use_internal)
+        muxer_to_be_used = MUXER_INTERNAL;
+    else if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
+        muxer_to_be_used = MUXER_INTERNAL; // MUXER_MP4;
+    else if (video_output_type == VIDEO_OUTPUT_MKV && !conf->mux.disable_mkvext)
+        muxer_to_be_used = MUXER_INTERNAL; // MUXER_MKV;
+#endif
 
     //muxerが必要ないかどうかチェック
     BOOL no_muxer = TRUE;
+    no_muxer &= !conf->mux.use_internal;
     no_muxer &= !audio_output;
     no_muxer &= !conf->vid.afs;
     no_muxer &= video_output_type == check_video_ouput(temp_filename);
@@ -1721,7 +1865,7 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
     //再エンコードを行う
     if (retry) {
         //muxerを再設定する
-        pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+        pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
 
         //まずビットレートの上限を計算
         double limit_bitrate_upper = DBL_MAX;
@@ -1747,18 +1891,19 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
             bitrate_delta = limit_bitrate_lower - file_bitrate;
         }
         //音声がビットレートモードなら音声再エンコによる調整を検討する
-        const AUDIO_SETTINGS *aud_stg = &sys_dat->exstg->s_aud[conf->aud.encoder];
+        CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
+        const AUDIO_SETTINGS *aud_stg = &((conf->aud.use_internal) ? sys_dat->exstg->s_aud_int : sys_dat->exstg->s_aud_ext)[cnf_aud->encoder];
         if ((oip->flag & OUTPUT_INFO_FLAG_AUDIO)
             && bitrate_delta < 0.0 //ビットレートを上げるのに音声再エンコするのはうまくいかないことが多い
-            && aud_stg->mode[conf->aud.enc_mode].bitrate
-            && 16.0 < conf->aud.bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi //最低でも16kbpsは動かしたほうが良い
-            && std::abs(bitrate_delta) + 1.0 < conf->aud.bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi //ビットレート変化は閾値の範囲内
+            && aud_stg->mode[cnf_aud->enc_mode].bitrate
+            && 16.0 < cnf_aud->bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi //最低でも16kbpsは動かしたほうが良い
+            && std::abs(bitrate_delta) + 1.0 < cnf_aud->bitrate * sys_dat->exstg->s_local.amp_reenc_audio_multi //ビットレート変化は閾値の範囲内
             && str_has_char(pe->muxed_vid_filename)
             && PathFileExists(pe->muxed_vid_filename)) {
             //音声の再エンコードで修正
             amp_result = 2;
             const int delta_sign = (bitrate_delta >= 0.0) ? 1 : -1;
-            conf->aud.bitrate += (int)((std::max)(std::abs(bitrate_delta), (std::min)(15.0, conf->aud.bitrate * (1.0 / 8.0))) + 1.5) * delta_sign;
+            cnf_aud->bitrate += (int)(std::max(std::abs(bitrate_delta), std::min(15.0, cnf_aud->bitrate * (1.0 / 8.0))) + 1.5) * delta_sign;
 
             //動画のみファイルをもとの位置へ
             remove(pe->temp_filename);
@@ -1822,7 +1967,8 @@ int amp_check_file(CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, PRM_ENC *pe, co
                 amp_move_old_file(muxout, oip->savefile);
         }
     }
-    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, (std::max)(pe->amp_reset_pass_count, pe->current_pass - conf->enc.auto_npass), (amp_result == 2) ? conf->aud.bitrate : conf->enc.bitrate);
+    const CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
+    info_amp_result(status, amp_result, filesize, file_bitrate, conf->vid.amp_limit_file_size, conf->vid.amp_limit_bitrate_upper, conf->vid.amp_limit_bitrate_lower, (std::max)(pe->amp_reset_pass_count, pe->current_pass - conf->enc.auto_npass), (amp_result == 2) ? cnf_aud->bitrate : conf->enc.bitrate);
 
     if (show_header)
         open_log_window(oip, sys_dat, pe->current_pass, pe->total_pass, amp_crf_reenc);

@@ -1123,7 +1123,7 @@ void build_cmd_from_conf(char *cmd, size_t nSize, const CONF_ENC *conf, const vo
     }
 }
 
-void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
+static void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
     if (width > 0 && height > 0 && *sar_x < 0 && *sar_y < 0) {
         int x = -1 * *sar_x * height;
         int y = -1 * *sar_y * width;

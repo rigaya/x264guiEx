@@ -80,6 +80,33 @@ static const char *ENCODER_REPLACE_MACRO = "%{svtav1path}";
 static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".av1"    };
 static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.av1"    };
 static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
+#elif ENCODER_QSV
+static const wchar_t *ENCODER_NAME_W = L"QSV";
+static const char    *ENOCDER_RAW_EXT = ".264";
+static const char    *ENCODER_APP_NAME = "QSVEnc";
+static const wchar_t *ENCODER_APP_NAME_W = L"QSVEnc";
+static const char    *ENCODER_REPLACE_MACRO = "%{qsvenccpath}";
+static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264"    };
+static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
+static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
+#elif ENCODER_NVENC
+static const wchar_t *ENCODER_NAME_W = L"NVENC";
+static const char    *ENOCDER_RAW_EXT = ".264";
+static const char    *ENCODER_APP_NAME = "NVEnc";
+static const wchar_t *ENCODER_APP_NAME_W = L"NVEnc";
+static const char    *ENCODER_REPLACE_MACRO = "%{nvenccpath}";
+static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264"    };
+static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
+static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
+#elif ENCODER_VCEENC
+static const wchar_t *ENCODER_NAME_W = L"VCE";
+static const char    *ENOCDER_RAW_EXT = ".264";
+static const char    *ENCODER_APP_NAME = "VCEEnc";
+static const wchar_t *ENCODER_APP_NAME_W = L"VCEEnc";
+static const char    *ENCODER_REPLACE_MACRO = "%{vceenccpath}";
+static const char *const OUTPUT_FILE_EXT[]        = {  ".mp4",     ".mkv",     ".264"    };
+static const char *const OUTPUT_FILE_EXT_FILTER[] = { "*.mp4",    "*.mkv",    "*.264"    };
+static const char *const OUTPUT_FILE_EXT_DESC[]   = { "mp4 file", "mkv file", "raw file" };
 #else
 static_assert(false);
 #endif
@@ -90,6 +117,7 @@ enum {
     MUXER_MKV      = VIDEO_OUTPUT_MKV,
     MUXER_TC2MP4   = VIDEO_OUTPUT_MP4 + 2,
     MUXER_MP4_RAW,
+    MUXER_INTERNAL,
     MUXER_MAX_COUNT,
 };
 

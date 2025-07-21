@@ -59,6 +59,8 @@ static const COLORFORMAT_DATA COLORFORMATS[] = {
     { MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
 };
 
+static const int DROP_FRAME_FLAG = INT_MAX;
+
 BOOL check_videnc_mp4_output(const char *exe_path, const char *temp_filename);
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUIEX *conf, PRM_ENC *pe);

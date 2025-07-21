@@ -29,6 +29,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <process.h>
+#include <mutex>
 #pragma comment(lib, "winmm.lib")
 #include "auo.h"
 #include "auo_version.h"
@@ -54,7 +55,7 @@ static inline void if_valid_close_handle(HANDLE *p_hnd) {
 //映像・音声どちらかのAviutlからのデータ取得が必要なくなった時点で呼ぶ
 //呼び出しは映像・音声スレッドどちらでもよい
 //この関数が呼ばれたあとは、映像・音声どちらも自由に動くようにする
-void release_audio_parallel_events(PRM_ENC* pe) {
+void release_audio_parallel_events(PRM_ENC *pe) {
     if (pe->aud_parallel.he_aud_start) {
         //この関数が同時に呼ばれた場合のことを考え、InterlockedExchangePointerを使用してHANDLEを処理する
         HANDLE he_aud_start_copy = InterlockedExchangePointer(&(pe->aud_parallel.he_aud_start), NULL);
@@ -66,6 +67,10 @@ void release_audio_parallel_events(PRM_ENC* pe) {
         HANDLE he_vid_start_copy = InterlockedExchangePointer(&(pe->aud_parallel.he_vid_start), NULL);
         SetEvent(he_vid_start_copy); //もし止まっていたら動かしてやる
         CloseHandle(he_vid_start_copy);
+    }
+    std::mutex *mtx_aud = (std::mutex *)InterlockedExchangePointer((void **)&pe->aud_parallel.mtx_aud, nullptr);
+    if (mtx_aud) {
+        delete mtx_aud;
     }
 }
 
@@ -106,6 +111,7 @@ AUO_RESULT audio_output_parallel(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_E
     } else if (NULL == (pe->aud_parallel.th_aud = (HANDLE)_beginthreadex(NULL, 0, audio_output_parallel_func, (void *)parameters, 0, NULL))) {
         ret = AUO_RESULT_ERROR;
     }
+    pe->aud_parallel.mtx_aud = new std::mutex();
 
     if (ret == AUO_RESULT_ERROR) {
         if_valid_close_handle(&(pe->aud_parallel.he_aud_start));
@@ -113,3 +119,4 @@ AUO_RESULT audio_output_parallel(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_E
     }
     return ret;
 }
+

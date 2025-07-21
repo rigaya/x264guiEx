@@ -68,8 +68,6 @@
 #include "rgy_thread_affinity.h"
 #include "rgy_simd.h"
 
-const int DROP_FRAME_FLAG = INT_MAX;
-
 typedef struct video_output_thread_t {
     CONVERT_CF_DATA *pixel_data;
     FILE *f_out;
@@ -93,7 +91,7 @@ static const char * specify_input_csp(int output_csp) {
     return specify_csp[output_csp];
 }
 
-static int get_encoder_send_bitdepth(const CONF_ENC *cnf) {
+int get_encoder_send_bitdepth(const CONF_ENC *cnf) {
 #if ENCODER_X264
     return cnf->use_highbit_depth ? 16 : 8;
 #elif ENCODER_X265
@@ -154,7 +152,7 @@ BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUI
         warning_auto_afs_disable();
         conf->vid.afs = FALSE;
         //再度使用するmuxerをチェックする
-        pe->muxer_to_be_used = check_muxer_to_be_used(conf, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
+        pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
         return TRUE;
     }
     //エラー

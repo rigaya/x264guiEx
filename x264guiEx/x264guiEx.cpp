@@ -214,8 +214,10 @@ BOOL func_output( OUTPUT_INFO *oip ) {
 
         ret |= run_bat_file(&conf_out, oip, &pe, &g_sys_dat, RUN_BAT_BEFORE_PROCESS);
 
-        for (int i = 0; !ret && i < 2; i++)
-            ret |= task[conf_out.aud.audio_encode_timing][i](&conf_out, oip, &pe, &g_sys_dat);
+        for (int i = 0; !ret && i < 2; i++) {
+            const CONF_AUDIO_BASE *cnf_aud = (conf_out.aud.use_internal) ? &conf_out.aud.in : &conf_out.aud.ext;
+            ret |= task[cnf_aud->audio_encode_timing][i](&conf_out, oip, &pe, &g_sys_dat);
+        }
 #if ENABLE_AMP
         int amp_result = 1;
         do {
@@ -338,9 +340,18 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     ZeroMemory(conf, sizeof(CONF_GUIEX));
     guiEx_config::write_conf_header(conf);
     get_default_conf(&conf->enc, use_highbit);
-    conf->aud.encoder = g_sys_dat.exstg->s_local.default_audio_encoder;
-    const AUDIO_SETTINGS *aud_stg = &g_sys_dat.exstg->s_aud[conf->aud.encoder];
-    conf->aud.bitrate = aud_stg->mode[conf->aud.enc_mode].bitrate_default;
+    conf->aud.ext.encoder = g_sys_dat.exstg->s_local.default_audio_encoder_ext;
+    conf->aud.in.encoder  = g_sys_dat.exstg->s_local.default_audio_encoder_in;
+    conf->aud.use_internal = g_sys_dat.exstg->s_local.default_audenc_use_in;
+#if ENCODER_QSVENC || ENCODER_NVENC || ENCODER_VCEENC || ENCODER_FFMPEG
+    conf->mux.use_internal = TRUE;
+#else
+    conf->mux.use_internal = FALSE;
+#endif
+    { const AUDIO_SETTINGS *aud_stg_in = &g_sys_dat.exstg->s_aud_int[conf->aud.in.encoder];
+    conf->aud.in.bitrate = aud_stg_in->mode[conf->aud.in.enc_mode].bitrate_default; }
+    { const AUDIO_SETTINGS *aud_stg_ext = &g_sys_dat.exstg->s_aud_ext[conf->aud.ext.encoder];
+    conf->aud.ext.bitrate = aud_stg_ext->mode[conf->aud.ext.enc_mode].bitrate_default; }
     conf->size_all = CONF_INITIALIZED;
 }
 void write_log_line_fmt(int log_type_index, const wchar_t *format, ...) {

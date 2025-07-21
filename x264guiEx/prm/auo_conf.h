@@ -159,18 +159,24 @@ typedef struct CONF_VIDEO {
 } CONF_VIDEO; //動画用設定(x264以外)
 #pragma pack(pop)
 
+typedef struct {
+    int  encoder;             //使用する音声エンコーダ
+    int  enc_mode;            //使用する音声エンコーダの設定
+    int  bitrate;             //ビットレート指定モード
+    BOOL use_2pass;           //音声2passエンコードを行う
+    BOOL use_wav;             //パイプを使用せず、wavを出力してエンコードを行う
+    BOOL faw_check;           //FAWCheckを行う
+    int  priority;            //音声エンコーダのCPU優先度(インデックス)
+    BOOL minimized;           //音声エンコーダを最小化で実行
+    int  aud_temp_dir;        //音声専用一時フォルダ
+    int  audio_encode_timing; //音声を先にエンコード
+    int  delay_cut;           //エンコード遅延の削除
+} CONF_AUDIO_BASE; //音声用設定
+
 typedef struct CONF_AUDIO {
-    int   encoder;             //使用する音声エンコーダ
-    int   enc_mode;            //使用する音声エンコーダの設定
-    int   bitrate;             //ビットレート指定モード
-    BOOL  use_2pass;           //音声2passエンコードを行う
-    BOOL  use_wav;             //パイプを使用せず、wavを出力してエンコードを行う
-    BOOL  faw_check;           //FAWCheckを行う
-    int   priority;            //音声エンコーダのCPU優先度(インデックス)
-    BOOL  minimized;           //音声エンコーダを最小化で実行
-    int   aud_temp_dir;        //音声専用一時フォルダ
-    int   audio_encode_timing; //音声を先にエンコード
-    int   delay_cut;           //エンコード遅延の削除
+    CONF_AUDIO_BASE ext;
+    CONF_AUDIO_BASE in;
+    BOOL use_internal;
 } CONF_AUDIO; //音声用設定
 
 typedef struct CONF_MUX {
@@ -184,6 +190,8 @@ typedef struct CONF_MUX {
     BOOL apple_mode;      //Apple用モード(mp4系専用)
     BOOL unused;
     int  unused2;
+    BOOL use_internal;    //内蔵muxerの使用
+    int  internal_mode;   //内蔵muxer用のオプション
 } CONF_MUX; //muxer用設定
 
 typedef struct CONF_OTHER {
@@ -211,7 +219,7 @@ typedef struct CONF_GUIEX {
     int         block_count;                     //ヘッダ部を除いた設定のブロック数
     int         block_size[CONF_BLOCK_MAX];      //各ブロックのサイズ
     size_t      block_head_p[CONF_BLOCK_MAX];    //各ブロックのポインタ位置
-    CONF_ENC   enc;                            //x264についての設定
+    CONF_ENC    enc;                             //エンコーダについての設定
     CONF_VIDEO  vid;                             //その他動画についての設定
     CONF_AUDIO  aud;                             //音声についての設定
     CONF_MUX    mux;                             //muxについての設定
