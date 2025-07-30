@@ -309,7 +309,7 @@ bool is_afsvfr(const CONF_GUIEX *conf) {
     return conf->vid.afs != 0;
 }
 
-static BOOL check_amp(CONF_GUIEX *conf) {
+static BOOL check_amp([[maybe_unused]] CONF_GUIEX *conf) {
     BOOL check = TRUE;
 #if ENABLE_AMP
     if (!conf->enc.use_auto_npass)
@@ -911,7 +911,7 @@ static void set_aud_delay_cut(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *
     }
 }
 
-bool use_auto_npass(const CONF_GUIEX *conf) {
+bool use_auto_npass([[maybe_unused]] const CONF_GUIEX *conf) {
 #if ENCODER_SVTAV1	
     if (!conf->oth.disable_guicmd) {
         CONF_ENC enc = get_default_prm();
@@ -919,22 +919,24 @@ bool use_auto_npass(const CONF_GUIEX *conf) {
         return enc.pass > 1;
     }
     return false;
-#else
+#elif ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG
     return conf->enc.use_auto_npass;
+#else
+    return false;
 #endif    
 }
 
-int get_total_path(const CONF_GUIEX *conf) {
-    if constexpr (ENCODER_SVTAV1) {
-        return use_auto_npass(conf) ? 2 : 1;
-    } else if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG) {
-        return (conf->enc.use_auto_npass
-         && conf->enc.rc_mode == ENC_RC_BITRATE
-         && !conf->oth.disable_guicmd)
-         ? conf->enc.auto_npass : 1;
-    } else {
-        return 1;
-    }
+int get_total_path([[maybe_unused]] const CONF_GUIEX *conf) {
+#if ENCODER_SVTAV1
+    return use_auto_npass(conf) ? 2 : 1;
+#elif ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG
+    return (conf->enc.use_auto_npass
+        && conf->enc.rc_mode == ENC_RC_BITRATE
+        && !conf->oth.disable_guicmd)
+        ? conf->enc.auto_npass : 1;
+#else
+    return 1;
+#endif
 }
 
 void free_enc_prm(PRM_ENC *pe) {
@@ -1027,13 +1029,15 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
-    if ((ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+    if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!check_videnc_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
             change_ext(pe->temp_filename, _countof(pe->temp_filename), ENOCDER_RAW_EXT);
             if (ENCODER_X264) warning_x264_mp4_output_not_supported();
         }
     }
+#endif
     //ファイルの上書きを避ける
     avoid_exsisting_tmp_file(pe->temp_filename, _countof(pe->temp_filename));
 
@@ -1251,6 +1255,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
         del_arg(cmd, "%{dar_x}", -1);
         del_arg(cmd, "%{dar_y}", -1);
     }
+#elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
 #else
     static_assert(false);
 #endif
@@ -1434,7 +1439,8 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         }
     }
     //ステータスファイル
-    if ((ENCODER_X264 || ENCODER_X265) && use_auto_npass(conf) && sys_dat->exstg->s_local.auto_del_stats) {
+#if ENCODER_X264 || ENCODER_X265
+    if (use_auto_npass(conf) && sys_dat->exstg->s_local.auto_del_stats) {
         char stats[MAX_PATH_LEN];
         strcpy_s(stats, sizeof(stats), conf->vid.stats);
         cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
@@ -1456,6 +1462,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         }
 #endif
     }
+#endif
     //音声ファイル(wav)
     if (strcmp(pe->append.aud[0], pe->append.wav)) //「wav出力」ならここでは処理せず下のエンコード後ファイルとして扱う
         move_temp_file(pe->append.wav,  pe->temp_filename, oip->savefile, ret, TRUE, L"wav", FALSE);

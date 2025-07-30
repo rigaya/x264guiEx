@@ -982,6 +982,8 @@ enum AuoMes {
         AuofosLBAMPLimitMarginMax,
         AuofosLBAMPLimitMarginMin,
         AuofosCBAmpKeepOldFile,
+        AuofosCBPerfMonitor,
+        AuofosLBLogOut,
         AuofosMain,
         AUO_OTHER_SETTINGS_AMP_MARGIN_XS,
         AUO_OTHER_SETTINGS_AMP_MARGIN_S,
@@ -1034,7 +1036,7 @@ public:
     const std::string& getLang() const { return language; };
     bool isLang(const char *lang) const {
         if (lang == nullptr || strlen(lang) == 0 || language.length() == 0) return false;
-        return stricmp(lang, language.c_str()) == 0;
+        return _stricmp(lang, language.c_str()) == 0;
     }
     const wchar_t *get(const AuoMes mesID) const {
         return (mesID < (int)messages.size()) ? messages[mesID].c_str() : L"";

@@ -80,15 +80,27 @@ static const char * const INI_SECTION_ENC_PROFILE  = "ENC_PROFILE";
 #elif ENCODER_QSV
 static const char * const INI_SECTION_MAIN         = "QSVENC";
 static const char * const INI_SECTION_ENC          = "VIDEO";
+static const char * const INI_SECTION_ENC_DEFAULT  = "VIDEO";
 static const char * const INI_VID_FILENAME         = "qsvencc";
+static const char * const INI_SECTION_ENC_PRESET   = "ENC_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "ENC_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "ENC_PROFILE";
 #elif ENCODER_NVENC
 static const char * const INI_SECTION_MAIN         = "NVENC";
 static const char * const INI_SECTION_ENC          = "VIDEO";
+static const char * const INI_SECTION_ENC_DEFAULT  = "VIDEO";
 static const char * const INI_VID_FILENAME         = "nvencc";
+static const char * const INI_SECTION_ENC_PRESET   = "ENC_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "ENC_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "ENC_PROFILE";
 #elif ENCODER_VCEENC
 static const char * const INI_SECTION_MAIN         = "VCEENC";
 static const char * const INI_SECTION_ENC          = "VIDEO";
+static const char * const INI_SECTION_ENC_DEFAULT  = "VIDEO";
 static const char * const INI_VID_FILENAME         = "vceencc";
+static const char * const INI_SECTION_ENC_PRESET   = "ENC_PRESET";
+static const char * const INI_SECTION_ENC_TUNE     = "ENC_TUNE";
+static const char * const INI_SECTION_ENC_PROFILE  = "ENC_PROFILE";
 #else
 static_assert(false);
 #endif
@@ -355,7 +367,7 @@ void guiEx_settings::get_default_lang() {
     const auto userSysLang = wstring_to_string(userSysLangW);
     const char *defaultLanguage = AUO_LANGUAGE_DEFAULT;
     for (const auto& auo_lang : list_auo_languages) {
-        if (stricmp(userSysLang.c_str(), auo_lang.code) == 0) {
+        if (_stricmp(userSysLang.c_str(), auo_lang.code) == 0) {
             defaultLanguage = auo_lang.code;
             break;
         }
@@ -364,7 +376,7 @@ void guiEx_settings::get_default_lang() {
     WCHAR userSysCountryW[LOCALE_NAME_MAX_LENGTH] = { 0 };
     GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, userSysCountryW, _countof(userSysCountryW));
     const auto userSysCountry = wstring_to_string(userSysCountryW);
-    if (stricmp(userSysCountry.c_str(), "JP") == 0) {
+    if (_stricmp(userSysCountry.c_str(), "JP") == 0) {
         defaultLanguage = AUO_LANGUAGE_JA;
     }
     strcpy_s(default_lang, defaultLanguage);

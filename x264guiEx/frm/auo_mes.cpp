@@ -874,6 +874,8 @@ static const char * AUO_MES_ID_NAME_STR[] = {
 "AuofosLBAMPLimitMarginMax",
 "AuofosLBAMPLimitMarginMin",
 "AuofosCBAmpKeepOldFile",
+"AuofosCBPerfMonitor",
+"AuofosLBLogOut",
 "AuofosMain",
 "AUO_OTHER_SETTINGS_AMP_MARGIN_XS",
 "AUO_OTHER_SETTINGS_AMP_MARGIN_S",
