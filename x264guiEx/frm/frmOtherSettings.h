@@ -958,7 +958,7 @@ namespace AUO_NAME_R {
 
             fosCXPowerThrottling->SuspendLayout();
             fosCXPowerThrottling->Items->Clear();
-            for (int i = 0; i < RGY_THREAD_POWER_THROTTOLING_MODE_STR.size(); i++)
+            for (size_t i = 0; i < RGY_THREAD_POWER_THROTTOLING_MODE_STR.size(); i++)
                 fosCXPowerThrottling->Items->Add(String(RGY_THREAD_POWER_THROTTOLING_MODE_STR[i].second).ToString());
             fosCXPowerThrottling->ResumeLayout();
         }
@@ -994,7 +994,7 @@ namespace AUO_NAME_R {
             } else {
                 fosCXDefaultAudioEncoder->SelectedIndex = clamp(fos_ex_stg->s_local.default_audio_encoder_ext, 0, fos_ex_stg->s_aud_ext_count-1) + fos_ex_stg->s_aud_int_count;
             }
-            for (int i = 0; i < RGY_THREAD_POWER_THROTTOLING_MODE_STR.size(); i++) {
+            for (size_t i = 0; i < RGY_THREAD_POWER_THROTTOLING_MODE_STR.size(); i++) {
                 if ((int)RGY_THREAD_POWER_THROTTOLING_MODE_STR[i].first == fos_ex_stg->s_local.thread_pthrottling_mode) {
                     fosCXPowerThrottling->SelectedIndex = i;
                     break;

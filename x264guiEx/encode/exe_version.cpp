@@ -102,7 +102,6 @@ int get_x265_version_from_filename(const char *exe_path, int version[4]) {
     int value[4] = { 0 };
     memset(version, 0, sizeof(value));
 
-    int rev = 0;
     if (   sscanf_s(filename.c_str(), "x265_%d.%d+%d_x64.exe", &value[0], &value[1], &value[3]) == 3
         || sscanf_s(filename.c_str(), "x265_%d.%d+%d_x86.exe", &value[0], &value[1], &value[3]) == 3
         || sscanf_s(filename.c_str(), "x265_%d.%d_x64.exe",    &value[0], &value[1]) == 2
@@ -295,8 +294,8 @@ int get_exe_version_from_cmd(const char *exe_path, const char *cmd_ver, int vers
         cmd_ver = "-h";
     if (get_exe_message(exe_path, cmd_ver, buffer, BUFFER_LEN / sizeof(buffer[0]), AUO_PIPE_MUXED) == RP_SUCCESS) {
         char *str = nullptr;
-        int core = 0;
 #if ENCODER_X264
+        int core = 0;
         if (1 == sscanf_s(buffer, "x264 core:%d", &core)) {
             str = buffer + (strlen("x264 core:") + get_intlen(core));
         } else

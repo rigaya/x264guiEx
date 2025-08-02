@@ -166,11 +166,28 @@ static std::vector<std::filesystem::path> select_exe_file(const std::vector<std:
     }
 }
 
+static std::vector<std::filesystem::path> avoid_aud_enc(const std::vector<std::filesystem::path>& pathList) {
+    if (pathList.size() == 1) {
+        return pathList;
+    }
+
+    std::vector<std::filesystem::path> newList;
+    for (const auto& path : pathList) {
+        if (!ends_with(tolowercase(path.filename().string()), "_audenc.exe")) {
+            newList.push_back(path);
+        }
+    }
+    return (newList.size()) ? newList : pathList;
+}
+
 std::filesystem::path find_latest_videnc(const std::vector<std::filesystem::path>& pathList) {
     if (pathList.size() == 0) {
         return std::filesystem::path();
     }
     auto selectedPathList = select_exe_file(pathList);
+#if ENCODER_FFMPEG
+    selectedPathList = avoid_aud_enc(selectedPathList);
+#endif
     if (selectedPathList.size() == 1) {
         return selectedPathList.front();
     }
@@ -205,6 +222,12 @@ std::filesystem::path find_latest_videnc(const std::vector<std::filesystem::path
                 ret = path;
             }
         }
+#elif ENCODER_FFMPEG
+        get_exe_version_from_cmd(path.string().c_str(), "-version", value);
+        if (version_a_larger_than_b(value, version) > 0) {
+            memcpy(version, value, sizeof(version));
+            ret = path;
+        }
 #else
 		static_assert(false);
 #endif
@@ -235,6 +258,10 @@ std::string find_latest_videnc_for_frm() {
 
 void get_audio_pipe_name(char *pipename, size_t nSize, int audIdx) {
     sprintf_s(pipename, nSize, AUO_NAMED_PIPE_BASE, GetCurrentProcessId(), audIdx);
+}
+
+bool video_is_last_pass(const PRM_ENC *pe) {
+    return pe->total_pass == 0 || pe->current_pass >= pe->total_pass;
 }
 
 static BOOL check_muxer_exist(MUXER_SETTINGS *muxer_stg, const char *aviutl_dir, const BOOL get_relative_path, const std::vector<std::filesystem::path>& exe_files) {
@@ -309,7 +336,7 @@ bool is_afsvfr(const CONF_GUIEX *conf) {
     return conf->vid.afs != 0;
 }
 
-static BOOL check_amp([[maybe_unused]] CONF_GUIEX *conf) {
+static BOOL check_amp(CONF_GUIEX *conf) {
     BOOL check = TRUE;
 #if ENABLE_AMP
     if (!conf->enc.use_auto_npass)
@@ -500,6 +527,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     switch (conf->enc.output_csp) {
         case OUT_CSP_YUV444:
         case OUT_CSP_RGB:
+        case OUT_CSP_RGBA:
             w_mul = 1, h_mul = 1; break;
         case OUT_CSP_NV16:
         case OUT_CSP_YUV422:
@@ -540,7 +568,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
     const auto exeFiles = find_exe_files(defaultExeDir, defaultExeDir2);
 
     //必要な実行ファイル
-    if (!conf->oth.disable_guicmd && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
+    if (!cnf_disable_guicmd(&conf->oth) && pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!PathFileExists(exstg->s_enc.fullpath)) {
             const auto targetExes = find_target_exe_files(ENCODER_APP_NAME, exeFiles);
             if (targetExes.size() > 0) {
@@ -593,7 +621,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                 check = FALSE;
             }
             AUDIO_SETTINGS *aud_stg = &exstg->s_aud_int[cnf_aud->encoder];
-            if (!muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
+            if (!ENCODER_FFMPEG && !muxer_supports_audio_format(pe->muxer_to_be_used, aud_stg)) {
                 AUDIO_SETTINGS *aud_default = nullptr;
                 if (default_audenc_cnf_avail) {
                     aud_default = &exstg->s_aud_ext[exstg->s_local.default_audio_encoder_ext];
@@ -706,7 +734,7 @@ BOOL check_output(CONF_GUIEX *conf, OUTPUT_INFO *oip, const PRM_ENC *pe, guiEx_s
                         }
                     }
                 }
-                if (str_has_char(aud_stg->filename) && (cnf_aud->encoder != exstg->get_faw_index(conf->aud.use_internal))) {
+                if (!ENCODER_FFMPEG && str_has_char(aud_stg->filename) && (cnf_aud->encoder != exstg->get_faw_index(conf->aud.use_internal))) {
                     std::wstring exe_message;
                     if (!check_audenc_output(aud_stg, exe_message)) {
                         const bool retry_with_default_audenc = ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1; // ffmpeg_audencを配布していないQSV/NV/VCEEncではここのretryは無効化する
@@ -911,7 +939,7 @@ static void set_aud_delay_cut(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *
     }
 }
 
-bool use_auto_npass([[maybe_unused]] const CONF_GUIEX *conf) {
+bool use_auto_npass(const CONF_GUIEX *conf) {
 #if ENCODER_SVTAV1	
     if (!conf->oth.disable_guicmd) {
         CONF_ENC enc = get_default_prm();
@@ -926,12 +954,14 @@ bool use_auto_npass([[maybe_unused]] const CONF_GUIEX *conf) {
 #endif    
 }
 
-int get_total_path([[maybe_unused]] const CONF_GUIEX *conf) {
+int get_total_path(const CONF_GUIEX *conf) {
 #if ENCODER_SVTAV1
     return use_auto_npass(conf) ? 2 : 1;
 #elif ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG
     return (conf->enc.use_auto_npass
+#if !ENCODER_FFMPEG    
         && conf->enc.rc_mode == ENC_RC_BITRATE
+#endif        
         && !conf->oth.disable_guicmd)
         ? conf->enc.auto_npass : 1;
 #else
@@ -964,6 +994,7 @@ void init_enc_prm(const CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const S
     pe->video_out_type = check_video_ouput(conf, oip);
 
     // 不明な拡張子だった場合、デフォルトの出力拡張子を付与する
+#if !ENCODER_FFMPEG
     if (pe->video_out_type == VIDEO_OUTPUT_UNKNOWN) {
         int out_ext_idx = sys_dat->exstg->s_local.default_output_ext;
         if (out_ext_idx < 0 || out_ext_idx >= _countof(OUTPUT_FILE_EXT)) {
@@ -992,6 +1023,7 @@ void init_enc_prm(const CONF_GUIEX *conf, PRM_ENC *pe, OUTPUT_INFO *oip, const S
         // 再度チェック
         pe->video_out_type = check_video_ouput(conf, oip);
     }
+#endif
 }
 
 void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat) {
@@ -1029,7 +1061,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+#if ENCODER_X264
     if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!check_videnc_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
@@ -1041,6 +1073,10 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     //ファイルの上書きを避ける
     avoid_exsisting_tmp_file(pe->temp_filename, _countof(pe->temp_filename));
 
+#if !ENCODER_FFMPEG
+    if (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+        conf->mux.use_internal = FALSE;
+    }
     pe->muxer_to_be_used = check_muxer_to_be_used(conf, pe, sys_dat, pe->temp_filename, pe->video_out_type, (oip->flag & OUTPUT_INFO_FLAG_AUDIO) != 0);
     if (pe->muxer_to_be_used >= 0) {
         const MUXER_CMD_EX *muxer_mode = &sys_dat->exstg->s_mux[pe->muxer_to_be_used].ex_cmd[get_mux_excmd_mode(conf, pe)];
@@ -1060,7 +1096,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
             }
         }
     }
-
+#endif
     //FAWチェックとオーディオディレイの修正
     const CONF_AUDIO_BASE *cnf_aud = (conf->aud.use_internal) ? &conf->aud.in : &conf->aud.ext;
     if (cnf_aud->faw_check)
@@ -1166,10 +1202,10 @@ void set_guiEx_auto_sar(int *sar_x, int *sar_y, int width, int height) {
 }
 
 static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
-    const int w = oip->w;
-    const int h = oip->h;
 
 #if ENCODER_X264 || ENCODER_X265
+    const int w = oip->w;
+    const int h = oip->h;
     int sar_x = conf->enc.sar.x;
     int sar_y = conf->enc.sar.y;
     int dar_x = 0;
@@ -1208,6 +1244,8 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
     sprintf_s(buf, _countof(buf), "%d", dar_y);
     replace(cmd, nSize, "%{dar_y}", buf);
 #elif ENCODER_SVTAV1
+    const int w = oip->w;
+    const int h = oip->h;
     int sar_x = conf->vid.sar_x;
     int sar_y = conf->vid.sar_y;
     int dar_x = 0;
@@ -1255,7 +1293,7 @@ static void replace_aspect_ratio(char *cmd, size_t nSize, const CONF_GUIEX *conf
         del_arg(cmd, "%{dar_x}", -1);
         del_arg(cmd, "%{dar_y}", -1);
     }
-#elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+#elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC || ENCODER_FFMPEG
 #else
     static_assert(false);
 #endif
@@ -1377,11 +1415,27 @@ static void move_file(const char *move_from, const char *move_to, const wchar_t 
 // name          … 一時ファイルの種類の名前
 // must_exist    … trueのとき、移動するべきファイルが存在しないとエラーを返し、ファイルが存在しないことを伝える
 static BOOL move_temp_file(const char *appendix, const char *temp_filename, const char *savefile, DWORD ret, BOOL erase, const wchar_t *name, BOOL must_exist) {
-    char move_from[MAX_PATH_LEN] = { 0 };
+    char move_from_tmp[MAX_PATH_LEN] = { 0 };
     if (appendix)
-        apply_appendix(move_from, _countof(move_from), temp_filename, appendix);
+        apply_appendix(move_from_tmp, _countof(move_from_tmp), temp_filename, appendix);
     else
-        strcpy_s(move_from, _countof(move_from), temp_filename);
+        strcpy_s(move_from_tmp, temp_filename);
+
+#if ENCODER_FFMPEG
+    char move_from[MAX_PATH_LEN] = { 0 };
+    if (wcscmp(name, L"出力") == 0) {
+        // 連番出力等の場合、1番が出ているかだけチェックする
+        sprintf_s(move_from, move_from_tmp, 1);
+        // ファイル名が変わっている(=連番出力等の場合)この後の処理をスキップ
+        if (strcmp(move_from, move_from_tmp) != 0) {
+            return TRUE;
+        }
+    } else {
+        strcpy_s(move_from, move_from_tmp);
+    }
+#else
+    const char *move_from = move_from_tmp;
+#endif
 
     if (!PathFileExists(move_from)) {
         if (must_exist)
@@ -1413,7 +1467,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         }
     }
     //動画のみファイル
-    if (str_has_char(pe->muxed_vid_filename) && PathFileExists(pe->muxed_vid_filename))
+    if (!ENCODER_FFMPEG && str_has_char(pe->muxed_vid_filename) && PathFileExists(pe->muxed_vid_filename))
         remove_file(pe->muxed_vid_filename, L"映像一時ファイル");
     //mux後ファイル
     if (pe->muxer_to_be_used >= 0) {
@@ -1485,14 +1539,15 @@ DWORD GetExePriority(DWORD set, HANDLE h_aviutl) {
 int check_video_ouput(const char *filename) {
     if (check_ext(filename, ".mp4"))  return VIDEO_OUTPUT_MP4;
     if (check_ext(filename, ".mkv"))  return VIDEO_OUTPUT_MKV;
-    if (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
+    if constexpr (ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1) {
         //if (check_ext(filename, ".mpg"))  return VIDEO_OUTPUT_MPEG2;
         //if (check_ext(filename, ".mpeg")) return VIDEO_OUTPUT_MPEG2;
         if (check_ext(filename, ENOCDER_RAW_EXT)) return VIDEO_OUTPUT_RAW;
         if (check_ext(filename, ".raw")) return VIDEO_OUTPUT_RAW;
         return VIDEO_OUTPUT_UNKNOWN;
+    } else {
+        return VIDEO_OUTPUT_RAW;
     }
-    return VIDEO_OUTPUT_RAW;
 }
 
 int check_video_ouput(const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -1510,6 +1565,8 @@ BOOL check_output_has_chapter(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat
         has_chapter = str_has_char(muxer_mode->chap_file);
     }
     return has_chapter;
+#elif ENCODER_FFMPEG
+    return FALSE;
 #else
     const MUXER_CMD_EX *muxer_mode = get_muxer_mode(conf, sys_dat, muxer_to_be_used);
     return (muxer_mode != nullptr) ? str_has_char(muxer_mode->chap_file) : FALSE;
@@ -1525,9 +1582,11 @@ BOOL check_tcfilein_is_used(const CONF_GUIEX *conf) {
 }
 
 int check_muxer_to_be_used(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *temp_filename, int video_output_type, BOOL audio_output) {
-    //if (conf.vid.afs)
-    //    conf.mux.disable_mp4ext = conf.mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
-
+    //if (conf->vid.afs)
+    //	conf->mux.disable_mp4ext = conf->mux.disable_mkvext = FALSE; //afsなら外部muxerを強制する
+#if ENCODER_FFMPEG
+    return MUXER_DISABLED;
+#else
     int muxer_to_be_used = MUXER_DISABLED;
 #if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
     if (video_output_type == VIDEO_OUTPUT_MP4 && !conf->mux.disable_mp4ext)
@@ -1551,6 +1610,7 @@ int check_muxer_to_be_used(const CONF_GUIEX *conf, const PRM_ENC *pe, const SYST
     no_muxer &= video_output_type == check_video_ouput(temp_filename);
     no_muxer &= !check_output_has_chapter(conf, sys_dat, muxer_to_be_used);
     return (no_muxer) ? MUXER_DISABLED : muxer_to_be_used;
+#endif
 }
 
 AUO_RESULT getLogFilePath(char *log_file_path, size_t nSize, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const CONF_GUIEX *conf, const OUTPUT_INFO *oip) {
@@ -1622,10 +1682,10 @@ static AUO_RESULT get_duration_from_timecode(double *duration, const char *tc_fi
 }
 
 double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe, const OUTPUT_INFO *oip) {
-    char buffer[MAX_PATH_LEN];
     //Aviutlから再生時間情報を取得
     double duration = (((double)(oip->n + pe->delay_cut_additional_vframe) * (double)oip->scale) / (double)oip->rate);
 #if ENABLE_TCFILE_IN
+    char buffer[MAX_PATH_LEN];
     //tcfile-inなら、動画の長さはタイムコードから取得する
     if (conf->enc.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, "--tcfile-in", buffer, sizeof(buffer))) {
         double duration_tmp = 0.0;
