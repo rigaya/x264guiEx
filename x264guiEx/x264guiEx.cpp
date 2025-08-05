@@ -299,10 +299,15 @@ BOOL func_config(HWND hwnd, HINSTANCE dll_hinst) {
 #pragma warning( pop )
 
 int func_config_get(void *data, int size) {
+    memset(data, 0, size);
     if (data && size == sizeof(CONF_GUIEX)) {
-        memcpy(data, &g_conf, sizeof(g_conf));
+        strcpy_s((char *)data, size, CONF_NAME_JSON);
+        std::string json_str = guiEx_config::conf_to_json(&g_conf, 0);
+        const size_t json_len = json_str.length();
+        strcpy_s((char *)data + strlen(CONF_NAME_JSON), size - strlen(CONF_NAME_JSON), json_str.c_str());
+        return json_len + strlen(CONF_NAME_JSON);
     }
-    return sizeof(g_conf);
+    return NULL;
 }
 
 int func_config_set(void *data,int size) {
@@ -311,7 +316,15 @@ int func_config_set(void *data,int size) {
         return NULL;
     }
     init_CONF_GUIEX(&g_conf, FALSE);
-    return (guiEx_config::adjust_conf_size(&g_conf, data, size)) ? size : NULL;
+    if (size >= strlen(CONF_NAME_JSON)
+        && strcmp(CONF_NAME_JSON, g_conf.header.conf_name) == 0) {
+        std::string json_str((char *)data + strlen(CONF_NAME_JSON));
+        if (guiEx_config::json_to_conf(&g_conf, json_str)) {
+            return size;
+        }
+    }
+    memset(data, 0, size);
+    return NULL;
 }
 
 
@@ -338,7 +351,7 @@ void delete_SYSTEM_DATA(SYSTEM_DATA *sys_dat) {
 }
 void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     ZeroMemory(conf, sizeof(CONF_GUIEX));
-    guiEx_config::write_conf_header(conf);
+    guiEx_config::write_conf_header(&conf->header);
     get_default_conf(&conf->enc, use_highbit);
     conf->aud.ext.encoder = g_sys_dat.exstg->s_local.default_audio_encoder_ext;
     conf->aud.in.encoder  = g_sys_dat.exstg->s_local.default_audio_encoder_in;
@@ -352,7 +365,7 @@ void init_CONF_GUIEX(CONF_GUIEX *conf, BOOL use_highbit) {
     conf->aud.in.bitrate = aud_stg_in->mode[conf->aud.in.enc_mode].bitrate_default; }
     { const AUDIO_SETTINGS *aud_stg_ext = &g_sys_dat.exstg->s_aud_ext[conf->aud.ext.encoder];
     conf->aud.ext.bitrate = aud_stg_ext->mode[conf->aud.ext.enc_mode].bitrate_default; }
-    conf->size_all = CONF_INITIALIZED;
+    conf->header.size_all = CONF_INITIALIZED;
 }
 void write_log_line_fmt(int log_type_index, const wchar_t *format, ...) {
     va_list args;

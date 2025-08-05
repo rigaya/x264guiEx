@@ -25,6 +25,8 @@
 //
 // --------------------------------------------------------------------------------------------
 
+#include <iostream>
+#include <fstream>
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -33,6 +35,7 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
+#include <json.hpp>
 #include "auo_util.h"
 #include "auo_conf.h"
 #include "auo_options.h"
@@ -55,14 +58,396 @@ const size_t guiEx_config::conf_block_pointer[CONF_BLOCK_COUNT] = {
 
 //v1.16以降このデータは不要
 static const CONF_GUIEX CONF_OLD_DATA[] = {
-    { { 0 }, 5848, 300, 5, { 328, 5140, 40, 28,  12, 0 }, { 300, 628, 5768, 5808, 5836, 0 } }, //v1.00 - v1.13
-    { { 0 }, 5984, 300, 5, { 328, 5144, 40, 32, 120, 0 }, { 300, 628, 5772, 5812, 5844, 0 } }  //v1.14 - v1.15
+   { CONF_GUIEX_HEADER{ { 0 }, 5848, 300, 5, { 328, 5140, 40, 28,  12, 0 }, { 300, 628, 5768, 5808, 5836, 0 } } }, //v1.00 - v1.13
+   { CONF_GUIEX_HEADER{ { 0 }, 5984, 300, 5, { 328, 5144, 40, 32, 120, 0 }, { 300, 628, 5772, 5812, 5844, 0 } }  } //v1.14 - v1.15
 };
 
 guiEx_config::guiEx_config() { }
 
-void guiEx_config::write_conf_header(CONF_GUIEX *save_conf) {
-    sprintf_s(save_conf->conf_name, sizeof(save_conf->conf_name), CONF_NAME);
+// Unicode文字列変換ヘルパー関数
+static std::wstring utf8_to_wstring(const std::string& str) {
+    if (str.empty()) return std::wstring();
+    
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}
+
+static std::string wstring_to_utf8(const std::wstring& wstr) {
+    if (wstr.empty()) return std::string();
+    
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+
+// 旧形式からJSON文字列に変換
+std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
+    nlohmann::json j;
+    
+    // ヘッダ情報
+    j["conf_name"] = std::string(old_conf->header.conf_name);
+    j["version"] = "unicode_v1";
+    
+    // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
+    char cmd_buffer[8192];
+    build_cmd_from_conf(cmd_buffer, sizeof(cmd_buffer), &old_conf->enc, NULL, FALSE);
+    j["enc"] = {
+        {"cmd", std::string(cmd_buffer) }
+    };
+    
+    // 旧ビデオ設定をJSONに変換（char文字列をUTF-8に変換）
+    j["video"] = {
+        {"afs", old_conf->vid.afs},
+        {"afs_bitrate_correction", old_conf->vid.afs_bitrate_correction},
+        {"auo_tcfile_out", old_conf->vid.auo_tcfile_out},
+        {"check_keyframe", old_conf->vid.check_keyframe},
+        {"priority", old_conf->vid.priority},
+        {"stats", std::string(old_conf->vid.stats)},
+        {"tcfile_in", std::string(old_conf->vid.tcfile_in)},
+        {"cqmfile", std::string(old_conf->vid.cqmfile)},
+        {"cmdex", std::string(old_conf->vid.cmdex)},
+        {"amp_check", old_conf->vid.amp_check},
+        {"amp_limit_file_size", old_conf->vid.amp_limit_file_size},
+        {"amp_limit_bitrate_upper", old_conf->vid.amp_limit_bitrate_upper},
+        {"input_as_lw48", old_conf->vid.input_as_lw48},
+        {"amp_limit_bitrate_lower", old_conf->vid.amp_limit_bitrate_lower}
+    };
+    
+    // オーディオ設定（変更なし）
+    j["audio"] = {
+        {"ext", {
+            {"encoder", old_conf->aud.ext.encoder},
+            {"enc_mode", old_conf->aud.ext.enc_mode},
+            {"bitrate", old_conf->aud.ext.bitrate},
+            {"use_2pass", old_conf->aud.ext.use_2pass},
+            {"use_wav", old_conf->aud.ext.use_wav},
+            {"faw_check", old_conf->aud.ext.faw_check},
+            {"priority", old_conf->aud.ext.priority},
+            {"minimized", old_conf->aud.ext.minimized},
+            {"aud_temp_dir", old_conf->aud.ext.aud_temp_dir},
+            {"audio_encode_timing", old_conf->aud.ext.audio_encode_timing},
+            {"delay_cut", old_conf->aud.ext.delay_cut}
+        }},
+        {"in", {
+            {"encoder", old_conf->aud.in.encoder},
+            {"enc_mode", old_conf->aud.in.enc_mode},
+            {"bitrate", old_conf->aud.in.bitrate},
+            {"use_2pass", old_conf->aud.in.use_2pass},
+            {"use_wav", old_conf->aud.in.use_wav},
+            {"faw_check", old_conf->aud.in.faw_check},
+            {"priority", old_conf->aud.in.priority},
+            {"minimized", old_conf->aud.in.minimized},
+            {"aud_temp_dir", old_conf->aud.in.aud_temp_dir},
+            {"audio_encode_timing", old_conf->aud.in.audio_encode_timing},
+            {"delay_cut", old_conf->aud.in.delay_cut}
+        }},
+        {"use_internal", old_conf->aud.use_internal}
+    };
+    
+    // Mux設定（変更なし）
+    j["mux"] = {
+        {"disable_mp4ext", old_conf->mux.disable_mp4ext},
+        {"disable_mkvext", old_conf->mux.disable_mkvext},
+        {"mp4_mode", old_conf->mux.mp4_mode},
+        {"mkv_mode", old_conf->mux.mkv_mode},
+        {"minimized", old_conf->mux.minimized},
+        {"priority", old_conf->mux.priority},
+        {"mp4_temp_dir", old_conf->mux.mp4_temp_dir},
+        {"apple_mode", old_conf->mux.apple_mode},
+        {"use_internal", old_conf->mux.use_internal},
+        {"internal_mode", old_conf->mux.internal_mode}
+    };
+    
+    // 旧その他設定をJSONに変換（char文字列をUTF-8に変換）
+    j["other"] = {
+        {"disable_guicmd", old_conf->oth.disable_guicmd},
+        {"temp_dir", old_conf->oth.temp_dir},
+        {"out_audio_only", old_conf->oth.out_audio_only},
+        {"notes", std::string(old_conf->oth.notes)},
+        {"run_bat", old_conf->oth.run_bat},
+        {"dont_wait_bat_fin", old_conf->oth.dont_wait_bat_fin},
+        {"batfiles", {
+            {"before_process", std::string(old_conf->oth.batfile.before_process)},
+            {"after_process", std::string(old_conf->oth.batfile.after_process)},
+            {"before_audio", std::string(old_conf->oth.batfile.before_audio)},
+            {"after_audio", std::string(old_conf->oth.batfile.after_audio)}
+        }}
+    };
+    
+    return j.dump(4);
+}
+
+// ブロック別JSON変換関数の実装
+
+// ビデオ設定をJSONに変換
+void guiEx_config::video_to_json(nlohmann::json& j, const CONF_VIDEO& vid) {
+    j["video"] = {
+        {"afs", vid.afs},
+        {"afs_bitrate_correction", vid.afs_bitrate_correction},
+        {"auo_tcfile_out", vid.auo_tcfile_out},
+        {"check_keyframe", vid.check_keyframe},
+        {"priority", vid.priority},
+        {"stats", wstring_to_utf8(vid.stats)},
+        {"tcfile_in", wstring_to_utf8(vid.tcfile_in)},
+        {"cqmfile", wstring_to_utf8(vid.cqmfile)},
+        {"cmdex", wstring_to_utf8(vid.cmdex)},
+        {"amp_check", vid.amp_check},
+        {"amp_limit_file_size", vid.amp_limit_file_size},
+        {"amp_limit_bitrate_upper", vid.amp_limit_bitrate_upper},
+        {"input_as_lw48", vid.input_as_lw48},
+        {"amp_limit_bitrate_lower", vid.amp_limit_bitrate_lower}
+    };
+}
+
+// オーディオ設定をJSONに変換
+void guiEx_config::audio_to_json(nlohmann::json& j, const CONF_AUDIO& aud) {
+    j["audio"] = {
+        {"ext", {
+            {"encoder", aud.ext.encoder},
+            {"enc_mode", aud.ext.enc_mode},
+            {"bitrate", aud.ext.bitrate},
+            {"use_2pass", aud.ext.use_2pass},
+            {"use_wav", aud.ext.use_wav},
+            {"faw_check", aud.ext.faw_check},
+            {"priority", aud.ext.priority},
+            {"minimized", aud.ext.minimized},
+            {"aud_temp_dir", aud.ext.aud_temp_dir},
+            {"audio_encode_timing", aud.ext.audio_encode_timing},
+            {"delay_cut", aud.ext.delay_cut}
+        }},
+        {"in", {
+            {"encoder", aud.in.encoder},
+            {"enc_mode", aud.in.enc_mode},
+            {"bitrate", aud.in.bitrate},
+            {"use_2pass", aud.in.use_2pass},
+            {"use_wav", aud.in.use_wav},
+            {"faw_check", aud.in.faw_check},
+            {"priority", aud.in.priority},
+            {"minimized", aud.in.minimized},
+            {"aud_temp_dir", aud.in.aud_temp_dir},
+            {"audio_encode_timing", aud.in.audio_encode_timing},
+            {"delay_cut", aud.in.delay_cut}
+        }},
+        {"use_internal", aud.use_internal}
+    };
+}
+
+// Mux設定をJSONに変換
+void guiEx_config::mux_to_json(nlohmann::json& j, const CONF_MUX& mux) {
+    j["mux"] = {
+        {"disable_mp4ext", mux.disable_mp4ext},
+        {"disable_mkvext", mux.disable_mkvext},
+        {"mp4_mode", mux.mp4_mode},
+        {"mkv_mode", mux.mkv_mode},
+        {"minimized", mux.minimized},
+        {"priority", mux.priority},
+        {"mp4_temp_dir", mux.mp4_temp_dir},
+        {"apple_mode", mux.apple_mode},
+        {"use_internal", mux.use_internal},
+        {"internal_mode", mux.internal_mode}
+    };
+}
+
+// その他設定をJSONに変換
+void guiEx_config::other_to_json(nlohmann::json& j, const CONF_OTHER& oth) {
+    j["other"] = {
+        {"disable_guicmd", oth.disable_guicmd},
+        {"temp_dir", oth.temp_dir},
+        {"out_audio_only", oth.out_audio_only},
+        {"notes", wstring_to_utf8(oth.notes)},
+        {"run_bat", oth.run_bat},
+        {"dont_wait_bat_fin", oth.dont_wait_bat_fin},
+        {"batfiles", {
+            {"before_process", wstring_to_utf8(oth.batfile.before_process)},
+            {"after_process", wstring_to_utf8(oth.batfile.after_process)},
+            {"before_audio", wstring_to_utf8(oth.batfile.before_audio)},
+            {"after_audio", wstring_to_utf8(oth.batfile.after_audio)}
+        }}
+    };
+}
+
+// JSONからビデオ設定を復元
+void guiEx_config::json_to_video(const nlohmann::json& j, CONF_VIDEO& vid) {
+    if (j.contains("video")) {
+        auto& v = j["video"];
+        vid.afs = v.value("afs", false);
+        vid.afs_bitrate_correction = v.value("afs_bitrate_correction", false);
+        vid.auo_tcfile_out = v.value("auo_tcfile_out", false);
+        vid.check_keyframe = v.value("check_keyframe", 0);
+        vid.priority = v.value("priority", 0);
+        vid.amp_check = v.value("amp_check", 0);
+        vid.amp_limit_file_size = v.value("amp_limit_file_size", 0.0);
+        vid.amp_limit_bitrate_upper = v.value("amp_limit_bitrate_upper", 0.0);
+        vid.input_as_lw48 = v.value("input_as_lw48", false);
+        vid.amp_limit_bitrate_lower = v.value("amp_limit_bitrate_lower", 0.0);
+        
+        // 文字列の復元
+        auto stats_wstr = utf8_to_wstring(v.value("stats", ""));
+        wcsncpy_s(vid.stats, stats_wstr.c_str(), MAX_PATH_LEN - 1);
+        
+        auto tcfile_in_wstr = utf8_to_wstring(v.value("tcfile_in", ""));
+        wcsncpy_s(vid.tcfile_in, tcfile_in_wstr.c_str(), MAX_PATH_LEN - 1);
+        
+        auto cqmfile_wstr = utf8_to_wstring(v.value("cqmfile", ""));
+        wcsncpy_s(vid.cqmfile, cqmfile_wstr.c_str(), MAX_PATH_LEN - 1);
+        
+        auto cmdex_wstr = utf8_to_wstring(v.value("cmdex", ""));
+        wcsncpy_s(vid.cmdex, cmdex_wstr.c_str(), CMDEX_MAX_LEN - 1);
+    }
+}
+
+// JSONからオーディオ設定を復元
+void guiEx_config::json_to_audio(const nlohmann::json& j, CONF_AUDIO& aud) {
+    if (j.contains("audio")) {
+        auto& a = j["audio"];
+        
+        // ext設定の復元
+        if (a.contains("ext")) {
+            auto& ext = a["ext"];
+            aud.ext.encoder = ext.value("encoder", 0);
+            aud.ext.enc_mode = ext.value("enc_mode", 0);
+            aud.ext.bitrate = ext.value("bitrate", 0);
+            aud.ext.use_2pass = ext.value("use_2pass", false);
+            aud.ext.use_wav = ext.value("use_wav", false);
+            aud.ext.faw_check = ext.value("faw_check", false);
+            aud.ext.priority = ext.value("priority", 0);
+            aud.ext.minimized = ext.value("minimized", false);
+            aud.ext.aud_temp_dir = ext.value("aud_temp_dir", 0);
+            aud.ext.audio_encode_timing = ext.value("audio_encode_timing", 0);
+            aud.ext.delay_cut = ext.value("delay_cut", 0);
+        }
+        
+        // in設定の復元
+        if (a.contains("in")) {
+            auto& in = a["in"];
+            aud.in.encoder = in.value("encoder", 0);
+            aud.in.enc_mode = in.value("enc_mode", 0);
+            aud.in.bitrate = in.value("bitrate", 0);
+            aud.in.use_2pass = in.value("use_2pass", false);
+            aud.in.use_wav = in.value("use_wav", false);
+            aud.in.faw_check = in.value("faw_check", false);
+            aud.in.priority = in.value("priority", 0);
+            aud.in.minimized = in.value("minimized", false);
+            aud.in.aud_temp_dir = in.value("aud_temp_dir", 0);
+            aud.in.audio_encode_timing = in.value("audio_encode_timing", 0);
+            aud.in.delay_cut = in.value("delay_cut", 0);
+        }
+        
+        aud.use_internal = a.value("use_internal", false);
+    }
+}
+
+// JSONからMux設定を復元
+void guiEx_config::json_to_mux(const nlohmann::json& j, CONF_MUX& mux) {
+    if (j.contains("mux")) {
+        auto& m = j["mux"];
+        mux.disable_mp4ext = m.value("disable_mp4ext", false);
+        mux.disable_mkvext = m.value("disable_mkvext", false);
+        mux.mp4_mode = m.value("mp4_mode", 0);
+        mux.mkv_mode = m.value("mkv_mode", 0);
+        mux.minimized = m.value("minimized", false);
+        mux.priority = m.value("priority", 0);
+        mux.mp4_temp_dir = m.value("mp4_temp_dir", 0);
+        mux.apple_mode = m.value("apple_mode", false);
+        mux.use_internal = m.value("use_internal", false);
+        mux.internal_mode = m.value("internal_mode", 0);
+    }
+}
+
+// JSONからその他設定を復元
+void guiEx_config::json_to_other(const nlohmann::json& j, CONF_OTHER& oth) {
+    if (j.contains("other")) {
+        auto& o = j["other"];
+        oth.disable_guicmd = o.value("disable_guicmd", false);
+        oth.temp_dir = o.value("temp_dir", 0);
+        oth.out_audio_only = o.value("out_audio_only", false);
+        oth.run_bat = o.value("run_bat", 0);
+        oth.dont_wait_bat_fin = o.value("dont_wait_bat_fin", 0);
+        
+        auto notes_wstr = utf8_to_wstring(o.value("notes", ""));
+        wcsncpy_s(oth.notes, notes_wstr.c_str(), 127);
+        
+        if (o.contains("batfiles") && o["batfiles"].is_object()) {
+            auto& batfiles = o["batfiles"];
+            
+            auto before_process_wstr = utf8_to_wstring(batfiles.value("before_process", ""));
+            wcsncpy_s(oth.batfile.before_process, before_process_wstr.c_str(), 511);
+            
+            auto after_process_wstr = utf8_to_wstring(batfiles.value("after_process", ""));
+            wcsncpy_s(oth.batfile.after_process, after_process_wstr.c_str(), 511);
+            
+            auto before_audio_wstr = utf8_to_wstring(batfiles.value("before_audio", ""));
+            wcsncpy_s(oth.batfile.before_audio, before_audio_wstr.c_str(), 511);
+            
+            auto after_audio_wstr = utf8_to_wstring(batfiles.value("after_audio", ""));
+            wcsncpy_s(oth.batfile.after_audio, after_audio_wstr.c_str(), 511);
+        }
+    }
+}
+
+// 設定をJSON文字列に変換
+std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
+    nlohmann::json j;
+    
+    // ヘッダ情報
+    j["conf_name"] = std::string(conf->header.conf_name);
+    j["version"] = "unicode_v1";
+    
+    // エンコーダ設定
+    char cmd_buffer[8192];
+    build_cmd_from_conf(cmd_buffer, sizeof(cmd_buffer), &conf->enc, &conf->vid, FALSE);
+    j["enc"] = {
+        {"cmd", std::string(cmd_buffer)}
+    };
+    
+    // 各ブロックを個別の関数で変換
+    video_to_json(j, conf->vid);
+    audio_to_json(j, conf->aud);
+    mux_to_json(j, conf->mux);
+    other_to_json(j, conf->oth);
+    
+    return j.dump(indent);
+}
+
+// JSON文字列から設定を復元
+bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
+    try {
+        auto j = nlohmann::json::parse(json_str);
+        
+        // 初期化
+        ZeroMemory(conf, sizeof(CONF_GUIEX));
+        write_conf_header(&conf->header);
+        
+        // ヘッダ情報
+        if (j.contains("conf_name")) {
+            std::string conf_name = j["conf_name"];
+            strncpy_s(conf->header.conf_name, conf_name.c_str(), sizeof(conf->header.conf_name) - 1);
+        }
+        
+        // エンコーダ設定の復元
+        if (j.contains("enc")) {
+            auto& enc = j["enc"];
+            auto cmd_str = enc.value("cmd", "");
+            set_cmd_to_conf(cmd_str.c_str(), &conf->enc);
+        }
+        
+        // 各ブロックを個別の関数で復元
+        json_to_video(j, conf->vid);
+        json_to_audio(j, conf->aud);
+        json_to_mux(j, conf->mux);
+        json_to_other(j, conf->oth);
+        
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
+}
+
+void guiEx_config::write_conf_header(CONF_GUIEX_HEADER *save_conf) {
+    sprintf_s(save_conf->conf_name, CONF_NAME);
     save_conf->size_all = sizeof(CONF_GUIEX);
     save_conf->head_size = CONF_HEAD_SIZE;
     save_conf->block_count = CONF_BLOCK_COUNT;
@@ -72,58 +457,47 @@ void guiEx_config::write_conf_header(CONF_GUIEX *save_conf) {
     }
 }
 
-//設定ファイルサイズを自動拡張する
-//拡張できない場合 FALSEを返す
-BOOL guiEx_config::adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int old_size) {
-    BOOL ret = FALSE;
-    init_CONF_GUIEX(conf_buf, FALSE);
-    if (((CONF_GUIEX *)old_data)->size_all != CONF_INITIALIZED)
-        return ret;
-    if (old_size == sizeof(CONF_GUIEX)) {
-        memcpy(conf_buf, old_data, old_size);
-        if (0 == strcmp(conf_buf->conf_name, CONF_NAME_OLD_1))
-            convert_x264stg_to_x264stgv2(conf_buf);
-        ret = TRUE;
+// 新しい統合ロード関数 (JSON & バイナリ対応)
+int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
+    FILE *fp = NULL;
+    if (fopen_s(&fp, stg_file, "rb") != NULL)
+        return CONF_ERROR_FILE_OPEN;
+    
+    // ファイルの最初の数バイトをチェックしてJSONかバイナリかを判定
+    char header[32] = {0};
+    fread(header, 1, sizeof(header) - 1, fp);
+    fclose(fp);
+    
+    // JSONファイルかどうかチェック（'{' で始まるかどうか）
+    if (header[0] == '{') {
+        // JSONファイルとして読み込み
+        std::ifstream file(stg_file, std::ios::binary);
+        if (!file.is_open()) {
+            return CONF_ERROR_FILE_OPEN;
+        }
+        
+        std::string json_content((std::istreambuf_iterator<char>(file)),
+                                std::istreambuf_iterator<char>());
+        file.close();
+        
+        init_CONF_GUIEX(conf, FALSE);
+        if (!json_to_conf(conf, json_content)) {
+            return CONF_ERROR_FILE_OPEN;
+        }
+        
+        write_conf_header(&conf->header);
+        conf->header.size_all = CONF_INITIALIZED;
+        return 0;
     } else {
-        const void *data_table = NULL;
-        if (((CONF_GUIEX *)old_data)->block_count) {
-            //新しい形式からの調整
-            //ブロックサイズは保存されている
-            data_table = old_data;
-        } else {
-            //古い形式からの調整
-            //保存されるプリセットにブロックサイズが保存されていないため、データテーブルを参照する
-            for (int j = 0; j < sizeof(CONF_OLD_DATA) / sizeof(CONF_OLD_DATA[0]); j++) {
-                if (old_size == CONF_OLD_DATA[j].size_all) {
-                    data_table = &CONF_OLD_DATA[j];
-                    break;
-                }
-            }
-        }
-        if (data_table == NULL)
-            return ret;
-        if (0 == strcmp(((CONF_GUIEX *)old_data)->conf_name, CONF_NAME_OLD_1))
-            convert_x264stg_to_x264stgv2((CONF_GUIEX *)old_data);
-
-        BYTE *dst = (BYTE *)conf_buf;
-        BYTE *block = NULL;
-        dst += CONF_HEAD_SIZE;
-        //ブロック部分のコピー
-        for (int i = 0; i < ((CONF_GUIEX *)data_table)->block_count; ++i) {
-            block = (BYTE *)old_data + ((CONF_GUIEX *)data_table)->block_head_p[i];
-            dst = (BYTE *)conf_buf + conf_block_pointer[i];
-            memcpy(dst, block, std::min(((CONF_GUIEX *)data_table)->block_size[i], conf_block_data[i]));
-        }
-        ret = TRUE;
+        // 従来のバイナリファイルとして読み込み
+        return load_guiEx_conf_legacy(conf, stg_file);
     }
-    return ret;
 }
 
-int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
+// 旧形式のstgファイルから読み込み
+int guiEx_config::load_guiEx_conf_legacy(CONF_GUIEX *conf, const char *stg_file) {
     size_t conf_size = 0;
     BYTE *dst, *filedat;
-    //初期化
-    ZeroMemory(conf, sizeof(CONF_GUIEX));
     //ファイルからロード
     FILE *fp = NULL;
     if (fopen_s(&fp, stg_file, "rb") != NULL)
@@ -138,67 +512,68 @@ int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
     }
     fread(&conf_size, sizeof(int), 1, fp);
     BYTE *dat = (BYTE*)calloc(conf_size, 1);
-    init_CONF_GUIEX(conf, FALSE);
     fseek(fp, 0, SEEK_SET);
     fread(dat, conf_size, 1, fp);
     fclose(fp);
 
-    write_conf_header(conf);
-
     //ブロックサイズチェック
-    if (((CONF_GUIEX *)dat)->block_count > CONF_BLOCK_COUNT)
+    if (((CONF_GUIEX_OLD *)dat)->header.block_count > CONF_BLOCK_COUNT)
         return CONF_ERROR_BLOCK_SIZE;
 
-    dst = (BYTE *)conf;
+    CONF_GUIEX_OLD old_conf = { 0 };
+    write_conf_header(&old_conf.header);
+    dst = (BYTE *)&old_conf;
     //filedat = (BYTE *)data;
     //memcpy(dst, filedat, data->head_size);
     dst += CONF_HEAD_SIZE;
 
     //ブロック部分のコピー
-    for (int i = 0; i < ((CONF_GUIEX *)dat)->block_count; i++) {
-        filedat = dat + ((CONF_GUIEX *)dat)->block_head_p[i];
-        dst = (BYTE *)conf + conf_block_pointer[i];
-        memcpy(dst, filedat, std::min(((CONF_GUIEX *)dat)->block_size[i], conf_block_data[i]));
+    for (int i = 0; i < ((CONF_GUIEX_OLD *)dat)->header.block_count; i++) {
+        filedat = dat + ((CONF_GUIEX_OLD *)dat)->header.block_head_p[i];
+        dst = (BYTE *)&old_conf + conf_block_pointer[i];
+        memcpy(dst, filedat, std::min(((CONF_GUIEX_OLD *)dat)->header.block_size[i], conf_block_data[i]));
     }
 
     if (0 == strcmp(CONF_NAME_OLD_1, conf_name))
-        convert_x264stg_to_x264stgv2(conf);
+        convert_x264stg_to_x264stgv2(&old_conf);
+    
+    // 旧構造体からJSON文字列を作成
+    std::string json_str = old_conf_to_json(&old_conf);
+    
+    //初期化
+    ZeroMemory(conf, sizeof(CONF_GUIEX));
+    init_CONF_GUIEX(conf, FALSE);
+    write_conf_header(&conf->header);
+    
+    // JSON文字列から新構造体に変換
+    if (!json_to_conf(conf, json_str)) {
+        free(dat);
+        return CONF_ERROR_FILE_OPEN;
+    }
 
     //初期化するかどうかで使うので。
-    conf->size_all = CONF_INITIALIZED;
+    conf->header.size_all = CONF_INITIALIZED;
     free(dat);
     return 0;
 }
 
+// 新しいJSON保存関数
 int guiEx_config::save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file) {
-    CONF_GUIEX save_conf;
-    memcpy(&save_conf, conf, sizeof(CONF_GUIEX));
-    ZeroMemory(&save_conf.block_count, sizeof(save_conf.block_count));
-
-    //展開したコマンドライン
-    char cmd_all[MAX_CMD_LEN] = { 0 };
-    build_cmd_from_conf(cmd_all, sizeof(cmd_all), &conf->enc, &conf->vid, TRUE);
-    DWORD cmd_all_len = strlen(cmd_all) + 1;
-
-    //設定ファイルのブロックごとの大きさを書き込み
-    sprintf_s(save_conf.conf_name, sizeof(save_conf.conf_name), CONF_NAME);
-    save_conf.size_all = sizeof(CONF_GUIEX) + cmd_all_len;
-    save_conf.head_size = CONF_HEAD_SIZE;
-    save_conf.block_count = CONF_BLOCK_COUNT;
-    for (int i = 0; i < CONF_BLOCK_COUNT; ++i) {
-        save_conf.block_size[i] = conf_block_data[i];
-        save_conf.block_head_p[i] = conf_block_pointer[i];
-    }
-    //最後に展開したコマンドラインを追加する
-    save_conf.block_size[CONF_BLOCK_COUNT]   = cmd_all_len;
-    save_conf.block_head_p[CONF_BLOCK_COUNT] = sizeof(CONF_GUIEX);
-
-    //ファイルへ書きこみ
-    FILE *fp = NULL;
-    if (fopen_s(&fp, stg_file, "wb") != NULL)
+    try {
+        // 設定をJSONに変換
+        std::string json_content = conf_to_json(conf, 2);
+        
+        // UTF-8でファイルに保存
+        std::ofstream file(stg_file, std::ios::binary);
+        if (!file.is_open()) {
+            return CONF_ERROR_FILE_OPEN;
+        }
+        
+        file.write(json_content.c_str(), json_content.length());
+        file.close();
+        
+        return 0;
+    } catch (const std::exception&) {
         return CONF_ERROR_FILE_OPEN;
-    fwrite(&save_conf, sizeof(CONF_GUIEX), 1, fp);
-    fwrite(cmd_all, 1, cmd_all_len, fp);
-    fclose(fp);
-    return 0;
+    }
 }

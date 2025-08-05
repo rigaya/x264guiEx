@@ -9,6 +9,7 @@
                 "${workspaceFolder}/x264guiEx/prm",
                 "${workspaceFolder}/x264guiEx/frm",
                 "${workspaceFolder}/tinyxml2",
+                "${workspaceFolder}/json",
                 "${workspaceFolder}/auoCommon"
             ],
             "defines": [

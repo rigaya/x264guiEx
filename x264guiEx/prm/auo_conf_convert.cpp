@@ -14,7 +14,7 @@
 #include "auo_conf.h"
 #include "auo_options.h"
 
-void guiEx_config::convert_x264stg_to_x264stgv2(CONF_GUIEX *conf) {
+void guiEx_config::convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf) {
     static const DWORD OLD_FLAG_AFTER  = 0x01;
     static const DWORD OLD_FLAG_BEFORE = 0x02;
 
@@ -31,5 +31,5 @@ void guiEx_config::convert_x264stg_to_x264stgv2(CONF_GUIEX *conf) {
     memset(&conf->oth.batfiles[0], 0, sizeof(conf->oth.batfiles));
     strcpy_s(conf->oth.batfile.before_process, bat_path_before_process);
     strcpy_s(conf->oth.batfile.after_process,  bat_path_after_process);
-    strcpy_s(conf->conf_name, CONF_NAME_OLD_2);
+    strcpy_s(conf->header.conf_name, CONF_NAME_OLD_2);
 }
