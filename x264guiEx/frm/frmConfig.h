@@ -4845,7 +4845,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
     private:
         CONF_ENC *cnf_fcgTemp;
         const SYSTEM_DATA *sys_dat;
-        std::vector<std::string> *list_lng;
+        std::vector<tstring> *list_lng;
         CONF_GUIEX *conf;
         LocalSettings LocalStg;
         DarkenWindowStgReader *dwStgReader;
@@ -4897,8 +4897,8 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         System::Void fcgTSTSettingsNotes_Leave(System::Object^  sender, System::EventArgs^  e);
         System::Void fcgTSTSettingsNotes_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e);
         System::Void fcgTSTSettingsNotes_TextChanged(System::Object^  sender, System::EventArgs^  e);
-        System::Void GetfcgTSLSettingsNotes(char *notes, int nSize);
-        System::Void SetfcgTSLSettingsNotes(const char *notes);
+        System::Void GetfcgTSLSettingsNotes(TCHAR *notes, int nSize);
+        System::Void SetfcgTSLSettingsNotes(const TCHAR *notes);
         System::Void SetfcgTSLSettingsNotes(String^ notes);
         System::Void fcgTSBSave_Click(System::Object^  sender, System::EventArgs^  e);
         System::Void fcgTSBSaveNew_Click(System::Object^  sender, System::EventArgs^  e);
@@ -4911,13 +4911,13 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         System::Void CheckTSItemsEnabled(CONF_GUIEX *current_conf);
 
         System::Void InitLangList();
-        System::Void SaveSelectedLanguage(const char *language_text);
-        System::Void SetSelectedLanguage(const char *language_text);
+        System::Void SaveSelectedLanguage(const TCHAR *language_text);
+        System::Void SetSelectedLanguage(const TCHAR *language_text);
         System::Void CheckTSLanguageDropDownItem(ToolStripMenuItem^ mItem);
         System::Void fcgTSLanguage_DropDownItemClicked(System::Object^  sender, System::Windows::Forms::ToolStripItemClickedEventArgs^  e);
 
         System::Void SetHelpToolTips();
-        System::Void SetHelpToolTipsColorMatrix(Control^ control, const char *type);
+        System::Void SetHelpToolTipsColorMatrix(Control^ control, const TCHAR *type);
         System::Void SetX264VersionToolTip(String^ x264Path);
         System::Void ShowExehelp(String^ ExePath, String^ args);
         System::Void fcgTSBOtherSettings_Click(System::Object^  sender, System::EventArgs^  e);
@@ -5390,7 +5390,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             fcgRebuildCmd(sender, e);
         }
     private:
-        System::Void SetCQM(int index, const char *cqmfile) {
+        System::Void SetCQM(int index, const TCHAR *cqmfile) {
             for (int i = 0; i < fcgCSCQM->Items->Count; i++) {
                 ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgCSCQM->Items[i]);
                 if (TSItem != nullptr)
@@ -5400,13 +5400,13 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
                 fcgTXCQM->Text = String(cqmfile).ToString();
         }
     private:
-        System::Int32 GetCQMIndex(char *cqmfile, int nSize) {
+        System::Int32 GetCQMIndex(TCHAR *cqmfile, int nSize) {
             for (int i = 0; i < fcgCSCQM->Items->Count; i++) {
                 ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgCSCQM->Items[i]);
                 if (TSItem != nullptr && TSItem->Checked) {
                     int index = Convert::ToInt32(TSItem->Tag);
                     if (index == 2)
-                        GetCHARfromString(cqmfile, nSize, fcgTXCQM->Text);
+                        GetWCHARfromString(cqmfile, nSize, fcgTXCQM->Text);
                     return index;
                 }
             }
@@ -5470,8 +5470,8 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             CONF_GUIEX cnf;
             init_CONF_GUIEX(&cnf, fcgCBUsehighbit->Checked);
             FrmToConf(&cnf);
-            char cmdex[2048] = { 0 };
-            GetCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
+            TCHAR cmdex[2048] = { 0 };
+            GetWCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
             set_cmd_to_conf(cmdex, &cnf.enc);
             ConfToFrm(&cnf, false);
         }
@@ -5508,7 +5508,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         }
     private:
         System::Void fcgRebuildCmd(System::Object^  sender, System::EventArgs^  e) {
-            char re_cmd[MAX_CMD_LEN] = { 0 };
+            TCHAR re_cmd[MAX_CMD_LEN] = { 0 };
             CONF_GUIEX rebuild;
             init_CONF_GUIEX(&rebuild, fcgCBUsehighbit->Checked);
             FrmToConf(&rebuild);

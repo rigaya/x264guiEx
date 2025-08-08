@@ -659,6 +659,22 @@ static inline char *strichr(char *str, int c) {
     return NULL;
 }
 
+// 大文字小文字を無視して、1文字検索 (wchar_t版)
+static inline const WCHAR *strichr(const WCHAR *str, wint_t c) {
+    c = towlower(c);
+    for (; *str; str++)
+        if (c == towlower(*str))
+            return str;
+    return NULL;
+}
+static inline WCHAR *strichr(WCHAR *str, wint_t c) {
+    c = towlower(c);
+    for (; *str; str++)
+        if (c == towlower(*str))
+            return str;
+    return NULL;
+}
+
 //大文字小文字を無視して、文字列を検索
 static inline const char *stristr(const char *str, const char *substr) {
     size_t len = 0;
@@ -673,6 +689,24 @@ static inline char *stristr(char *str, const char *substr) {
     if (substr && (len = strlen(substr)) != NULL)
         for (; (str = strichr(str, substr[0])) != NULL; str++)
             if (_strnicmp(str, substr, len) == NULL)
+                return str;
+    return NULL;
+}
+
+// 大文字小文字を無視して、文字列を検索 (wchar_t版)
+static inline const WCHAR *stristr(const WCHAR *str, const WCHAR *substr) {
+    size_t len = 0;
+    if (substr && (len = wcslen(substr)) != NULL)
+        for (; (str = strichr(str, substr[0])) != NULL; str++)
+            if (_wcsnicmp(str, substr, len) == NULL)
+                return str;
+    return NULL;
+}
+static inline WCHAR *stristr(WCHAR *str, const WCHAR *substr) {
+    size_t len = 0;
+    if (substr && (len = wcslen(substr)) != NULL)
+        for (; (str = strichr(str, substr[0])) != NULL; str++)
+            if (_wcsnicmp(str, substr, len) == NULL)
                 return str;
     return NULL;
 }
@@ -697,6 +731,26 @@ static inline char *strrchr(char *str, int c, int start_index) {
     return NULL;
 }
 
+// 指定した場所から後ろ向きに1文字検索 (wchar_t版)
+static inline const WCHAR *strrchr(const WCHAR *str, int c, int start_index) {
+    if (start_index < 0) return NULL;
+    const WCHAR *result = str + start_index;
+    str--;
+    for (; result - str; result--)
+        if (*result == c)
+            return result;
+    return NULL;
+}
+static inline WCHAR *strrchr(WCHAR *str, int c, int start_index) {
+    if (start_index < 0) return NULL;
+    WCHAR *result = str + start_index;
+    str--;
+    for (; result - str; result--)
+        if (*result == c)
+            return result;
+    return NULL;
+}
+
 //strのcount byteを検索し、substrとの一致を返す
 static inline const char * strnstr(const char *str, const char *substr, int count) {
     const char *ptr = strstr(str, substr);
@@ -706,6 +760,20 @@ static inline const char * strnstr(const char *str, const char *substr, int coun
 }
 static inline char * strnstr(char *str, const char *substr, int count) {
     char *ptr = strstr(str, substr);
+    if (ptr && ptr - str >= count)
+        ptr = NULL;
+    return ptr;
+}
+
+// strのcount 文字を検索し、substrとの一致を返す (wchar_t版)
+static inline const WCHAR * strnstr(const WCHAR *str, const WCHAR *substr, int count) {
+    const WCHAR *ptr = wcsstr(str, substr);
+    if (ptr && ptr - str >= count)
+        ptr = NULL;
+    return ptr;
+}
+static inline WCHAR * strnstr(WCHAR *str, const WCHAR *substr, int count) {
+    WCHAR *ptr = wcsstr(str, substr);
     if (ptr && ptr - str >= count)
         ptr = NULL;
     return ptr;
@@ -725,18 +793,48 @@ static inline char * strrstr(char *str, const char *substr) {
     return last_ptr;
 }
 
+// strのsubstrとの最後の一致を返す (wchar_t版)
+static inline const WCHAR * strrstr(const WCHAR *str, const WCHAR *substr) {
+    const WCHAR *last_ptr = NULL;
+    for (const WCHAR *ptr = str; *ptr && (ptr = wcsstr(ptr, substr)) != NULL; ptr++ )
+        last_ptr = ptr;
+    return last_ptr;
+}
+static inline WCHAR * strrstr(WCHAR *str, const WCHAR *substr) {
+    WCHAR *last_ptr = NULL;
+    for (WCHAR *ptr = str; *ptr && (ptr = wcsstr(ptr, substr)) != NULL; ptr++ )
+        last_ptr = ptr;
+    return last_ptr;
+}
+
 //strのcount byteを検索し、substrとの最後の一致を返す
 static inline const char * strnrstr(const char *str, const char *substr, int count) {
     const char *last_ptr = NULL;
     if (count > 0)
-        for (const char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
+        for (const char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (int)(ptr - str))) != NULL; ptr++)
             last_ptr = ptr;
     return last_ptr;
 }
 static inline char * strnrstr(char *str, const char *substr, int count) {
     char *last_ptr = NULL;
     if (count > 0)
-        for (char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (ptr - str))) != NULL; ptr++)
+        for (char *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (int)(ptr - str))) != NULL; ptr++)
+            last_ptr = ptr;
+    return last_ptr;
+}
+
+// strのcount 文字を検索し、substrとの最後の一致を返す (wchar_t版)
+static inline const WCHAR * strnrstr(const WCHAR *str, const WCHAR *substr, int count) {
+    const WCHAR *last_ptr = NULL;
+    if (count > 0)
+        for (const WCHAR *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (int)(ptr - str))) != NULL; ptr++)
+            last_ptr = ptr;
+    return last_ptr;
+}
+static inline WCHAR * strnrstr(WCHAR *str, const WCHAR *substr, int count) {
+    WCHAR *last_ptr = NULL;
+    if (count > 0)
+        for (WCHAR *ptr = str; *ptr && (ptr = strnstr(ptr, substr, count - (int)(ptr - str))) != NULL; ptr++)
             last_ptr = ptr;
     return last_ptr;
 }
@@ -803,7 +901,7 @@ static size_t get_intlen(int i) {
 //文字列の置換に必要な領域を計算する
 static size_t calc_replace_mem_required(char *str, const char *old_str, const char *new_str) {
     size_t size = strlen(str) + 1;
-    const int move_len = strlen(new_str) - strlen(old_str);
+    const int move_len = (int)(strlen(new_str) - strlen(old_str));
     if (move_len <= 0)
         return size;
     char *p = str;
@@ -813,7 +911,7 @@ static size_t calc_replace_mem_required(char *str, const char *old_str, const ch
 }
 static size_t calc_replace_mem_required(WCHAR *str, const WCHAR *old_str, const WCHAR *new_str) {
     size_t size = wcslen(str) + 1;
-    const int move_len = wcslen(new_str) - wcslen(old_str);
+    const int move_len = (int)(wcslen(new_str) - wcslen(old_str));
     if (move_len <= 0)
         return size;
     WCHAR *p = str;

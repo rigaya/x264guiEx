@@ -64,25 +64,6 @@ static const CONF_GUIEX CONF_OLD_DATA[] = {
 
 guiEx_config::guiEx_config() { }
 
-// Unicode文字列変換ヘルパー関数
-static std::wstring utf8_to_wstring(const std::string& str) {
-    if (str.empty()) return std::wstring();
-    
-    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-    std::wstring wstrTo(size_needed, 0);
-    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
-    return wstrTo;
-}
-
-static std::string wstring_to_utf8(const std::wstring& wstr) {
-    if (wstr.empty()) return std::string();
-    
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-    std::string strTo(size_needed, 0);
-    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-    return strTo;
-}
-
 // 旧形式からJSON文字列に変換
 std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     nlohmann::json j;
@@ -92,10 +73,10 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     j["version"] = "unicode_v1";
     
     // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
-    char cmd_buffer[8192];
+    TCHAR cmd_buffer[8192];
     build_cmd_from_conf(cmd_buffer, sizeof(cmd_buffer), &old_conf->enc, NULL, FALSE);
     j["enc"] = {
-        {"cmd", std::string(cmd_buffer) }
+        {"cmd", tchar_to_string(cmd_buffer, CP_UTF8) }
     };
     
     // 旧ビデオ設定をJSONに変換（char文字列をUTF-8に変換）
@@ -190,10 +171,10 @@ void guiEx_config::video_to_json(nlohmann::json& j, const CONF_VIDEO& vid) {
         {"auo_tcfile_out", vid.auo_tcfile_out},
         {"check_keyframe", vid.check_keyframe},
         {"priority", vid.priority},
-        {"stats", wstring_to_utf8(vid.stats)},
-        {"tcfile_in", wstring_to_utf8(vid.tcfile_in)},
-        {"cqmfile", wstring_to_utf8(vid.cqmfile)},
-        {"cmdex", wstring_to_utf8(vid.cmdex)},
+        {"stats", tchar_to_string(vid.stats, CP_UTF8)},
+        {"tcfile_in", tchar_to_string(vid.tcfile_in, CP_UTF8)},
+        {"cqmfile", tchar_to_string(vid.cqmfile, CP_UTF8)},
+        {"cmdex", tchar_to_string(vid.cmdex, CP_UTF8)},
         {"amp_check", vid.amp_check},
         {"amp_limit_file_size", vid.amp_limit_file_size},
         {"amp_limit_bitrate_upper", vid.amp_limit_bitrate_upper},
@@ -257,14 +238,14 @@ void guiEx_config::other_to_json(nlohmann::json& j, const CONF_OTHER& oth) {
         {"disable_guicmd", oth.disable_guicmd},
         {"temp_dir", oth.temp_dir},
         {"out_audio_only", oth.out_audio_only},
-        {"notes", wstring_to_utf8(oth.notes)},
+        {"notes", tchar_to_string(oth.notes, CP_UTF8)},
         {"run_bat", oth.run_bat},
         {"dont_wait_bat_fin", oth.dont_wait_bat_fin},
         {"batfiles", {
-            {"before_process", wstring_to_utf8(oth.batfile.before_process)},
-            {"after_process", wstring_to_utf8(oth.batfile.after_process)},
-            {"before_audio", wstring_to_utf8(oth.batfile.before_audio)},
-            {"after_audio", wstring_to_utf8(oth.batfile.after_audio)}
+            {"before_process", tchar_to_string(oth.batfile.before_process, CP_UTF8)},
+            {"after_process", tchar_to_string(oth.batfile.after_process, CP_UTF8)},
+            {"before_audio", tchar_to_string(oth.batfile.before_audio, CP_UTF8)},
+            {"after_audio", tchar_to_string(oth.batfile.after_audio, CP_UTF8)}
         }}
     };
 }
@@ -285,17 +266,17 @@ void guiEx_config::json_to_video(const nlohmann::json& j, CONF_VIDEO& vid) {
         vid.amp_limit_bitrate_lower = v.value("amp_limit_bitrate_lower", 0.0);
         
         // 文字列の復元
-        auto stats_wstr = utf8_to_wstring(v.value("stats", ""));
-        wcsncpy_s(vid.stats, stats_wstr.c_str(), MAX_PATH_LEN - 1);
+        auto stats_tstr = char_to_tstring(v.value("stats", ""), CP_UTF8);
+        _tcscpy_s(vid.stats, stats_tstr.c_str());
         
-        auto tcfile_in_wstr = utf8_to_wstring(v.value("tcfile_in", ""));
-        wcsncpy_s(vid.tcfile_in, tcfile_in_wstr.c_str(), MAX_PATH_LEN - 1);
+        auto tcfile_in_tstr = char_to_tstring(v.value("tcfile_in", ""), CP_UTF8);
+        _tcscpy_s(vid.tcfile_in, tcfile_in_tstr.c_str());
         
-        auto cqmfile_wstr = utf8_to_wstring(v.value("cqmfile", ""));
-        wcsncpy_s(vid.cqmfile, cqmfile_wstr.c_str(), MAX_PATH_LEN - 1);
+        auto cqmfile_tstr = char_to_tstring(v.value("cqmfile", ""), CP_UTF8);
+        _tcscpy_s(vid.cqmfile, cqmfile_tstr.c_str());
         
-        auto cmdex_wstr = utf8_to_wstring(v.value("cmdex", ""));
-        wcsncpy_s(vid.cmdex, cmdex_wstr.c_str(), CMDEX_MAX_LEN - 1);
+        auto cmdex_tstr = char_to_tstring(v.value("cmdex", ""), CP_UTF8);
+        _tcscpy_s(vid.cmdex, cmdex_tstr.c_str());
     }
 }
 
@@ -367,23 +348,23 @@ void guiEx_config::json_to_other(const nlohmann::json& j, CONF_OTHER& oth) {
         oth.run_bat = o.value("run_bat", 0);
         oth.dont_wait_bat_fin = o.value("dont_wait_bat_fin", 0);
         
-        auto notes_wstr = utf8_to_wstring(o.value("notes", ""));
-        wcsncpy_s(oth.notes, notes_wstr.c_str(), 127);
+        auto notes_tstr = char_to_tstring(o.value("notes", ""), CP_UTF8);
+        _tcscpy_s(oth.notes, notes_tstr.c_str());
         
         if (o.contains("batfiles") && o["batfiles"].is_object()) {
             auto& batfiles = o["batfiles"];
             
-            auto before_process_wstr = utf8_to_wstring(batfiles.value("before_process", ""));
-            wcsncpy_s(oth.batfile.before_process, before_process_wstr.c_str(), 511);
+            auto before_process_tstr = char_to_tstring(batfiles.value("before_process", ""), CP_UTF8);
+            _tcscpy_s(oth.batfile.before_process, before_process_tstr.c_str());
             
-            auto after_process_wstr = utf8_to_wstring(batfiles.value("after_process", ""));
-            wcsncpy_s(oth.batfile.after_process, after_process_wstr.c_str(), 511);
+            auto after_process_tstr = char_to_tstring(batfiles.value("after_process", ""), CP_UTF8);
+            _tcscpy_s(oth.batfile.after_process, after_process_tstr.c_str());
             
-            auto before_audio_wstr = utf8_to_wstring(batfiles.value("before_audio", ""));
-            wcsncpy_s(oth.batfile.before_audio, before_audio_wstr.c_str(), 511);
+            auto before_audio_tstr = char_to_tstring(batfiles.value("before_audio", ""), CP_UTF8);
+            _tcscpy_s(oth.batfile.before_audio, before_audio_tstr.c_str());
             
-            auto after_audio_wstr = utf8_to_wstring(batfiles.value("after_audio", ""));
-            wcsncpy_s(oth.batfile.after_audio, after_audio_wstr.c_str(), 511);
+            auto after_audio_tstr = char_to_tstring(batfiles.value("after_audio", ""), CP_UTF8);
+            _tcscpy_s(oth.batfile.after_audio, after_audio_tstr.c_str());
         }
     }
 }
@@ -397,10 +378,10 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
     j["version"] = "unicode_v1";
     
     // エンコーダ設定
-    char cmd_buffer[8192];
+    TCHAR cmd_buffer[8192];
     build_cmd_from_conf(cmd_buffer, sizeof(cmd_buffer), &conf->enc, &conf->vid, FALSE);
     j["enc"] = {
-        {"cmd", std::string(cmd_buffer)}
+        {"cmd", tchar_to_string(cmd_buffer, CP_UTF8)}
     };
     
     // 各ブロックを個別の関数で変換
@@ -430,7 +411,7 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
         // エンコーダ設定の復元
         if (j.contains("enc")) {
             auto& enc = j["enc"];
-            auto cmd_str = enc.value("cmd", "");
+            auto cmd_str = char_to_tstring(enc.value("cmd", ""), CP_UTF8);
             set_cmd_to_conf(cmd_str.c_str(), &conf->enc);
         }
         
@@ -458,9 +439,9 @@ void guiEx_config::write_conf_header(CONF_GUIEX_HEADER *save_conf) {
 }
 
 // 新しい統合ロード関数 (JSON & バイナリ対応)
-int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
+int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const TCHAR *stg_file) {
     FILE *fp = NULL;
-    if (fopen_s(&fp, stg_file, "rb") != NULL)
+    if (_tfopen_s(&fp, stg_file, _T("rb")) != NULL)
         return CONF_ERROR_FILE_OPEN;
     
     // ファイルの最初の数バイトをチェックしてJSONかバイナリかを判定
@@ -495,12 +476,12 @@ int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file) {
 }
 
 // 旧形式のstgファイルから読み込み
-int guiEx_config::load_guiEx_conf_legacy(CONF_GUIEX *conf, const char *stg_file) {
+int guiEx_config::load_guiEx_conf_legacy(CONF_GUIEX *conf, const TCHAR *stg_file) {
     size_t conf_size = 0;
     BYTE *dst, *filedat;
     //ファイルからロード
     FILE *fp = NULL;
-    if (fopen_s(&fp, stg_file, "rb") != NULL)
+    if (_tfopen_s(&fp, stg_file, _T("rb")) != NULL)
         return CONF_ERROR_FILE_OPEN;
     //設定ファイルチェック
     char conf_name[CONF_NAME_BLOCK_LEN + 32];
@@ -558,7 +539,7 @@ int guiEx_config::load_guiEx_conf_legacy(CONF_GUIEX *conf, const char *stg_file)
 }
 
 // 新しいJSON保存関数
-int guiEx_config::save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file) {
+int guiEx_config::save_guiEx_conf(const CONF_GUIEX *conf, const TCHAR *stg_file) {
     try {
         // 設定をJSONに変換
         std::string json_content = conf_to_json(conf, 2);

@@ -87,7 +87,7 @@ static int get_encoder_send_field([[maybe_unused]] const CONF_ENC *cnf) {
 #endif
 }
 
-static const char * specify_input_csp(int output_csp) {
+static const TCHAR * specify_input_csp(int output_csp) {
     return specify_csp[output_csp];
 }
 
@@ -189,7 +189,7 @@ static AUO_RESULT check_cmdex(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC 
 
 static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, const PRM_ENC *pe) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
-    char auotcfile[MAX_PATH_LEN];
+    TCHAR auotcfile[MAX_PATH_LEN];
     FILE *tcfile = NULL;
 
     if (afs)
@@ -199,7 +199,7 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
     //ファイル名作成
     apply_appendix(auotcfile, _countof(auotcfile), pe->temp_filename, pe->append.tc);
 
-    if (NULL != fopen_s(&tcfile, auotcfile, "wb")) {
+    if (NULL != _tfopen_s(&tcfile, auotcfile, _T("wb"))) {
         ret |= AUO_RESULT_ERROR; warning_auo_tcfile_failed();
     } else {
         fprintf(tcfile, "# timecode format v2\r\n");
@@ -229,7 +229,7 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
 
 static AUO_RESULT set_keyframe_from_aviutl(std::vector<int> *keyframe_list, const OUTPUT_INFO *oip) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
-    const int prev_chap_count = keyframe_list->size();
+    const int prev_chap_count = (int)keyframe_list->size();
     const wchar_t * const MES_SEARCH_KEYFRAME = g_auo_mes.get(AUO_VIDEO_KEY_FRAME_DETECTION_START);
     DWORD tm = 0, tm_prev = 0;
     set_window_title(MES_SEARCH_KEYFRAME, PROGRESSBAR_CONTINUOUS);
@@ -263,10 +263,10 @@ static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, con
         write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_VIDEO_SET_KEYFRAME_NO_MUXER));
     } else {
         //チャプターファイル名作成
-        char chap_file[MAX_PATH_LEN] = { 0 };
+        TCHAR chap_file[MAX_PATH_LEN] = { 0 };
         const MUXER_SETTINGS *mux_stg = &sys_dat->exstg->s_mux[(pe->muxer_to_be_used == MUXER_TC2MP4) ? MUXER_MP4 : pe->muxer_to_be_used];
         const MUXER_CMD_EX *muxer_mode = &mux_stg->ex_cmd[get_mux_excmd_mode(conf, pe)];
-        strcpy_s(chap_file, _countof(chap_file), muxer_mode->chap_file);
+        _tcscpy_s(chap_file, _countof(chap_file), muxer_mode->chap_file);
         cmd_replace(chap_file, _countof(chap_file), pe, sys_dat, conf, oip);
 
         ChapterRW chapter;
@@ -297,20 +297,20 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> &keyframe_list, 
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
 #if 0 //デバッグ用
     {
-        const char * const MES_AFS_DEBUG = "Aviutl afs検出中…";
+        const TCHAR * const MES_AFS_DEBUG = "Aviutl afs検出中…";
         set_window_title(MES_AFS_DEBUG, PROGRESSBAR_CONTINUOUS);
         DWORD tm = 0, tm_prev = 0;
-        char afs_csv_file[MAX_PATH_LEN] = { 0 };
-        strcpy_s(afs_csv_file, _countof(afs_csv_file), oip->savefile);
-        change_ext(afs_csv_file, _countof(afs_csv_file), "x264guiEx_afs_log.csv");
+        TCHAR afs_csv_file[MAX_PATH_LEN] = { 0 };
+        _tcscpy_s(afs_csv_file, _countof(afs_csv_file), get_savfile(oip).c_str());
+        change_ext(afs_csv_file, _countof(afs_csv_file), _T("x264guiEx_afs_log.csv"));
         FILE *fp_log = NULL;
-        if (fopen_s(&fp_log, afs_csv_file, "wb") || fp_log == NULL) {
-            write_log_auo_line(LOG_WARNING, "x264guiEx_afsログファイルを開けませんでした。");
+        if (_tfopen_s(&fp_log, afs_csv_file, _T("wb")) || fp_log == NULL) {
+            write_log_auo_line(LOG_WARNING, L"x264guiEx_afsログファイルを開けませんでした。");
         } else {
             int drop = FALSE, next_jitter = 0;
             for (int i = 0; i < oip->n; i++) {
                 afs_get_video((OUTPUT_INFO *)oip, i, &drop, &next_jitter);
-                fprintf(fp_log, "%d\r\n%d,%d,", drop, next_jitter, 4*(i+1) + next_jitter);
+                _ftprintf(fp_log, _T("%d\r\n%d,%d,"), drop, next_jitter, 4*(i+1) + next_jitter);
                 //進捗表示 (自動24fps化などしていると時間がかかる)
                 if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
                     set_log_progress(i / (double)oip->n);
@@ -369,10 +369,10 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
         return ret;
 
     //ファイル名作成
-    char auoqpfile[MAX_PATH_LEN] = { 0 };
+    TCHAR auoqpfile[MAX_PATH_LEN] = { 0 };
     apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
     if (PathFileExists(auoqpfile))
-        remove(auoqpfile);
+        _tremove(auoqpfile);
 
     //Aviutlのキーフレーム検出からキーフレーム設定
     if (!ret && conf->vid.check_keyframe & CHECK_KEYFRAME_AVIUTL)
@@ -398,7 +398,7 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
 
         if (!ret) {
             FILE *qpfile = NULL;
-            if (NULL != fopen_s(&qpfile, auoqpfile, "wb")) {
+            if (NULL != _tfopen_s(&qpfile, auoqpfile, _T("wb"))) {
                 ret |= AUO_RESULT_ERROR; warning_auto_qpfile_failed();
             } else {
                 //出力
@@ -428,18 +428,18 @@ static int ReadLogEnc(PIPE_SET *pipes, int total_drop, int current_frames, int t
 }
 
 //cmdexのうち、guiから発行されるオプションとの衝突をチェックして、読み取られなかったコマンドを追加する
-static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble_guicmd, const CONF_GUIEX *conf) {
-    const size_t cmd_len = strlen(cmd);
-    const size_t cmdex_len = strlen(cmdex);
+static void append_cmdex(TCHAR *cmd, size_t nSize, const TCHAR *cmdex, BOOL disble_guicmd, const CONF_GUIEX *conf) {
+    const size_t cmd_len = _tcslen(cmd);
+    const size_t cmdex_len = _tcslen(cmdex);
 
     //CLIモードなら常にチェックをスキップ
     BOOL skip_check_if_imported = disble_guicmd;
     //--presetなどの特殊なオプションがあったらチェックをスキップ
-    const char * const IRREGULAR_OPTIONS[] = { "--preset", "--tune", "--profile", NULL };
+    const TCHAR * const IRREGULAR_OPTIONS[] = { _T("--preset"), _T("--tune"), _T("--profile"), NULL };
     for (int i = 0; IRREGULAR_OPTIONS[i] && !skip_check_if_imported; i++)
-        skip_check_if_imported = (NULL != strstr(cmdex, IRREGULAR_OPTIONS[i]));
+        skip_check_if_imported = (NULL != _tcsstr(cmdex, IRREGULAR_OPTIONS[i]));
 
-    sprintf_s(cmd + cmd_len, nSize - cmd_len, " %s", cmdex);
+    _stprintf_s(cmd + cmd_len, nSize - cmd_len, _T(" %s"), cmdex);
 
     if (skip_check_if_imported) {
         //改行のチェックのみ行う
@@ -451,7 +451,7 @@ static void append_cmdex(char *cmd, size_t nSize, const char *cmdex, BOOL disble
     }
 }
 
-static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const char *input) {
+static void build_full_cmd(TCHAR *cmd, size_t nSize, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat, const TCHAR *input) {
     CONF_GUIEX prm;
     //パラメータをコピー
     memcpy(&prm, conf, sizeof(CONF_GUIEX));
@@ -474,29 +474,29 @@ static void build_full_cmd(char *cmd, size_t nSize, const CONF_GUIEX *conf, cons
     if ((conf->enc.vbv_bufsize != 0 || conf->enc.vbv_maxrate != 0) && prm.vid.afs)
         write_log_auo_line(LOG_INFO, g_auo_mes.get(AUO_VIDEO_AFS_VBV_WARN));
     //キーフレーム検出を行い、そのQPファイルが存在し、かつ--qpfileの指定がなければ、それをqpfileで読み込む
-    char auoqpfile[MAX_PATH_LEN];
+    TCHAR auoqpfile[MAX_PATH_LEN];
     apply_appendix(auoqpfile, _countof(auoqpfile), pe->temp_filename, pe->append.qp);
     BOOL disable_keyframe_afs = conf->vid.afs && !sys_dat->exstg->s_local.set_keyframe_as_afs_24fps;
-    if (prm.vid.check_keyframe && !disable_keyframe_afs && PathFileExists(auoqpfile) && strstr(cmd, "--qpfile") == NULL)
-        sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --qpfile \"%s\"", auoqpfile);
+    if (prm.vid.check_keyframe && !disable_keyframe_afs && PathFileExists(auoqpfile) && _tcsstr(cmd, _T("--qpfile")) == NULL)
+        _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" --qpfile \"%s\""), auoqpfile);
     //1pass目でafsでない、--framesがなければ--framesを指定
-    if ((!prm.vid.afs || pe->current_pass > 1) && strstr(cmd, "--frames") == NULL)
-        sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --frames %d", oip->n - pe->drop_count + pe->delay_cut_additional_vframe);
+    if ((!prm.vid.afs || pe->current_pass > 1) && _tcsstr(cmd, _T("--frames")) == NULL)
+        _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" --frames %d"), oip->n - pe->drop_count + pe->delay_cut_additional_vframe);
     //解像度情報追加(--input-res)
-    if (strcmp(input, PIPE_FN) == NULL)
-        sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-res %dx%d", oip->w, oip->h);
+    if (_tcscmp(input, PIPE_FN) == 0)
+        _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" --input-res %dx%d"), oip->w, oip->h);
     //rawの形式情報追加
-    sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --input-csp %s", specify_input_csp(prm.enc.output_csp));
+    _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" --input-csp %s"), specify_input_csp(prm.enc.output_csp));
     //fps//tcfile-inが指定されていた場合、fpsの自動付加を停止]
-    if (!prm.enc.use_tcfilein && strstr(cmd, "--tcfile-in") == NULL) {
+    if (!prm.enc.use_tcfilein && _tcsstr(cmd, _T("--tcfile-in")) == NULL) {
         int gcd = rgy_gcd(oip->rate, oip->scale);
-        sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " --fps %d/%d", oip->rate / gcd, oip->scale / gcd);
+        _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" --fps %d/%d"), oip->rate / gcd, oip->scale / gcd);
     }
     //出力ファイル
-    const char * const outfile = (prm.enc.nul_out) ? "nul" : pe->temp_filename;
-    sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " -o \"%s\"", outfile);
+    const TCHAR * const outfile = (prm.enc.nul_out) ? _T("nul") : pe->temp_filename;
+    _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" -o \"%s\""), outfile);
     //入力
-    sprintf_s(cmd + strlen(cmd), nSize - strlen(cmd), " \"%s\"", input);
+    _stprintf_s(cmd + _tcslen(cmd), nSize - _tcslen(cmd), _T(" \"%s\""), input);
 }
 
 static void set_pixel_data(CONVERT_CF_DATA *pixel_data, const CONF_ENC *enc, int w, int h) {
@@ -768,18 +768,18 @@ static void error_videnc_failed(const PRM_ENC *pe) {
     ULARGE_INTEGER temp_drive_avail_space = { 0 };
     const uint64_t disk_warn_threshold = 4 * 1024 * 1024; //4MB
     //指定されたドライブが存在するかどうか
-    char temp_root[MAX_PATH_LEN];
+    TCHAR temp_root[MAX_PATH_LEN];
     if (PathGetRoot(pe->temp_filename, temp_root, _countof(temp_root))
         && PathIsDirectory(temp_root)
         && GetDiskFreeSpaceEx(temp_root, &temp_drive_avail_space, NULL, NULL)
         && temp_drive_avail_space.QuadPart <= disk_warn_threshold) {
-        char driveLetter[MAX_PATH_LEN];
-        strcpy_s(driveLetter, temp_root);
-        if (strlen(driveLetter) > 1 && driveLetter[strlen(driveLetter) - 1] == '\\') {
-            driveLetter[strlen(driveLetter) - 1] = '\0';
+        TCHAR driveLetter[MAX_PATH_LEN];
+        _tcscpy_s(driveLetter, temp_root);
+        if (_tcslen(driveLetter) > 1 && driveLetter[_tcslen(driveLetter) - 1] == _T('\\')) {
+            driveLetter[_tcslen(driveLetter) - 1] = _T('\0');
         }
-        if (strlen(driveLetter) > 1 && driveLetter[strlen(driveLetter) - 1] == ':') {
-            driveLetter[strlen(driveLetter) - 1] = '\0';
+        if (_tcslen(driveLetter) > 1 && driveLetter[_tcslen(driveLetter) - 1] == _T(':')) {
+            driveLetter[_tcslen(driveLetter) - 1] = _T('\0');
         }
         error_videnc_dead_and_nodiskspace(driveLetter, temp_drive_avail_space.QuadPart);
     } else {
@@ -792,9 +792,9 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
     PIPE_SET pipes = { 0 };
     PROCESS_INFORMATION pi_enc = { 0 };
 
-    char enccmd[MAX_CMD_LEN]  = { 0 };
-    char encargs[MAX_CMD_LEN] = { 0 };
-    char encdir[MAX_PATH_LEN] = { 0 };
+    TCHAR enccmd[MAX_CMD_LEN]  = { 0 };
+    TCHAR encargs[MAX_CMD_LEN] = { 0 };
+    TCHAR encdir[MAX_PATH_LEN] = { 0 };
 
     const BOOL afs = conf->vid.afs != 0;
     CONVERT_CF_DATA pixel_data = { 0 };
@@ -837,8 +837,8 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
     //コマンドライン生成
     build_full_cmd(enccmd, _countof(enccmd), conf, oip, pe, sys_dat, PIPE_FN);
     write_log_auo_line_fmt(LOG_INFO, L"%s options...", ENCODER_NAME_W);
-    write_args(enccmd);
-    sprintf_s(encargs, _countof(encargs), "\"%s\" %s", sys_dat->exstg->s_enc.fullpath, enccmd);
+    write_args(tchar_to_string(enccmd).c_str());
+    _stprintf_s(encargs, _T("\"%s\" %s"), sys_dat->exstg->s_enc.fullpath, enccmd);
     if (PathFileExists(pe->temp_filename)) {
         //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
         if (!DeleteFile(pe->temp_filename)) { auto err = GetLastError(); error_failed_remove_file((pe->temp_filename), err); return AUO_RESULT_ERROR; }
@@ -1051,7 +1051,7 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
     return ret;
 }
 
-BOOL check_videnc_mp4_output([[maybe_unused]] const char *exe_path, [[maybe_unused]] const char *temp_filename) {
+BOOL check_videnc_mp4_output([[maybe_unused]] const TCHAR *exe_path, [[maybe_unused]] const TCHAR *temp_filename) {
     BOOL ret = FALSE;
 #if ENCODER_X264
     std::string exe_message;
@@ -1059,28 +1059,28 @@ BOOL check_videnc_mp4_output([[maybe_unused]] const char *exe_path, [[maybe_unus
 
     const int TEST_WIDTH = 160;
     const int TEST_HEIGHT = 120;
-    std::vector<char> test_buffer(TEST_WIDTH * TEST_HEIGHT * 3 / 2, 0);
+    std::vector<TCHAR> test_buffer(TEST_WIDTH * TEST_HEIGHT * 3 / 2, 0);
 
     PIPE_SET pipes = { 0 };
     InitPipes(&pipes);
     pipes.stdIn.mode  = AUO_PIPE_ENABLE;
     pipes.stdOut.mode = AUO_PIPE_DISABLE;
     pipes.stdErr.mode = AUO_PIPE_ENABLE;
-    pipes.stdIn.bufferSize = test_buffer.size();
+    pipes.stdIn.bufferSize = (DWORD)test_buffer.size();
 
-    char test_path[1024] = { 0 };
+    TCHAR test_path[1024] = { 0 };
     for (int i = 0; !i || PathFileExists(test_path); i++) {
-        char test_filename[32] = { 0 };
-        sprintf_s(test_filename, _countof(test_filename), "_test_%d.mp4", i);
+        TCHAR test_filename[32] = { 0 };
+        _stprintf_s(test_filename, _T("_test_%d.mp4"), i);
         PathCombineLong(test_path, _countof(test_path), temp_filename, test_filename);
     }
 
-    char exe_dir[1024] = { 0 };
-    strcpy_s(exe_dir, _countof(exe_dir), exe_path);
+    TCHAR exe_dir[1024] = { 0 };
+    _tcscpy_s(exe_dir, _countof(exe_dir), exe_path);
     PathRemoveFileSpecFixed(exe_dir);
 
-    char fullargs[8192] = { 0 };
-    sprintf_s(fullargs, _countof(fullargs), "\"%s\" --fps 1 --frames 1 --input-depth 8 --input-res %dx%d -o \"%s\" --input-csp nv12 -", exe_path, TEST_WIDTH, TEST_HEIGHT, test_path);
+    TCHAR fullargs[8192] = { 0 };
+    _stprintf_s(fullargs, _T("\"%s\" --fps 1 --frames 1 --input-depth 8 --input-res %dx%d -o \"%s\" --input-csp nv12 -"), exe_path, TEST_WIDTH, TEST_HEIGHT, test_path);
     if ((ret = RunProcess(fullargs, exe_dir, &pi, &pipes, NORMAL_PRIORITY_CLASS, TRUE, FALSE)) == RP_SUCCESS) {
 
         while (WAIT_TIMEOUT == WaitForInputIdle(pi.hProcess, LOG_UPDATE_INTERVAL))
@@ -1127,7 +1127,7 @@ BOOL check_videnc_mp4_output([[maybe_unused]] const char *exe_path, [[maybe_unus
     if (pipes.stdIn.mode)  CloseHandle(pipes.stdIn.h_read);
     if (pipes.stdOut.mode) CloseHandle(pipes.stdOut.h_read);
     if (pipes.stdErr.mode) CloseHandle(pipes.stdErr.h_read);
-    if (PathFileExists(test_path)) remove(test_path);
+    if (PathFileExists(test_path)) _tremove(test_path);
 #endif
     return ret;
 }
@@ -1158,7 +1158,7 @@ static AUO_RESULT check_amp(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *p
             return AUO_RESULT_ABORT; //音声エンコを先にやるべく、動画エンコを終了する
         }
         for (int i_aud = 0; i_aud < pe->aud_count; i_aud++) {
-            char aud_file[MAX_PATH_LEN];
+            TCHAR aud_file[MAX_PATH_LEN];
             apply_appendix(aud_file, _countof(aud_file), pe->temp_filename, pe->append.aud[i_aud]);
             if (!PathFileExists(aud_file)) {
                 error_no_aud_file(aud_file);
@@ -1255,7 +1255,7 @@ static AUO_RESULT video_output_inside(CONF_GUIEX *conf, const OUTPUT_INFO *oip, 
         ret |= check_cmdex(conf, oip, pe, sys_dat);
 
         //キーフレーム検出 (cmdexのほうに--qpfileの指定があればそれを優先する)
-        if (!ret && conf->vid.check_keyframe && strstr(conf->vid.cmdex, "--qpfile") == NULL)
+        if (!ret && conf->vid.check_keyframe && _tcsstr(conf->vid.cmdex, _T("--qpfile")) == NULL)
             set_keyframe(conf, oip, pe, sys_dat);
     }
 

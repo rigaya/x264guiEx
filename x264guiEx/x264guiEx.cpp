@@ -172,7 +172,7 @@ BOOL func_output( OUTPUT_INFO *oip ) {
     PRM_ENC pe = { 0 };
     CONF_GUIEX conf_out = { 0 };
     const DWORD tm_start_enc = timeGetTime();
-    char default_stg_file[MAX_PATH_LEN] = { 0 };
+    TCHAR default_stg_file[MAX_PATH_LEN] = { 0 };
 
     //データの初期化
     init_SYSTEM_DATA(&g_sys_dat);
@@ -303,9 +303,9 @@ int func_config_get(void *data, int size) {
     if (data && size == sizeof(CONF_GUIEX)) {
         strcpy_s((char *)data, size, CONF_NAME_JSON);
         std::string json_str = guiEx_config::conf_to_json(&g_conf, 0);
-        const size_t json_len = json_str.length();
+        const int json_len = (int)json_str.length();
         strcpy_s((char *)data + strlen(CONF_NAME_JSON), size - strlen(CONF_NAME_JSON), json_str.c_str());
-        return json_len + strlen(CONF_NAME_JSON);
+        return json_len + (int)strlen(CONF_NAME_JSON);
     }
     return NULL;
 }
@@ -316,7 +316,7 @@ int func_config_set(void *data,int size) {
         return NULL;
     }
     init_CONF_GUIEX(&g_conf, FALSE);
-    if (size >= strlen(CONF_NAME_JSON)
+    if (size >= (int)strlen(CONF_NAME_JSON)
         && strcmp(CONF_NAME_JSON, g_conf.header.conf_name) == 0) {
         std::string json_str((char *)data + strlen(CONF_NAME_JSON));
         if (guiEx_config::json_to_conf(&g_conf, json_str)) {
@@ -391,9 +391,9 @@ void write_log_auo_line_fmt(int log_type_index, const wchar_t *format, ... ) {
     free(buffer);
 }
 //エンコード時間の表示
-void write_log_auo_enc_time(const wchar_t *mes, DWORD time) {
+void write_log_auo_enc_time(const TCHAR *mes, DWORD time) {
     time = ((time + 50) / 100) * 100; //四捨五入
-    write_log_auo_line_fmt(LOG_INFO, L"%s : %d%s%2d%s%2d.%1d%s",
+    write_log_auo_line_fmt(LOG_INFO, _T("%s : %d%s%2d%s%2d.%1d%s"),
         mes,
         time / (60*60*1000), g_auo_mes.get(AUO_GUIEX_TIME_HOUR),
         (time % (60*60*1000)) / (60*1000), g_auo_mes.get(AUO_GUIEX_TIME_MIN),
@@ -409,7 +409,7 @@ void overwrite_aviutl_ini_file_filter(int idx) {
 
     char filefilter_ini[1024] = { 0 };
     make_file_filter(filefilter_ini, _countof(filefilter_ini), idx);
-    WritePrivateProfileString(AUO_NAME, "filefilter", filefilter_ini, ini_file);
+    WritePrivateProfileStringA(AUO_NAME, "filefilter", filefilter_ini, ini_file);
 }
 
 void overwrite_aviutl_ini_auo_info() {
@@ -428,14 +428,14 @@ void overwrite_aviutl_ini_auo_info() {
             sprintf_s(g_auo_version_info, "%s %s by rigaya", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
         }
         output_plugin_table.information = g_auo_version_info;
-        WritePrivateProfileString(AUO_NAME, "name", output_plugin_table.name, ini_file);
-        WritePrivateProfileString(AUO_NAME, "information", output_plugin_table.information, ini_file);
+        WritePrivateProfileStringA(AUO_NAME, "name", output_plugin_table.name, ini_file);
+        WritePrivateProfileStringA(AUO_NAME, "information", output_plugin_table.information, ini_file);
     }
 }
 
-std::string get_last_out_stg_appendix() {
-    const auto appendix = wstring_to_string(g_auo_mes.get(AUO_CONF_LAST_OUT_STG));
-    return (appendix.length() > 0) ? appendix : CONF_LAST_OUT;
+std::wstring get_last_out_stg_appendix() {
+    const auto appendix = g_auo_mes.get(AUO_CONF_LAST_OUT_STG);
+    return (wcslen(appendix) > 0) ? appendix : CONF_LAST_OUT;
 }
 
 const char *get_auo_version_info() {
@@ -508,31 +508,31 @@ static int getEmbeddedResource(void **data, const TCHAR *name, const TCHAR *type
     return (int)SizeofResource(hModule, hResource);
 }
 
-int load_lng(const char *lang) {
+int load_lng(const TCHAR *lang) {
     if (g_auo_mes.isLang(lang)) {
         return 0;
     }
-    const char *resource = list_auo_languages[0].resouce;
+    const TCHAR *resource = list_auo_languages[0].resouce;
     if (lang && str_has_char(lang)) {
-        char auo_path[MAX_PATH_LEN];
+        TCHAR auo_path[MAX_PATH_LEN];
         get_auo_path(auo_path, _countof(auo_path));
-        char auo_dir[MAX_PATH_LEN];
-        strcpy_s(auo_dir, auo_path);
+        TCHAR auo_dir[MAX_PATH_LEN];
+        wcscpy_s(auo_dir, auo_path);
         PathRemoveFileSpecFixed(auo_dir);
-        char lng_path[MAX_PATH_LEN];
+        TCHAR lng_path[MAX_PATH_LEN];
         PathCombineLong(lng_path, _countof(lng_path), auo_dir, lang);
         if (PathFileExists(lng_path)) {
             return g_auo_mes.read(lng_path);
         }
         for (const auto& auo_lang : list_auo_languages) {
-            if (stricmp(auo_lang.code, lang) == 0) {
+            if (wcsicmp(auo_lang.code, lang) == 0) {
                 resource = auo_lang.resouce;
                 break;
             }
         }
     }
     char *data = nullptr;
-    int size = getEmbeddedResource((void **)&data, resource, "EXE_DATA", g_dll_module);
+    int size = getEmbeddedResource((void **)&data, resource, _T("EXE_DATA"), g_dll_module);
     if (size == 0) {
         return 1;
     }

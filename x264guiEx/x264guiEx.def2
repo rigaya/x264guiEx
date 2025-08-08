@@ -1,0 +1,4 @@
+﻿LIBRARY "x264guiEx.auo2"
+
+EXPORTS
+    GetOutputPluginTable

@@ -31,31 +31,32 @@
 #include "auo.h"
 #include "auo_settings.h"
 #include "auo_options.h"
+#include "rgy_tchar.h"
 
 #if ENCODER_X264
 
 static const ENC_OPTION_STR list_x264guiEx_level[] = {
-    { "auto", AUO_OPTION_LEVEL_AUTO, L"自動" },
-    { "1",    AUO_MES_UNKNOWN, L"1"    },
-    { "1b",   AUO_MES_UNKNOWN, L"1b"   },
-    { "1.1",  AUO_MES_UNKNOWN, L"1.1"  },
-    { "1.2",  AUO_MES_UNKNOWN, L"1.2"  },
-    { "1.3",  AUO_MES_UNKNOWN, L"1.3"  },
-    { "2",    AUO_MES_UNKNOWN, L"2"    },
-    { "2.1",  AUO_MES_UNKNOWN, L"2.1"  },
-    { "2.2",  AUO_MES_UNKNOWN, L"2.2"  },
-    { "3",    AUO_MES_UNKNOWN, L"3"    },
-    { "3.1",  AUO_MES_UNKNOWN, L"3.1"  },
-    { "3.2",  AUO_MES_UNKNOWN, L"3.2"  },
-    { "4",    AUO_MES_UNKNOWN, L"4"    },
-    { "4.1",  AUO_MES_UNKNOWN, L"4.1"  },
-    { "4.2",  AUO_MES_UNKNOWN, L"4.2"  },
-    { "5",    AUO_MES_UNKNOWN, L"5"    },
-    { "5.1",  AUO_MES_UNKNOWN, L"5.1"  },
-    { "5.2",  AUO_MES_UNKNOWN, L"5.2"  },
-    { "6",    AUO_MES_UNKNOWN, L"6"    },
-    { "6.1",  AUO_MES_UNKNOWN, L"6.1"  },
-    { "6.2",  AUO_MES_UNKNOWN, L"6.2"  },
+    { _T("auto"), AUO_OPTION_LEVEL_AUTO, L"自動" },
+    { _T("1"),    AUO_MES_UNKNOWN, L"1"    },
+    { _T("1b"),   AUO_MES_UNKNOWN, L"1b"   },
+    { _T("1.1"),  AUO_MES_UNKNOWN, L"1.1"  },
+    { _T("1.2"),  AUO_MES_UNKNOWN, L"1.2"  },
+    { _T("1.3"),  AUO_MES_UNKNOWN, L"1.3"  },
+    { _T("2"),    AUO_MES_UNKNOWN, L"2"    },
+    { _T("2.1"),  AUO_MES_UNKNOWN, L"2.1"  },
+    { _T("2.2"),  AUO_MES_UNKNOWN, L"2.2"  },
+    { _T("3"),    AUO_MES_UNKNOWN, L"3"    },
+    { _T("3.1"),  AUO_MES_UNKNOWN, L"3.1"  },
+    { _T("3.2"),  AUO_MES_UNKNOWN, L"3.2"  },
+    { _T("4"),    AUO_MES_UNKNOWN, L"4"    },
+    { _T("4.1"),  AUO_MES_UNKNOWN, L"4.1"  },
+    { _T("4.2"),  AUO_MES_UNKNOWN, L"4.2"  },
+    { _T("5"),    AUO_MES_UNKNOWN, L"5"    },
+    { _T("5.1"),  AUO_MES_UNKNOWN, L"5.1"  },
+    { _T("5.2"),  AUO_MES_UNKNOWN, L"5.2"  },
+    { _T("6"),    AUO_MES_UNKNOWN, L"6"    },
+    { _T("6.1"),  AUO_MES_UNKNOWN, L"6.1"  },
+    { _T("6.2"),  AUO_MES_UNKNOWN, L"6.2"  },
     { NULL,   AUO_MES_UNKNOWN, NULL }
 };
 

@@ -1,9 +1,9 @@
 ﻿// -----------------------------------------------------------------------------------------
-// x264guiEx/x265guiEx/svtAV1guiEx/ffmpegOut/QSVEnc/NVEnc/VCEEnc by rigaya
+// QSVEnc/NVEnc by rigaya
 // -----------------------------------------------------------------------------------------
 // The MIT License
 //
-// Copyright (c) 2010-2022 rigaya
+// Copyright (c) 2023 rigaya
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,11 @@
 // THE SOFTWARE.
 //
 // --------------------------------------------------------------------------------------------
-#pragma once
-#ifndef _EXE_VERSION_H_
-#define _EXE_VERSION_H_
+#define RGY_MEMMEM_AVX512
+#include "rgy_faw.h"
 
-#include <string>
-
-int version_a_larger_than_b(const int a[4], const int b[4]);
-std::string ver_string(int ver[4]);
-
-int get_exe_version_info(const TCHAR *exe_path, int version[4]);
-int get_exe_version_from_cmd(const TCHAR *exe_path, const TCHAR *cmd_ver, int version[4]);
-
-int get_x264_rev(const TCHAR *x264fullpath);
-int get_x265_rev(const TCHAR *x265fullpath, int version[4]);
-int get_svtav1_rev(const TCHAR *svtav1fullpath, int version[4]);
-
-int get_x265ver_from_txt(const TCHAR *txt, int v[4]);
-
-enum QTDLL {
-    QAAC_APPLEDLL_UNAVAILABLE = 0,
-    QAAC_APPLEDLL_IN_EXEDIR = 1,
-    QAAC_APPLEDLL_IN_CURRENTDIR = 2
-};
-
-QTDLL check_if_apple_dll_required_for_qaac(const TCHAR *exe_dir, const TCHAR *current_fullpath);
-
-#endif //_EXE_VERSION_H_
+#if defined(_M_X64) || defined(__x86_64)
+size_t rgy_memmem_fawstart1_avx512bw(const void *data_, const size_t data_size) {
+    return rgy_memmem_avx512_imp(data_, data_size, fawstart1.data(), fawstart1.size());
+}
+#endif

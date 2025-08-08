@@ -90,9 +90,9 @@ int calc_auto_level(int width, int height, int ref, BOOL interlaced, int fps_num
 void get_vbv_value(int *vbv_max, int *vbv_buf, int level, int profile_index, int use_highbit, guiEx_settings *ex_stg) {
     if (level > 0 && H264_LEVEL_LIMITS[level][1] > 0) {
         //high10 profileを使うかどうか
-        if (use_highbit && _stricmp(ex_stg->s_enc.profile.name[profile_index].name, "high") == NULL) {
+        if (use_highbit && _tcsicmp(ex_stg->s_enc.profile.name[profile_index].name, _T("high")) == NULL) {
             for (int i = 0; i < ex_stg->s_enc.profile_count; i++)
-                if (_stricmp(ex_stg->s_enc.profile.name[i].name, "high10") == NULL) {
+                if (_tcsicmp(ex_stg->s_enc.profile.name[i].name, _T("high10")) == NULL) {
                     profile_index = i;
                     break;
                 }

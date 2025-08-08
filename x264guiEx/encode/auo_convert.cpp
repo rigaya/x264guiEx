@@ -435,8 +435,8 @@ static void auo_write_func_info(const COVERT_FUNC_INFO *func_info) {
     }
 
     write_log_auo_line_fmt(LOG_INFO, L"converting %s -> %s%s%s%s",
-        char_to_wstring(CF_NAME[func_info->input_from_aviutl]).c_str(),
-        char_to_wstring(specify_csp[func_info->output_csp]).c_str(),
+        CF_NAME[func_info->input_from_aviutl],
+        specify_csp[func_info->output_csp],
         interlaced,
         bit_depth,
         simd_buf);

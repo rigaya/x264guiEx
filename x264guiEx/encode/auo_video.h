@@ -44,7 +44,7 @@ enum {
     CF_RGB  = 2,
     CF_LW48 = 3,
 };
-static const char * const CF_NAME[] = { "YUY2", "YC48", "RGB", "LW48" };
+static const TCHAR * const CF_NAME[] = { _T("YUY2"), _T("YC48"), _T("RGB"), _T("LW48") };
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
@@ -61,7 +61,7 @@ static const COLORFORMAT_DATA COLORFORMATS[] = {
 
 static const int DROP_FRAME_FLAG = INT_MAX;
 
-BOOL check_videnc_mp4_output(const char *exe_path, const char *temp_filename);
+BOOL check_videnc_mp4_output(const TCHAR *exe_path, const TCHAR *temp_filename);
 
 BOOL setup_afsvideo(const OUTPUT_INFO *oip, const SYSTEM_DATA *sys_dat, CONF_GUIEX *conf, PRM_ENC *pe);
 void close_afsvideo(PRM_ENC *pe);

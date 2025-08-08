@@ -34,6 +34,8 @@
 #include "auo.h"
 #include "auo_mes.h"
 #include "auo_options.h"
+#include "rgy_tchar.h"
+#include "rgy_util.h"
 
 // JSON support for new format
 #include <string>
@@ -85,7 +87,7 @@ const int CONF_BLOCK_MAX                 = 32;
 const int CONF_BLOCK_COUNT               = 5; //最大 CONF_BLOCK_MAXまで
 const int CONF_HEAD_SIZE                 = (3 + CONF_BLOCK_MAX) * sizeof(int) + CONF_BLOCK_MAX * sizeof(size_t) + CONF_NAME_BLOCK_LEN;
 
-static const char *const CONF_LAST_OUT   = "前回出力.stg";
+static const wchar_t *const CONF_LAST_OUT   = L"前回出力.stg";
 
 typedef struct {
     WCHAR *text;
@@ -172,10 +174,10 @@ typedef struct CONF_VIDEO {
     BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
     DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
     int    priority;                 //x264のCPU優先度(インデックス)
-    wchar_t stats[MAX_PATH_LEN];     //x264用ステータスファイルの場所
-    wchar_t tcfile_in[MAX_PATH_LEN]; //x264 tcfile-in用タイムコードファイルの場所
-    wchar_t cqmfile[MAX_PATH_LEN];   //x264 cqmfileの場所
-    wchar_t cmdex[CMDEX_MAX_LEN];    //追加コマンドライン
+    TCHAR stats[MAX_PATH_LEN];     //x264用ステータスファイルの場所
+    TCHAR tcfile_in[MAX_PATH_LEN]; //x264 tcfile-in用タイムコードファイルの場所
+    TCHAR cqmfile[MAX_PATH_LEN];   //x264 cqmfileの場所
+    TCHAR cmdex[CMDEX_MAX_LEN];    //追加コマンドライン
     DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
     double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
@@ -241,16 +243,16 @@ typedef struct CONF_OTHER {
     BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
     int   temp_dir;               //一時ディレクトリ
     BOOL  out_audio_only;         //音声のみ出力
-    wchar_t notes[128];           //メモ
+    TCHAR notes[128];           //メモ
     DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
     DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
     union {
-        wchar_t batfiles[4][1024];     //バッチファイルのパス
+        TCHAR batfiles[4][1024];     //バッチファイルのパス
         struct {
-            wchar_t before_process[1024]; //エンコ前バッチファイルのパス
-            wchar_t after_process[1024];  //エンコ後バッチファイルのパス
-            wchar_t before_audio[1024];   //音声エンコ前バッチファイルのパス
-            wchar_t after_audio[1024];    //音声エンコ後バッチファイルのパス
+            TCHAR before_process[1024]; //エンコ前バッチファイルのパス
+            TCHAR after_process[1024];  //エンコ後バッチファイルのパス
+            TCHAR before_audio[1024];   //音声エンコ前バッチファイルのパス
+            TCHAR after_audio[1024];    //音声エンコ後バッチファイルのパス
         } batfile;
     };
 } CONF_OTHER;
@@ -305,9 +307,9 @@ public:
     guiEx_config();
     static void write_conf_header(CONF_GUIEX_HEADER *conf_header);
     static int  adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int old_size);
-    static int  load_guiEx_conf(CONF_GUIEX *conf, const char *stg_file);       //設定をstgファイルから読み込み (バイナリ & JSON対応)
-    static int  save_guiEx_conf(const CONF_GUIEX *conf, const char *stg_file); //設定をJSONファイルとして保存
-    static int  load_guiEx_conf_legacy(CONF_GUIEX *conf, const char *stg_file); //旧形式のstgファイルから読み込み
+    static int  load_guiEx_conf(CONF_GUIEX *conf, const TCHAR *stg_file);       //設定をstgファイルから読み込み (バイナリ & JSON対応)
+    static int  save_guiEx_conf(const CONF_GUIEX *conf, const TCHAR *stg_file); //設定をJSONファイルとして保存
+    static int  load_guiEx_conf_legacy(CONF_GUIEX *conf, const TCHAR *stg_file); //旧形式のstgファイルから読み込み
 
     static std::string conf_to_json(const CONF_GUIEX *conf, int indent);                 //設定をJSON文字列に変換
     static bool json_to_conf(CONF_GUIEX *conf, const std::string &json_str);             //JSON文字列から設定を復元
