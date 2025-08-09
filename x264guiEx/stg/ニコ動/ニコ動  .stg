@@ -1,0 +1,80 @@
+{
+  "audio": {
+    "ext": {
+      "aud_temp_dir": 0,
+      "audio_encode_timing": 2,
+      "bitrate": 192,
+      "delay_cut": 0,
+      "enc_mode": 0,
+      "encoder": 15,
+      "faw_check": 0,
+      "minimized": 0,
+      "priority": 0,
+      "use_2pass": 0,
+      "use_wav": 0
+    },
+    "in": {
+      "aud_temp_dir": 0,
+      "audio_encode_timing": 0,
+      "bitrate": 0,
+      "delay_cut": 0,
+      "enc_mode": 0,
+      "encoder": 1,
+      "faw_check": 0,
+      "minimized": 0,
+      "priority": 0,
+      "use_2pass": 0,
+      "use_wav": 0
+    },
+    "use_internal": 0
+  },
+  "conf_name": "x264guiEx ConfigFile v3",
+  "enc": {
+    "auto_npass": 2,
+    "cmd": " --preset fast --crf 20 --qpstep 12 --qcomp 0.8 --chroma-qp-offset -2 --vbv-bufsize -1 --vbv-maxrate -1 --keyint -1 --min-keyint 4 --deblock 1:1 --colormatrix bt709",
+    "use_auto_npass": 1
+  },
+  "mux": {
+    "apple_mode": 0,
+    "disable_mkvext": 0,
+    "disable_mp4ext": 0,
+    "internal_mode": 0,
+    "minimized": 0,
+    "mkv_mode": 0,
+    "mp4_mode": 0,
+    "mp4_temp_dir": 0,
+    "priority": 0,
+    "use_internal": 0
+  },
+  "other": {
+    "batfiles": {
+      "after_audio": "",
+      "after_process": "",
+      "before_audio": "",
+      "before_process": ""
+    },
+    "disable_guicmd": 0,
+    "dont_wait_bat_fin": 0,
+    "notes": "1920x1080以上推奨、Aviutl色変換[出力]をBT.709に",
+    "out_audio_only": 0,
+    "run_bat": 0,
+    "temp_dir": 0
+  },
+  "version": "x264guiEx ConfigFile v3 json",
+  "video": {
+    "afs": 0,
+    "afs_bitrate_correction": 0,
+    "amp_check": 1,
+    "amp_limit_bitrate_lower": 0.0,
+    "amp_limit_bitrate_upper": 0.0,
+    "amp_limit_file_size": 2998.0,
+    "auo_tcfile_out": 0,
+    "check_keyframe": 0,
+    "cmdex": "",
+    "cqmfile": "",
+    "input_as_lw48": 0,
+    "priority": 0,
+    "stats": "%{savfile}.stats",
+    "tcfile_in": "%{savfile}_tc.txt"
+  }
+}
