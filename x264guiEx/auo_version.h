@@ -28,14 +28,19 @@
 #ifndef _AUO_VERSION_H_
 #define _AUO_VERSION_H_
 
-#define AUO_VERSION         0,3,33,0
-#define AUO_VERSION_STR      "3.33"
-#define AUO_VERSION_STR_W   L"3.33"
+#define AUO_VERSION         0,4,0,0
+#define AUO_VERSION_STR      "4.00"
+#define AUO_VERSION_STR_W   L"4.00"
 #define AUO_NAME_R            x264guiEx
 #define AUO_NAME_WITHOUT_EXT "x264guiEx"
 #define AUO_NAME_WITHOUT_EXT_W L"x264guiEx"
+#if _M_X64
+#define AUO_NAME             "x264guiEx.auo2"
+#define AUO_NAME_W          L"x264guiEx.auo2"
+#else
 #define AUO_NAME             "x264guiEx.auo"
 #define AUO_NAME_W          L"x264guiEx.auo"
+#endif
 #define AUO_FULL_NAME        "拡張 x264 出力(GUI) Ex"
 #define AUO_FULL_NAME_W     L"拡張 x264 出力(GUI) Ex"
 #define AUO_VERSION_NAME     "拡張 x264 出力(GUI) Ex " AUO_VERSION_STR

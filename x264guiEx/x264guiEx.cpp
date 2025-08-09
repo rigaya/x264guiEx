@@ -66,6 +66,10 @@ AuoMessages g_auo_mes;
 bool func_output2( OUTPUT_INFO *oip );
 bool func_config2(HWND hwnd, HINSTANCE dll_hinst);
 
+static const aviutlchar *func_get_config_text() {
+    return g_auo_version_info;
+}
+
 //---------------------------------------------------------------------
 //        出力プラグイン構造体定義
 //---------------------------------------------------------------------
@@ -87,6 +91,7 @@ OUTPUT_PLUGIN_TABLE output_plugin_table = {
     AUO_VERSION_INFO_W,           // プラグインの情報
     func_output2,                  // 出力時に呼ばれる関数へのポインタ
     func_config2,                  // 出力設定のダイアログを要求された時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
+    func_get_config_text
 #endif
 };
 
@@ -326,16 +331,17 @@ bool func_config2(HWND hwnd, HINSTANCE dll_hinst) {
 
 #pragma warning( pop )
 
+// 1回目、data=null,size=0で呼ばれ、そのとき返したサイズでメモリが確保されてもう一回呼ばれる
 int func_config_get(void *data, int size) {
-    memset(data, 0, size);
-    if (data && size > 0) {
+    std::string json_str = guiEx_config::conf_to_json(&g_conf, 0);
+    const int json_len = (int)json_str.length();
+    const int data_len = json_len + (int)strlen(CONF_NAME_JSON) + 1;
+    if (data && size >= data_len) {
+        memset(data, 0, size);
         strcpy_s((char *)data, size, CONF_NAME_JSON);
-        std::string json_str = guiEx_config::conf_to_json(&g_conf, 0);
-        const int json_len = (int)json_str.length();
         strcpy_s((char *)data + strlen(CONF_NAME_JSON), size - strlen(CONF_NAME_JSON), json_str.c_str());
-        return json_len + (int)strlen(CONF_NAME_JSON);
     }
-    return NULL;
+    return data_len;
 }
 
 int func_config_set(void *data,int size) {
@@ -345,8 +351,13 @@ int func_config_set(void *data,int size) {
     }
     init_CONF_GUIEX(&g_conf, FALSE);
     if (size >= (int)strlen(CONF_NAME_JSON)
-        && strcmp(CONF_NAME_JSON, g_conf.header.conf_name) == 0) {
+        && strncmp(CONF_NAME_JSON, (char *)data, strlen(CONF_NAME_JSON)) == 0) {
         std::string json_str((char *)data + strlen(CONF_NAME_JSON));
+        if (guiEx_config::json_to_conf(&g_conf, json_str)) {
+            return size;
+        }
+    } else if (size == sizeof(CONF_GUIEX_OLD)) {
+        auto json_str = guiEx_config::old_conf_to_json((CONF_GUIEX_OLD *)data);
         if (guiEx_config::json_to_conf(&g_conf, json_str)) {
             return size;
         }
@@ -354,7 +365,6 @@ int func_config_set(void *data,int size) {
     memset(data, 0, size);
     return NULL;
 }
-
 
 //---------------------------------------------------------------------
 //        x264guiExのその他の関数
@@ -466,9 +476,9 @@ void overwrite_aviutl_ini_auo_info() {
         output_plugin_table.name = g_auo_fullname;
         std::wstring auo_version_info;
         if (auo_full_name != AUO_NAME_WITHOUT_EXT_W) {
-            auo_version_info = std::wstring(auo_full_name) + std::wstring(L" (" AUO_NAME_WITHOUT_EXT_W L") " AUO_VERSION_STR_W L" by rigaya");
+            auo_version_info = std::wstring(auo_full_name) + std::wstring(L" (" AUO_NAME_WITHOUT_EXT_W L") " AUO_VERSION_STR_W);
         } else {
-            auo_version_info = AUO_NAME_WITHOUT_EXT_W L" " AUO_VERSION_STR_W L" by rigaya";
+            auo_version_info = AUO_NAME_WITHOUT_EXT_W L" " AUO_VERSION_STR_W;
         }
         aviutlcharcpy_s(g_auo_version_info, wstring_to_aviutlchar(auo_version_info).c_str());
         output_plugin_table.information = g_auo_version_info;

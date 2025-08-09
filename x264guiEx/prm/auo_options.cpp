@@ -1089,7 +1089,7 @@ void set_cmd_to_conf_full(const TCHAR *cmd_src, CONF_ENC *conf_set) {
     CONF_ENC preload;
     get_default_conf(&preload, FALSE); //デフォルトを呼んでおく
     set_cmd_to_conf(cmd_src, &preload);
-
+    memcpy(conf_set, &preload, sizeof(CONF_ENC));
     get_default_conf(conf_set, preload.use_highbit_depth);
     set_preset_to_conf(conf_set, preload.preset);
     set_tune_to_conf(conf_set, preload.tune);

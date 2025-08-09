@@ -290,8 +290,7 @@ class guiEx_config {
 private:
     static const size_t conf_block_pointer[CONF_BLOCK_COUNT];
     static const int conf_block_data[CONF_BLOCK_COUNT];
-    static void convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf);
-    static std::string old_conf_to_json(const CONF_GUIEX_OLD *old_conf);                 //旧形式からJSON文字列に変換
+    static void convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf);            //旧形式からJSON文字列に変換
     
     // ブロック別JSON変換関数
     static void video_to_json(nlohmann::json& j, const CONF_VIDEO& vid);                 //ビデオ設定をJSONに変換
@@ -306,6 +305,7 @@ private:
 public:
     guiEx_config();
     static void write_conf_header(CONF_GUIEX_HEADER *conf_header);
+    static std::string old_conf_to_json(const CONF_GUIEX_OLD *old_conf);     
     static int  adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int old_size);
     static int  load_guiEx_conf(CONF_GUIEX *conf, const TCHAR *stg_file);       //設定をstgファイルから読み込み (バイナリ & JSON対応)
     static int  save_guiEx_conf(const CONF_GUIEX *conf, const TCHAR *stg_file); //設定をJSONファイルとして保存
