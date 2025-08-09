@@ -28,7 +28,7 @@
 #ifndef _AUO_VIDEO_H_
 #define _AUO_VIDEO_H_
 
-#include "output.h"
+#include "auo.h"
 #include "convert.h"
 #include "auo_conf.h"
 #include "auo_system.h"

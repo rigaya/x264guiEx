@@ -34,7 +34,6 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
-#include "output.h"
 #include "auo.h"
 #include "auo_version.h"
 #include "auo_frm.h"

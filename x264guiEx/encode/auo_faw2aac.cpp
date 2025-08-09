@@ -37,7 +37,6 @@
 #include <thread>
 #include <future>
 
-#include "output.h"
 #include "rgy_faw.h"
 #include "auo.h"
 #include "auo_version.h"

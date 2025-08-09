@@ -1084,6 +1084,19 @@ void set_profile_to_conf(CONF_ENC *conf_set, int profile_index) {
     set_cmd_to_conf(ex_stg->s_enc.profile.cmd[profile_index], conf_set);
 }
 
+void set_cmd_to_conf_full(const TCHAR *cmd_src, CONF_ENC *conf_set) {
+    // 一度ロードし、プロファイル等を再設定する
+    CONF_ENC preload;
+    get_default_conf(&preload, FALSE); //デフォルトを呼んでおく
+    set_cmd_to_conf(cmd_src, &preload);
+
+    get_default_conf(conf_set, preload.use_highbit_depth);
+    set_preset_to_conf(conf_set, preload.preset);
+    set_tune_to_conf(conf_set, preload.tune);
+    set_profile_to_conf(conf_set, preload.profile);
+    set_cmd_to_conf(cmd_src, conf_set);
+}
+
 void apply_presets(CONF_ENC *conf_set) {
     set_preset_to_conf(conf_set, conf_set->preset);
     set_tune_to_conf(conf_set, conf_set->tune);

@@ -35,12 +35,17 @@
 #include "auo_version.h"
 #include "rgy_tchar.h"
 
-#if _M_IX64
+#if _M_X64
 #define AVIUTL_TARGET_VER 2
 typedef wchar_t aviutlchar;
+#include "output2.h"
+#define OUTPUT_INFO_FLAG_VIDEO (OUTPUT_INFO::FLAG_VIDEO)
+#define OUTPUT_INFO_FLAG_AUDIO (OUTPUT_INFO::FLAG_AUDIO)
+#define func_get_video_ex func_get_video
 #else
 #define AVIUTL_TARGET_VER 1
 typedef char aviutlchar;
+#include "output.h"
 #endif
 
 const int   MAX_PATH_LEN          = 1024; //NTFSでは32768文字らしいが...いらんやろ
@@ -156,7 +161,7 @@ void write_log_auo_line_fmt(int log_type_index, const wchar_t *format, ...);
 void write_log_auo_enc_time(const wchar_t *mes, DWORD time);
 
 int load_lng(const TCHAR *lang);
-const char *get_auo_version_info();
+const aviutlchar *get_auo_version_info();
 std::wstring get_last_out_stg_appendix();
 
 bool checkIfModuleLoaded(const wchar_t *moduleName);

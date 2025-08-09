@@ -38,7 +38,6 @@
 #include <io.h>
 #include <mutex>
 
-#include "output.h"
 #include "auo.h"
 #include "auo_version.h"
 #include "auo_convert.h"
@@ -63,6 +62,22 @@ const int DS64_SIZE        = 28;
 const int RIFF_SIZE_POS    = 4;
 const int WAVE_SIZE_POS    = WAVE_HEADER_SIZE - 4;
 
+int get_audio_size(const OUTPUT_INFO *oip, const int audio_format) {
+#if AVIUTL_TARGET_VER == 1
+    return oip->audio_size; // 音声1サンプルのバイト数
+#else
+    return oip->audio_ch * ((audio_format == 1) ? sizeof(short) : sizeof(float));
+#endif
+}
+
+void* oip_func_get_audio(const OUTPUT_INFO *oip, int start, int length, int* readed, int audio_format) {
+#if AVIUTL_TARGET_VER == 1
+    return oip->func_get_audio(start, length, readed);
+#else
+    return oip->func_get_audio(start, length, readed, audio_format);
+#endif
+}
+
 inline void *get_audio_data(const OUTPUT_INFO *oip, PRM_ENC *pe, int start, int length, int *readed) {
     if (pe->aud_parallel.th_aud) {
         pe->aud_parallel.start = start;
@@ -74,7 +89,7 @@ inline void *get_audio_data(const OUTPUT_INFO *oip, PRM_ENC *pe, int start, int 
             return pe->aud_parallel.buffer;
         }
     }
-    return oip->func_get_audio(start, length, readed);
+    return oip_func_get_audio(oip, start, length, readed, 1);
 }
 
 void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const guiEx_settings *ex_stg) {
@@ -87,7 +102,7 @@ void auo_faw_check(CONF_AUDIO *aud, const OUTPUT_INFO *oip, PRM_ENC *pe, const g
     }
     int n = 0;
     short *dat = (short *)get_audio_data(oip, pe, 0, std::min(oip->audio_n, 10 * oip->audio_rate), &n);
-    int ret = FAWCheck(dat, n, oip->audio_rate, oip->audio_size);
+    int ret = FAWCheck(dat, n, oip->audio_rate, get_audio_size(oip, 1));
     switch (ret) {
         case NON_FAW:
             write_log_auo_line(LOG_INFO, L"FAWCheck : non-FAW");
@@ -145,9 +160,11 @@ int check_audio_length(OUTPUT_INFO *oip, double av_length_threshold) {
     if (oip->audio_n == 0) {
         const BOOL exedit_is_used = check_if_exedit_is_used();
         error_audio_length_zero(exedit_is_used);
+#if AVIUTL_TARGET_VER == 1
         if (oip->flag & OUTPUT_INFO_FLAG_BATCH) { // バッチ出力時は即エラー終了
             return 1;
         }
+#endif
         return message_check_audio_length();
     }
     av_length_threshold = std::abs(av_length_threshold);
@@ -178,9 +195,11 @@ int check_audio_length(OUTPUT_INFO *oip, double av_length_threshold) {
             error_audio_length(video_length, audio_length, exedit_is_used, av_length_threshold);
             // 拡張編集使用時には、意図しない出力である可能性が高く、エラー終了させる
             if (exedit_is_used) {
+#if AVIUTL_TARGET_VER == 1
                 if (oip->flag & OUTPUT_INFO_FLAG_BATCH) { // バッチ出力時は即エラー終了
                     return 1;
                 }
+#endif
                 return message_check_audio_length();
             }
         }

@@ -260,7 +260,7 @@ namespace AUO_NAME_R {
         System::Void SavefasToStg() {
             fas_ex_stg->load_log_win();
             fas_ex_stg->s_log.auto_save_log_mode = fasCXAutoSaveLog->SelectedIndex;
-            GetWCHARfromString(fas_ex_stg->s_log.auto_save_log_path, sizeof(fas_ex_stg->s_log.auto_save_log_path), fasTXAutoSaveLog->Text);
+            GetWCHARfromString(fas_ex_stg->s_log.auto_save_log_path, _countof(fas_ex_stg->s_log.auto_save_log_path), fasTXAutoSaveLog->Text);
             fas_ex_stg->save_log_win();
         }
     private:

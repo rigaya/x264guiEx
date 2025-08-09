@@ -81,7 +81,11 @@ typedef struct {
     HANDLE h_p_videnc;                     //動画エンコーダのハンドル
     TCHAR **opened_aviutl_files;            //Aviutlの開いているファイルリスト
     int n_opened_aviutl_files;             //Aviutlの開いているファイルリストの数
+#if AVIUTL_TARGET_VER == 2
+    const aviutlchar *org_save_file_name;              //オリジナルの保存ファイル名
+#else
     aviutlchar *org_save_file_name;              //オリジナルの保存ファイル名
+#endif
     aviutlchar save_file_name[MAX_PATH_LEN];     //保存ファイル名
     TCHAR temp_filename[MAX_PATH_LEN];      //一時ファイル名
     TCHAR muxed_vid_filename[MAX_PATH_LEN]; //mux後に退避された動画のみファイル

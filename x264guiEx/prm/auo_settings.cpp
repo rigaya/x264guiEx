@@ -141,7 +141,7 @@ static inline void GetFontInfo(const char *section, const char *keyname_base, AU
     char key[INI_KEY_MAX_LEN];
     memcpy(key, keyname_base, sizeof(key[0]) * (keyname_base_len + 1));
     strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_name");
-    GetPrivateProfileTStg(section, key, _T(""), font_info->name, sizeof(font_info->name), ini_file, CP_THREAD_ACP);
+    GetPrivateProfileTStg(section, key, _T(""), font_info->name, _countof(font_info->name), ini_file, CP_THREAD_ACP);
     strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_size");
     font_info->size = GetPrivateProfileDouble(section, key, 0.0, ini_file);
     strcpy_s(key + keyname_base_len, _countof(key) - keyname_base_len, "_style");
@@ -254,8 +254,8 @@ void guiEx_settings::convert_conf_if_necessary() {
 #if ENCODER_X265
     if (0 == strcmp(ini_section_main, INI_SECTION_MAIN)) {
         char buffer[32 * 1024] = { 0 };
-        if (   0 == GetPrivateProfileSection(INI_SECTION_MAIN,     buffer, sizeof(buffer), conf_fileName)
-            && 0 != GetPrivateProfileSection(INI_SECTION_MAIN_OLD, buffer, sizeof(buffer), conf_fileName)) {
+        if (   0 == GetPrivateProfileSection(INI_SECTION_MAIN,     buffer, _countof(buffer), conf_fileName)
+            && 0 != GetPrivateProfileSection(INI_SECTION_MAIN_OLD, buffer, _countof(buffer), conf_fileName)) {
             WritePrivateProfileSection(INI_SECTION_MAIN,   buffer, conf_fileName);
             WritePrivateProfileSection(INI_SECTION_MAIN_OLD, NULL, conf_fileName);
         }
@@ -275,6 +275,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
     ZeroMemory(&s_log, sizeof(s_log));
     ZeroMemory(&s_append, sizeof(s_append));
     ZeroMemory(&language, sizeof(language));
+    ZeroMemory(&last_out_stg, sizeof(last_out_stg));
     if (!init) {
         if (_tcslen(default_lang) == 0) {
             get_default_lang();
@@ -285,7 +286,11 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             strcpy_s(auo_path, _countof(auo_path), _auo_path);
         }
         apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
+        const int cnf_ver = GetPrivateProfileIntA(ini_section_main, "cnf_ver", 0, conf_fileName);
+        codepage_cnf = cnf_ver >= CNF_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
+
         strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
+
         load_lang();
         bool language_ini_selected = false;
         const auto language_str = wstring_to_string(language);
@@ -293,7 +298,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             if (   _tcscmp(language, auo_lang.code) == 0
                 && _tcscmp(_T("ja"), auo_lang.code) != 0) { // 日本語用x264guiEx.iniはx264guiEx.iniのまま
                 char ini_append[64];
-                sprintf_s(ini_append, ".%s%s", language_str.c_str(), INI_APPENDIX);
+                sprintf_s(ini_append, ".%s%s", tchar_to_string(language, CP_THREAD_ACP).c_str(), INI_APPENDIX);
                 apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
                 if (PathFileExistsA(ini_fileName)) {
                     language_ini_selected = true;
@@ -320,11 +325,7 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
         }
         init = check_inifile() && !disable_loading;
-        // blog_urlをUTF-8からwchar_tに変換して読み込み
-        char blog_url_temp[MAX_PATH_LEN];
-        GetPrivateProfileStringA(ini_section_main, "blog_url", "", blog_url_temp, _countof(blog_url_temp), ini_fileName);
-        const auto blog_url_wstr = char_to_wstring(blog_url_temp, codepage_ini);
-        _tcscpy_s(blog_url, _countof(blog_url), blog_url_wstr.c_str());
+        GetPrivateProfileTStg(ini_section_main, "blog_url", _T(""), blog_url, _countof(blog_url), ini_fileName, codepage_ini);
         convert_conf_if_necessary();
         if (init) {
             load_encode_stg();
@@ -360,18 +361,26 @@ BOOL guiEx_settings::check_inifile() {
     ini_filesize = (DWORD)filesize;
     codepage_ini = ini_ver >= INI_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
     
-    const int cnf_ver = GetPrivateProfileIntA(ini_section_main, "cnf_ver", 0, conf_fileName);
-    codepage_cnf = cnf_ver >= CNF_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
-    if (cnf_ver < CNF_VER_UTF8) {
-        codepage_cnf = CP_THREAD_ACP;
-        load_encode_stg();
-        load_log_win();
+    if (!PathFileExistsA(conf_fileName)) {
         codepage_cnf = CP_UTF8;
-        save_local();
-        save_log_win();
         WritePrivateProfileInt(ini_section_main, "cnf_ver", CNF_VER_UTF8, conf_fileName);
+    } else {
+        const int cnf_ver = GetPrivateProfileIntA(ini_section_main, "cnf_ver", 0, conf_fileName);
+        codepage_cnf = cnf_ver >= CNF_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
+        if (cnf_ver < CNF_VER_UTF8) {
+            codepage_cnf = CP_THREAD_ACP;
+            load_encode_stg();
+            load_log_win();
+            load_last_out_stg();
+            codepage_cnf = CP_UTF8;
+            save_local();
+            save_log_win();
+            save_last_out_stg();
+            WritePrivateProfileW(ini_section_main, "theme", _T(""), conf_fileName, codepage_cnf);
+            WritePrivateProfileInt(ini_section_main, "cnf_ver", CNF_VER_UTF8, conf_fileName);
+        }
+        codepage_cnf = CP_UTF8;
     }
-    codepage_cnf = CP_UTF8;
     return ret;
 }
 
@@ -475,15 +484,11 @@ void guiEx_settings::load_encode_stg() {
 }
 
 void guiEx_settings::load_lang() {
-    TCHAR temp_language[MAX_PATH_LEN];
-    GetPrivateProfileTStg(ini_section_main, "language", default_lang, temp_language, _countof(temp_language), conf_fileName, codepage_cnf);
-    _tcscpy_s(language, _countof(language), temp_language);
+    GetPrivateProfileTStg(ini_section_main, "language", default_lang, language, _countof(language), conf_fileName, codepage_cnf);
 }
 
 void guiEx_settings::load_last_out_stg() {
-    TCHAR temp_last_out_stg[MAX_PATH_LEN];
-    GetPrivateProfileTStg(ini_section_main, "last_out_stg", _T(""), temp_last_out_stg, _countof(temp_last_out_stg), conf_fileName, codepage_cnf);
-    _tcscpy_s(last_out_stg, _countof(last_out_stg), temp_last_out_stg);
+    GetPrivateProfileTStg(ini_section_main, "last_out_stg", _T(""), last_out_stg, _countof(last_out_stg), conf_fileName, codepage_cnf);
 }
 
 void guiEx_settings::load_aud() {
@@ -524,7 +529,7 @@ void guiEx_settings::load_aud(BOOL internal) {
         s_aud[i].unsupported_mp4  = GetPrivateProfileIntA(    encoder_section, "unsupported_mp4",   0, ini_fileName);
         s_aud[i].enable_rf64      = GetPrivateProfileIntA(    encoder_section, "enable_rf64",       0, ini_fileName);
 
-        sprintf_s(encoder_section, sizeof(encoder_section), "%s%s", INI_SECTION_MODE, s_aud[i].keyName);
+        sprintf_s(encoder_section, _countof(encoder_section), "%s%s", INI_SECTION_MODE, s_aud[i].keyName);
         int tmp_count = GetPrivateProfileIntA(encoder_section, "count", 0, ini_fileName);
         //置き換えリストの影響で、この段階ではAUDIO_ENC_MODEが最終的に幾つになるのかわからない
         //とりあえず、一時的に読み込んでみる
@@ -711,11 +716,11 @@ void guiEx_settings::load_enc_cmd(ENC_CMD *x264cmd, int *count, int *default_ind
 
     *default_index = 0;
     TCHAR *def = s_enc_mc.SetPrivateProfileWString(section, "disp", "", ini_fileName, codepage_ini);
-    sprintf_s(key,  sizeof(key), "cmd_");
+    sprintf_s(key,  _countof(key), "cmd_");
     size_t keybase_len = strlen(key);
     for (int i = 0; x264cmd->name[i].desc; i++) {
         auto str_utf8 = wstring_to_string(x264cmd->name[i].desc, CP_UTF8);
-        strcpy_s(key + keybase_len, sizeof(key) - keybase_len, str_utf8.c_str());
+        strcpy_s(key + keybase_len, _countof(key) - keybase_len, str_utf8.c_str());
         x264cmd->cmd[i] = s_enc_mc.SetPrivateProfileWString(section, key, "", ini_fileName, codepage_ini);
         if (_wcsicmp(x264cmd->name[i].desc, def) == NULL)
             *default_index = i;
@@ -752,7 +757,7 @@ void guiEx_settings::make_default_stg_dir(TCHAR *default_stg_dir, DWORD nSize) {
     //_tcscpy_s(default_stg_dir, nSize, char_to_wstring(auo_path).c_str());
     //相対パスで作成
     char temp_dir[MAX_PATH_LEN];
-    GetRelativePathTo(temp_dir, sizeof(temp_dir), auo_path, NULL);
+    GetRelativePathTo(temp_dir, _countof(temp_dir), auo_path, NULL);
     const auto temp_tstr = char_to_tstring(temp_dir);
     _tcscpy_s(default_stg_dir, nSize, temp_tstr.c_str());
 

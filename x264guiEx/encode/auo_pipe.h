@@ -66,7 +66,7 @@ typedef struct {
 } PIPE_SET;
 
 void InitPipes(PIPE_SET *pipes);
-int RunProcess(TCHAR *args, const TCHAR *exe_dir, PROCESS_INFORMATION *pi, PIPE_SET *pipes, DWORD priority, BOOL hidden, BOOL minimized);
+int RunProcess(const TCHAR *args, const TCHAR *exe_dir, PROCESS_INFORMATION *pi, PIPE_SET *pipes, DWORD priority, BOOL hidden, BOOL minimized);
 void CloseStdIn(PIPE_SET *pipes);
 int read_from_pipe(PIPE_SET *pipes, BOOL fromStdErr);
 BOOL get_exe_message(const TCHAR *exe_path, const TCHAR *args, char *buf, size_t nSize, AUO_PIPE_MODE from_stderr);

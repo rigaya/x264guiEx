@@ -5471,7 +5471,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             init_CONF_GUIEX(&cnf, fcgCBUsehighbit->Checked);
             FrmToConf(&cnf);
             TCHAR cmdex[2048] = { 0 };
-            GetWCHARfromString(cmdex, sizeof(cmdex), fcgTXCmdEx->Text);
+            GetWCHARfromString(cmdex, _countof(cmdex), fcgTXCmdEx->Text);
             set_cmd_to_conf(cmdex, &cnf.enc);
             ConfToFrm(&cnf, false);
         }
@@ -5513,7 +5513,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             init_CONF_GUIEX(&rebuild, fcgCBUsehighbit->Checked);
             FrmToConf(&rebuild);
             if (!rebuild.oth.disable_guicmd)
-                build_cmd_from_conf(re_cmd, sizeof(re_cmd), &rebuild.enc, &rebuild.vid, FALSE);
+                build_cmd_from_conf(re_cmd, _countof(re_cmd), &rebuild.enc, &rebuild.vid, FALSE);
             fcgTXCmd->Text = String(re_cmd).ToString();
             if (CheckedStgMenuItem != nullptr)
                 ChangePresetNameDisplay(memcmp(&rebuild, cnf_stgSelected, sizeof(CONF_GUIEX)) != 0);

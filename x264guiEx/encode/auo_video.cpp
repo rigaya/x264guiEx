@@ -41,7 +41,7 @@
 #include <vector>
 #include <set>
 
-#include "output.h"
+#include "auo.h"
 #include "vphelp_client.h"
 
 #pragma warning( push )
@@ -63,6 +63,7 @@
 
 #include "auo_encode.h"
 #include "auo_video.h"
+#include "auo_audio.h"
 #include "auo_audio_parallel.h"
 #include "cpu_info.h"
 #include "rgy_thread_affinity.h"
@@ -227,6 +228,7 @@ static AUO_RESULT tcfile_out(int *jitter, int frame_n, double fps, BOOL afs, con
     return ret;
 }
 
+#if AVIUTL_TARGET_VER == 1
 static AUO_RESULT set_keyframe_from_aviutl(std::vector<int> *keyframe_list, const OUTPUT_INFO *oip) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
     const int prev_chap_count = (int)keyframe_list->size();
@@ -254,6 +256,7 @@ static AUO_RESULT set_keyframe_from_aviutl(std::vector<int> *keyframe_list, cons
     write_log_auo_line_fmt(LOG_INFO, g_auo_mes.get(AUO_VIDEO_KEY_FRAME_DETECT_RESULT), keyframe_list->size() - prev_chap_count);
     return ret;
 }
+#endif
 
 static AUO_RESULT set_keyframe_from_chapter(std::vector<int> *keyframe_list, const CONF_GUIEX *conf, const OUTPUT_INFO *oip, const PRM_ENC *pe, const SYSTEM_DATA *sys_dat) {
     AUO_RESULT ret = AUO_RESULT_SUCCESS;
@@ -374,9 +377,11 @@ static AUO_RESULT set_keyframe(const CONF_GUIEX *conf, const OUTPUT_INFO *oip, c
     if (PathFileExists(auoqpfile))
         _tremove(auoqpfile);
 
+#if AVIUTL_TARGET_VER == 1
     //Aviutlのキーフレーム検出からキーフレーム設定
     if (!ret && conf->vid.check_keyframe & CHECK_KEYFRAME_AVIUTL)
         ret |= set_keyframe_from_aviutl(&keyframe_list, oip);
+#endif
 
     //チャプターからキーフレーム設定
     if (!ret && conf->vid.check_keyframe & CHECK_KEYFRAME_CHAPTER)
@@ -456,10 +461,10 @@ static void build_full_cmd(TCHAR *cmd, size_t nSize, const CONF_GUIEX *conf, con
     //パラメータをコピー
     memcpy(&prm, conf, sizeof(CONF_GUIEX));
     //共通置換を実行
-    cmd_replace(prm.vid.cmdex,     sizeof(prm.vid.cmdex),     pe, sys_dat, conf, oip);
-    cmd_replace(prm.vid.stats,     sizeof(prm.vid.stats),     pe, sys_dat, conf, oip);
-    cmd_replace(prm.vid.tcfile_in, sizeof(prm.vid.tcfile_in), pe, sys_dat, conf, oip);
-    cmd_replace(prm.vid.cqmfile,   sizeof(prm.vid.cqmfile),   pe, sys_dat, conf, oip);
+    cmd_replace(prm.vid.cmdex,     _countof(prm.vid.cmdex),     pe, sys_dat, conf, oip);
+    cmd_replace(prm.vid.stats,     _countof(prm.vid.stats),     pe, sys_dat, conf, oip);
+    cmd_replace(prm.vid.tcfile_in, _countof(prm.vid.tcfile_in), pe, sys_dat, conf, oip);
+    cmd_replace(prm.vid.cqmfile,   _countof(prm.vid.cqmfile),   pe, sys_dat, conf, oip);
     if (!prm.oth.disable_guicmd) {
         //cliモードでない
         //自動設定の適用
@@ -609,7 +614,7 @@ static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
         //---   排他ブロック 開始  ---> 音声スレッドが止まっていなければならない
         if_valid_wait_for_single_object(aud_p->he_vid_start, INFINITE);
         if (aud_p->he_vid_start && aud_p->get_length) {
-            DWORD required_buf_size = aud_p->get_length * (DWORD)oip->audio_size;
+            DWORD required_buf_size = aud_p->get_length * (DWORD)get_audio_size(oip, 1);
             if (aud_p->buf_max_size < required_buf_size) {
                 //メモリ不足なら再確保
                 if (aud_p->buffer) free(aud_p->buffer);
@@ -619,14 +624,14 @@ static AUO_RESULT aud_parallel_task(const OUTPUT_INFO *oip, PRM_ENC *pe) {
             }
             void *data_ptr = NULL;
             if (NULL == aud_p->buffer ||
-                NULL == (data_ptr = oip->func_get_audio(aud_p->start, aud_p->get_length, &aud_p->get_length))) {
+                NULL == (data_ptr = oip_func_get_audio(oip, aud_p->start, aud_p->get_length, &aud_p->get_length, 1))) {
                 ret = AUO_RESULT_ERROR; //mallocエラーかget_audioのエラー
             } else {
                 //自前のバッファにコピーしてdata_ptrが破棄されても良いようにする
-                memcpy(aud_p->buffer, data_ptr, aud_p->get_length * oip->audio_size);
+                memcpy(aud_p->buffer, data_ptr, aud_p->get_length * get_audio_size(oip, 1));
             }
             //すでにTRUEなら変更しないようにする
-            aud_p->abort |= oip->func_is_abort();
+            aud_p->abort |= (oip->func_is_abort() ? TRUE : FALSE);
         }
         flush_audio_log();
         if_valid_set_event(aud_p->he_aud_start);
@@ -661,7 +666,7 @@ static AUO_RESULT exit_audio_parallel_control(const OUTPUT_INFO *oip, PRM_ENC *p
         while (WaitForSingleObject(pe->aud_parallel.th_aud, LOG_UPDATE_INTERVAL) == WAIT_TIMEOUT) {
             if (wait_for_audio_count == 10)
                 set_window_title(g_auo_mes.get(AUO_VIDEO_AUDIO_PROC_WAIT), PROGRESSBAR_MARQUEE);
-            pe->aud_parallel.abort |= oip->func_is_abort();
+            pe->aud_parallel.abort |= (oip->func_is_abort() ? TRUE : FALSE);
             log_process_events();
             wait_for_audio_count++;
         }
@@ -962,8 +967,10 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
             if (AUO_RESULT_SUCCESS != ret)
                 break;
 
+#if AVIUTL_TARGET_VER == 1
             //コピーフレームフラグ処理
             copy_frame = (!!i_frame & (oip->func_get_flag(i_frame) & OUTPUT_INFO_FRAME_FLAG_COPYFRAME));
+#endif
 
             //Aviutl(afs)からフレームをもらう
             QueryPerformanceCounter((LARGE_INTEGER *)&qp_start);
@@ -988,11 +995,12 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
                 //次のフレームの変換を許可
                 SetEvent(thread_data.he_out_fin);
             }
-
+#if AVIUTL_TARGET_VER == 1
             // 「表示 -> セーブ中もプレビュー表示」がチェックされていると
             // func_update_preview() の呼び出しによって func_get_video_ex() の
             // 取得したバッファが書き換えられてしまうので、呼び出し位置を移動 (拡張AVI出力 plus より)
             oip->func_update_preview();
+#endif
         }
         //------------メインループここまで--------------
 

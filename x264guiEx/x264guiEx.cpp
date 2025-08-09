@@ -34,7 +34,6 @@
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 
-#include "output.h"
 #include "auo.h"
 #include "auo_frm.h"
 #include "auo_util.h"
@@ -58,16 +57,21 @@
 static HMODULE g_dll_module = NULL;
 static CONF_GUIEX g_conf = { 0 };
 static SYSTEM_DATA g_sys_dat = { 0 };
-static char g_auo_filefilter[1024] = { 0 };
-static char g_auo_fullname[1024] = { 0 };
-static char g_auo_version_info[1024] = { 0 };
+static char       g_auo_filefilter[1024] = { 0 };
+static aviutlchar g_auo_filefilter2[1024] = { 0 };
+static aviutlchar g_auo_fullname[1024] = { 0 };
+static aviutlchar g_auo_version_info[1024] = { 0 };
 AuoMessages g_auo_mes;
+
+bool func_output2( OUTPUT_INFO *oip );
+bool func_config2(HWND hwnd, HINSTANCE dll_hinst);
 
 //---------------------------------------------------------------------
 //        出力プラグイン構造体定義
 //---------------------------------------------------------------------
 OUTPUT_PLUGIN_TABLE output_plugin_table = {
     NULL,                         // フラグ
+#if AVIUTL_TARGET_VER == 1
     AUO_FULL_NAME,                // プラグインの名前
     AUO_EXT_FILTER,               // 出力ファイルのフィルタ
     AUO_VERSION_INFO,             // プラグインの情報
@@ -77,6 +81,13 @@ OUTPUT_PLUGIN_TABLE output_plugin_table = {
     func_config,                  // 出力設定のダイアログを要求された時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
     func_config_get,              // 出力設定データを取得する時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
     func_config_set,              // 出力設定データを設定する時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
+#else
+    AUO_FULL_NAME_W,              // プラグインの名前
+    AUO_EXT_FILTER_W,             // 出力ファイルのフィルタ
+    AUO_VERSION_INFO_W,           // プラグインの情報
+    func_output2,                  // 出力時に呼ばれる関数へのポインタ
+    func_config2,                  // 出力設定のダイアログを要求された時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
+#endif
 };
 
 //---------------------------------------------------------------------
@@ -86,11 +97,10 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     init_SYSTEM_DATA(&g_sys_dat);
     make_file_filter(NULL, 0, g_sys_dat.exstg->s_local.default_output_ext);
     overwrite_aviutl_ini_file_filter(g_sys_dat.exstg->s_local.default_output_ext);
-    output_plugin_table.filefilter = g_auo_filefilter;
+    output_plugin_table.filefilter = g_auo_filefilter2;
     overwrite_aviutl_ini_auo_info();
     return &output_plugin_table;
 }
-
 
 //---------------------------------------------------------------------
 //        出力プラグイン出力関数
@@ -147,15 +157,6 @@ EXTERN_C OUTPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetOutputPluginTa
     //                        //    戻り値    : データへのポインタ
     //                        //              画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
-    UNREFERENCED_PARAMETER(lpReserved);
-    switch (ul_reason_for_call) {
-    case DLL_PROCESS_ATTACH:
-        g_dll_module = hModule;
-        break;
-    }
-    return TRUE;
-}
 
 BOOL func_init() {
     return TRUE;
@@ -163,6 +164,24 @@ BOOL func_init() {
 
 BOOL func_exit() {
     delete_SYSTEM_DATA(&g_sys_dat);
+    return TRUE;
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+    switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH:
+        g_dll_module = hModule;
+        if (AVIUTL_TARGET_VER == 2) {
+            func_init();
+        }
+        break;
+    case DLL_PROCESS_DETACH:
+        if (AVIUTL_TARGET_VER == 2) {
+			if (lpReserved != nullptr) break;
+            func_exit();
+        }
+        break;
+    }
     return TRUE;
 }
 
@@ -283,6 +302,10 @@ BOOL func_output( OUTPUT_INFO *oip ) {
     return (ret & AUO_RESULT_ERROR) ? FALSE : TRUE;
 }
 
+bool func_output2( OUTPUT_INFO *oip ) {
+    return func_output(oip) != FALSE;
+}
+
 //---------------------------------------------------------------------
 //        出力プラグイン設定関数
 //---------------------------------------------------------------------
@@ -296,11 +319,16 @@ BOOL func_config(HWND hwnd, HINSTANCE dll_hinst) {
         ShowfrmConfig(&g_conf, &g_sys_dat);
     return TRUE;
 }
+
+bool func_config2(HWND hwnd, HINSTANCE dll_hinst) {
+    return func_config(hwnd, dll_hinst) != FALSE;
+}
+
 #pragma warning( pop )
 
 int func_config_get(void *data, int size) {
     memset(data, 0, size);
-    if (data && size == sizeof(CONF_GUIEX)) {
+    if (data && size > 0) {
         strcpy_s((char *)data, size, CONF_NAME_JSON);
         std::string json_str = guiEx_config::conf_to_json(&g_conf, 0);
         const int json_len = (int)json_str.length();
@@ -401,6 +429,20 @@ void write_log_auo_enc_time(const TCHAR *mes, DWORD time) {
         ((time % 1000)) / 100, g_auo_mes.get(AUO_GUIEX_TIME_SEC));
 }
 
+#if AVIUTL_TARGET_VER == 1
+static std::string aviutlchar_to_string(const aviutlchar *str) { return std::string(str); }
+static std::wstring aviutlchar_to_wstring(const aviutlchar *str) { return char_to_wstring(str, CP_THREAD_ACP); }
+static std::basic_string<aviutlchar> string_to_aviutlchar(const std::string &str) { return str; }
+static std::basic_string<aviutlchar> wstring_to_aviutlchar(const std::wstring &str) { return wstring_to_string(str, CP_THREAD_ACP); }
+#define aviutlcharcpy_s strcpy_s
+#else
+static std::wstring aviutlchar_to_wstring(const aviutlchar *str) { return std::wstring(str); }
+static std::string aviutlchar_to_string(const aviutlchar *str) { return wstring_to_string(str, CP_THREAD_ACP); }
+static std::basic_string<aviutlchar> string_to_aviutlchar(const std::string &str) { return char_to_wstring(str, CP_THREAD_ACP); }
+static std::basic_string<aviutlchar> wstring_to_aviutlchar(const std::wstring &str) { return str; }
+#define aviutlcharcpy_s wcscpy_s
+#endif
+
 void overwrite_aviutl_ini_file_filter(int idx) {
     char ini_file[1024];
     get_aviutl_dir(ini_file, _countof(ini_file));
@@ -418,18 +460,22 @@ void overwrite_aviutl_ini_auo_info() {
     PathAddBackSlashLong(ini_file);
     strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
 
-    const auto auo_full_name = wstring_to_string(g_auo_mes.get(AUO_GUIEX_FULL_NAME));
-    if (auo_full_name.length() > 0 && strcmp(auo_full_name.c_str(), output_plugin_table.name) != 0) {
-        strcpy_s(g_auo_fullname, auo_full_name.c_str());
+    const auto auo_full_name = std::wstring(g_auo_mes.get(AUO_GUIEX_FULL_NAME));
+    if (auo_full_name.length() > 0 && auo_full_name != aviutlchar_to_wstring(output_plugin_table.name)) {
+        aviutlcharcpy_s(g_auo_fullname, wstring_to_aviutlchar(auo_full_name).c_str());
         output_plugin_table.name = g_auo_fullname;
-        if (strcmp(auo_full_name.c_str(), AUO_NAME_WITHOUT_EXT) != 0) {
-            sprintf_s(g_auo_version_info, "%s (%s) %s by rigaya", auo_full_name.c_str(), AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+        std::wstring auo_version_info;
+        if (auo_full_name != AUO_NAME_WITHOUT_EXT_W) {
+            auo_version_info = std::wstring(auo_full_name) + std::wstring(L" (" AUO_NAME_WITHOUT_EXT_W L") " AUO_VERSION_STR_W L" by rigaya");
         } else {
-            sprintf_s(g_auo_version_info, "%s %s by rigaya", AUO_NAME_WITHOUT_EXT, AUO_VERSION_STR);
+            auo_version_info = AUO_NAME_WITHOUT_EXT_W L" " AUO_VERSION_STR_W L" by rigaya";
         }
+        aviutlcharcpy_s(g_auo_version_info, wstring_to_aviutlchar(auo_version_info).c_str());
         output_plugin_table.information = g_auo_version_info;
+#if AVIUTL_TARGET_VER == 1
         WritePrivateProfileStringA(AUO_NAME, "name", output_plugin_table.name, ini_file);
         WritePrivateProfileStringA(AUO_NAME, "information", output_plugin_table.information, ini_file);
+#endif
     }
 }
 
@@ -438,7 +484,7 @@ std::wstring get_last_out_stg_appendix() {
     return (wcslen(appendix) > 0) ? appendix : CONF_LAST_OUT;
 }
 
-const char *get_auo_version_info() {
+const aviutlchar *get_auo_version_info() {
     return output_plugin_table.information;
 }
 
@@ -485,6 +531,37 @@ void make_file_filter(char *filter, size_t nSize, int default_index) {
         if (idx != default_index)
             add_desc(idx);
     ptr[0] = '\0';
+    int filter_len = (int)(ptr - filter);
+    // CP_ACP -> wchar_t 変換 (埋め込みNUL含む複数文字列をそのまま変換)
+    // filter_len は末尾の終端NULを含む長さ
+    // 変換後は末尾にもう1つNULを追加して二重終端にする
+    if (separator == '\0') {
+        // 変換に必要な長さを取得
+        int required = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, filter, filter_len, nullptr, 0);
+        if (required > 0) {
+            // 出力先は AviUtl の filefilter 用のバッファ
+            // aviutlchar はターゲットにより char または wchar_t
+            // wchar_t でない場合はここでの処理は不要
+#if AVIUTL_TARGET_VER != 1
+            if (required >= (int)_countof(g_auo_filefilter2)) {
+                required = (int)_countof(g_auo_filefilter2) - 1; // 少なくとも終端確保
+            }
+            int written = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, filter, filter_len,
+                (wchar_t*)g_auo_filefilter2, required);
+            if (written > 0) {
+                // 二重終端を保証
+                ((wchar_t*)g_auo_filefilter2)[written] = L'\0';
+            }
+#else
+        // 旧 AviUtl (ANSI) ターゲットの場合はそのままコピー
+        // filter_len には終端NUL含む。更に二重終端にしておく。
+            const size_t max_copy = _countof(g_auo_filefilter2) - 1;
+            const size_t to_copy = ((size_t)filter_len < max_copy) ? (size_t)filter_len : max_copy;
+            memcpy(g_auo_filefilter2, filter, to_copy);
+            ((char*)g_auo_filefilter2)[to_copy] = '\0';
+#endif
+        }
+    }
 }
 
 static int getEmbeddedResource(void **data, const TCHAR *name, const TCHAR *type, HMODULE hModule) {

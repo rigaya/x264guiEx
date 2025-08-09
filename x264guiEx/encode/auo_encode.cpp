@@ -1078,7 +1078,7 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     sys_dat->exstg->apply_fn_replace(filename_replace, _countof(filename_replace));
     PathCombineLong(pe->temp_filename, _countof(pe->temp_filename), pe->temp_filename, filename_replace);
 
-#if ENCODER_X264
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
     if (pe->video_out_type != VIDEO_OUTPUT_DISABLED) {
         if (!check_videnc_mp4_output(sys_dat->exstg->s_enc.fullpath, pe->temp_filename)) {
             //一時ファイルの拡張子を変更
@@ -1101,9 +1101,9 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
             TCHAR move_from[MAX_PATH_LEN] = { 0 };
             _tcscpy_s(move_to, muxer_mode->chap_file);
             _tcscpy_s(move_from, muxer_mode->chap_file);
-            replace(move_from, sizeof(move_from), _T("%{pid}."), _T(""));
-            cmd_replace(move_to, sizeof(move_to), pe, sys_dat, conf, oip);
-            cmd_replace(move_from, sizeof(move_from), pe, sys_dat, conf, oip);
+            replace(move_from, _countof(move_from), _T("%{pid}."), _T(""));
+            cmd_replace(move_to, _countof(move_to), pe, sys_dat, conf, oip);
+            cmd_replace(move_from, _countof(move_from), pe, sys_dat, conf, oip);
             if (PathFileExists(move_from)) {
                 if (PathFileExists(move_to))
                     _tremove(move_to);
@@ -1179,7 +1179,7 @@ static void get_muxout_appendix(TCHAR *muxout_appendix, size_t nSize, const SYST
 
 void get_muxout_filename(TCHAR *filename, size_t nSize, const SYSTEM_DATA *sys_dat, const PRM_ENC *pe) {
     TCHAR muxout_appendix[MAX_APPENDIX_LEN];
-    get_muxout_appendix(muxout_appendix, sizeof(muxout_appendix), sys_dat, pe);
+    get_muxout_appendix(muxout_appendix, _countof(muxout_appendix), sys_dat, pe);
     apply_appendix(filename, nSize, pe->temp_filename, muxout_appendix);
 }
 
@@ -1518,7 +1518,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
     if (use_auto_npass(conf) && sys_dat->exstg->s_local.auto_del_stats) {
         TCHAR stats[MAX_PATH_LEN];
         _tcscpy_s(stats, _countof(stats), conf->vid.stats);
-        cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
+        cmd_replace(stats, _countof(stats), pe, sys_dat, conf, oip);
         move_temp_file(NULL, stats, NULL, ret, TRUE, g_auo_mes.get(AUO_ENCODE_STATUS_FILE), FALSE);
 #if ENCODER_X264
         _tcscat_s(stats, _countof(stats), _T(".mbtree"));
@@ -1532,7 +1532,7 @@ AUO_RESULT move_temporary_files(const CONF_GUIEX *conf, const PRM_ENC *pe, const
         move_temp_file(NULL, stats, NULL, ret, TRUE, cutree_status, FALSE);
         if (conf->enc.analysis_reuse) {
             _tcscpy_s(stats, _countof(stats), conf->vid.analysis_file);
-            cmd_replace(stats, sizeof(stats), pe, sys_dat, conf, oip);
+            cmd_replace(stats, _countof(stats), pe, sys_dat, conf, oip);
             move_temp_file(NULL, stats, NULL, ret, TRUE, L"analysis result", FALSE);
         }
 #endif
@@ -1672,7 +1672,7 @@ static AUO_RESULT get_duration_from_timecode(double *duration, const TCHAR *tc_f
         double timecode[avg_frames];
         //ファイルからタイムコードを読み出し
         int frame = 0;
-        while (fgets(buf, sizeof(buf), fp) != NULL) {
+        while (fgets(buf, _countof(buf), fp) != NULL) {
             if (buf[0] == '#')
                 continue;
             if (1 != sscanf_s(buf, "%lf", &timecode[frame%avg_frames])) {
@@ -1708,11 +1708,11 @@ double get_duration(const CONF_GUIEX *conf, const SYSTEM_DATA *sys_dat, const PR
 #if ENABLE_TCFILE_IN
     TCHAR buffer[MAX_PATH_LEN];
     //tcfile-inなら、動画の長さはタイムコードから取得する
-    if (conf->enc.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, _T("--tcfile-in"), buffer, sizeof(buffer))) {
+    if (conf->enc.use_tcfilein || 0 == get_option_value(conf->vid.cmdex, _T("--tcfile-in"), buffer, _countof(buffer))) {
         double duration_tmp = 0.0;
         if (conf->enc.use_tcfilein)
-            _tcscpy_s(buffer, sizeof(buffer), conf->vid.tcfile_in);
-        cmd_replace(buffer, sizeof(buffer), pe, sys_dat, conf, oip);
+            _tcscpy_s(buffer, conf->vid.tcfile_in);
+        cmd_replace(buffer, _countof(buffer), pe, sys_dat, conf, oip);
         if (AUO_RESULT_SUCCESS == get_duration_from_timecode(&duration_tmp, buffer, oip->rate / (double)oip->scale))
             duration = duration_tmp;
         else

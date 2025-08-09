@@ -393,6 +393,7 @@ static bool ishighbitdepth(const CONF_ENC *enc) { return enc->use_highbit_depth 
 
 //コマンドラインの解析・生成
 void set_cmd_to_conf(const TCHAR *cmd_src, CONF_ENC *conf_set);
+void set_cmd_to_conf_full(const TCHAR *cmd_src, CONF_ENC *conf_set);
 void set_cmd_to_conf(TCHAR *cmd, CONF_ENC *conf_set, size_t cmd_len, BOOL build_not_imported_cmd);
 void get_default_conf(CONF_ENC *conf_set, BOOL use_highbit);
 //void set_preset_to_conf(CONF_ENC *conf_set, int preset_index);

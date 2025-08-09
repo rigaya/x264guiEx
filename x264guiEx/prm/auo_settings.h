@@ -198,10 +198,7 @@ static size_t GetPrivateProfileTStg(const char *section, const char *keyname, co
     }
     auto defaultStrChar = tchar_to_string(defaultString, codepage);
     std::vector<char> buftmp(bufSize * 4, 0);
-    size_t len = GetPrivateProfileStringA(section, keyname, defaultStrChar.c_str(), buftmp.data(), (int)buftmp.size(), ini_file);
-    if (codepage == CP_THREAD_ACP) {
-        return len;
-    }
+    GetPrivateProfileStringA(section, keyname, defaultStrChar.c_str(), buftmp.data(), (int)buftmp.size(), ini_file);
     const auto tstr = char_to_tstring(buftmp.data(), codepage);
     _tcscpy_s(buf, bufSize, tstr.c_str());
     return tstr.length();
