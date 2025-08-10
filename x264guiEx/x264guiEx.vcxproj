@@ -196,7 +196,6 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
       <AdditionalDependencies>
@@ -247,7 +246,6 @@ copy /y x264guiEx.zh.ini "$(OutDir)"</Command>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>

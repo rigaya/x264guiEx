@@ -159,6 +159,15 @@ ALIGN32_CONST_ARRAY BYTE  Array_INTERLACE_WEIGHT[2][32] = {
     {3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1}
 };
 
+static const float COEFF_RGB2YUV[2][9] = {
+    { 0.299f,     0.587f,   0.114f,
+     -0.168736f, -0.331264f,  0.5f,
+      0.5f,      -0.418688f, -0.081312f },
+    { 0.2126f,    0.7152f,    0.0722f,
+     -0.114572f, -0.385427f,  0.5f,
+      0.5f,      -0.453596f, -0.045977f }
+};
+
 #ifdef __AVX512BW__
 
 #define INT_SHORT2(i) (((unsigned int)(i) << 16) | (unsigned int)(i))

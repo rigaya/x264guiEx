@@ -162,14 +162,6 @@ void convert_rgb_to_yuv444_base(void *frame, CONVERT_CF_DATA *pixel_data, const 
     BYTE *ptrY = pixel_data->data[0];
     BYTE *ptrU = pixel_data->data[1];
     BYTE *ptrV = pixel_data->data[2];
-    const float COEFF_RGB2YUV[2][9] = {
-        { 0.299f,     0.587f,   0.114f,
-         -0.168736f, -0.331264f,  0.5f,
-          0.5f,      -0.418688f, -0.081312f },
-        { 0.2126f,    0.7152f,    0.0722f,
-         -0.114572f, -0.385427f,  0.5f,
-          0.5f,      -0.453596f, -0.045977f }
-    };
     const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
     int y0 = 0, y1 = height - 1;
     const int srcstep = (width*3 + 3) & ~3;

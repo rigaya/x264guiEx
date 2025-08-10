@@ -385,4 +385,12 @@ void convert_lw48_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data,
 void convert_lw48_to_yuv444_16bit_avx512bw(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 void convert_lw48_to_yuv444_16bit_avx512vbmi(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
 
+// PA64 -> RGBA
+void convert_pa64_to_rgba_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_pa64_to_rgba_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
+void convert_pa64_to_yuv444_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+void convert_pa64_to_yuv444_16bit_avx2(void *pixel, CONVERT_CF_DATA *pixel_data, const int width, const int height);
+
+
 #endif //_CONVERT_H_

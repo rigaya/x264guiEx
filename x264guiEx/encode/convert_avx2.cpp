@@ -1397,13 +1397,14 @@ static __forceinline void separate_8bit_packed(__m256i& yA, __m256i& yB, __m256i
     yC = _mm256_shuffle_epi8(c32_012, _mm256_load_si256((__m256i*)mask_shuffle2));
 }
 
+template<int bit_depth>
 static __forceinline void convert_rgb2yuv(__m256& y_f1, __m256& u_f1, __m256& v_f1, 
     const __m256& r_f1, const __m256& g_f1, const __m256& b_f1,
     const __m256& coeff_ry, const __m256& coeff_gy, const __m256& coeff_by,
     const __m256& coeff_ru, const __m256& coeff_gu, const __m256& coeff_bu,
     const __m256& coeff_rv, const __m256& coeff_gv, const __m256& coeff_bv) {
-    const __m256 offset_y = _mm256_set1_ps(16.0f);
-    const __m256 offset_uv = _mm256_set1_ps(128.0f);
+    const __m256 offset_y = _mm256_set1_ps(16.0f * (1 << (bit_depth - 8)));
+    const __m256 offset_uv = _mm256_set1_ps(128.0f * (1 << (bit_depth - 8)));
     y_f1 = _mm256_fmadd_ps(coeff_ry, r_f1, 
            _mm256_fmadd_ps(coeff_gy, g_f1, 
            _mm256_fmadd_ps(coeff_by, b_f1, offset_y)));
@@ -1420,14 +1421,6 @@ void convert_rgb_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const 
     BYTE *ptrY = pixel_data->data[0];
     BYTE *ptrU = pixel_data->data[1];
     BYTE *ptrV = pixel_data->data[2];
-    const float COEFF_RGB2YUV[2][9] = {
-        { 0.299f,     0.587f,   0.114f,
-         -0.168736f, -0.331264f,  0.5f,
-          0.5f,      -0.418688f, -0.081312f },
-        { 0.2126f,    0.7152f,    0.0722f,
-         -0.114572f, -0.385427f,  0.5f,
-          0.5f,      -0.453596f, -0.045977f }
-    };
     const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
     int y0 = 0, y1 = height - 1;
     const int srcstep = (width*3 + 3) & ~3;
@@ -1490,7 +1483,7 @@ void convert_rgb_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const 
             __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
 
             __m256 y_f0, u_f0, v_f0;
-            convert_rgb2yuv(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ2: ピクセル8-15 (上位128ビット)
             __m256 b_f1 = _mm256_cvtepi32_ps(b_32_1);
@@ -1498,7 +1491,7 @@ void convert_rgb_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const 
             __m256 r_f1 = _mm256_cvtepi32_ps(r_32_1);
 
             __m256 y_f1, u_f1, v_f1;
-            convert_rgb2yuv(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ3: ピクセル16-23（上位128ビットから
             __m256 b_f2 = _mm256_cvtepi32_ps(b_32_2);
@@ -1506,7 +1499,7 @@ void convert_rgb_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const 
             __m256 r_f2 = _mm256_cvtepi32_ps(r_32_2);
 
             __m256 y_f2, u_f2, v_f2;
-            convert_rgb2yuv(y_f2, u_f2, v_f2, r_f2, g_f2, b_f2, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f2, u_f2, v_f2, r_f2, g_f2, b_f2, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ4: ピクセル24-31
             __m256 b_f3 = _mm256_cvtepi32_ps(b_32_3);
@@ -1514,7 +1507,7 @@ void convert_rgb_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const 
             __m256 r_f3 = _mm256_cvtepi32_ps(r_32_3);
 
             __m256 y_f3, u_f3, v_f3;
-            convert_rgb2yuv(y_f3, u_f3, v_f3, r_f3, g_f3, b_f3, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f3, u_f3, v_f3, r_f3, g_f3, b_f3, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // 四捨五入して整数に変換
             __m256i y_i0 = _mm256_cvttps_epi32(_mm256_add_ps(y_f0, round_offset));
@@ -1571,14 +1564,6 @@ void convert_rgb_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, 
     BYTE *ptrY = pixel_data->data[0];
     BYTE *ptrU = pixel_data->data[1];
     BYTE *ptrV = pixel_data->data[2];
-    const float COEFF_RGB2YUV[2][9] = {
-        { 0.299f,     0.587f,   0.114f,
-         -0.168736f, -0.331264f,  0.5f,
-          0.5f,      -0.418688f, -0.081312f },
-        { 0.2126f,    0.7152f,    0.0722f,
-         -0.114572f, -0.385427f,  0.5f,
-          0.5f,      -0.453596f, -0.045977f }
-    };
     const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
     int y0 = 0, y1 = height - 1;
     const int srcstep = (width*3 + 3) & ~3;
@@ -1644,7 +1629,7 @@ void convert_rgb_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, 
             __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
 
             __m256 y_f0, u_f0, v_f0;
-            convert_rgb2yuv(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ2: ピクセル8-15 (上位128ビット)
             __m256 b_f1 = _mm256_cvtepi32_ps(b_32_1);
@@ -1652,7 +1637,7 @@ void convert_rgb_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, 
             __m256 r_f1 = _mm256_cvtepi32_ps(r_32_1);
 
             __m256 y_f1, u_f1, v_f1;
-            convert_rgb2yuv(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ3: ピクセル16-23（上位128ビットから
             __m256 b_f2 = _mm256_cvtepi32_ps(b_32_2);
@@ -1660,7 +1645,7 @@ void convert_rgb_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, 
             __m256 r_f2 = _mm256_cvtepi32_ps(r_32_2);
 
             __m256 y_f2, u_f2, v_f2;
-            convert_rgb2yuv(y_f2, u_f2, v_f2, r_f2, g_f2, b_f2, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f2, u_f2, v_f2, r_f2, g_f2, b_f2, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // グループ4: ピクセル24-31
             __m256 b_f3 = _mm256_cvtepi32_ps(b_32_3);
@@ -1668,7 +1653,7 @@ void convert_rgb_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, 
             __m256 r_f3 = _mm256_cvtepi32_ps(r_32_3);
 
             __m256 y_f3, u_f3, v_f3;
-            convert_rgb2yuv(y_f3, u_f3, v_f3, r_f3, g_f3, b_f3, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            convert_rgb2yuv<8>(y_f3, u_f3, v_f3, r_f3, g_f3, b_f3, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
             
             // 四捨五入して整数に変換
             __m256i y_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(y_f0, limit_offset, round_offset));
@@ -1824,4 +1809,447 @@ void convert_yuy2_to_yuv422_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data,
         }
     }
     _mm256_zeroupper();
+}
+
+// 22bit精度 rcp
+__m256 _mm256_rcpnr_fma_ps(__m256 x) {
+	__m256 rcp = _mm256_rcp_ps(x); // 11bit精度
+	//rcp*(2-rcp*x)
+	return _mm256_mul_ps(rcp, _mm256_fnmadd_ps(x, rcp, _mm256_set1_ps(2.0f)));
+}
+
+void unpremultiply_pa64_avx2(__m256& r, __m256& g, __m256& b, const __m256& a) {
+    // 乗算付きalphaなrgbをunpremultiplyに変換
+    __m256 a_inv = _mm256_mul_ps(_mm256_set1_ps(65535.0f), _mm256_rcpnr_fma_ps(a));
+    r = _mm256_mul_ps(r, a_inv);
+    g = _mm256_mul_ps(g, a_inv);
+    b = _mm256_mul_ps(b, a_inv);
+}
+
+void convert_pa64_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    const int out_bit_depth = 8;
+    BYTE *ptrY = pixel_data->data[0];
+    BYTE *ptrU = pixel_data->data[1];
+    BYTE *ptrV = pixel_data->data[2];
+    const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
+    const int srcstep = width * 4;
+    
+    // AVX2用の係数をロード
+    const __m256 coeff_ry = _mm256_set1_ps(coeff_table[0]);
+    const __m256 coeff_gy = _mm256_set1_ps(coeff_table[1]);
+    const __m256 coeff_by = _mm256_set1_ps(coeff_table[2]);
+    const __m256 coeff_ru = _mm256_set1_ps(coeff_table[3]);
+    const __m256 coeff_gu = _mm256_set1_ps(coeff_table[4]);
+    const __m256 coeff_bu = _mm256_set1_ps(coeff_table[5]);
+    const __m256 coeff_rv = _mm256_set1_ps(coeff_table[6]);
+    const __m256 coeff_gv = _mm256_set1_ps(coeff_table[7]);
+    const __m256 coeff_bv = _mm256_set1_ps(coeff_table[8]);
+    
+    const __m256 offset_y = _mm256_set1_ps(16.0f);
+    const __m256 offset_uv = _mm256_set1_ps(128.0f);
+    const __m256 round_offset = _mm256_set1_ps(0.5f);
+    const __m256 limit_offset = _mm256_set1_ps(1.0f / (float)(1 << (16 - out_bit_depth)));
+    
+    for (int y = 0; y < height; y++) {
+        BYTE *dstY = (BYTE *)(ptrY + y*width*sizeof(BYTE));
+        BYTE *dstU = (BYTE *)(ptrU + y*width*sizeof(BYTE));
+        BYTE *dstV = (BYTE *)(ptrV + y*width*sizeof(BYTE));
+        USHORT *src  = (USHORT*)frame + y*srcstep;
+        
+        int x = 0;
+        // AVX2で32ピクセルずつ処理
+        for (; x <= width - 32; x += 32) {
+            __m256i y0 = _mm256_loadu_si256((__m256i *)(src + x*4 +  0));
+            __m256i y1 = _mm256_loadu_si256((__m256i *)(src + x*4 + 16));
+            __m256i y2 = _mm256_loadu_si256((__m256i *)(src + x*4 + 32));
+            __m256i y3 = _mm256_loadu_si256((__m256i *)(src + x*4 + 48));
+            __m256i y4 = _mm256_loadu_si256((__m256i *)(src + x*4 + 64));
+            __m256i y5 = _mm256_loadu_si256((__m256i *)(src + x*4 + 80));
+            __m256i y6 = _mm256_loadu_si256((__m256i *)(src + x*4 + 96));
+            __m256i y7 = _mm256_loadu_si256((__m256i *)(src + x*4 + 112));
+
+            __m256i y01_0 = _mm256_permute2x128_si256(y0, y1, (2 << 4) | 0);
+            __m256i y01_1 = _mm256_permute2x128_si256(y0, y1, (3 << 4) | 1);
+            __m256i y23_0 = _mm256_permute2x128_si256(y2, y3, (2 << 4) | 0);
+            __m256i y23_1 = _mm256_permute2x128_si256(y2, y3, (3 << 4) | 1);
+            __m256i y45_0 = _mm256_permute2x128_si256(y4, y5, (2 << 4) | 0);
+            __m256i y45_1 = _mm256_permute2x128_si256(y4, y5, (3 << 4) | 1);
+            __m256i y67_0 = _mm256_permute2x128_si256(y6, y7, (2 << 4) | 0);
+            __m256i y67_1 = _mm256_permute2x128_si256(y6, y7, (3 << 4) | 1);
+
+            y0 = _mm256_packus_epi32(_mm256_and_si256(y01_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y01_1, _mm256_set1_epi32(0xFFFF))); // 3b	3r	2b	2r	1b	1r	0b	0r
+            y1 = _mm256_packus_epi32(_mm256_srli_epi32(y01_0, 16), _mm256_srli_epi32(y01_1, 16)); // 3a	3g	2a	2g	1a	1g	0a	0g
+            y2 = _mm256_packus_epi32(_mm256_and_si256(y23_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y23_1, _mm256_set1_epi32(0xFFFF)));
+            y3 = _mm256_packus_epi32(_mm256_srli_epi32(y23_0, 16), _mm256_srli_epi32(y23_1, 16));
+            y4 = _mm256_packus_epi32(_mm256_and_si256(y45_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y45_1, _mm256_set1_epi32(0xFFFF))); // 3b	3r	2b	2r	1b	1r	0b	0r
+            y5 = _mm256_packus_epi32(_mm256_srli_epi32(y45_0, 16), _mm256_srli_epi32(y45_1, 16)); // 3a	3g	2a	2g	1a	1g	0a	0g
+            y6 = _mm256_packus_epi32(_mm256_and_si256(y67_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y67_1, _mm256_set1_epi32(0xFFFF)));
+            y7 = _mm256_packus_epi32(_mm256_srli_epi32(y67_0, 16), _mm256_srli_epi32(y67_1, 16));
+
+            __m256i r_32_0 = _mm256_and_si256(y0, _mm256_set1_epi32(0xFFFF));
+            __m256i g_32_0 = _mm256_srli_epi32(y0, 16);
+            __m256i r_32_1 = _mm256_and_si256(y2, _mm256_set1_epi32(0xFFFF));
+            __m256i g_32_1 = _mm256_srli_epi32(y2, 16);
+            __m256i b_32_0 = _mm256_and_si256(y1, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_0 = _mm256_srli_epi32(y1, 16);
+            __m256i b_32_1 = _mm256_and_si256(y3, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_1 = _mm256_srli_epi32(y3, 16);
+            __m256i r_32_2 = _mm256_and_si256(y4, _mm256_set1_epi32(0xFFFF));
+            __m256i g_32_2 = _mm256_srli_epi32(y4, 16);
+            __m256i r_32_3 = _mm256_and_si256(y6, _mm256_set1_epi32(0xFFFF));
+            __m256i g_32_3 = _mm256_srli_epi32(y6, 16);
+            __m256i b_32_2 = _mm256_and_si256(y5, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_2 = _mm256_srli_epi32(y5, 16);
+            __m256i b_32_3 = _mm256_and_si256(y7, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_3 = _mm256_srli_epi32(y7, 16);
+
+            // グループ1: ピクセル0-7
+            __m256 b_f0 = _mm256_cvtepi32_ps(b_32_0);
+            __m256 g_f0 = _mm256_cvtepi32_ps(g_32_0);
+            __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
+            __m256 a_f0 = _mm256_cvtepi32_ps(a_32_0);
+            unpremultiply_pa64_avx2(r_f0, g_f0, b_f0, a_f0);
+
+            __m256 y_f0, u_f0, v_f0;
+            convert_rgb2yuv<16>(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            
+            // グループ2: ピクセル8-15
+            __m256 b_f1 = _mm256_cvtepi32_ps(b_32_1);
+            __m256 g_f1 = _mm256_cvtepi32_ps(g_32_1);
+            __m256 r_f1 = _mm256_cvtepi32_ps(r_32_1);
+            __m256 a_f1 = _mm256_cvtepi32_ps(a_32_1);
+            unpremultiply_pa64_avx2(r_f1, g_f1, b_f1, a_f1);
+
+            __m256 y_f1, u_f1, v_f1;
+            convert_rgb2yuv<16>(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+
+            // グループ3: ピクセル16-23
+            __m256 b_f2 = _mm256_cvtepi32_ps(b_32_2);
+            __m256 g_f2 = _mm256_cvtepi32_ps(g_32_2);
+            __m256 r_f2 = _mm256_cvtepi32_ps(r_32_2);
+            __m256 a_f2 = _mm256_cvtepi32_ps(a_32_2);
+            unpremultiply_pa64_avx2(r_f2, g_f2, b_f2, a_f2);
+
+            
+            __m256 y_f2, u_f2, v_f2;
+            convert_rgb2yuv<16>(y_f2, u_f2, v_f2, r_f2, g_f2, b_f2, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+
+            // グループ4: ピクセル24-31
+            __m256 b_f3 = _mm256_cvtepi32_ps(b_32_3);
+            __m256 g_f3 = _mm256_cvtepi32_ps(g_32_3);
+            __m256 r_f3 = _mm256_cvtepi32_ps(r_32_3);
+            __m256 a_f3 = _mm256_cvtepi32_ps(a_32_3);
+            unpremultiply_pa64_avx2(r_f3, g_f3, b_f3, a_f3);
+
+            __m256 y_f3, u_f3, v_f3;    
+            convert_rgb2yuv<16>(y_f3, u_f3, v_f3, r_f3, g_f3, b_f3, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+
+            // 四捨五入して整数に変換
+            __m256i y_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(y_f0, limit_offset, round_offset));
+            __m256i u_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(u_f0, limit_offset, round_offset));
+            __m256i v_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(v_f0, limit_offset, round_offset));
+            __m256i y_i1 = _mm256_cvttps_epi32(_mm256_fmadd_ps(y_f1, limit_offset, round_offset));
+            __m256i u_i1 = _mm256_cvttps_epi32(_mm256_fmadd_ps(u_f1, limit_offset, round_offset));
+            __m256i v_i1 = _mm256_cvttps_epi32(_mm256_fmadd_ps(v_f1, limit_offset, round_offset));
+            __m256i y_i2 = _mm256_cvttps_epi32(_mm256_fmadd_ps(y_f2, limit_offset, round_offset));
+            __m256i u_i2 = _mm256_cvttps_epi32(_mm256_fmadd_ps(u_f2, limit_offset, round_offset));
+            __m256i v_i2 = _mm256_cvttps_epi32(_mm256_fmadd_ps(v_f2, limit_offset, round_offset));
+            __m256i y_i3 = _mm256_cvttps_epi32(_mm256_fmadd_ps(y_f3, limit_offset, round_offset));
+            __m256i u_i3 = _mm256_cvttps_epi32(_mm256_fmadd_ps(u_f3, limit_offset, round_offset));
+            __m256i v_i3 = _mm256_cvttps_epi32(_mm256_fmadd_ps(v_f3, limit_offset, round_offset));
+
+            // 32bit -> 16bit変換
+            __m256i y_16_0 = _mm256_packus_epi32(y_i0, y_i1);  // 0-15
+            __m256i u_16_0 = _mm256_packus_epi32(u_i0, u_i1);
+            __m256i v_16_0 = _mm256_packus_epi32(v_i0, v_i1);
+            __m256i y_16_1 = _mm256_packus_epi32(y_i2, y_i3);  // 16-31
+            __m256i u_16_1 = _mm256_packus_epi32(u_i2, u_i3);
+            __m256i v_16_1 = _mm256_packus_epi32(v_i2, v_i3);
+            
+            // 16bit -> 8bit変換
+            __m256i y_8 = _mm256_packus_epi16(y_16_0, y_16_1);  // 32ピクセル
+            __m256i u_8 = _mm256_packus_epi16(u_16_0, u_16_1);
+            __m256i v_8 = _mm256_packus_epi16(v_16_0, v_16_1);
+            
+            // 結果を256ビットレジスタで格納（32ピクセル = 32バイト）
+            _mm256_storeu_si256((__m256i*)(dstY + x), y_8);
+            _mm256_storeu_si256((__m256i*)(dstU + x), u_8);
+            _mm256_storeu_si256((__m256i*)(dstV + x), v_8);
+        }
+        
+        // 残りのピクセルを従来の方法で処理
+        for (; x < width; x++) {
+            float b = (float)src[x*4 + 0];
+            float g = (float)src[x*4 + 1];
+            float r = (float)src[x*4 + 2];
+            float a = (float)src[x*4 + 3];
+            float a_inv = 65535.0f / a;
+            b *= a_inv, g *= a_inv, r *= a_inv;
+            const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
+            const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            dstY[x] = (BYTE)clamp((int)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = (BYTE)clamp((int)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = (BYTE)clamp((int)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+        }
+    }
+}
+
+void convert_pa64_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    const int out_bit_depth = 16;
+    USHORT *ptrY = (USHORT *)pixel_data->data[0];
+    USHORT *ptrU = (USHORT *)pixel_data->data[1];
+    USHORT *ptrV = (USHORT *)pixel_data->data[2];
+    const float *coeff_table = COEFF_RGB2YUV[pixel_data->colormatrix ? 1 : 0];
+    const int srcstep = width * 4;
+    
+    // AVX2用の係数をロード
+    const __m256 coeff_ry = _mm256_set1_ps(coeff_table[0]);
+    const __m256 coeff_gy = _mm256_set1_ps(coeff_table[1]);
+    const __m256 coeff_by = _mm256_set1_ps(coeff_table[2]);
+    const __m256 coeff_ru = _mm256_set1_ps(coeff_table[3]);
+    const __m256 coeff_gu = _mm256_set1_ps(coeff_table[4]);
+    const __m256 coeff_bu = _mm256_set1_ps(coeff_table[5]);
+    const __m256 coeff_rv = _mm256_set1_ps(coeff_table[6]);
+    const __m256 coeff_gv = _mm256_set1_ps(coeff_table[7]);
+    const __m256 coeff_bv = _mm256_set1_ps(coeff_table[8]);
+    
+    const __m256 offset_y = _mm256_set1_ps(16.0f);
+    const __m256 offset_uv = _mm256_set1_ps(128.0f);
+    const __m256 round_offset = _mm256_set1_ps(0.5f);
+    
+    for (int y = 0; y < height; y++) {
+        USHORT *dstY = (USHORT *)(ptrY + y*width);
+        USHORT *dstU = (USHORT *)(ptrU + y*width);
+        USHORT *dstV = (USHORT *)(ptrV + y*width);
+        USHORT *src  = (USHORT*)frame + y*srcstep;
+        
+        int x = 0;
+        // AVX2で32ピクセルずつ処理
+        for (; x <= width - 16; x += 16) {
+            __m256i y0 = _mm256_loadu_si256((__m256i *)(src + x*4 +  0));
+            __m256i y1 = _mm256_loadu_si256((__m256i *)(src + x*4 + 16));
+            __m256i y2 = _mm256_loadu_si256((__m256i *)(src + x*4 + 32));
+            __m256i y3 = _mm256_loadu_si256((__m256i *)(src + x*4 + 48));
+            
+            __m256i y01_0 = _mm256_permute2x128_si256(y0, y1, (2 << 4) | 0);
+            __m256i y01_1 = _mm256_permute2x128_si256(y0, y1, (3 << 4) | 1);
+            __m256i y23_0 = _mm256_permute2x128_si256(y2, y3, (2 << 4) | 0);
+            __m256i y23_1 = _mm256_permute2x128_si256(y2, y3, (3 << 4) | 1);
+
+            y0 = _mm256_packus_epi32(_mm256_and_si256(y01_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y01_1, _mm256_set1_epi32(0xFFFF))); // 3b	3r	2b	2r	1b	1r	0b	0r
+            y1 = _mm256_packus_epi32(_mm256_srli_epi32(y01_0, 16), _mm256_srli_epi32(y01_1, 16)); // 3a	3g	2a	2g	1a	1g	0a	0g
+            y2 = _mm256_packus_epi32(_mm256_and_si256(y23_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y23_1, _mm256_set1_epi32(0xFFFF)));
+            y3 = _mm256_packus_epi32(_mm256_srli_epi32(y23_0, 16), _mm256_srli_epi32(y23_1, 16));
+            
+            __m256i r_32_0 = _mm256_and_si256(y0, _mm256_set1_epi32(0xFFFF));
+            __m256i b_32_0 = _mm256_srli_epi32(y0, 16);
+            __m256i g_32_0 = _mm256_and_si256(y1, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_0 = _mm256_srli_epi32(y1, 16);
+            __m256i r_32_1 = _mm256_and_si256(y2, _mm256_set1_epi32(0xFFFF));
+            __m256i b_32_1 = _mm256_srli_epi32(y2, 16);
+            __m256i g_32_1 = _mm256_and_si256(y3, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_1 = _mm256_srli_epi32(y3, 16);
+            
+            // グループ1: ピクセル0-7
+            __m256 b_f0 = _mm256_cvtepi32_ps(b_32_0);
+            __m256 g_f0 = _mm256_cvtepi32_ps(g_32_0);
+            __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
+            __m256 a_f0 = _mm256_cvtepi32_ps(a_32_0);
+            unpremultiply_pa64_avx2(r_f0, g_f0, b_f0, a_f0);
+
+            __m256 y_f0, u_f0, v_f0;
+            convert_rgb2yuv<16>(y_f0, u_f0, v_f0, r_f0, g_f0, b_f0, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            
+            // グループ2: ピクセル8-15
+            __m256 b_f1 = _mm256_cvtepi32_ps(b_32_1);
+            __m256 g_f1 = _mm256_cvtepi32_ps(g_32_1);
+            __m256 r_f1 = _mm256_cvtepi32_ps(r_32_1);
+            __m256 a_f1 = _mm256_cvtepi32_ps(a_32_1);
+            unpremultiply_pa64_avx2(r_f1, g_f1, b_f1, a_f1);
+
+            __m256 y_f1, u_f1, v_f1;
+            convert_rgb2yuv<16>(y_f1, u_f1, v_f1, r_f1, g_f1, b_f1, coeff_ry, coeff_gy, coeff_by, coeff_ru, coeff_gu, coeff_bu, coeff_rv, coeff_gv, coeff_bv);
+            
+            // 四捨五入して整数に変換
+            __m256i y_i0 = _mm256_cvttps_epi32(_mm256_add_ps(y_f0, round_offset));
+            __m256i u_i0 = _mm256_cvttps_epi32(_mm256_add_ps(u_f0, round_offset));
+            __m256i v_i0 = _mm256_cvttps_epi32(_mm256_add_ps(v_f0, round_offset));
+            __m256i y_i1 = _mm256_cvttps_epi32(_mm256_add_ps(y_f1, round_offset));
+            __m256i u_i1 = _mm256_cvttps_epi32(_mm256_add_ps(u_f1, round_offset));
+            __m256i v_i1 = _mm256_cvttps_epi32(_mm256_add_ps(v_f1, round_offset));
+
+            // 32bit -> 16bit変換
+            __m256i y_16_0 = _mm256_packus_epi32(y_i0, y_i1);  // 0-15
+            __m256i u_16_0 = _mm256_packus_epi32(u_i0, u_i1);
+            __m256i v_16_0 = _mm256_packus_epi32(v_i0, v_i1);
+            
+            // 結果を256ビットレジスタで格納（32ピクセル = 32バイト）
+            _mm256_storeu_si256((__m256i*)(dstY + x +  0), _mm256_permute4x64_epi64(y_16_0, _MM_SHUFFLE(3,1,2,0)));
+            _mm256_storeu_si256((__m256i*)(dstU + x +  0), _mm256_permute4x64_epi64(u_16_0, _MM_SHUFFLE(3,1,2,0)));
+            _mm256_storeu_si256((__m256i*)(dstV + x +  0), _mm256_permute4x64_epi64(v_16_0, _MM_SHUFFLE(3,1,2,0)));
+        }
+        
+        // 残りのピクセルを従来の方法で処理
+        for (; x < width; x++) {
+            float b = (float)src[x*4 + 0];
+            float g = (float)src[x*4 + 1];
+            float r = (float)src[x*4 + 2];
+            float a = (float)src[x*4 + 3];
+            float a_inv = 65535.0f / a;
+            b *= a_inv, g *= a_inv, r *= a_inv;
+            const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
+            const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            dstY[x] = (USHORT)clamp((int)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = (USHORT)clamp((int)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = (USHORT)clamp((int)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+        }
+    }
+}
+
+void convert_pa64_to_rgba_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    const int out_bit_depth = 8;
+    BYTE *ptr = pixel_data->data[0];
+    const int srcstep = width * 4;
+    const float mul = 1.0f /(float)(1 << (16 - out_bit_depth));
+    const __m256 round_offset = _mm256_set1_ps(0.5f);
+    const __m256 mul256 = _mm256_set1_ps(mul);
+    
+    for (int y = 0; y < height; y++) {
+        BYTE *dst = (BYTE *)(ptr + y*width*4);
+        USHORT *src  = (USHORT*)frame + y*srcstep;
+        
+        int x = 0;
+        // AVX2で32ピクセルずつ処理
+        for (; x <= width - 32; x += 32) {
+            __m256i y0 = _mm256_loadu_si256((__m256i *)(src + x*4 +  0));
+            __m256i y1 = _mm256_loadu_si256((__m256i *)(src + x*4 + 16));
+            
+            __m256i y01_0 = _mm256_permute2x128_si256(y0, y1, (2 << 4) | 0);
+            __m256i y01_1 = _mm256_permute2x128_si256(y0, y1, (3 << 4) | 1);
+
+            y0 = _mm256_packus_epi32(_mm256_and_si256(y01_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y01_1, _mm256_set1_epi32(0xFFFF))); // 3b	3r	2b	2r	1b	1r	0b	0r
+            y1 = _mm256_packus_epi32(_mm256_srli_epi32(y01_0, 16), _mm256_srli_epi32(y01_1, 16)); // 3a	3g	2a	2g	1a	1g	0a	0g
+            
+            __m256i r_32_0 = _mm256_and_si256(y0, _mm256_set1_epi32(0xFFFF));
+            __m256i b_32_0 = _mm256_srli_epi32(y0, 16);
+            __m256i g_32_0 = _mm256_and_si256(y1, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_0 = _mm256_srli_epi32(y1, 16);
+            
+            // グループ1: ピクセル0-7
+            __m256 b_f0 = _mm256_cvtepi32_ps(b_32_0);
+            __m256 g_f0 = _mm256_cvtepi32_ps(g_32_0);
+            __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
+            __m256 a_f0 = _mm256_cvtepi32_ps(a_32_0);
+            unpremultiply_pa64_avx2(r_f0, g_f0, b_f0, a_f0);
+
+            // 四捨五入して整数に変換
+            __m256i r_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(r_f0, mul256, round_offset));
+            __m256i g_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(g_f0, mul256, round_offset));
+            __m256i b_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(b_f0, mul256, round_offset));
+            __m256i a_i0 = _mm256_cvttps_epi32(_mm256_fmadd_ps(a_f0, mul256, round_offset));
+
+            // 32bit -> 16bit変換
+            y0 = _mm256_packus_epi32(r_i0, g_i0);  // 0-15
+            y1 = _mm256_packus_epi32(b_i0, a_i0);
+            
+            // 16bit -> 8bit変換
+            __m256i y2 = _mm256_packus_epi16(y0, y1);  // 32ピクセル
+
+            y0 = _mm256_packus_epi16(_mm256_and_si256(y0, _mm256_set1_epi16(0xFF)), _mm256_setzero_si256());
+            y1 = _mm256_packus_epi16(_mm256_srli_epi16(y0, 8), _mm256_setzero_si256());
+            y0 = _mm256_or_si256(y0, _mm256_shuffle_epi32(y1, _MM_SHUFFLE(1,0,3,2)));
+            
+            // 結果を256ビットレジスタで格納（32ピクセル = 32バイト）
+            _mm256_storeu_si256((__m256i*)(dst + x), y0);
+        }
+        
+        // 残りのピクセルを従来の方法で処理
+        for (; x < width; x++) {
+            float b = (float)src[x*4 + 0];
+            float g = (float)src[x*4 + 1];
+            float r = (float)src[x*4 + 2];
+            float a = (float)src[x*4 + 3];
+            float a_inv = 65535.0f * mul / a;
+            b *= a_inv, g *= a_inv, r *= a_inv, a *= mul;
+            dst[x*4 + 0] = (BYTE)clamp((int)(r + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 1] = (BYTE)clamp((int)(g + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 2] = (BYTE)clamp((int)(b + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 3] = (BYTE)clamp((int)(a + 0.5f), 0, (1 << out_bit_depth) - 1);
+        }
+    }
+}
+
+void convert_pa64_to_rgba_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const int width, const int height) {
+    const int out_bit_depth = 16;
+    USHORT *ptr = (USHORT *)pixel_data->data[0];
+    const int srcstep = width * 4;
+    const __m256 round_offset = _mm256_set1_ps(0.5f);
+    
+    for (int y = 0; y < height; y++) {
+        USHORT *dst = (USHORT *)(ptr + y*width*4);
+        USHORT *src  = (USHORT*)frame + y*srcstep;
+        
+        int x = 0;
+        // AVX2で32ピクセルずつ処理
+        for (; x <= width - 32; x += 32) {
+            __m256i y0 = _mm256_loadu_si256((__m256i *)(src + x*4 +  0));
+            __m256i y1 = _mm256_loadu_si256((__m256i *)(src + x*4 + 16));
+            
+            __m256i y01_0 = _mm256_permute2x128_si256(y0, y1, (2 << 4) | 0);
+            __m256i y01_1 = _mm256_permute2x128_si256(y0, y1, (3 << 4) | 1);
+
+            y0 = _mm256_packus_epi32(_mm256_and_si256(y01_0, _mm256_set1_epi32(0xFFFF)), _mm256_and_si256(y01_1, _mm256_set1_epi32(0xFFFF))); // 3b	3r	2b	2r	1b	1r	0b	0r
+            y1 = _mm256_packus_epi32(_mm256_srli_epi32(y01_0, 16), _mm256_srli_epi32(y01_1, 16)); // 3a	3g	2a	2g	1a	1g	0a	0g
+            
+            __m256i r_32_0 = _mm256_and_si256(y0, _mm256_set1_epi32(0xFFFF));
+            __m256i b_32_0 = _mm256_srli_epi32(y0, 16);
+            __m256i g_32_0 = _mm256_and_si256(y1, _mm256_set1_epi32(0xFFFF));
+            __m256i a_32_0 = _mm256_srli_epi32(y1, 16);
+            
+            // グループ1: ピクセル0-7
+            __m256 b_f0 = _mm256_cvtepi32_ps(b_32_0);
+            __m256 g_f0 = _mm256_cvtepi32_ps(g_32_0);
+            __m256 r_f0 = _mm256_cvtepi32_ps(r_32_0);
+            __m256 a_f0 = _mm256_cvtepi32_ps(a_32_0);
+            unpremultiply_pa64_avx2(r_f0, g_f0, b_f0, a_f0);
+
+            // 四捨五入して整数に変換
+            __m256i r_i0 = _mm256_cvttps_epi32(_mm256_add_ps(r_f0, round_offset));
+            __m256i g_i0 = _mm256_cvttps_epi32(_mm256_add_ps(g_f0, round_offset));
+            __m256i b_i0 = _mm256_cvttps_epi32(_mm256_add_ps(b_f0, round_offset));
+            __m256i a_i0 = _mm256_cvttps_epi32(_mm256_add_ps(a_f0, round_offset));
+
+            // 32bit -> 16bit変換
+            y0 = _mm256_packus_epi32(r_i0, g_i0);  // 0-15
+            y1 = _mm256_packus_epi32(b_i0, a_i0);
+
+            __m256i y0_0 = _mm256_packus_epi32(_mm256_and_si256(y0, _mm256_set1_epi32(0xFFFF)), _mm256_setzero_si256());
+            __m256i y0_1 = _mm256_packus_epi16(_mm256_srli_epi32(y0, 16), _mm256_setzero_si256());
+            __m256i y1_0 = _mm256_packus_epi32(_mm256_and_si256(y1, _mm256_set1_epi32(0xFFFF)), _mm256_setzero_si256());
+            __m256i y1_1 = _mm256_packus_epi16(_mm256_srli_epi32(y1, 16), _mm256_setzero_si256());
+
+            y0 = _mm256_or_si256(y0_0, _mm256_shuffle_epi32(y0_1, _MM_SHUFFLE(1,0,3,2)));
+            y1 = _mm256_or_si256(y1_0, _mm256_shuffle_epi32(y1_1, _MM_SHUFFLE(1,0,3,2)));
+            
+            // 結果を256ビットレジスタで格納（32ピクセル = 32バイト）
+            _mm256_storeu_si256((__m256i*)(dst + x +  0), y0);
+            _mm256_storeu_si256((__m256i*)(dst + x + 16), y1);
+        }
+        
+        // 残りのピクセルを従来の方法で処理
+        for (; x < width; x++) {
+            float b = (float)src[x*4 + 0];
+            float g = (float)src[x*4 + 1];
+            float r = (float)src[x*4 + 2];
+            float a = (float)src[x*4 + 3];
+            float a_inv = 65535.0f / a;
+            b *= a_inv, g *= a_inv, r *= a_inv;
+            dst[x*4 + 0] = (USHORT)clamp((int)(r + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 1] = (USHORT)clamp((int)(g + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 2] = (USHORT)clamp((int)(b + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dst[x*4 + 3] = (USHORT)clamp((int)(a + 0.5f), 0, (1 << out_bit_depth) - 1);
+        }
+    }
 }

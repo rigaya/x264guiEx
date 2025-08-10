@@ -43,8 +43,10 @@ enum {
     CF_YC48 = 1,
     CF_RGB  = 2,
     CF_LW48 = 3,
+    CF_PA64 = 4,
+    CF_HF64 = 5,
 };
-static const TCHAR * const CF_NAME[] = { _T("YUY2"), _T("YC48"), _T("RGB"), _T("LW48") };
+static const TCHAR * const CF_NAME[] = { _T("YUY2"), _T("YC48"), _T("RGB"), _T("LW48"), _T("PA64"), _T("HF64") };
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
@@ -56,7 +58,9 @@ static const COLORFORMAT_DATA COLORFORMATS[] = {
     { MAKEFOURCC('Y', 'U', 'Y', '2'), 2 }, //YUY2
     { MAKEFOURCC('Y', 'C', '4', '8'), 6 }, //YC48
     { NULL,                           3 }, //RGB
-    { MAKEFOURCC('L', 'W', '4', '8'), 6 }  //LW48
+    { MAKEFOURCC('L', 'W', '4', '8'), 6 }, //LW48
+    { MAKEFOURCC('P', 'A', '6', '4'), 8 }, //PA64
+    { MAKEFOURCC('H', 'F', '6', '4'), 8 }  //HF64
 };
 
 static const int DROP_FRAME_FLAG = INT_MAX;

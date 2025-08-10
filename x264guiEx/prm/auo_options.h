@@ -79,6 +79,7 @@ enum {
     OUT_CSP_P010,
     OUT_CSP_YUV444_16,
     OUT_CSP_RGBA,
+    OUT_CSP_RGBA_16,
 };
 
 enum {
