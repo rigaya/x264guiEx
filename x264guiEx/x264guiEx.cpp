@@ -354,11 +354,13 @@ int func_config_set(void *data,int size) {
         && strncmp(CONF_NAME_JSON, (char *)data, strlen(CONF_NAME_JSON)) == 0) {
         std::string json_str((char *)data + strlen(CONF_NAME_JSON));
         if (guiEx_config::json_to_conf(&g_conf, json_str)) {
+            g_conf.header.size_all = CONF_INITIALIZED;
             return size;
         }
     } else if (size == sizeof(CONF_GUIEX_OLD)) {
         auto json_str = guiEx_config::old_conf_to_json((CONF_GUIEX_OLD *)data);
         if (guiEx_config::json_to_conf(&g_conf, json_str)) {
+            g_conf.header.size_all = CONF_INITIALIZED;
             return size;
         }
     }
