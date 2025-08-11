@@ -32,6 +32,8 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <vector>
+#include <string>
+#include <limits>
 
 #include "auo.h"
 #include "auo_settings.h"

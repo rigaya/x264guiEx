@@ -49,7 +49,6 @@
 #include "afs_client.h"
 #pragma warning( pop )
 
-#include "auo.h"
 #include "auo_frm.h"
 #include "auo_pipe.h"
 #include "auo_error.h"
@@ -310,7 +309,7 @@ static AUO_RESULT adjust_keyframe_as_afs_24fps(std::vector<int> &keyframe_list, 
             int drop = FALSE, next_jitter = 0;
             for (int i = 0; i < oip->n; i++) {
                 afs_get_video((OUTPUT_INFO *)oip, i, &drop, &next_jitter);
-                _ftprintf(fp_log, _T("%d\r\n%d,%d,"), drop, next_jitter, 4*(i+1) + next_jitter);
+                fprintf(fp_log, "%d\r\n%d,%d,", drop, next_jitter, 4*(i+1) + next_jitter);
                 //進捗表示 (自動24fps化などしていると時間がかかる)
                 if ((tm = timeGetTime()) - tm_prev > LOG_UPDATE_INTERVAL * 5) {
                     set_log_progress(i / (double)oip->n);
@@ -839,7 +838,7 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
     //コマンドライン生成
     build_full_cmd(enccmd, _countof(enccmd), conf, oip, pe, sys_dat, PIPE_FN);
     write_log_auo_line_fmt(LOG_INFO, L"%s options...", ENCODER_NAME_W);
-    write_args(tchar_to_string(enccmd).c_str());
+    write_args(enccmd);
     _stprintf_s(encargs, _T("\"%s\" %s"), sys_dat->exstg->s_enc.fullpath, enccmd);
     if (PathFileExists(pe->temp_filename)) {
         //ファイルサイズチェックの時に旧ファイルを参照してしまうのを回避
@@ -992,6 +991,7 @@ static AUO_RESULT enc_out(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe,
                 //次のフレームの変換を許可
                 SetEvent(thread_data.he_out_fin);
             }
+
 #if AVIUTL_TARGET_VER == 1
             // 「表示 -> セーブ中もプレビュー表示」がチェックされていると
             // func_update_preview() の呼び出しによって func_get_video_ex() の
@@ -1109,7 +1109,7 @@ BOOL check_videnc_mp4_output([[maybe_unused]] const TCHAR *exe_path, [[maybe_unu
             if (read_stderr(&pipes)) {
                 exe_message += pipes.read_buf;
                 pipes.buf_len = 0;
-            } else {
+            } else {                
                 log_process_events();
             }
         }

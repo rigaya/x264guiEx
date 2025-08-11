@@ -32,6 +32,7 @@
 #include "convert.h"
 #include "auo_conf.h"
 #include "auo_system.h"
+#include "rgy_tchar.h"
 
 typedef struct {
     DWORD FOURCC;   //FOURCC

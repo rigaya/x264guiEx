@@ -36,9 +36,6 @@
 #include "auo_options.h"
 #include "rgy_tchar.h"
 #include "rgy_util.h"
-
-// JSON support for new format
-#include <string>
 #include <json_fwd.hpp>
 
 const int CONF_INITIALIZED = 1;
@@ -75,10 +72,14 @@ static const char *const CONF_NAME_OLD2  = "x264/x265guiEx ConfigFile";
 static const char *const CONF_NAME_OLD3  = "x265guiEx ConfigFile v2";
 static const char *const CONF_NAME_OLD4  = "x265guiEx ConfigFile v3";
 static const char *const CONF_NAME_OLD5  = "x265guiEx ConfigFile v4";
-static const char *const CONF_NAME       = CONF_NAME_OLD5;
+static const char *const CONF_NAME_OLD6  = "x265guiEx ConfigFile v5";
+static const char *const CONF_NAME_JSON  = "x264guiEx ConfigFile v5 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD6;
 #elif ENCODER_SVTAV1
 static const char *const CONF_NAME_OLD_1 = "svtAV1guiEx ConfigFile v1";
-static const char *const CONF_NAME       = CONF_NAME_OLD_1;
+static const char *const CONF_NAME_OLD_2 = "svtAV1guiEx ConfigFile v2";
+static const char *const CONF_NAME_JSON  = "svtAV1guiEx ConfigFile v2 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD_2;
 #else
 static_assert(false);
 #endif
@@ -146,7 +147,6 @@ static const ENC_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
 };
 
 #pragma pack(push,4)
-// Old structure for backward compatibility
 typedef struct CONF_VIDEO_OLD {
     BOOL   afs;                      //自動フィールドシフトの使用
     BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
@@ -166,6 +166,7 @@ typedef struct CONF_VIDEO_OLD {
     int    reserved2;
     double amp_limit_bitrate_lower;  //自動マルチパス時のビットレート下限(kbps)
 } CONF_VIDEO_OLD; //動画用設定(x264以外) - 旧版
+#pragma pack(pop)
 
 // New Unicode structure
 typedef struct CONF_VIDEO {
@@ -181,10 +182,12 @@ typedef struct CONF_VIDEO {
     DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
     double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
     double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
-    BOOL   input_as_lw48;            //LW48モード
     double amp_limit_bitrate_lower;  //自動マルチパス時のビットレート下限(kbps)
+    BOOL   input_as_lw48;            //LW48モード
+    TCHAR  parallel_div_info[64];    //プロセス並列モード時に使用する情報
+    TCHAR  analysis_file[MAX_PATH_LEN]; //x265用ステータスファイルの場所
+    BOOL   sync_process_affinity;     //プロセスアフィニティをAviutlと同期
 } CONF_VIDEO; //動画用設定(x264以外)
-#pragma pack(pop)
 
 typedef struct {
     int  encoder;             //使用する音声エンコーダ
@@ -219,7 +222,6 @@ typedef struct CONF_MUX {
     int  internal_mode;   //内蔵muxer用のオプション
 } CONF_MUX; //muxer用設定
 
-// Old structure for backward compatibility
 typedef struct CONF_OTHER_OLD {
     BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
     int   temp_dir;               //一時ディレクトリ
@@ -238,7 +240,6 @@ typedef struct CONF_OTHER_OLD {
     };
 } CONF_OTHER_OLD;
 
-// New Unicode structure
 typedef struct CONF_OTHER {
     BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
     int   temp_dir;               //一時ディレクトリ
@@ -257,7 +258,6 @@ typedef struct CONF_OTHER {
     };
 } CONF_OTHER;
 
-// Old structure for backward compatibility
 
 struct CONF_GUIEX_HEADER {
     char        conf_name[CONF_NAME_BLOCK_LEN];  //保存時に使用
@@ -276,7 +276,6 @@ typedef struct CONF_GUIEX_OLD {
     CONF_OTHER_OLD oth;                          //その他の設定
 } CONF_GUIEX_OLD;
 
-// New Unicode structure
 typedef struct CONF_GUIEX {
     CONF_GUIEX_HEADER header;
     CONF_ENC    enc;                             //エンコーダについての設定
@@ -305,7 +304,7 @@ private:
 public:
     guiEx_config();
     static void write_conf_header(CONF_GUIEX_HEADER *conf_header);
-    static std::string old_conf_to_json(const CONF_GUIEX_OLD *old_conf);     
+    static std::string old_conf_to_json(const CONF_GUIEX_OLD *old_conf);
     static int  adjust_conf_size(CONF_GUIEX *conf_buf, void *old_data, int old_size);
     static int  load_guiEx_conf(CONF_GUIEX *conf, const TCHAR *stg_file);       //設定をstgファイルから読み込み (バイナリ & JSON対応)
     static int  save_guiEx_conf(const CONF_GUIEX *conf, const TCHAR *stg_file); //設定をJSONファイルとして保存

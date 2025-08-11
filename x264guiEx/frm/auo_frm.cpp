@@ -195,17 +195,17 @@ void write_log_enc_mes(char *const msg, DWORD *log_len, int total_drop, int curr
     memmove(msg, mes, ((*log_len = (int)(fin - mes)) + 1) * sizeof(msg[0]));
 }
 
-void write_args(const char *args) {
-    size_t len = strlen(args);
-    char *const c = (char *)malloc((len+1)*sizeof(c[0]));
-    char *const fin = c + len;
+void write_args(const TCHAR *args) {
+    size_t len = _tcslen(args);
+    TCHAR *const c = (TCHAR *)malloc((len+1)*sizeof(c[0]));
+    TCHAR *const fin = c + len;
     memcpy(c, args, (len+1)*sizeof(c[0]));
-    char *p = c;
-    for (char *q = NULL; p + NEW_LINE_THRESHOLD < fin && (q = strrchr(p, ' ', NEW_LINE_THRESHOLD)) != NULL; p = q+1) {
+    TCHAR *p = c;
+    for (TCHAR *q = NULL; p + NEW_LINE_THRESHOLD < fin && (q = strrchr(p, _T(' '), NEW_LINE_THRESHOLD)) != NULL; p = q+1) {
         *q = '\0';
-        write_log_line(LOG_INFO, char_to_wstring(p).c_str());
+        write_log_line(LOG_INFO, p);
     }
-    write_log_line(LOG_INFO, char_to_wstring(p).c_str());
+    write_log_line(LOG_INFO, p);
     free(c);
 }
 

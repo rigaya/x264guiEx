@@ -489,7 +489,6 @@ private:
 
     void make_default_stg_dir(TCHAR *default_stg_dir, DWORD nSize); //プロファイル設定ファイルの保存場所の作成
     BOOL check_inifile();             //iniファイルが読めるかテスト
-    void convert_conf_if_necessary(); //x265guiExβのconfファイルからx265guiExのconfファイルに変換
 
 public:
     static TCHAR blog_url[MAX_PATH_LEN];      //ブログページのurl

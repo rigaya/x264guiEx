@@ -41,11 +41,11 @@
 #include "auo_options.h"
 
 const int guiEx_config::conf_block_data[CONF_BLOCK_COUNT] = {
-    sizeof(CONF_ENC),
-    sizeof(CONF_VIDEO),
-    sizeof(CONF_AUDIO),
-    sizeof(CONF_MUX),
-    sizeof(CONF_OTHER)
+    sizeof(CONF_GUIEX::enc),
+    sizeof(CONF_GUIEX::vid),
+    sizeof(CONF_GUIEX::aud),
+    sizeof(CONF_GUIEX::mux),
+    sizeof(CONF_GUIEX::oth)
 };
 
 const size_t guiEx_config::conf_block_pointer[CONF_BLOCK_COUNT] = {
@@ -77,8 +77,14 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     build_cmd_from_conf(cmd_buffer, _countof(cmd_buffer), &old_conf->enc, NULL, FALSE);
     j["enc"] = {
         {"cmd", tchar_to_string(cmd_buffer, CP_UTF8) },
+#if ENABLE_AMP
         {"use_auto_npass", old_conf->enc.use_auto_npass },
         {"auto_npass", old_conf->enc.auto_npass }
+#endif
+#if ENCODER_SVTAV1
+        {"sar_x", old_conf->vid.sar_x},
+        {"sar_y", old_conf->vid.sar_y}
+#endif
     };
     
     // 旧ビデオ設定をJSONに変換（char文字列をUTF-8に変換）
@@ -86,17 +92,26 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"afs", old_conf->vid.afs},
         {"afs_bitrate_correction", old_conf->vid.afs_bitrate_correction},
         {"auo_tcfile_out", old_conf->vid.auo_tcfile_out},
-        {"check_keyframe", old_conf->vid.check_keyframe},
         {"priority", old_conf->vid.priority},
         {"stats", tchar_to_string(char_to_tstring(old_conf->vid.stats, CP_THREAD_ACP), CP_UTF8)},
-        {"tcfile_in", tchar_to_string(char_to_tstring(old_conf->vid.tcfile_in, CP_THREAD_ACP), CP_UTF8)},
-        {"cqmfile", tchar_to_string(char_to_tstring(old_conf->vid.cqmfile, CP_THREAD_ACP), CP_UTF8)},
-        {"cmdex", tchar_to_string(char_to_tstring(old_conf->vid.cmdex, CP_THREAD_ACP), CP_UTF8)},
+#if ENABLE_AMP
         {"amp_check", old_conf->vid.amp_check},
         {"amp_limit_file_size", old_conf->vid.amp_limit_file_size},
         {"amp_limit_bitrate_upper", old_conf->vid.amp_limit_bitrate_upper},
+        {"amp_limit_bitrate_lower", old_conf->vid.amp_limit_bitrate_lower},
+#endif
+#if ENCODER_X264 || ENCODER_X265
+        {"check_keyframe", old_conf->vid.check_keyframe},
         {"input_as_lw48", old_conf->vid.input_as_lw48},
-        {"amp_limit_bitrate_lower", old_conf->vid.amp_limit_bitrate_lower}
+        {"tcfile_in", tchar_to_string(char_to_tstring(old_conf->vid.tcfile_in, CP_THREAD_ACP), CP_UTF8)},
+        {"cqmfile", tchar_to_string(char_to_tstring(old_conf->vid.cqmfile, CP_THREAD_ACP), CP_UTF8)},
+#endif
+#if ENCODER_X265
+        {"analysis_file", tchar_to_string(char_to_tstring(old_conf->vid.analysis_file, CP_THREAD_ACP), CP_UTF8)},
+        {"parallel_div_info", tchar_to_string(char_to_tstring(old_conf->vid.parallel_div_info, CP_THREAD_ACP), CP_UTF8)},
+        {"sync_process_affinity", old_conf->vid.sync_process_affinity},
+#endif
+        {"cmdex", tchar_to_string(char_to_tstring(old_conf->vid.cmdex, CP_THREAD_ACP), CP_UTF8)}
     };
     
     // オーディオ設定（変更なし）
@@ -180,7 +195,10 @@ void guiEx_config::video_to_json(nlohmann::json& j, const CONF_VIDEO& vid) {
         {"amp_limit_file_size", vid.amp_limit_file_size},
         {"amp_limit_bitrate_upper", vid.amp_limit_bitrate_upper},
         {"input_as_lw48", vid.input_as_lw48},
-        {"amp_limit_bitrate_lower", vid.amp_limit_bitrate_lower}
+        {"amp_limit_bitrate_lower", vid.amp_limit_bitrate_lower},
+        {"analysis_file", tchar_to_string(vid.analysis_file, CP_UTF8)},
+        {"parallel_div_info", tchar_to_string(vid.parallel_div_info, CP_UTF8)},
+        {"sync_process_affinity", vid.sync_process_affinity}
     };
 }
 
@@ -265,6 +283,7 @@ void guiEx_config::json_to_video(const nlohmann::json& j, CONF_VIDEO& vid) {
         vid.amp_limit_bitrate_upper = v.value("amp_limit_bitrate_upper", 0.0);
         vid.input_as_lw48 = v.value("input_as_lw48", 0);
         vid.amp_limit_bitrate_lower = v.value("amp_limit_bitrate_lower", 0.0);
+        vid.sync_process_affinity = v.value("sync_process_affinity", 0);
         
         // 文字列の復元
         auto stats_tstr = char_to_tstring(v.value("stats", ""), CP_UTF8);
@@ -278,6 +297,12 @@ void guiEx_config::json_to_video(const nlohmann::json& j, CONF_VIDEO& vid) {
         
         auto cmdex_tstr = char_to_tstring(v.value("cmdex", ""), CP_UTF8);
         _tcscpy_s(vid.cmdex, cmdex_tstr.c_str());
+        
+        auto analysis_file_tstr = char_to_tstring(v.value("analysis_file", ""), CP_UTF8);
+        _tcscpy_s(vid.analysis_file, analysis_file_tstr.c_str());
+        
+        auto parallel_div_info_tstr = char_to_tstring(v.value("parallel_div_info", ""), CP_UTF8);
+        _tcscpy_s(vid.parallel_div_info, parallel_div_info_tstr.c_str());
     }
 }
 
@@ -379,12 +404,23 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
     j["version"] = CONF_NAME_JSON;
     
     // エンコーダ設定
+#if ENCODER_X264 || ENCODER_X265
     std::vector<TCHAR> cmd_buffer(MAX_CMD_LEN, 0);
     build_cmd_from_conf(cmd_buffer.data(), cmd_buffer.size(), &conf->enc, &conf->vid, FALSE);
+    auto cmd_enc = tchar_to_string(cmd_buffer.data(), CP_UTF8);
+#else
+    auto cmd_enc = tchar_to_string(conf->enc.cmd, CP_UTF8);
+#endif
     j["enc"] = {
-        {"cmd", tchar_to_string(cmd_buffer.data(), CP_UTF8)},
+        {"cmd", cmd_enc},
+#if ENABLE_AMP
         {"use_auto_npass", conf->enc.use_auto_npass },
         {"auto_npass", conf->enc.auto_npass }
+#endif
+#if ENCODER_SVTAV1
+        {"sar_x", conf->enc.sar_x},
+        {"sar_y", conf->enc.sar_y}
+#endif
     };
     
     // 各ブロックを個別の関数で変換
@@ -421,9 +457,17 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
         if (j.contains("enc")) {
             auto& enc = j["enc"];
             auto cmd_str = char_to_tstring(enc.value("cmd", ""), CP_UTF8);
+#if ENCODER_X264 || ENCODER_X265
             set_cmd_to_conf_full(cmd_str.c_str(), &conf->enc);
+#elif ENCODER_SVTAV1
+            _tcscpy_s(conf->enc.cmd, cmd_str.c_str());
+            conf->enc.sar_x = enc.value("sar_x", 0);
+            conf->enc.sar_y = enc.value("sar_y", 0);
+#endif
+#if ENABLE_AMP
             conf->enc.use_auto_npass = enc.value("use_auto_npass", 0);
             conf->enc.auto_npass = enc.value("auto_npass", 0);
+#endif
         }
         
         return true;
@@ -484,6 +528,8 @@ int guiEx_config::load_guiEx_conf(CONF_GUIEX *conf, const TCHAR *stg_file) {
 int guiEx_config::load_guiEx_conf_legacy(CONF_GUIEX *conf, const TCHAR *stg_file) {
     size_t conf_size = 0;
     BYTE *dst, *filedat;
+    //初期化
+    ZeroMemory(conf, sizeof(CONF_GUIEX));
     //ファイルからロード
     FILE *fp = NULL;
     if (_tfopen_s(&fp, stg_file, _T("rb")) != NULL)

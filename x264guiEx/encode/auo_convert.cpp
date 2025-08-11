@@ -555,9 +555,6 @@ BOOL malloc_pixel_data(CONVERT_CF_DATA * const pixel_data, int width, int height
                 ret = FALSE;
             break;
         case OUT_CSP_RGBA:
-            if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 4, std::max(align_size, 16ul))) == NULL)
-                ret = FALSE;
-            break;
         case OUT_CSP_RGBA_16:
             if ((pixel_data->data[0] = (BYTE *)_mm_malloc(frame_size * 4, std::max(align_size, 16ul))) == NULL)
                 ret = FALSE;

@@ -1261,8 +1261,8 @@ static void replace_aspect_ratio(TCHAR *cmd, size_t nSize, const CONF_GUIEX *con
 #elif ENCODER_SVTAV1
     const int w = oip->w;
     const int h = oip->h;
-    int sar_x = conf->vid.sar_x;
-    int sar_y = conf->vid.sar_y;
+    int sar_x = conf->enc.sar_x;
+    int sar_y = conf->enc.sar_y;
     int dar_x = 0;
     int dar_y = 0;
     if (sar_x * sar_y > 0) {
