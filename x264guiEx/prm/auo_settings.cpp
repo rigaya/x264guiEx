@@ -601,10 +601,12 @@ void guiEx_settings::load_aud(BOOL internal) {
             }
         }
     }
-    if (internal) {
-        s_aud_int = s_aud;
-    } else {
-        s_aud_ext = s_aud;
+    if (s_aud_count > 0) {
+        if (internal) {
+            s_aud_int = s_aud;
+        } else {
+            s_aud_ext = s_aud;
+        }
     }
 }
 
