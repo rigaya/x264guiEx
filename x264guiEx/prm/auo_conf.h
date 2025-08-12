@@ -215,12 +215,12 @@ typedef struct CONF_OTHER {
     DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
     DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
     union {
-        TCHAR batfiles[4][1024];     //バッチファイルのパス
+        TCHAR batfiles[4][MAX_PATH_LEN];     //バッチファイルのパス
         struct {
-            TCHAR before_process[1024]; //エンコ前バッチファイルのパス
-            TCHAR after_process[1024];  //エンコ後バッチファイルのパス
-            TCHAR before_audio[1024];   //音声エンコ前バッチファイルのパス
-            TCHAR after_audio[1024];    //音声エンコ後バッチファイルのパス
+            TCHAR before_process[MAX_PATH_LEN]; //エンコ前バッチファイルのパス
+            TCHAR after_process[MAX_PATH_LEN];  //エンコ後バッチファイルのパス
+            TCHAR before_audio[MAX_PATH_LEN];   //音声エンコ前バッチファイルのパス
+            TCHAR after_audio[MAX_PATH_LEN];    //音声エンコ後バッチファイルのパス
         } batfile;
     };
 } CONF_OTHER;
@@ -231,7 +231,7 @@ struct CONF_GUIEX_HEADER {
     int         head_size;                       //ヘッダ部分の全サイズ
     int         block_count;                     //ヘッダ部を除いた設定のブロック数
     int         block_size[CONF_BLOCK_MAX];      //各ブロックのサイズ
-    size_t      block_head_p[CONF_BLOCK_MAX];    //各ブロックのポインタ位置
+    uint32_t    block_head_p[CONF_BLOCK_MAX];    //各ブロックのポインタ位置
 };
 
 #pragma pack(push,4)
@@ -340,7 +340,7 @@ typedef struct CONF_GUIEX {
 
 class guiEx_config {
 private:
-    static const size_t conf_block_pointer[CONF_BLOCK_COUNT];
+    static const uint32_t conf_block_pointer[CONF_BLOCK_COUNT];
     static const int conf_block_data[CONF_BLOCK_COUNT];
 #if ENCODER_X264
     static void convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf);            //旧形式からJSON文字列に変換
