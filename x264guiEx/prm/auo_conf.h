@@ -80,6 +80,11 @@ static const char *const CONF_NAME_OLD_1 = "svtAV1guiEx ConfigFile v1";
 static const char *const CONF_NAME_OLD_2 = "svtAV1guiEx ConfigFile v2";
 static const char *const CONF_NAME_JSON  = "svtAV1guiEx ConfigFile v2 json";
 static const char *const CONF_NAME       = CONF_NAME_OLD_2;
+#elif ENCODER_FFMPEG
+static const char *const CONF_NAME_OLD_1 = "ffmpegOut ConfigFile";
+static const char *const CONF_NAME_OLD_2 = "ffmpegOut ConfigFile v2";
+static const char *const CONF_NAME_JSON  = "ffmpegOut ConfigFile v2 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD_2;
 #else
 static_assert(false);
 #endif
@@ -152,6 +157,19 @@ typedef struct CONF_ENC_PRM {
     int sar_x;
     int sar_y;
 } CONF_ENC_PRM;
+#elif ENCODER_FFMPEG
+typedef struct CONF_ENC {
+    BOOL    use_highbit_depth;
+    int     output_csp;
+    int     pass;
+    BOOL    use_auto_npass;
+    int     auto_npass;
+    int     bitrate;
+    BOOL    interlaced;
+    BOOL    audio_input;
+    TCHAR   outext[MAX_APPENDIX_LEN];   //出力拡張子
+    TCHAR   incmd[256];                 //入力オプション
+} CONF_ENC;
 #endif
 
 typedef struct CONF_VIDEO {
@@ -257,11 +275,13 @@ typedef struct CONF_VIDEO_OLD {
     BOOL   afs;                      //自動フィールドシフトの使用
     BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
     BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
-#if ENCODER_X264 || ENCODER_X265
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_FFMPEG
     DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
 #endif
     int    priority;                 //x264のCPU優先度(インデックス)
+#if !ENCODER_FFMPEG
     char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
+#endif
 #if ENCODER_X264 || ENCODER_X265
     char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
     char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
@@ -289,9 +309,13 @@ typedef struct CONF_VIDEO_OLD {
     int sar_x;
     int sar_y;
 #endif
+#if ENCODER_FFMPEG
+    char   outext[MAX_APPENDIX_LEN];   //出力拡張子
+    char   incmd[256];                 //入力オプション
+#endif
 } CONF_VIDEO_OLD; //動画用設定(x264以外)
 
-#if ENCODER_X264
+#if ENCODER_X264 || ENCODER_FFMPEG
 typedef struct CONF_GUIEX_OLD {
     CONF_GUIEX_HEADER header;
     CONF_ENC    enc;                             //エンコーダについての設定

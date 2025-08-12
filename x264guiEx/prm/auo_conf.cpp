@@ -74,17 +74,29 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     
     // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
     TCHAR cmd_buffer[MAX_CMD_LEN] = { 0 };
+#if !ENCODER_FFMPEG
     build_cmd_from_conf(cmd_buffer, _countof(cmd_buffer), &old_conf->enc, NULL, FALSE);
+#endif
     j["enc"] = {
-        {"cmd", tchar_to_string(cmd_buffer, CP_UTF8) },
 #if ENABLE_AMP
         {"use_auto_npass", old_conf->enc.use_auto_npass },
-        {"auto_npass", old_conf->enc.auto_npass }
+        {"auto_npass", old_conf->enc.auto_npass },
 #endif
 #if ENCODER_SVTAV1
         {"sar_x", old_conf->vid.sar_x},
-        {"sar_y", old_conf->vid.sar_y}
+        {"sar_y", old_conf->vid.sar_y},
 #endif
+#if ENCODER_FFMPEG
+        {"use_highbit_depth", old_conf->enc.use_highbit_depth},
+        {"output_csp", old_conf->enc.output_csp},
+        {"pass", old_conf->enc.pass},
+        {"bitrate", old_conf->enc.bitrate},
+        {"interlaced", old_conf->enc.interlaced},
+        {"audio_input", old_conf->enc.audio_input},
+        {"outext", tchar_to_string(char_to_tstring(old_conf->vid.outext, CP_THREAD_ACP), CP_UTF8)},
+        {"incmd", tchar_to_string(char_to_tstring(old_conf->vid.incmd, CP_THREAD_ACP), CP_UTF8)},
+#endif
+        {"cmd", tchar_to_string(cmd_buffer, CP_UTF8) }
     };
     
     // 旧ビデオ設定をJSONに変換（char文字列をUTF-8に変換）
@@ -93,7 +105,9 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"afs_bitrate_correction", old_conf->vid.afs_bitrate_correction},
         {"auo_tcfile_out", old_conf->vid.auo_tcfile_out},
         {"priority", old_conf->vid.priority},
+#if !ENCODER_FFMPEG
         {"stats", tchar_to_string(char_to_tstring(old_conf->vid.stats, CP_THREAD_ACP), CP_UTF8)},
+#endif
 #if ENABLE_AMP
         {"amp_check", old_conf->vid.amp_check},
         {"amp_limit_file_size", old_conf->vid.amp_limit_file_size},
@@ -408,19 +422,31 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
     std::vector<TCHAR> cmd_buffer(MAX_CMD_LEN, 0);
     build_cmd_from_conf(cmd_buffer.data(), cmd_buffer.size(), &conf->enc, &conf->vid, FALSE);
     auto cmd_enc = tchar_to_string(cmd_buffer.data(), CP_UTF8);
-#else
+#elif !ENCODER_FFMPEG
     auto cmd_enc = tchar_to_string(conf->enc.cmd, CP_UTF8);
+#else
+    auto cmd_enc = std::string();
 #endif
     j["enc"] = {
-        {"cmd", cmd_enc},
-#if ENABLE_AMP
+#if ENABLE_AMP || ENCODER_FFMPEG
         {"use_auto_npass", conf->enc.use_auto_npass },
-        {"auto_npass", conf->enc.auto_npass }
+        {"auto_npass", conf->enc.auto_npass },
 #endif
 #if ENCODER_SVTAV1
         {"sar_x", conf->enc.sar_x},
-        {"sar_y", conf->enc.sar_y}
+        {"sar_y", conf->enc.sar_y},
 #endif
+#if ENCODER_FFMPEG
+        {"use_highbit_depth", conf->enc.use_highbit_depth},
+        {"output_csp", conf->enc.output_csp},
+        {"pass", conf->enc.pass},
+        {"bitrate", conf->enc.bitrate},
+        {"interlaced", conf->enc.interlaced},
+        {"audio_input", conf->enc.audio_input},
+        {"outext", tchar_to_string(conf->enc.outext, CP_UTF8)},
+        {"incmd", tchar_to_string(conf->enc.incmd, CP_UTF8)},
+#endif
+        {"cmd", cmd_enc}
     };
     
     // 各ブロックを個別の関数で変換
@@ -464,9 +490,21 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
             conf->enc.sar_x = enc.value("sar_x", 0);
             conf->enc.sar_y = enc.value("sar_y", 0);
 #endif
-#if ENABLE_AMP
+#if ENABLE_AMP || ENCODER_FFMPEG
             conf->enc.use_auto_npass = enc.value("use_auto_npass", 0);
             conf->enc.auto_npass = enc.value("auto_npass", 0);
+#endif
+#if ENCODER_FFMPEG
+            conf->enc.use_highbit_depth = enc.value("use_highbit_depth", 0);
+            conf->enc.output_csp = enc.value("output_csp", 0);
+            conf->enc.pass = enc.value("pass", 0);
+            conf->enc.bitrate = enc.value("bitrate", 0);
+            conf->enc.interlaced = enc.value("interlaced", 0);
+            conf->enc.audio_input = enc.value("audio_input", 0);
+            auto outext_tstr = char_to_tstring(enc.value("outext", ""), CP_UTF8);
+            _tcscpy_s(conf->enc.outext, outext_tstr.c_str());
+            auto incmd_tstr = char_to_tstring(enc.value("incmd", ""), CP_UTF8);
+            _tcscpy_s(conf->enc.incmd, incmd_tstr.c_str());
 #endif
         }
         
