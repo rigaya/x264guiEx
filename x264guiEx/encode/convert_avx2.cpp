@@ -1985,12 +1985,12 @@ void convert_pa64_to_yuv444_avx2(void *frame, CONVERT_CF_DATA *pixel_data, const
             float a = (float)src[x*4 + 3];
             float a_inv = 65535.0f / a;
             b *= a_inv, g *= a_inv, r *= a_inv;
-            const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
-            const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
-            const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
-            dstY[x] = (BYTE)clamp((int)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstU[x] = (BYTE)clamp((int)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstV[x] = (BYTE)clamp((int)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+            const float py = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
+            const float pu = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            const float pv = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            dstY[x] = (BYTE)clamp((int)(py + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = (BYTE)clamp((int)(pu + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = (BYTE)clamp((int)(pv + 0.5f), 0, (1 << out_bit_depth) - 1);
         }
     }
 }
@@ -2098,12 +2098,12 @@ void convert_pa64_to_yuv444_16bit_avx2(void *frame, CONVERT_CF_DATA *pixel_data,
             float a = (float)src[x*4 + 3];
             float a_inv = 65535.0f / a;
             b *= a_inv, g *= a_inv, r *= a_inv;
-            const float y = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
-            const float u = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
-            const float v = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
-            dstY[x] = (USHORT)clamp((int)(y + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstU[x] = (USHORT)clamp((int)(u + 0.5f), 0, (1 << out_bit_depth) - 1);
-            dstV[x] = (USHORT)clamp((int)(v + 0.5f), 0, (1 << out_bit_depth) - 1);
+            const float py = (coeff_table[0] * r + coeff_table[1] * g + coeff_table[2] * b +  16.0f) * (1 << (out_bit_depth - 8));
+            const float pu = (coeff_table[3] * r + coeff_table[4] * g + coeff_table[5] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            const float pv = (coeff_table[6] * r + coeff_table[7] * g + coeff_table[8] * b + 128.0f) * (1 << (out_bit_depth - 8));
+            dstY[x] = (USHORT)clamp((int)(py + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstU[x] = (USHORT)clamp((int)(pu + 0.5f), 0, (1 << out_bit_depth) - 1);
+            dstV[x] = (USHORT)clamp((int)(pv + 0.5f), 0, (1 << out_bit_depth) - 1);
         }
     }
 }

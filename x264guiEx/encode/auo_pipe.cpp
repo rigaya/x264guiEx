@@ -217,7 +217,7 @@ static void write_to_file_in_crlf(FILE *fp, const char *str) {
                             break;
                     fwrite(ptr, qtr - ptr - cr_count, 1, fp);
                 }
-                fwrite("\r\n", sizeof(char) * strlen("\r\n"), 1, fp);
+                fwrite("\r\n", sizeof(str[0]) * strlen("\r\n"), 1, fp);
             }
         }
     }

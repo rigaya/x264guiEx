@@ -146,29 +146,14 @@ static const ENC_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
     { NULL, AUO_MES_UNKNOWN,                NULL          },
 };
 
-#pragma pack(push,4)
-typedef struct CONF_VIDEO_OLD {
-    BOOL   afs;                      //自動フィールドシフトの使用
-    BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
-    BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
-    DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
-    int    priority;                 //x264のCPU優先度(インデックス)
-    char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
-    char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
-    char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
-    char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
-    int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
-    DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
-    int    reserved3;                //
-    double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
-    double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
-    BOOL   input_as_lw48;            //LW48モード
-    int    reserved2;
-    double amp_limit_bitrate_lower;  //自動マルチパス時のビットレート下限(kbps)
-} CONF_VIDEO_OLD; //動画用設定(x264以外) - 旧版
-#pragma pack(pop)
+#if ENCODER_SVTAV1
+typedef struct CONF_ENC_PRM {
+    TCHAR cmd[MAX_CMD_LEN];
+    int sar_x;
+    int sar_y;
+} CONF_ENC_PRM;
+#endif
 
-// New Unicode structure
 typedef struct CONF_VIDEO {
     BOOL   afs;                      //自動フィールドシフトの使用
     BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
@@ -222,24 +207,6 @@ typedef struct CONF_MUX {
     int  internal_mode;   //内蔵muxer用のオプション
 } CONF_MUX; //muxer用設定
 
-typedef struct CONF_OTHER_OLD {
-    BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
-    int   temp_dir;               //一時ディレクトリ
-    BOOL  out_audio_only;         //音声のみ出力
-    char  notes[128];             //メモ
-    DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
-    DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
-    union {
-        char batfiles[4][512];        //バッチファイルのパス
-        struct {
-            char before_process[512]; //エンコ前バッチファイルのパス
-            char after_process[512];  //エンコ後バッチファイルのパス
-            char before_audio[512];   //音声エンコ前バッチファイルのパス
-            char after_audio[512];    //音声エンコ後バッチファイルのパス
-        } batfile;
-    };
-} CONF_OTHER_OLD;
-
 typedef struct CONF_OTHER {
     BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
     int   temp_dir;               //一時ディレクトリ
@@ -258,7 +225,6 @@ typedef struct CONF_OTHER {
     };
 } CONF_OTHER;
 
-
 struct CONF_GUIEX_HEADER {
     char        conf_name[CONF_NAME_BLOCK_LEN];  //保存時に使用
     int         size_all;                        //保存時: CONF_GUIEXの全サイズ / 設定中、エンコ中: CONF_INITIALIZED
@@ -267,6 +233,65 @@ struct CONF_GUIEX_HEADER {
     int         block_size[CONF_BLOCK_MAX];      //各ブロックのサイズ
     size_t      block_head_p[CONF_BLOCK_MAX];    //各ブロックのポインタ位置
 };
+
+#pragma pack(push,4)
+typedef struct CONF_OTHER_OLD {
+    BOOL  disable_guicmd;         //GUIによるコマンドライン生成を停止(CLIモード)
+    int   temp_dir;               //一時ディレクトリ
+    BOOL  out_audio_only;         //音声のみ出力
+    char  notes[128];             //メモ
+    DWORD run_bat;                //バッチファイルを実行するかどうか (RUN_BAT_xxx)
+    DWORD dont_wait_bat_fin;      //バッチファイルの処理終了待機をするかどうか (RUN_BAT_xxx)
+    union {
+        char batfiles[4][512];        //バッチファイルのパス
+        struct {
+            char before_process[512]; //エンコ前バッチファイルのパス
+            char after_process[512];  //エンコ後バッチファイルのパス
+            char before_audio[512];   //音声エンコ前バッチファイルのパス
+            char after_audio[512];    //音声エンコ後バッチファイルのパス
+        } batfile;
+    };
+} CONF_OTHER_OLD;
+
+typedef struct CONF_VIDEO_OLD {
+    BOOL   afs;                      //自動フィールドシフトの使用
+    BOOL   afs_bitrate_correction;   //afs & 2pass時、ドロップ数に応じてビットレートを補正
+    BOOL   auo_tcfile_out;           //auo側でタイムコードを出力する
+#if ENCODER_X264 || ENCODER_X265
+    DWORD  check_keyframe;           //キーフレームチェックを行う (CHECK_KEYFRAME_xxx)
+#endif
+    int    priority;                 //x264のCPU優先度(インデックス)
+    char   stats[MAX_PATH_LEN];      //x264用ステータスファイルの場所
+#if ENCODER_X264 || ENCODER_X265
+    char   tcfile_in[MAX_PATH_LEN];  //x264 tcfile-in用タイムコードファイルの場所
+    char   cqmfile[MAX_PATH_LEN];    //x264 cqmfileの場所
+#endif
+    char   cmdex[CMDEX_MAX_LEN];     //追加コマンドライン
+#if ENCODER_X264
+    int    __yc48_colormatrix_conv;  //YC48の色変換 (使用されていません)
+#endif
+#if ENCODER_X264 || ENCODER_X265
+    DWORD  amp_check;                //自動マルチパス時のチェックの種類(AMPLIMIT_FILE_SIZE/AMPLIMIT_BITRATE)
+    int    reserved3;                //
+    double amp_limit_file_size;      //自動マルチパス時のファイルサイズ制限(MB)
+    double amp_limit_bitrate_upper;  //自動マルチパス時のビットレート上限(kbps)
+    BOOL   input_as_lw48;            //LW48モード
+#if ENCODER_X265
+    char   parallel_div_info[64];    //プロセス並列モード時に使用する情報
+    char   analysis_file[MAX_PATH_LEN]; //x265用ステータスファイルの場所
+    BOOL   sync_process_affinity;     //プロセスアフィニティをAviutlと同期
+#elif ENCODER_X264
+    int    reserved2;
+#endif
+    double amp_limit_bitrate_lower;
+#endif
+#if ENCODER_SVTAV1
+    int sar_x;
+    int sar_y;
+#endif
+} CONF_VIDEO_OLD; //動画用設定(x264以外)
+
+#if ENCODER_X264
 typedef struct CONF_GUIEX_OLD {
     CONF_GUIEX_HEADER header;
     CONF_ENC    enc;                             //エンコーダについての設定
@@ -275,10 +300,38 @@ typedef struct CONF_GUIEX_OLD {
     CONF_MUX    mux;                             //muxについての設定
     CONF_OTHER_OLD oth;                          //その他の設定
 } CONF_GUIEX_OLD;
+#elif ENCODER_X265
+typedef struct CONF_GUIEX_OLD {
+    CONF_GUIEX_HEADER header;
+    CONF_VIDEO_OLD vid;                             //その他動画についての設定
+    CONF_ENC   enc;                            //x265の設定
+    CONF_AUDIO  aud;                             //音声についての設定
+    CONF_MUX    mux;                             //muxについての設定
+    CONF_OTHER_OLD  oth;                             //その他の設定
+} CONF_GUIEX_OLD;
+#elif ENCODER_SVTAV1
+typedef struct CONF_ENC_PRM_OLD {
+    char cmd[3072];
+} CONF_ENC_PRM_OLD;
+
+typedef struct CONF_GUIEX_OLD {
+    CONF_GUIEX_HEADER header;
+    CONF_ENC_PRM_OLD   enc;                            //x264についての設定
+    CONF_VIDEO_OLD   vid;                            //その他動画についての設定
+    CONF_AUDIO   aud;                            //音声についての設定
+    CONF_MUX     mux;                            //muxについての設定
+    CONF_OTHER_OLD   oth;                            //その他の設定
+} CONF_GUIEX_OLD;
+#endif
+#pragma pack(pop)
 
 typedef struct CONF_GUIEX {
     CONF_GUIEX_HEADER header;
+#if ENCODER_SVTAV1
+    CONF_ENC_PRM enc;                             //エンコーダについての設定
+#else
     CONF_ENC    enc;                             //エンコーダについての設定
+#endif
     CONF_VIDEO  vid;                             //その他動画についての設定
     CONF_AUDIO  aud;                             //音声についての設定
     CONF_MUX    mux;                             //muxについての設定
@@ -289,8 +342,12 @@ class guiEx_config {
 private:
     static const size_t conf_block_pointer[CONF_BLOCK_COUNT];
     static const int conf_block_data[CONF_BLOCK_COUNT];
+#if ENCODER_X264
     static void convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf);            //旧形式からJSON文字列に変換
-    
+#elif ENCODER_X265
+    static void convert_x265stgv2_to_x265stgv4(CONF_GUIEX_OLD *conf);
+    static void convert_x265stgv3_to_x265stgv4(CONF_GUIEX_OLD *conf);
+#endif
     // ブロック別JSON変換関数
     static void video_to_json(nlohmann::json& j, const CONF_VIDEO& vid);                 //ビデオ設定をJSONに変換
     static void audio_to_json(nlohmann::json& j, const CONF_AUDIO& aud);                 //オーディオ設定をJSONに変換

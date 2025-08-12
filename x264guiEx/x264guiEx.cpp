@@ -270,15 +270,13 @@ BOOL func_output( OUTPUT_INFO *oip ) {
     set_prevent_log_close(FALSE); //※1 end
 
     const bool error_or_abort = ret & (AUO_RESULT_ERROR | AUO_RESULT_ABORT);
-    const bool isAviutl2 = is_aviutl2();
-
-    auto_save_log(&conf_out, oip, &pe, &g_sys_dat, isAviutl2 && error_or_abort); //※1 end のあとで行うこと
+    auto_save_log(&conf_out, oip, &pe, &g_sys_dat, is_aviutl2() && error_or_abort); //※1 end のあとで行うこと
 
     if (!error_or_abort)
         ret |= run_bat_file(&conf_out, oip, &pe, &g_sys_dat, RUN_BAT_AFTER_PROCESS);
 
     log_process_events();
-    if (isAviutl2) {
+    if (is_aviutl2()) {
         if (error_or_abort) {
             MessageBoxA(NULL, "エラーが発生しました。ログウィンドウをご確認ください。\nログウィンドウを閉じると続行します。", AUO_FULL_NAME " 出力エラー", MB_OK | MB_ICONWARNING);
             while (!is_log_window_closed()) {
@@ -451,12 +449,14 @@ static std::wstring aviutlchar_to_wstring(const aviutlchar *str) { return char_t
 static std::basic_string<aviutlchar> string_to_aviutlchar(const std::string &str) { return str; }
 static std::basic_string<aviutlchar> wstring_to_aviutlchar(const std::wstring &str) { return wstring_to_string(str, CP_THREAD_ACP); }
 #define aviutlcharcpy_s strcpy_s
+#define aviutlcharlen strlen
 #else
 static std::wstring aviutlchar_to_wstring(const aviutlchar *str) { return std::wstring(str); }
 static std::string aviutlchar_to_string(const aviutlchar *str) { return wstring_to_string(str, CP_THREAD_ACP); }
 static std::basic_string<aviutlchar> string_to_aviutlchar(const std::string &str) { return char_to_wstring(str, CP_THREAD_ACP); }
 static std::basic_string<aviutlchar> wstring_to_aviutlchar(const std::wstring &str) { return str; }
 #define aviutlcharcpy_s wcscpy_s
+#define aviutlcharlen wcslen
 #endif
 
 void overwrite_aviutl_ini_file_filter(int idx) {
@@ -471,13 +471,8 @@ void overwrite_aviutl_ini_file_filter(int idx) {
 }
 
 void overwrite_aviutl_ini_auo_info() {
-    char ini_file[1024];
-    get_aviutl_dir(ini_file, _countof(ini_file));
-    PathAddBackSlashLong(ini_file);
-    strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
-
     const auto auo_full_name = std::wstring(g_auo_mes.get(AUO_GUIEX_FULL_NAME));
-    if (auo_full_name.length() > 0 && auo_full_name != aviutlchar_to_wstring(output_plugin_table.name)) {
+    if (auo_full_name.length() > 0 && (auo_full_name != aviutlchar_to_wstring(output_plugin_table.name) || aviutlcharlen(g_auo_version_info) == 0)) {
         aviutlcharcpy_s(g_auo_fullname, wstring_to_aviutlchar(auo_full_name).c_str());
         output_plugin_table.name = g_auo_fullname;
         std::wstring auo_version_info;
@@ -489,6 +484,10 @@ void overwrite_aviutl_ini_auo_info() {
         aviutlcharcpy_s(g_auo_version_info, wstring_to_aviutlchar(auo_version_info).c_str());
         output_plugin_table.information = g_auo_version_info;
 #if AVIUTL_TARGET_VER == 1
+        char ini_file[1024];
+        get_aviutl_dir(ini_file, _countof(ini_file));
+        PathAddBackSlashLong(ini_file);
+        strcat_s(ini_file, _countof(ini_file), "aviutl.ini");
         WritePrivateProfileStringA(AUO_NAME, "name", output_plugin_table.name, ini_file);
         WritePrivateProfileStringA(AUO_NAME, "information", output_plugin_table.information, ini_file);
 #endif

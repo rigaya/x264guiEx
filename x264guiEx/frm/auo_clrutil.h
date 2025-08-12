@@ -142,7 +142,7 @@ static System::Drawing::Font^ GetFontFrom_AUO_FONT_INFO(const AUO_FONT_INFO *inf
 //DefaultFontと比較して、異なっていたらAUO_FONT_INFOに保存する
 static void Set_AUO_FONT_INFO(AUO_FONT_INFO *info, System::Drawing::Font^ Font, System::Drawing::Font^ DefaultFont) {
     if (String::Compare(DefaultFont->FontFamily->Name, Font->FontFamily->Name))
-        GetWCHARfromString(info->name, sizeof(info->name), Font->FontFamily->Name);
+        GetWCHARfromString(info->name, _countof(info->name), Font->FontFamily->Name);
     if (DefaultFont->Size != Font->Size)
         info->size = Font->Size;
     info->style = (int)Font->Style;
