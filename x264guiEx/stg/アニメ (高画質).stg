@@ -2,7 +2,7 @@
   "audio": {
     "ext": {
       "aud_temp_dir": 0,
-      "audio_encode_timing": 0,
+      "audio_encode_timing": 2,
       "bitrate": 192,
       "delay_cut": 0,
       "enc_mode": 0,
@@ -31,7 +31,7 @@
   "conf_name": "x264guiEx ConfigFile v3",
   "enc": {
     "auto_npass": 2,
-    "cmd": " --preset slower --tune animation --crf 20 --ipratio 1.5 --qpstep 12 --qcomp 0.75 --no-mbtree --psy-rd 1:0.2 --keyint -1 --min-keyint 4 --bframes 3 --deblock 0:0 --partitions p8x8,b8x8,i8x8,i4x4 --subme 11 --merange 32 --ref 5 --no-fast-pskip --no-dct-decimate --colormatrix auto",
+    "cmd": " --preset slower --tune animation --crf 20 --ipratio 1.5 --qpstep 12 --qcomp 0.75 --chroma-qp-offset -2 --no-mbtree --psy-rd 1:0.2 --keyint -1 --min-keyint 4 --bframes 3 --deblock 0:0 --partitions p8x8,b8x8,i8x8,i4x4 --subme 11 --merange 32 --ref 5 --no-fast-pskip --no-dct-decimate --colormatrix auto",
     "use_auto_npass": 0
   },
   "mux": {
@@ -68,13 +68,16 @@
     "amp_limit_bitrate_lower": 0.0,
     "amp_limit_bitrate_upper": 0.0,
     "amp_limit_file_size": 0.0,
+    "analysis_file": "",
     "auo_tcfile_out": 0,
     "check_keyframe": 0,
     "cmdex": "",
     "cqmfile": "",
     "input_as_lw48": 0,
+    "parallel_div_info": "",
     "priority": 0,
     "stats": "%{savfile}.stats",
+    "sync_process_affinity": 0,
     "tcfile_in": "%{savdir}\\%{savname}_tc.txt"
   }
 }

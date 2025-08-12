@@ -31,8 +31,8 @@
   "conf_name": "x264guiEx ConfigFile v3",
   "enc": {
     "auto_npass": 2,
-    "cmd": " --crf 20 --qpstep 12 --qcomp 0.8 --chroma-qp-offset -2 --vbv-bufsize -1 --vbv-maxrate -1 --keyint -1 --min-keyint 4 --deblock 1:1 --me umh --colormatrix auto",
-    "use_auto_npass": 1
+    "cmd": " --output-csp rgb --crf 21",
+    "use_auto_npass": 0
   },
   "mux": {
     "apple_mode": 0,
@@ -55,7 +55,7 @@
     },
     "disable_guicmd": 0,
     "dont_wait_bat_fin": 0,
-    "notes": "640x360以上推奨",
+    "notes": "",
     "out_audio_only": 0,
     "run_bat": 0,
     "temp_dir": 0
@@ -64,10 +64,10 @@
   "video": {
     "afs": 0,
     "afs_bitrate_correction": 0,
-    "amp_check": 1,
+    "amp_check": 0,
     "amp_limit_bitrate_lower": 0.0,
     "amp_limit_bitrate_upper": 0.0,
-    "amp_limit_file_size": 2998.0,
+    "amp_limit_file_size": 0.0,
     "analysis_file": "",
     "auo_tcfile_out": 0,
     "check_keyframe": 0,
