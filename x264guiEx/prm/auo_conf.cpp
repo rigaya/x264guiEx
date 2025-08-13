@@ -73,12 +73,16 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     j["version"] = CONF_NAME_JSON;
     
     // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
+#if ENCODER_SVTAV1
+    auto cmd_buffer = char_to_tstring(old_conf->enc.cmd, CP_THREAD_ACP);
+#else
     TCHAR cmd_buffer[MAX_CMD_LEN] = { 0 };
 #if !ENCODER_FFMPEG
     build_cmd_from_conf(cmd_buffer, _countof(cmd_buffer), &old_conf->enc, NULL, FALSE);
+#endif    
 #endif
     j["enc"] = {
-#if ENABLE_AMP
+#if ENABLE_AMP || ENCODER_FFMPEG
         {"use_auto_npass", old_conf->enc.use_auto_npass },
         {"auto_npass", old_conf->enc.auto_npass },
 #endif
