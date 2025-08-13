@@ -426,7 +426,7 @@ static BOOL check_temp_file_open(const TCHAR *target, const tstring& auo_check_f
         _tcscpy_s(test_filename, target);
     }
 
-    if (rgy_is_64bit_os() && auo_check_fileopen_path.length() > 0 && PathFileExists(auo_check_fileopen_path.c_str())) {
+    if (!is_aviutl2() && rgy_is_64bit_os() && auo_check_fileopen_path.length() > 0 && PathFileExists(auo_check_fileopen_path.c_str())) {
         //64bit OSでは、32bitアプリに対してはVirtualStoreが働く一方、
         //64bitアプリに対してはVirtualStoreが働かない
         //x264を64bitで実行することを考慮すると、
@@ -1053,7 +1053,10 @@ void set_enc_prm(CONF_GUIEX *conf, PRM_ENC *pe, const OUTPUT_INFO *oip, const SY
     pe->drop_count = 0;
     memcpy(&pe->append, &sys_dat->exstg->s_append, sizeof(FILE_APPENDIX));
     ZeroMemory(&pe->append.aud, sizeof(pe->append.aud));
-    create_aviutl_opened_file_list(pe);
+    pe->n_opened_aviutl_files = 0;
+    if (!is_aviutl2()) {
+        create_aviutl_opened_file_list(pe);
+    }
 
     //一時フォルダの決定
     set_tmpdir(pe, conf->oth.temp_dir, get_savfile(oip).c_str(), sys_dat);
