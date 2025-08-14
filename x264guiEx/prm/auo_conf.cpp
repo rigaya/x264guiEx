@@ -133,37 +133,52 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     };
     
     // オーディオ設定（変更なし）
+    CONF_AUDIO_BASE aud_ = { 0 };
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+    const CONF_AUDIO_BASE *aud_ext = &old_conf->aud;
+    const CONF_AUDIO_BASE *aud_in = &aud_;
+    const int aud_use_internal = 0;
+#else
+    const CONF_AUDIO_BASE *aud_ext = &old_conf->aud.ext;
+    const CONF_AUDIO_BASE *aud_in = &old_conf->aud.in;
+    const int aud_use_internal = old_conf->aud.use_internal;
+#endif
     j["audio"] = {
         {"ext", {
-            {"encoder", old_conf->aud.ext.encoder},
-            {"enc_mode", old_conf->aud.ext.enc_mode},
-            {"bitrate", old_conf->aud.ext.bitrate},
-            {"use_2pass", old_conf->aud.ext.use_2pass},
-            {"use_wav", old_conf->aud.ext.use_wav},
-            {"faw_check", old_conf->aud.ext.faw_check},
-            {"priority", old_conf->aud.ext.priority},
-            {"minimized", old_conf->aud.ext.minimized},
-            {"aud_temp_dir", old_conf->aud.ext.aud_temp_dir},
-            {"audio_encode_timing", old_conf->aud.ext.audio_encode_timing},
-            {"delay_cut", old_conf->aud.ext.delay_cut}
+            {"encoder", aud_ext->encoder},
+            {"enc_mode", aud_ext->enc_mode},
+            {"bitrate", aud_ext->bitrate},
+            {"use_2pass", aud_ext->use_2pass},
+            {"use_wav", aud_ext->use_wav},
+            {"faw_check", aud_ext->faw_check},
+            {"priority", aud_ext->priority},
+            {"minimized", aud_ext->minimized},
+            {"aud_temp_dir", aud_ext->aud_temp_dir},
+            {"audio_encode_timing", aud_ext->audio_encode_timing},
+            {"delay_cut", aud_ext->delay_cut}
         }},
         {"in", {
-            {"encoder", old_conf->aud.in.encoder},
-            {"enc_mode", old_conf->aud.in.enc_mode},
-            {"bitrate", old_conf->aud.in.bitrate},
-            {"use_2pass", old_conf->aud.in.use_2pass},
-            {"use_wav", old_conf->aud.in.use_wav},
-            {"faw_check", old_conf->aud.in.faw_check},
-            {"priority", old_conf->aud.in.priority},
-            {"minimized", old_conf->aud.in.minimized},
-            {"aud_temp_dir", old_conf->aud.in.aud_temp_dir},
-            {"audio_encode_timing", old_conf->aud.in.audio_encode_timing},
-            {"delay_cut", old_conf->aud.in.delay_cut}
+            {"encoder", aud_in->encoder},
+            {"enc_mode", aud_in->enc_mode},
+            {"bitrate", aud_in->bitrate},
+            {"use_2pass", aud_in->use_2pass},
+            {"use_wav", aud_in->use_wav},
+            {"faw_check", aud_in->faw_check},
+            {"priority", aud_in->priority},
+            {"minimized", aud_in->minimized},
+            {"aud_temp_dir", aud_in->aud_temp_dir},
+            {"audio_encode_timing", aud_in->audio_encode_timing},
+            {"delay_cut", aud_in->delay_cut}
         }},
-        {"use_internal", old_conf->aud.use_internal}
+        {"use_internal", aud_use_internal}
     };
     
     // Mux設定（変更なし）
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+    const int mux_use_internal = 0;
+#else
+    const int mux_use_internal = old_conf->mux.use_internal;
+#endif
     j["mux"] = {
         {"disable_mp4ext", old_conf->mux.disable_mp4ext},
         {"disable_mkvext", old_conf->mux.disable_mkvext},
@@ -173,7 +188,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"priority", old_conf->mux.priority},
         {"mp4_temp_dir", old_conf->mux.mp4_temp_dir},
         {"apple_mode", old_conf->mux.apple_mode},
-        {"use_internal", old_conf->mux.use_internal},
+        {"use_internal", mux_use_internal},
         {"internal_mode", old_conf->mux.internal_mode}
     };
 

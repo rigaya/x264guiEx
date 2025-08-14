@@ -320,7 +320,7 @@ typedef struct CONF_GUIEX_OLD {
     CONF_GUIEX_HEADER header;
     CONF_ENC    enc;                             //エンコーダについての設定
     CONF_VIDEO_OLD vid;                          //その他動画についての設定
-    CONF_AUDIO  aud;                             //音声についての設定
+    CONF_AUDIO_BASE aud;                         //音声についての設定
     CONF_MUX    mux;                             //muxについての設定
     CONF_OTHER_OLD oth;                          //その他の設定
 } CONF_GUIEX_OLD;
@@ -329,7 +329,7 @@ typedef struct CONF_GUIEX_OLD {
     CONF_GUIEX_HEADER header;
     CONF_VIDEO_OLD vid;                             //その他動画についての設定
     CONF_ENC   enc;                            //x265の設定
-    CONF_AUDIO  aud;                             //音声についての設定
+    CONF_AUDIO_BASE aud;                         //音声についての設定
     CONF_MUX    mux;                             //muxについての設定
     CONF_OTHER_OLD  oth;                             //その他の設定
 } CONF_GUIEX_OLD;
@@ -342,7 +342,7 @@ typedef struct CONF_GUIEX_OLD {
     CONF_GUIEX_HEADER header;
     CONF_ENC_PRM_OLD   enc;                            //x264についての設定
     CONF_VIDEO_OLD   vid;                            //その他動画についての設定
-    CONF_AUDIO   aud;                            //音声についての設定
+    CONF_AUDIO_BASE aud;                         //音声についての設定
     CONF_MUX     mux;                            //muxについての設定
     CONF_OTHER_OLD   oth;                            //その他の設定
 } CONF_GUIEX_OLD;
