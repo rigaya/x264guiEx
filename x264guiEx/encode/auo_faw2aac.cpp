@@ -170,7 +170,7 @@ AUO_RESULT audio_faw2aac(CONF_GUIEX *conf, const OUTPUT_INFO *oip, PRM_ENC *pe, 
             if (i_aud)
                 insert_before_ext(pe->append.aud[i_aud], _countof(pe->append.aud[i_aud]), i_aud);
             get_aud_filename(aud_dat[i_aud].audfile, _countof(aud_dat[i_aud].audfile), pe, i_aud);
-            if (_tfopen_s(&aud_dat[i_aud].fp_out, aud_dat[i_aud].audfile, _T("wbS")) == NULL) {
+            if (_tfopen_s(&aud_dat[i_aud].fp_out, aud_dat[i_aud].audfile, _T("wbS")) != NULL) {
                 ret |= AUO_RESULT_ABORT;
                 break;
             }
