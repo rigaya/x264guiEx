@@ -1007,7 +1007,7 @@ tstring get_file_lang_code(const tstring& path) {
     // pathのファイルを1行ずつ読み込み
     FILE *fp = nullptr;
     int err = _tfopen_s(&fp, path.c_str(), _T("r"));
-    if (err != 0) {
+    if (err != 0 || fp == nullptr) {
         return lang;
     }
     bool isAuoGuiExSection = false;

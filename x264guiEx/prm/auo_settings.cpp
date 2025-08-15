@@ -49,8 +49,8 @@ static const int INI_VER_MIN = 2;
 static const int INI_VER_UTF8 = 3;
 static const int CNF_VER_UTF8 = 1;
 
-static const char * const INI_APPENDIX  = ".ini";
-static const char * const CONF_APPENDIX = ".conf";
+static const TCHAR * const INI_APPENDIX  = _T(".ini");
+static const TCHAR * const CONF_APPENDIX = _T(".conf");
 
 static const char * const STG_DEFAULT_DIRECTORY_APPENDIX = "_stg";
 
@@ -223,7 +223,7 @@ static inline void WriteColorInfo(const char *section, const char *keyname, int 
 
 BOOL  guiEx_settings::init = FALSE;
 char  guiEx_settings::ini_section_main[256] = { 0 };
-char  guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
+TCHAR guiEx_settings::auo_path[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::ini_fileName[MAX_PATH_LEN] = { 0 };
 char  guiEx_settings::conf_fileName[MAX_PATH_LEN] = { 0 };
 DWORD guiEx_settings::ini_filesize = 0;
@@ -242,7 +242,7 @@ guiEx_settings::guiEx_settings(BOOL disable_loading) {
     initialize(disable_loading);
 }
 
-guiEx_settings::guiEx_settings(BOOL disable_loading, const char *_auo_path, const char *main_section) {
+guiEx_settings::guiEx_settings(BOOL disable_loading, const TCHAR *_auo_path, const char *main_section) {
     initialize(disable_loading, _auo_path, main_section);
 }
 
@@ -250,7 +250,7 @@ void guiEx_settings::initialize(BOOL disable_loading) {
     initialize(disable_loading, NULL, NULL);
 }
 
-void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, const char *main_section) {
+void guiEx_settings::initialize(BOOL disable_loading, const TCHAR *_auo_path, const char *main_section) {
     s_aud_ext_count = 0;
     s_aud_int_count = 0;
     s_mux_count = 0;
@@ -270,24 +270,32 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
         if (_auo_path == NULL) {
             get_auo_path(auo_path, _countof(auo_path));
         } else {
-            strcpy_s(auo_path, _countof(auo_path), _auo_path);
+            _tcscpy_s(auo_path, _countof(auo_path), _auo_path);
         }
-        apply_appendix(conf_fileName, _countof(conf_fileName), auo_path, CONF_APPENDIX);
+        TCHAR conf_fileName_tstr[MAX_PATH_LEN] = { 0 };
+        apply_appendix(conf_fileName_tstr, _countof(conf_fileName_tstr), auo_path, CONF_APPENDIX);
+        if (!canbe_converted_to(conf_fileName_tstr, CP_THREAD_ACP)) {
+            // CP_THREAD_ACP = sjisに変換できない場合は、相対パスにする
+            TCHAR conf_fileName_tstr_relative[MAX_PATH_LEN];
+            GetRelativePathTo(conf_fileName_tstr_relative, _countof(conf_fileName_tstr_relative), conf_fileName_tstr, NULL);
+            _tcscpy_s(conf_fileName_tstr, conf_fileName_tstr_relative);
+        }
+        strcpy_s(conf_fileName, tchar_to_string(conf_fileName_tstr, CP_THREAD_ACP).c_str());
+        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
         const int cnf_ver = GetPrivateProfileIntA(ini_section_main, "cnf_ver", 0, conf_fileName);
         codepage_cnf = cnf_ver >= CNF_VER_UTF8 ? CP_UTF8 : CP_THREAD_ACP;
 
-        strcpy_s(ini_section_main, _countof(ini_section_main), (main_section == NULL) ? INI_SECTION_MAIN : main_section);
-
         load_lang();
+        TCHAR ini_fileName_tstr[MAX_PATH_LEN] = { 0 };
         bool language_ini_selected = false;
         const auto language_str = wstring_to_string(language);
         for (const auto& auo_lang : list_auo_languages) {
             if (   _tcscmp(language, auo_lang.code) == 0
                 && _tcscmp(_T("ja"), auo_lang.code) != 0) { // 日本語用x264guiEx.iniはx264guiEx.iniのまま
-                char ini_append[64];
-                sprintf_s(ini_append, ".%s%s", tchar_to_string(language, CP_THREAD_ACP).c_str(), INI_APPENDIX);
-                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
-                if (PathFileExistsA(ini_fileName)) {
+                TCHAR ini_append[64];
+                _stprintf_s(ini_append, _T(".%s%s"), language, INI_APPENDIX);
+                apply_appendix(ini_fileName_tstr, _countof(ini_fileName_tstr), auo_path, ini_append);
+                if (PathFileExists(ini_fileName_tstr)) {
                     language_ini_selected = true;
                 }
             }
@@ -300,17 +308,24 @@ void guiEx_settings::initialize(BOOL disable_loading, const char *_auo_path, con
             PathCombineLong(lng_path, _countof(lng_path), auo_dir, language);
             if (PathFileExists(lng_path)) {
                 const auto lang_code = get_file_lang_code(lng_path);
-                char ini_append[64];
-                sprintf_s(ini_append, ".%s%s", tchar_to_string(lang_code.c_str()).c_str(), INI_APPENDIX);
-                apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, ini_append);
-                if (PathFileExistsA(ini_fileName)) {
+                TCHAR ini_append[64];
+                _stprintf_s(ini_append, _T(".%s%s"), lang_code.c_str(), INI_APPENDIX);
+                apply_appendix(ini_fileName_tstr, _countof(ini_fileName_tstr), auo_path, ini_append);
+                if (PathFileExists(ini_fileName_tstr)) {
                     language_ini_selected = true;
                 }
             }
         }
         if (!language_ini_selected) {
-            apply_appendix(ini_fileName, _countof(ini_fileName), auo_path, INI_APPENDIX);
+            apply_appendix(ini_fileName_tstr, _countof(ini_fileName_tstr), auo_path, INI_APPENDIX);
         }
+        if (!canbe_converted_to(ini_fileName_tstr, CP_THREAD_ACP)) {
+            // CP_THREAD_ACP = sjisに変換できない場合は、相対パスにする
+            TCHAR ini_fileName_tstr_relative[MAX_PATH_LEN];
+            GetRelativePathTo(ini_fileName_tstr_relative, _countof(ini_fileName_tstr_relative), ini_fileName_tstr, NULL);
+            _tcscpy_s(ini_fileName_tstr, ini_fileName_tstr_relative);
+        }
+        strcpy_s(ini_fileName, tchar_to_string(ini_fileName_tstr, CP_THREAD_ACP).c_str());
         init = check_inifile() && !disable_loading;
         GetPrivateProfileTStg(ini_section_main, "blog_url", _T(""), blog_url, _countof(blog_url), ini_fileName, codepage_ini);
         if (init) {
@@ -420,9 +435,9 @@ void guiEx_settings::set_and_save_lang(const TCHAR *lang) {
         save_lang();
 
         //強制リロード
-        char tmp_auo_path[_countof(auo_path)];
+        TCHAR tmp_auo_path[_countof(auo_path)];
         char tmp_section_main[_countof(ini_section_main)];
-        strcpy_s(tmp_auo_path, auo_path);
+        _tcscpy_s(tmp_auo_path, auo_path);
         strcpy_s(tmp_section_main, ini_section_main);
         clear_all();
 
@@ -744,10 +759,9 @@ void guiEx_settings::make_default_stg_dir(TCHAR *default_stg_dir, DWORD nSize) {
     //絶対パスで作成
     //_tcscpy_s(default_stg_dir, nSize, char_to_wstring(auo_path).c_str());
     //相対パスで作成
-    char temp_dir[MAX_PATH_LEN];
+    TCHAR temp_dir[MAX_PATH_LEN];
     GetRelativePathTo(temp_dir, _countof(temp_dir), auo_path, NULL);
-    const auto temp_tstr = char_to_tstring(temp_dir);
-    _tcscpy_s(default_stg_dir, nSize, temp_tstr.c_str());
+    _tcscpy_s(default_stg_dir, nSize, temp_dir);
 
     TCHAR *filename_ptr = PathFindExtension(default_stg_dir);
     _tcscpy_s(filename_ptr, nSize - (filename_ptr - default_stg_dir), char_to_tstring(STG_DEFAULT_DIRECTORY_APPENDIX).c_str());

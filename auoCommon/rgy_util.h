@@ -1020,6 +1020,8 @@ std::vector<std::string> sep_cmd(const std::string &cmd);
 
 std::string str_replace(std::string str, const std::string& from, const std::string& to);
 
+bool canbe_converted_to(const wchar_t *str, uint32_t codepage);
+
 tstring print_time(double time);
 
 static inline uint16_t readUB16(const void *ptr) {

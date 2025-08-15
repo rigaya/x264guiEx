@@ -465,7 +465,7 @@ private:
 
     static BOOL  init;                        //静的確保したものが初期化
     static char  ini_section_main[256];       //メインセクション
-    static char  auo_path[MAX_PATH_LEN];      //自分(auo)のフルパス
+    static TCHAR auo_path[MAX_PATH_LEN];      //自分(auo)のフルパス
     static char  ini_fileName[MAX_PATH_LEN];  //iniファイル(読み込み用)の場所
     static char  conf_fileName[MAX_PATH_LEN]; //configファイル(読み書き用)の場所
     static DWORD ini_filesize;                //iniファイル(読み込み用)のサイズ
@@ -507,7 +507,7 @@ public:
 
     guiEx_settings();
     guiEx_settings(BOOL disable_loading);
-    guiEx_settings(BOOL disable_loading, const char *_auo_path, const char *main_section);
+    guiEx_settings(BOOL disable_loading, const TCHAR *_auo_path, const char *main_section);
     ~guiEx_settings();
     void clear_all();
 
@@ -540,7 +540,7 @@ public:
     void set_last_out_stg(const TCHAR *stg);
 private:
     void initialize(BOOL disable_loading);
-    void initialize(BOOL disable_loading, const char *_auo_path, const char *main_section);
+    void initialize(BOOL disable_loading, const TCHAR *_auo_path, const char *main_section);
 
     void clear_enc();         //動画エンコーダ関連の設定の消去
     void clear_aud();         //音声エンコーダ関連の設定の消去
