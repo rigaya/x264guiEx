@@ -77,9 +77,10 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     auto cmd_buffer = char_to_tstring(old_conf->enc.cmd, CP_THREAD_ACP);
 #else
     TCHAR cmd_buffer[MAX_CMD_LEN] = { 0 };
-#if !ENCODER_FFMPEG
-    build_cmd_from_conf(cmd_buffer, _countof(cmd_buffer), &old_conf->enc, NULL, FALSE);
-#endif    
+  #if ENCODER_X264 || ENCODER_X265
+    const CONF_VIDEO vid = conf_video_conv(old_conf->vid);
+    build_cmd_from_conf(cmd_buffer, _countof(cmd_buffer), &old_conf->enc, &vid, FALSE);
+  #endif
 #endif
     j["enc"] = {
 #if ENABLE_AMP || ENCODER_FFMPEG

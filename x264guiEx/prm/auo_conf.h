@@ -170,6 +170,20 @@ typedef struct CONF_ENC {
     TCHAR   outext[MAX_APPENDIX_LEN];   //出力拡張子
     TCHAR   incmd[256];                 //入力オプション
 } CONF_ENC;
+#elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+typedef struct CONF_ENC {
+    RGY_CODEC codec_rgy;
+    int reserved[128];
+#if ENCODER_QSV
+    char reserved3[1024];
+#endif
+    char cmd[3072];
+    char cmdex[512];
+    char reserved2[512];
+    BOOL resize_enable;
+    int resize_width;
+    int resize_height;
+} CONF_ENC;
 #endif
 
 typedef struct CONF_VIDEO {
@@ -366,6 +380,9 @@ class guiEx_config {
 private:
     static const uint32_t conf_block_pointer[CONF_BLOCK_COUNT];
     static const int conf_block_data[CONF_BLOCK_COUNT];
+#if ENCODER_X264 || ENCODER_X265
+    static CONF_VIDEO conf_video_conv(const CONF_VIDEO_OLD &old_vid);
+#endif
 #if ENCODER_X264
     static void convert_x264stg_to_x264stgv2(CONF_GUIEX_OLD *conf);            //旧形式からJSON文字列に変換
 #elif ENCODER_X265
