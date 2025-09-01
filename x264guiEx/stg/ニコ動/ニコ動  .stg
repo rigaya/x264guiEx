@@ -3,7 +3,7 @@
     "ext": {
       "aud_temp_dir": 0,
       "audio_encode_timing": 2,
-      "bitrate": 256,
+      "bitrate": 320,
       "delay_cut": 0,
       "enc_mode": 0,
       "encoder": 15,
@@ -67,7 +67,7 @@
     "amp_check": 1,
     "amp_limit_bitrate_lower": 0.0,
     "amp_limit_bitrate_upper": 0.0,
-    "amp_limit_file_size": 2998.0,
+    "amp_limit_file_size": 5998.0,
     "analysis_file": "",
     "auo_tcfile_out": 0,
     "check_keyframe": 0,
