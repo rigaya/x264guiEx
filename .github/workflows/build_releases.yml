@@ -1,0 +1,182 @@
+name: Build Windows Releases
+
+on:
+  push:
+    branches:
+      - master
+      - actions
+    tags:
+      - '*'
+
+jobs:
+  get_version_name:
+    name: Get version name
+    runs-on: ubuntu-latest
+    outputs:
+      rev_count: ${{ steps.rev.outputs.REVCOUNT }}
+      version_name: ${{ steps.rev.outputs.VERSION_NAME }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set version name
+      id: rev
+      run: |
+        cd ${{ github.workspace }}
+        REVCOUNT=`git rev-list --count HEAD`
+        echo "rev_count=${REVCOUNT}" >> $GITHUB_OUTPUT
+        if [[ "${{ github.ref }}" =~ "refs/tags/" ]]; then
+          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+        else
+          VERSION=r${REVCOUNT}
+        fi
+        echo "version_name=${VERSION}" >> $GITHUB_OUTPUT
+
+  build:
+    name: Upload Release Asset
+    runs-on: windows-2022
+    needs: get_version_name
+
+    defaults:
+      run:
+        shell: cmd
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86
+            platform: Win32
+            aviutlver: AviUtl
+            outext: auo
+          - arch: x64
+            platform: x64
+            aviutlver: AviUtl2
+            outext: auo2
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: ${{ matrix.arch }}
+
+      - name: MSBuild
+        run: |
+          msbuild x264guiEx.sln /t:build /p:configuration=Release /p:Platform=${{ matrix.platform }} -maxcpucount
+
+      - name: Download auo_setup Win32
+        id: download_auosetup_win32
+        if: matrix.platform == 'Win32'
+        run: |
+          curl -o auo_setup.zip -L https://github.com/rigaya/auo_setup/releases/download/2.02/auo_setup_2.02.zip
+
+      - name: Download auo_setup x64
+        id: download_auosetup_x64
+        if: matrix.platform == 'x64'
+        run: |
+          curl -o auo_setup.zip -L https://github.com/rigaya/auo_setup/releases/download/2.04/auo_setup_2.04_x64.zip
+
+      - name: Download x264_x86
+        id: download_x264_x86
+        if: matrix.platform == 'Win32'
+        run: |
+          curl -o x264_x86.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/x264_3222_x86.zip
+
+      - name: Download x264_x64
+        id: download_x264_x64
+        run: |
+          curl -o x264_x64.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/x264_3222_x64.zip
+
+      - name: Download muxer and audio encoder
+        id: download_muxer_and_audio_encoder
+        run: |
+          curl -o lsmash.7z -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/lsmash_20200404.7z
+          curl -o ffmpeg_audenc.7z -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/ffmpeg_audenc_20200321.7z
+
+      - name: Create Archieve
+        id: archieve_win32
+        if: matrix.platform == 'Win32'
+        run: |
+          mkdir x264guiEx_release
+          7z x -ox264guiEx_release\ auo_setup.zip
+          7z x -ox264guiEx_release\exe_files x264_x86.zip
+          7z x -ox264guiEx_release\exe_files x264_x64.zip
+          7z x -ox264guiEx_release\exe_files lsmash.7z
+          7z x -ox264guiEx_release\exe_files ffmpeg_audenc.7z
+          copy /y .\Release\${{ matrix.platform }}\x264guiEx.auo x264guiEx_release\plugins\
+          copy /y .\x264guiEx\x264guiEx.ini x264guiEx_release\plugins\
+          copy /y .\x264guiEx\x264guiEx.en.ini x264guiEx_release\plugins\
+          copy /y .\x264guiEx\x264guiEx.zh.ini x264guiEx_release\plugins\
+          echo D | xcopy /y /e .\x264guiEx\stg x264guiEx_release\plugins\x264guiEx_stg
+          copy /y .\x264guiEx\auo_setup.ini x264guiEx_release\exe_files\
+          copy /y .\x264guiEx\x264guiEx_readme.txt x264guiEx_release\
+          dir /b /s x264guiEx_release\
+          7z a -mx9 AviUtl_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip .\x264guiEx_release\*
+
+      - name: Create Archieve
+        id: archieve_x64
+        if: matrix.platform == 'x64'
+        run: |
+          mkdir Aviutl_x264guiEx_release
+          7z x -oAviutl_x264guiEx_release\ auo_setup.zip
+          7z x -oAviutl_x264guiEx_release\Plugin\exe_files x264_x64.zip
+          7z x -oAviutl_x264guiEx_release\Plugin\exe_files lsmash.7z
+          7z x -oAviutl_x264guiEx_release\Plugin\exe_files ffmpeg_audenc.7z
+          del Aviutl_x264guiEx_release\Plugin\exe_files\*_x86.exe
+          copy /y .\Release\${{ matrix.platform }}\x264guiEx.auo2 x264guiEx_release\Plugin\
+          copy /y x264guiEx\x264guiEx.ini Aviutl_x264guiEx_release\Plugin\
+          copy /y x264guiEx\x264guiEx.en.ini Aviutl_x264guiEx_release\Plugin\
+          copy /y x264guiEx\x264guiEx.zh.ini Aviutl_x264guiEx_release\Plugin\
+          copy /y x264guiEx\auo_setup.ini Aviutl_x264guiEx_release\Plugin\exe_files\
+          copy /y x264guiEx\x264guiEx_readme.txt Aviutl_x264guiEx_release\
+          echo D | xcopy /y /e x264guiEx\stg Aviutl_x264guiEx_release\Plugin\x264guiEx_stg
+          7z a -t7z -m0=lzma -mx=9 -mmt Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.7z .\Aviutl_x264guiEx_release\*
+          copy /b x264guiEx\7zSD.noadmin.sfx + x264guiEx\7zInstallerConfig.txt + Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.7z Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install.exe
+
+      - name: Check Version
+        id: check_ver
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          powershell "$ver = (Get-ItemProperty .\Release\x264guiEx.${{ matrix.outext }}).VersionInfo.FileVersion; if ($ver -eq '${{ needs.get_version_name.outputs.version_name }}') { exit 0; } exit 1;"
+
+      - name: Calc hash Win32
+        id: calc_hash_win32
+        if: matrix.platform == 'Win32'
+        run: |
+          7z h -scrc* Aviutl_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip
+
+      - name: Calc hash x64
+        id: calc_hash_x64
+        if: matrix.platform == 'x64'
+        run: |
+          7z h -scrc* Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install.exe
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip
+
+      - name: Upload artifact Win32
+        uses: actions/upload-artifact@v4
+        if: matrix.platform == 'Win32'
+        with:
+          name: Aviutl_x264guiEx_${{ needs.get_version_name.outputs.version_name }}
+          path: Aviutl_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip
+
+      - name: Upload artifact x64
+        uses: actions/upload-artifact@v4
+        if: matrix.platform == 'x64'
+        with:
+          name: Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install
+          path: Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install.exe
