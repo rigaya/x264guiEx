@@ -130,7 +130,8 @@ jobs:
           7z x -oAviutl_x264guiEx_release\Plugin\exe_files lsmash.7z
           7z x -oAviutl_x264guiEx_release\Plugin\exe_files ffmpeg_audenc.7z
           del Aviutl_x264guiEx_release\Plugin\exe_files\*_x86.exe
-          copy /y .\Release\${{ matrix.platform }}\x264guiEx.auo2 x264guiEx_release\Plugin\
+          del Aviutl_x264guiEx_release\Plugin\auo_setup.auf
+          copy /y .\Release\${{ matrix.platform }}\x264guiEx.auo2 Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\x264guiEx.ini Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\x264guiEx.en.ini Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\x264guiEx.zh.ini Aviutl_x264guiEx_release\Plugin\
