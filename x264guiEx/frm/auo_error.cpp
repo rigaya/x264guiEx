@@ -34,6 +34,7 @@
 #include "rgy_chapter.h"
 #include "auo_settings.h"
 #include "auo_util.h"
+#include "convert.h"
 
 void warning_conf_not_initialized(const TCHAR *default_stg_file) {
     if (default_stg_file && _tcslen(default_stg_file) > 0) {
