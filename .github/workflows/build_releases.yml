@@ -145,7 +145,7 @@ jobs:
         id: check_ver
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          powershell "$ver = (Get-ItemProperty .\Release\x264guiEx.${{ matrix.outext }}).VersionInfo.FileVersion; if ($ver -eq '${{ needs.get_version_name.outputs.version_name }}') { exit 0; } exit 1;"
+          powershell "$ver = (Get-ItemProperty .\Release\${{ matrix.platform }}\x264guiEx.${{ matrix.outext }}).VersionInfo.FileVersion; if ($ver -eq '${{ needs.get_version_name.outputs.version_name }}') { exit 0; } exit 1;"
 
       - name: Calc hash Win32
         id: calc_hash_win32
