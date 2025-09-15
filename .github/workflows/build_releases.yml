@@ -160,13 +160,22 @@ jobs:
           7z h -scrc* Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install.exe
 
       - name: Upload Release Asset
-        id: upload-release-asset 
+        id: upload-release-asset-win32
+        if: matrix.platform == 'Win32' && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip
+          files: Aviutl_x264guiEx_${{ needs.get_version_name.outputs.version_name }}.zip
+
+      - name: Upload Release Asset
+        id: upload-release-asset-x64
+        if: matrix.platform == 'x64' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: Aviutl2_x264guiEx_${{ needs.get_version_name.outputs.version_name }}_install.exe
 
       - name: Upload artifact Win32
         uses: actions/upload-artifact@v4
