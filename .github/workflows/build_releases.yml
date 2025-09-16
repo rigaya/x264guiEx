@@ -87,12 +87,12 @@ jobs:
         id: download_x264_x86
         if: matrix.platform == 'Win32'
         run: |
-          curl -o x264_x86.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/x264_3222_x86.zip
+          curl -o x264_x86.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250916-191123/x264_3223_x86.zip
 
       - name: Download x264_x64
         id: download_x264_x64
         run: |
-          curl -o x264_x64.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250907-045307/x264_3222_x64.zip
+          curl -o x264_x64.zip -L https://github.com/rigaya/AutoBuildForAviUtlPlugins/releases/download/auto-build-20250916-191123/x264_3223_x64.zip
 
       - name: Download muxer and audio encoder
         id: download_muxer_and_audio_encoder
