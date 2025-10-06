@@ -5401,6 +5401,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
         }
     private:
         System::Int32 GetCQMIndex(TCHAR *cqmfile, int nSize) {
+            cqmfile[0] = _T('\0');
             for (int i = 0; i < fcgCSCQM->Items->Count; i++) {
                 ToolStripMenuItem^ TSItem = dynamic_cast<ToolStripMenuItem^>(fcgCSCQM->Items[i]);
                 if (TSItem != nullptr && TSItem->Checked) {

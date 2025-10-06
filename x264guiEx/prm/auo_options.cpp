@@ -434,6 +434,10 @@ static BOOL set_deblock(void *cx, const TCHAR *value, const ENC_OPTION_STR *list
             ((CONF_ENC *)cx)->use_deblock = TRUE;
     return ret;
 }
+static BOOL set_tcfilein(void *cx, const TCHAR *value, const ENC_OPTION_STR *list) {
+    ((CONF_ENC *)cx)->use_tcfilein = TRUE;
+    return TRUE;
+}
 static BOOL set_input_depth(void *b, const TCHAR *value, const ENC_OPTION_STR *list) {
     *(BOOL*)b = (_tstoi(value) > 8) ? TRUE : FALSE;
     return TRUE;
@@ -808,7 +812,7 @@ const SET_VALUE set_value[] = {
     set_keyint,
     set_deblock,
     set_list,
-    set_do_nothing,
+    set_tcfilein,
     set_input_depth,
     set_output_depth,
     set_int,

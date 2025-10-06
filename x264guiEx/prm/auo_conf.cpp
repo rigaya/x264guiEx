@@ -505,6 +505,11 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
             auto cmd_str = char_to_tstring(enc.value("cmd", ""), CP_UTF8);
 #if ENCODER_X264 || ENCODER_X265
             set_cmd_to_conf_full(cmd_str.c_str(), &conf->enc);
+#if ENCODER_X264
+            if (PathFileExists(conf->vid.cqmfile)) {
+                conf->enc.cqm = 2;
+            }
+#endif
 #elif ENCODER_SVTAV1
             _tcscpy_s(conf->enc.cmd, cmd_str.c_str());
             conf->enc.sar_x = enc.value("sar_x", 0);
