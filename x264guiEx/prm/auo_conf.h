@@ -85,9 +85,40 @@ static const char *const CONF_NAME_OLD_1 = "ffmpegOut ConfigFile";
 static const char *const CONF_NAME_OLD_2 = "ffmpegOut ConfigFile v2";
 static const char *const CONF_NAME_JSON  = "ffmpegOut ConfigFile v2 json";
 static const char *const CONF_NAME       = CONF_NAME_OLD_2;
+#elif ENCODER_QSV
+#include "qsv_util.h"
+#include "qsv_prm.h"
+
+static const char *const CONF_NAME_OLD_1 = "QSVEnc ConfigFile";
+static const char *const CONF_NAME_OLD_2 = "QSVEnc ConfigFile v2";
+static const char *const CONF_NAME_OLD_3 = "QSVEnc ConfigFile v3";
+static const char *const CONF_NAME_OLD_4 = "QSVEnc ConfigFile v4";
+static const char *const CONF_NAME_OLD_5 = "QSVEnc ConfigFile v5";
+static const char *const CONF_NAME_OLD_6 = "QSVEnc ConfigFile v6";
+static const char *const CONF_NAME_OLD_7 = "QSVEnc ConfigFile v7";
+static const char *const CONF_NAME_JSON  = "QSVEnc ConfigFile v7 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD_7;
+#elif ENCODER_NVENC
+#include "NVEncParam.h"
+
+static const char *const CONF_NAME_OLD_1 = "NVEnc ConfigFile";
+static const char *const CONF_NAME_OLD_2 = "NVEnc ConfigFile v2";
+static const char *const CONF_NAME_OLD_3 = "NVEnc ConfigFile v3";
+static const char *const CONF_NAME_OLD_4 = "NVEnc ConfigFile v4";
+static const char *const CONF_NAME_OLD_5 = "NVEnc ConfigFile v5";
+static const char *const CONF_NAME_JSON  = "NVEnc ConfigFile v5 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD_5;
+#elif ENCODER_VCEENC
+#include "vce_param.h"
+
+static const char *const CONF_NAME_OLD_1 = "VCEEnc ConfigFile v3";
+static const char *const CONF_NAME_OLD_2 = "VCEEnc ConfigFile v4";
+static const char *const CONF_NAME_JSON  = "VCEEnc ConfigFile v4 json";
+static const char *const CONF_NAME       = CONF_NAME_OLD_2;
 #else
 static_assert(false);
 #endif
+
 const int CONF_NAME_BLOCK_LEN            = 32;
 const int CONF_BLOCK_MAX                 = 32;
 const int CONF_BLOCK_COUNT               = 5; //最大 CONF_BLOCK_MAXまで
