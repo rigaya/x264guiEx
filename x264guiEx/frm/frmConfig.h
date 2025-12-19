@@ -729,6 +729,7 @@ private: System::Windows::Forms::ToolStripTextBox^  fcgTSTSettingsNotes;
 private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator4;
 private: System::Windows::Forms::ToolStrip^  fcgtoolStripSettings;
 private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
+private: System::Windows::Forms::CheckBox^  fcgCBBenchmarkMode;
 
 
 
@@ -1009,6 +1010,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgCXX264Priority = (gcnew System::Windows::Forms::ComboBox());
             this->fcgLBX264Priority = (gcnew System::Windows::Forms::Label());
             this->fcggroupBoxExSettings = (gcnew System::Windows::Forms::GroupBox());
+            this->fcgCBBenchmarkMode = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBSetKeyframeAtChapter = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBInputAsLW48 = (gcnew System::Windows::Forms::CheckBox());
             this->fcgCBCheckKeyframes = (gcnew System::Windows::Forms::CheckBox());
@@ -1257,7 +1259,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageX264Main->Controls->Add(this->fcgLBOutputCF);
             this->fcgtabPageX264Main->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264Main->Name = L"fcgtabPageX264Main";
-            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageX264Main->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageX264Main->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageX264Main->TabIndex = 0;
             this->fcgtabPageX264Main->Text = L" x264 ";
@@ -2070,7 +2072,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageX264RC->Controls->Add(this->fcggroupBoxQP);
             this->fcgtabPageX264RC->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageX264RC->Name = L"fcgtabPageX264RC";
-            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageX264RC->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageX264RC->Size = System::Drawing::Size(608, 491);
             this->fcgtabPageX264RC->TabIndex = 1;
             this->fcgtabPageX264RC->Text = L" レート・QP制御";
@@ -3339,6 +3341,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             // 
             // fcggroupBoxExSettings
             // 
+            this->fcggroupBoxExSettings->Controls->Add(this->fcgCBBenchmarkMode);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBSetKeyframeAtChapter);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBInputAsLW48);
             this->fcggroupBoxExSettings->Controls->Add(this->fcgCBCheckKeyframes);
@@ -3351,6 +3354,17 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcggroupBoxExSettings->TabIndex = 0;
             this->fcggroupBoxExSettings->TabStop = false;
             this->fcggroupBoxExSettings->Text = L"拡張設定";
+            // 
+            // fcgCBBenchmarkMode
+            // 
+            this->fcgCBBenchmarkMode->AutoSize = true;
+            this->fcgCBBenchmarkMode->Location = System::Drawing::Point(18, 203);
+            this->fcgCBBenchmarkMode->Name = L"fcgCBBenchmarkMode";
+            this->fcgCBBenchmarkMode->Size = System::Drawing::Size(102, 18);
+            this->fcgCBBenchmarkMode->TabIndex = 6;
+            this->fcgCBBenchmarkMode->Tag = L"chValue";
+            this->fcgCBBenchmarkMode->Text = L"ベンチマークモード";
+            this->fcgCBBenchmarkMode->UseVisualStyleBackColor = true;
             // 
             // fcgCBSetKeyframeAtChapter
             // 
@@ -3468,7 +3482,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageMP4->Controls->Add(this->fcgLBMP4BoxTempDir);
             this->fcgtabPageMP4->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageMP4->Name = L"fcgtabPageMP4";
-            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageMP4->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageMP4->Size = System::Drawing::Size(376, 187);
             this->fcgtabPageMP4->TabIndex = 0;
             this->fcgtabPageMP4->Text = L"mp4";
@@ -3659,7 +3673,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageMKV->Controls->Add(this->fcgCBMKVMuxerExt);
             this->fcgtabPageMKV->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageMKV->Name = L"fcgtabPageMKV";
-            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageMKV->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageMKV->Size = System::Drawing::Size(376, 187);
             this->fcgtabPageMKV->TabIndex = 1;
             this->fcgtabPageMKV->Text = L"mkv";
@@ -4129,7 +4143,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageAudioMain->Controls->Add(this->fcgLBAudioTemp);
             this->fcgtabPageAudioMain->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageAudioMain->Name = L"fcgtabPageAudioMain";
-            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageAudioMain->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageAudioMain->Size = System::Drawing::Size(376, 269);
             this->fcgtabPageAudioMain->TabIndex = 0;
             this->fcgtabPageAudioMain->Text = L"音声";
@@ -4365,7 +4379,7 @@ private: System::Windows::Forms::Panel^  fcgPNHideToolStripBorder;
             this->fcgtabPageAudioOther->Controls->Add(this->fcgLBAudioPriority);
             this->fcgtabPageAudioOther->Location = System::Drawing::Point(4, 23);
             this->fcgtabPageAudioOther->Name = L"fcgtabPageAudioOther";
-            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(3);
+            this->fcgtabPageAudioOther->Padding = System::Windows::Forms::Padding(3, 3, 3, 3);
             this->fcgtabPageAudioOther->Size = System::Drawing::Size(376, 269);
             this->fcgtabPageAudioOther->TabIndex = 1;
             this->fcgtabPageAudioOther->Text = L"その他";

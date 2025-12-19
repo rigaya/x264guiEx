@@ -1749,6 +1749,7 @@ System::Void frmConfig::ConfToFrm(CONF_GUIEX *cnf, bool all) {
         fcgCBRunBatAfterAudio->Checked     =(cnf->oth.run_bat & RUN_BAT_AFTER_AUDIO) != 0;
         fcgTXBatBeforeAudioPath->Text      = String(cnf->oth.batfile.before_audio).ToString();
         fcgTXBatAfterAudioPath->Text       = String(cnf->oth.batfile.after_audio).ToString();
+        fcgCBBenchmarkMode->Checked        = cnf->oth.benchmark_mode != 0;
 
         //mux
         fcgCBMP4MuxerExt->Checked          = cnf->mux.disable_mp4ext == 0;
@@ -1931,6 +1932,7 @@ System::Void frmConfig::FrmToConf(CONF_GUIEX *cnf) {
     GetWCHARfromString(cnf->oth.batfile.after_audio,    fcgTXBatAfterAudioPath->Text);
 
     GetfcgTSLSettingsNotes(cnf->oth.notes, _countof(cnf->oth.notes));
+    cnf->oth.benchmark_mode         = fcgCBBenchmarkMode->Checked;
 
     //cli mode
     cnf->oth.disable_guicmd         = fcgTSBCMDOnly->Checked;
