@@ -493,6 +493,7 @@ AuofcgCBSetKeyframeAtChapter=Set keyframe at chapter (when mux enabled)
 AuofcgCBInputAsLW48=LW48 mode
 AuofcgCBCheckKeyframes=Enable Aviutl keyframe detection
 AuofcgCBAuoTcfileout=output timecode
+AuofcgCBBenchmarkMode=benchmark mode
 AuofcgCBAFSBitrateCorrection=Adjust bitrate (when auto multi pass is enabled)
 AuofcgCBAFS=Use auto field shift (afs)
 AuofcgTSExeFileshelp=show help

@@ -638,6 +638,7 @@ enum AuoMes {
         AuofcgCBInputAsLW48,
         AuofcgCBCheckKeyframes,
         AuofcgCBAuoTcfileout,
+        AuofcgCBBenchmarkMode,
         AuofcgCBAFSBitrateCorrection,
         AuofcgCBAFS,
         AuofcgTSExeFileshelp,

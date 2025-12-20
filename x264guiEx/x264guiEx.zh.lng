@@ -493,6 +493,7 @@ AuofcgCBSetKeyframeAtChapter=在章节位置设定关键帧 (mux启用)
 AuofcgCBInputAsLW48=LW48模式
 AuofcgCBCheckKeyframes=检测Aviutl关键帧设定
 AuofcgCBAuoTcfileout=导出时间码
+AuofcgCBBenchmarkMode=benchmark mode
 AuofcgCBAFSBitrateCorrection=校正为设定的比特率(自动多通道编码启用)
 AuofcgCBAFS=启用自动场移位(afs)
 AuofcgTSExeFileshelp=显示帮助

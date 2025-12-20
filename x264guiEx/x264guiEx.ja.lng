@@ -492,6 +492,7 @@ AuofcgCBSetKeyframeAtChapter=チャプター位置にキーフレームを設定
 AuofcgCBInputAsLW48=LW48モード
 AuofcgCBCheckKeyframes=AviUtlのキーフレーム設定検出を行う
 AuofcgCBAuoTcfileout=タイムコード出力
+AuofcgCBBenchmarkMode=ベンチマークモード
 AuofcgCBAFSBitrateCorrection=設定したビットレートになるよう補正する(自動マルチパス時)
 AuofcgCBAFS=自動フィールドシフト(afs)を使用する
 AuofcgTSExeFileshelp=helpを表示
