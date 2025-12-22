@@ -114,6 +114,7 @@ jobs:
           copy /y .\x264guiEx\x264guiEx.ini x264guiEx_release\plugins\
           copy /y .\x264guiEx\x264guiEx.en.ini x264guiEx_release\plugins\
           copy /y .\x264guiEx\x264guiEx.zh.ini x264guiEx_release\plugins\
+          copy /y .\x264guiEx\x264guiEx_uninstall.bat x264guiEx_release\plugins\
           echo D | xcopy /y /e .\x264guiEx\stg x264guiEx_release\plugins\x264guiEx_stg
           copy /y .\x264guiEx\auo_setup.ini x264guiEx_release\exe_files\
           copy /y .\x264guiEx\x264guiEx_readme.txt x264guiEx_release\
@@ -135,6 +136,7 @@ jobs:
           copy /y x264guiEx\x264guiEx.ini Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\x264guiEx.en.ini Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\x264guiEx.zh.ini Aviutl_x264guiEx_release\Plugin\
+          copy /y x264guiEx\x264guiEx_uninstall.bat Aviutl_x264guiEx_release\Plugin\
           copy /y x264guiEx\auo_setup.ini Aviutl_x264guiEx_release\Plugin\exe_files\
           copy /y x264guiEx\x264guiEx_readme.txt Aviutl_x264guiEx_release\
           echo D | xcopy /y /e x264guiEx\stg Aviutl_x264guiEx_release\Plugin\x264guiEx_stg
