@@ -818,7 +818,7 @@ System::Void frmConfig::fcgCXAudioEncMode_SelectedIndexChanged(System::Object^  
 }
 
 System::Int32 frmConfig::GetCurrentAudioDefaultBitrate() {
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_VVENC
     AUDIO_SETTINGS *astg = &sys_dat->exstg->s_aud_ext[fcgCXAudioEncoder->SelectedIndex];
     const int encMode = fcgCXAudioEncMode->SelectedIndex;
 #else
@@ -958,9 +958,9 @@ ToolStripMenuItem^ frmConfig::fcgTSSettingsSearchItem(String^ stgPath) {
 }
 
 System::Void frmConfig::SaveToStgFile(String^ stgName) {
-    DWORD nameLen = CountStringBytes(stgName) + 1;
-    TCHAR *stg_name = (TCHAR *)calloc(nameLen, sizeof(TCHAR));
-    GetWCHARfromString(stg_name, nameLen, stgName);
+    size_t nameLen = CountStringBytes(stgName) + 1;
+    TCHAR *stg_name = (TCHAR *)malloc(nameLen * sizeof(stg_name[0]));
+    GetWCHARfromString(stg_name, (DWORD)nameLen, stgName);
     init_CONF_GUIEX(cnf_stgSelected, fcgCBUsehighbit->Checked);
     FrmToConf(cnf_stgSelected);
     String^ stgDir = Path::GetDirectoryName(stgName);
@@ -1951,7 +1951,7 @@ System::Void frmConfig::GetfcgTSLSettingsNotes(TCHAR *notes, int nSize) {
 }
 
 System::Void frmConfig::SetfcgTSLSettingsNotes(const TCHAR *notes) {
-    if (str_has_char(notes)) {
+    if (_tcschr(notes, _T('\0')) != nullptr) {
         fcgTSLSettingsNotes->ForeColor = Color::FromArgb(StgNotesColor[0][0], StgNotesColor[0][1], StgNotesColor[0][2]);
         fcgTSLSettingsNotes->Text = String(notes).ToString();
         fcgTSLSettingsNotes->Overflow = ToolStripItemOverflow::AsNeeded;

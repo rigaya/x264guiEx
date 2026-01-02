@@ -49,11 +49,15 @@
 #define AUO_EXT_FILTER      "All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
 #define AUO_EXT_FILTER_W   L"All Support Formats (*.*)\0*.mp4;*.mkv;*.264;*.mp4\0mp4 file (*.mp4)\0*.mp4\0mkv file (*.mkv)\0*.mkv\0raw file (*.264)\0*.264\0"
 
+#define AUOSETUP_EVENT_ABORT "AUOSETUP_EVENT_ABORT"
+
+#define ENABLE_AUOSETUP 0
 
 #define ENCODER_X264 1
 #define ENCODER_X265 0
 #define ENCODER_SVTAV1 0
 #define ENCODER_FFMPEG 0
+#define ENCODER_VVENC 0
 #define ENABLE_AMP (ENCODER_X264 || ENCODER_X265)
 #define ENABLE_TCFILE_IN (ENCODER_X264)
 

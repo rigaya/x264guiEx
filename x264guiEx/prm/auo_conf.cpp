@@ -73,7 +73,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     j["version"] = CONF_NAME_JSON;
     
     // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
     auto cmd_buffer = char_to_tstring(old_conf->enc.cmd, CP_THREAD_ACP);
 #else
     TCHAR cmd_buffer[MAX_CMD_LEN] = { 0 };
@@ -87,7 +87,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"use_auto_npass", old_conf->enc.use_auto_npass },
         {"auto_npass", old_conf->enc.auto_npass },
 #endif
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
         {"sar_x", old_conf->vid.sar_x},
         {"sar_y", old_conf->vid.sar_y},
 #endif
@@ -135,7 +135,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     
     // オーディオ設定（変更なし）
     CONF_AUDIO_BASE aud_ = { 0 };
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_VVENC
     const CONF_AUDIO_BASE *aud_ext = &old_conf->aud;
     const CONF_AUDIO_BASE *aud_in = &aud_;
     const int aud_use_internal = 0;
@@ -454,7 +454,7 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
         {"use_auto_npass", conf->enc.use_auto_npass },
         {"auto_npass", conf->enc.auto_npass },
 #endif
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
         {"sar_x", conf->enc.sar_x},
         {"sar_y", conf->enc.sar_y},
 #endif
@@ -512,7 +512,7 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
                 conf->enc.cqm = 2;
             }
 #endif
-#elif ENCODER_SVTAV1
+#elif ENCODER_SVTAV1 || ENCODER_VVENC
             _tcscpy_s(conf->enc.cmd, cmd_str.c_str());
             conf->enc.sar_x = enc.value("sar_x", 0);
             conf->enc.sar_y = enc.value("sar_y", 0);

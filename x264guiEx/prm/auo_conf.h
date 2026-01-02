@@ -115,6 +115,11 @@ static const char *const CONF_NAME_OLD_1 = "VCEEnc ConfigFile v3";
 static const char *const CONF_NAME_OLD_2 = "VCEEnc ConfigFile v4";
 static const char *const CONF_NAME_JSON  = "VCEEnc ConfigFile v4 json";
 static const char *const CONF_NAME       = CONF_NAME_OLD_2;
+#elif ENCODER_VVENC
+static const char* const CONF_NAME_OLD_1 = "VVenCguiEx ConfigFile v1";
+static const char* const CONF_NAME_OLD_2 = "VVenCguiEx ConfigFile v2";
+static const char* const CONF_NAME_JSON  = "VVenCguiEx ConfigFile v2 json";
+static const char* const CONF_NAME       = CONF_NAME_OLD_2;
 #else
 static_assert(false);
 #endif
@@ -182,7 +187,7 @@ static const ENC_OPTION_STR AUDIO_DELAY_CUT_MODE[] = {
     { NULL, AUO_MES_UNKNOWN,                NULL          },
 };
 
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
 typedef struct CONF_ENC_PRM {
     TCHAR cmd[MAX_CMD_LEN];
     int sar_x;
@@ -203,14 +208,8 @@ typedef struct CONF_ENC {
 } CONF_ENC;
 #elif ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
 typedef struct CONF_ENC {
+    TCHAR cmd[MAX_CMD_LEN];
     RGY_CODEC codec_rgy;
-    int reserved[128];
-#if ENCODER_QSV
-    char reserved3[1024];
-#endif
-    char cmd[3072];
-    char cmdex[512];
-    char reserved2[512];
     BOOL resize_enable;
     int resize_width;
     int resize_height;
@@ -351,7 +350,7 @@ typedef struct CONF_VIDEO_OLD {
 #endif
     double amp_limit_bitrate_lower;
 #endif
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
     int sar_x;
     int sar_y;
 #endif
@@ -379,7 +378,7 @@ typedef struct CONF_GUIEX_OLD {
     CONF_MUX    mux;                             //muxについての設定
     CONF_OTHER_OLD  oth;                             //その他の設定
 } CONF_GUIEX_OLD;
-#elif ENCODER_SVTAV1
+#elif ENCODER_SVTAV1 || ENCODER_VVENC
 typedef struct CONF_ENC_PRM_OLD {
     char cmd[3072];
 } CONF_ENC_PRM_OLD;
@@ -397,7 +396,7 @@ typedef struct CONF_GUIEX_OLD {
 
 typedef struct CONF_GUIEX {
     CONF_GUIEX_HEADER header;
-#if ENCODER_SVTAV1
+#if ENCODER_SVTAV1 || ENCODER_VVENC
     CONF_ENC_PRM enc;                             //エンコーダについての設定
 #else
     CONF_ENC    enc;                             //エンコーダについての設定

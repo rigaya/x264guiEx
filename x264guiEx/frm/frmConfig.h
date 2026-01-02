@@ -4970,7 +4970,7 @@ private: System::Windows::Forms::CheckBox^  fcgCBBenchmarkMode;
         System::Void InformfbcClosed();
     private:
         System::Boolean useAudioExt() {
-            #if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
+            #if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_VVENC
                 return true;
             #else
                 return fcgCBAudioUseExt->Checked;

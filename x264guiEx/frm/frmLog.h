@@ -181,7 +181,7 @@ namespace AUO_NAME_R {
     private:
         taskbarProgress *taskbar_progress; //タスクバーでの進捗表示
         HWND hWnd; //このウィンドウのハンドル
-#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_FFMPEG
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1 || ENCODER_FFMPEG || ENCODER_VVENC
         DWORD *_enc_priority; //エンコ優先度へのポインタ
 #endif
         bool *_enc_pause;      //エンコ一時停止へのポインタ
@@ -318,9 +318,9 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
             this->toolStripMenuItemFilePathOpen->Size = System::Drawing::Size(213, 22);
             this->toolStripMenuItemFilePathOpen->Text = L"この動画の場所を開く...";
             this->toolStripMenuItemFilePathOpen->Click += gcnew System::EventHandler(this, &frmLog::toolStripMenuItemFilePathOpen_Click);
-            // 
+            //
             // ToolStripMenuItemVidEncPriority
-            // 
+            //
             this->ToolStripMenuItemVidEncPriority->Name = L"ToolStripMenuItemVidEncPriority";
             this->ToolStripMenuItemVidEncPriority->Size = System::Drawing::Size(213, 22);
             this->ToolStripMenuItemVidEncPriority->Text = L"エンコーダ優先度";
@@ -648,11 +648,17 @@ private: System::Windows::Forms::ToolStripMenuItem^  toolStripMenuItemFilePathOp
                     SB->Append(time_remain.ToString(L"D2"));
                 }
                 title = SB->ToString();
-            } else if (ENCODER_SVTAV1 && add_progress) {
+            } else if ((ENCODER_SVTAV1 || ENCODER_VVENC) && add_progress) {
                 StringBuilder ^SB = gcnew StringBuilder();
                 SB->Append(title);
                 DWORD time_remain = (DWORD)(time_elapsed * ((double)(total_frame - frame_n) / (double)frame_n)) / 1000;
-                //SB->Insert(0, L"[" + ProgressPercent + "] ");
+                if (ENCODER_VVENC) {
+                    SB->Insert(0, L"[" + ProgressPercent + "] ");
+                    SB->Append(L" ");
+                    SB->Append(frame_n);
+                    SB->Append(L"/");
+                    SB->Append(total_frame);
+                }
 
                 t = (int)(time_remain / 3600);
                 SB->Append(L", eta ");
