@@ -73,7 +73,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     j["version"] = CONF_NAME_JSON;
     
     // エンコーダ設定 (CONF_ENCは構造体なので、バイナリデータとして保存)
-#if ENCODER_SVTAV1 || ENCODER_VVENC
+#if ENCODER_SVTAV1 || ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC || ENCODER_VVENC
     auto cmd_buffer = char_to_tstring(old_conf->enc.cmd, CP_THREAD_ACP);
 #else
     TCHAR cmd_buffer[MAX_CMD_LEN] = { 0 };
@@ -101,16 +101,29 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"outext", tchar_to_string(char_to_tstring(old_conf->vid.outext, CP_THREAD_ACP), CP_UTF8)},
         {"incmd", tchar_to_string(char_to_tstring(old_conf->vid.incmd, CP_THREAD_ACP), CP_UTF8)},
 #endif
+#if ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+        {"codec_rgy", tchar_to_string(get_cx_desc(list_rgy_codec, old_conf->enc.codec_rgy), CP_UTF8)},
+        {"resize_enable", old_conf->vid.resize_enable},
+        {"resize_width", old_conf->vid.resize_width},
+        {"resize_height", old_conf->vid.resize_height},
+#endif
         {"cmd", tchar_to_string(cmd_buffer, CP_UTF8) }
     };
     
     // 旧ビデオ設定をJSONに変換（char文字列をUTF-8に変換）
+#if ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+    const char *cmdex = old_conf->enc.cmdex;
+#else
+    const char *cmdex = old_conf->vid.cmdex;
+#endif
     j["video"] = {
         {"afs", old_conf->vid.afs},
-        {"afs_bitrate_correction", old_conf->vid.afs_bitrate_correction},
         {"auo_tcfile_out", old_conf->vid.auo_tcfile_out},
+#if !(ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC)
+        {"afs_bitrate_correction", old_conf->vid.afs_bitrate_correction},
         {"priority", old_conf->vid.priority},
-#if !ENCODER_FFMPEG
+#endif
+#if ENCODER_X264 || ENCODER_X265 || ENCODER_SVTAV1
         {"stats", tchar_to_string(char_to_tstring(old_conf->vid.stats, CP_THREAD_ACP), CP_UTF8)},
 #endif
 #if ENABLE_AMP
@@ -130,7 +143,7 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
         {"parallel_div_info", tchar_to_string(char_to_tstring(old_conf->vid.parallel_div_info, CP_THREAD_ACP), CP_UTF8)},
         {"sync_process_affinity", old_conf->vid.sync_process_affinity},
 #endif
-        {"cmdex", tchar_to_string(char_to_tstring(old_conf->vid.cmdex, CP_THREAD_ACP), CP_UTF8)}
+        {"cmdex", tchar_to_string(char_to_tstring(cmdex, CP_THREAD_ACP), CP_UTF8)}
     };
     
     // オーディオ設定（変更なし）
@@ -194,7 +207,9 @@ std::string guiEx_config::old_conf_to_json(const CONF_GUIEX_OLD *old_conf) {
     };
 
     j["other"] = {
+#if !(ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC)
         {"disable_guicmd", old_conf->oth.disable_guicmd},
+#endif
         {"temp_dir", old_conf->oth.temp_dir},
         {"out_audio_only", old_conf->oth.out_audio_only},
         {"notes", tchar_to_string(char_to_tstring(old_conf->oth.notes, CP_THREAD_ACP), CP_UTF8)},
@@ -468,6 +483,12 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
         {"outext", tchar_to_string(conf->enc.outext, CP_UTF8)},
         {"incmd", tchar_to_string(conf->enc.incmd, CP_UTF8)},
 #endif
+#if ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+        {"codec_rgy", tchar_to_string(get_cx_desc(list_rgy_codec, conf->enc.codec_rgy), CP_UTF8)},
+        {"resize_enable", conf->enc.resize_enable},
+        {"resize_width", conf->enc.resize_width},
+        {"resize_height", conf->enc.resize_height},
+#endif
         {"cmd", cmd_enc}
     };
     
@@ -476,8 +497,9 @@ std::string guiEx_config::conf_to_json(const CONF_GUIEX *conf, int indent) {
     audio_to_json(j, conf->aud);
     mux_to_json(j, conf->mux);
     other_to_json(j, conf->oth);
-    
-    return j.dump(indent);
+
+    // indent < 0: 改行なし・空白最小 / indent >= 0: 整形 (0でも改行が入る点に注意)
+    return (indent < 0) ? j.dump(-1) : j.dump(indent);
 }
 
 // JSON文字列から設定を復元
@@ -532,6 +554,13 @@ bool guiEx_config::json_to_conf(CONF_GUIEX *conf, const std::string &json_str) {
             _tcscpy_s(conf->enc.outext, outext_tstr.c_str());
             auto incmd_tstr = char_to_tstring(enc.value("incmd", ""), CP_UTF8);
             _tcscpy_s(conf->enc.incmd, incmd_tstr.c_str());
+#endif
+#if ENCODER_QSV || ENCODER_NVENC || ENCODER_VCEENC
+            _tcscpy_s(conf->enc.cmd, cmd_str.c_str());
+            conf->enc.codec_rgy = (RGY_CODEC)get_cx_value(list_rgy_codec, char_to_tstring(enc.value("codec_rgy", ""), CP_UTF8).c_str());
+            conf->enc.resize_enable = enc.value("resize_enable", 0);
+            conf->enc.resize_width = enc.value("resize_width", 0);
+            conf->enc.resize_height = enc.value("resize_height", 0);
 #endif
         }
         
